@@ -15,7 +15,6 @@
         <ProjectPackage file="/usr/share/vala/vapi/glib-2.0.vapi" name="glib-2.0" IsProject="false" />
         <ProjectPackage file="/usr/share/vala/vapi/gee-1.0.vapi" name="gee-1.0" IsProject="false" />
         <ProjectPackage file="../../../yamldb/bin/Debug/yamldb.vapi" name="yamldb" IsProject="true" />
-        <ProjectPackage file="../../../yamldb/libyaml.vapi" name="libyaml" IsProject="true" />
       </Packages>
     </Packages>
   </PropertyGroup>
