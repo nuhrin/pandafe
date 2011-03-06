@@ -22,7 +22,7 @@
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\Debug</OutputPath>
     <CodeGeneration>
-      <CodeGeneration WarningLevel="Normal" WarningsAsErrors="false" OptimizationLevel="0" ExtraCompilerArguments=" --Xcc=\\\&quot;-I../../../yamldb/bin/Debug\\\&quot; --Xcc=\\\&quot;-L../../../yamldb/bin/Debug\\\&quot; --Xcc=\\\&quot;-lyamldb\\\&quot; " DefineSymbols="DEBUG MONODEVELOP" EnableMultithreading="false" ctype="ValaCompilationParameters" />
+      <CodeGeneration WarningLevel="Normal" WarningsAsErrors="false" OptimizationLevel="0" ExtraCompilerArguments="--save-temps --Xcc=\\\&quot;-I../../../yamldb/bin/Debug\\\&quot; --Xcc=\\\&quot;-L../../../yamldb/bin/Debug\\\&quot; --Xcc=\\\&quot;-lyamldb\\\&quot; " DefineSymbols="DEBUG MONODEVELOP" EnableMultithreading="false" ctype="ValaCompilationParameters" />
     </CodeGeneration>
     <SourceDirectory>.</SourceDirectory>
     <Output>
@@ -57,6 +57,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="main.vala" />
+    <Compile Include="Tests\TestSet.vala" />
+    <Compile Include="Tests\EnumerableTests.vala" />
+    <Compile Include="Tests\IndirectGenericsTests.vala" />
+    <Compile Include="Tests\DataInterfaceTests.vala" />
+    <Compile Include="Tests\TypeRuntimeTests.vala" />
+    <Compile Include="TestRunner.vala" />
+    <Compile Include="Options.vala" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
@@ -74,4 +81,8 @@
       </Properties>
     </MonoDevelop>
   </ProjectExtensions>
+  <ItemGroup>
+    <Folder Include="Tests\" />
+    <Folder Include="Tests\" />
+  </ItemGroup>
 </Project>
