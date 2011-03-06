@@ -1,37 +1,24 @@
-using YamlDB.Events;
+using Gee;
+using YamlDB;
+using YamlDB.Entity;
+using YamlDB.Yaml.Events;
+using YamlDB.Helpers;
 
 public class MainClass: Object {
-	public static int main (string[] args) {
-		string yaml = """!system
-Name: Nintendo
-PrimaryEmu: fceu
-Emulators:
-- fceu
-- mednafen""";
-
-		//EventReader reader = new EventReader.from_string(yaml);
-		EventReader reader = new EventReader(stdin);
-
-		//FileStream output = FileStream.open("test.yaml", "w");
-		EventEmitter emitter = new EventEmitter(stdout);
-
-
-		int count=0;
-		while(reader.move_next()) {
-			stdout.printf("%d: %s\n", count, reader.Current.to_string());
-			emitter.emit(reader.Current);
-			count++;
+	static Options options;
+	public static int main (string[] args)
+	{
+		try {
+			options = Options.parse(ref args);
+		} catch(OptionError e) {
+			print("%s\n", e.message);
+			return 1;
 		}
+		if (options.Testset != null)
+			TestRunner.run_requested_tests(options);
 
 
 
-//		Event event = reader.get<StreamStart>();
-//		//event = reader.get<DocumentStart>();
-//		reader.skip();
-//		event = reader.get<StreamEnd>();
-//		stdout.printf("%s\n", event.to_string());
-
-		stdout.printf("done.\n");
 		return 0;
 	}
 }
