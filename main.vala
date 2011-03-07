@@ -1,6 +1,5 @@
 using Gee;
 using YamlDB;
-using YamlDB.Entity;
 using YamlDB.Yaml.Events;
 using YamlDB.Helpers;
 

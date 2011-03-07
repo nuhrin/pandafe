@@ -1,5 +1,4 @@
 using YamlDB;
-using YamlDB.Entity;
 using Gee;
 
 namespace yayafe.Tests
