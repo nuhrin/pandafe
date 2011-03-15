@@ -65,6 +65,15 @@
     <Compile Include="Tests\TypeRuntimeTests.vala" />
     <Compile Include="TestRunner.vala" />
     <Compile Include="Options.vala" />
+    <Compile Include="Gui\Dialog.vala" />
+    <Compile Include="Data\ProgramDefinition\Option.vala" />
+    <Compile Include="Data\ProgramDefinition\ProgramDefinition.vala" />
+    <Compile Include="Data\ProgramDefinition\OptionSet.vala" />
+    <Compile Include="Data\ProgramDefinition\OptionPath.vala" />
+    <Compile Include="Data\ProgramDefinition\OptionSetState.vala" />
+    <Compile Include="Data\ProgramDefinition\OptionType\IOptionType.vala" />
+    <Compile Include="Data\ProgramDefinition\OptionData.vala" />
+    <Compile Include="Data\ProgramDefinition\ProgramArgument.vala" />
     <Compile Include="Tests\YamlDocumentTests.vala" />
   </ItemGroup>
   <ProjectExtensions>
@@ -85,5 +94,9 @@
   </ProjectExtensions>
   <ItemGroup>
     <Folder Include="Tests\" />
+    <Folder Include="Gui\" />
+    <Folder Include="Data\" />
+    <Folder Include="Data\ProgramDefinition\" />
+    <Folder Include="Data\ProgramDefinition\OptionType\" />
   </ItemGroup>
 </Project>
