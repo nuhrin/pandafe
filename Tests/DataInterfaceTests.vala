@@ -28,11 +28,12 @@ namespace yayafe.Tests
 		{
 			construct {
 				Emulators = new ArrayList<Emulator>();
+				EmuHash = new HashMap<Emulator, int>();
 			}
 			public DateTime Date { get; set; }
 			public Emulator PrimaryEmu { get; set; }
 			public Gee.List<Emulator> Emulators { get; set; }
-		//	public HashMap<Emulator,int> EmuHash { get; set; }
+			public HashMap<Emulator,int> EmuHash { get; set; }
 		}
 
 		void read()
@@ -59,6 +60,7 @@ namespace yayafe.Tests
 				foreach(var e in s.Emulators)
 				{
 					print("   -    Name: %s\n", e.Name);
+					print("        Date: %s\n", e.Date.to_string());
 					print("     ExePath: %s\n", e.ExePath);
 				}
 			}
@@ -79,10 +81,9 @@ namespace yayafe.Tests
 				index++;
 
 			}
-	//		nes.EmuHash = emuHash;
-			//nes.Date = new DateTime.now_local();
+			nes.EmuHash = emuHash;
 			nes.Date = new DateTime.now_local();
-			foreach(var emu in emus) {
+			foreach(var emu in nes.Emulators) {
 				emu.Date = new DateTime.now_local();
 				db.save(emu);
 			}

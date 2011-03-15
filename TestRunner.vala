@@ -12,6 +12,7 @@ public static class TestRunner {
 				_testsetHash["Enumerable"] = new EnumerableTests();
 				_testsetHash["IndirectGenerics"] = new IndirectGenericsTests();
 				_testsetHash["TypeRuntime"] = new TypeRuntimeTests();
+				_testsetHash["YamlDocument"] = new YamlDocumentTests();
 			}
 			return _testsetHash;
 		}

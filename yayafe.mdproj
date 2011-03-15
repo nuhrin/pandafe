@@ -12,7 +12,8 @@
     </compiler>
     <Packages>
       <Packages>
-        <ProjectPackage file="/usr/share/vala/vapi/glib-2.0.vapi" name="glib-2.0" IsProject="false" />
+        <ProjectPackage file="/usr/local/share/vala-0.12/vapi/glib-2.0.vapi" name="glib-2.0" IsProject="false" />
+        <ProjectPackage file="/usr/local/share/vala-0.12/vapi/gtk+-2.0.vapi" name="gtk+-2.0" IsProject="false" />
         <ProjectPackage file="/usr/share/vala/vapi/gee-1.0.vapi" name="gee-1.0" IsProject="false" />
         <ProjectPackage file="../../../yamldb/bin/Debug/yamldb.vapi" name="yamldb" IsProject="true" />
       </Packages>
@@ -64,6 +65,7 @@
     <Compile Include="Tests\TypeRuntimeTests.vala" />
     <Compile Include="TestRunner.vala" />
     <Compile Include="Options.vala" />
+    <Compile Include="Tests\YamlDocumentTests.vala" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
@@ -82,7 +84,6 @@
     </MonoDevelop>
   </ProjectExtensions>
   <ItemGroup>
-    <Folder Include="Tests\" />
     <Folder Include="Tests\" />
   </ItemGroup>
 </Project>
