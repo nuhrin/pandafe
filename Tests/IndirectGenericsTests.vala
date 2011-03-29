@@ -6,19 +6,19 @@ namespace yayafe.Tests
 {
 	public class IndirectGenericsTests : TestSet
 	{
-		string[] testNames = { "Map" };
+		string[] testNames = { "map" };
 		public override string[] TestNames { get { return testNames; } }
 
 		protected override TestMethod? GetTestMethod(string testName) {
 			switch(testName) {
-				case "Map":
-					return Map;
+				case "map":
+					return test_map;
 				default:
 					return null;
 			}
 		}
 
-		void Map() {
+		void test_map() {
 			var map = new HashMap<string,Foo>();
 			Type key_type = IndirectGenericsHelper.Gee.Map.key_type(map);
 			Type value_type = IndirectGenericsHelper.Gee.Map.value_type(map);
@@ -44,6 +44,5 @@ namespace yayafe.Tests
 				return "Foo: " + I.to_string() + ", " + S;
 			}
 		}
-
 	}
 }
