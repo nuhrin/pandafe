@@ -17,7 +17,9 @@ namespace yayafe.Tests
 					return null;
 			}
 		}
-
+		enum Status { NORMAL, NEW, FANCY }
+		[Flags]
+		enum Flags { A, B, C, D, E, F, G, H, I, J }
 		class Emulator : NamedEntity
 		{
 			public override string get_yaml_tag() { return "Emulator"; }
@@ -34,6 +36,8 @@ namespace yayafe.Tests
 			public Emulator PrimaryEmu { get; set; }
 			public Gee.List<Emulator> Emulators { get; set; }
 			public HashMap<Emulator,int> EmuHash { get; set; }
+			public Status status { get; set; }
+			public Flags flags { get; set; }
 		}
 
 		void read()
@@ -63,6 +67,7 @@ namespace yayafe.Tests
 					print("        Date: %s\n", e.Date.to_string());
 					print("     ExePath: %s\n", e.ExePath);
 				}
+				print("      flags: %d\n", s.flags);
 			}
 		}
 
@@ -74,6 +79,7 @@ namespace yayafe.Tests
 			DataInterface db = new DataInterface(data_folder);
 			var emus = db.load_all<Emulator>();
 			System nes = new System() { Name="Nes", PrimaryEmu = emus.first(), Emulators = emus.to_list() };
+			nes.flags = Flags.C;// | Flags.A | Flags.H;
 			var emuHash = new HashMap<Emulator,int>();
 			var index = 0;
 			foreach(var emu in emus) {
