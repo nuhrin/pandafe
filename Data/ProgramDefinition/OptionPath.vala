@@ -61,13 +61,7 @@ namespace yayafe.Data.ProgramDefinition
 		internal Gee.List<OptionPath> ChildPaths { get; set; }
 
 		// Options related
-		public int OptionCount { get { return Options.size; } }
-		public Option get_option_at(int index) { return Options[index]; }
-		public int index_of_option(Option option) { return Options.index_of(option); }
-		public bool add_option(Option option) { return Options.add(option); }
-		public Option remove_option_at(int index) { return Options.remove_at(index); }
-
-		internal Gee.List<Option> Options { get; set; }
+		public Gee.List<Option> Options { get; private set; }
 
 	}
 }

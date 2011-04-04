@@ -26,18 +26,15 @@ public class ProgramDefinition : NamedEntity
 	}
 
 	// ProgramArgument related
+	public Gee.List<ProgramArgument> Arguments { get; private set; }
 	public int PrimaryArgumentIndex {
 		get { return primaryArgumentIndex; }
 		set {
-			if (value < 0 || value >= ArgumentCount)
+			if (value < 0 || value >= Arguments.size)
 				return;
 			primaryArgumentIndex = value;
 		}
 	}
 	int primaryArgumentIndex;
-	internal ProgramArgument? get_primary_argument() { return (primaryArgumentIndex < 0 || primaryArgumentIndex >= ArgumentCount) ? null : Arguments[primaryArgumentIndex]; }
-	public int ArgumentCount { get { return Arguments.size; } }
-	public ProgramArgument get_argument_at(int index) { return Arguments[index]; }
-
-	internal Gee.List<ProgramArgument> Arguments { get; set; }
+	internal ProgramArgument? get_primary_argument() { return (primaryArgumentIndex < 0 || primaryArgumentIndex >= Arguments.size) ? null : Arguments[primaryArgumentIndex]; }
 }

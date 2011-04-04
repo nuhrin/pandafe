@@ -2,9 +2,9 @@ using YamlDB;
 
 namespace yayafe.Data.ProgramDefinition
 {
-	public class OptionSet : Object
+	public class OptionSet
 	{
-		construct {
+		public OptionSet() {
 			RootPath = new OptionPath() { Name = "Root", Description = "Top level path" };
 		}
 		public OptionPath RootPath { get; internal set; }
