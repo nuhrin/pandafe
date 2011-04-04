@@ -65,7 +65,6 @@
     <Compile Include="Tests\TypeRuntimeTests.vala" />
     <Compile Include="TestRunner.vala" />
     <Compile Include="Options.vala" />
-    <Compile Include="Gui\Dialog.vala" />
     <Compile Include="Data\ProgramDefinition\Option.vala" />
     <Compile Include="Data\ProgramDefinition\ProgramDefinition.vala" />
     <Compile Include="Data\ProgramDefinition\OptionSet.vala" />
@@ -75,6 +74,20 @@
     <Compile Include="Data\ProgramDefinition\OptionData.vala" />
     <Compile Include="Data\ProgramDefinition\ProgramArgument.vala" />
     <Compile Include="Tests\YamlDocumentTests.vala" />
+    <Compile Include="Gui\DialogBuilder.vala" />
+    <Compile Include="Gui\Fields\Field.vala" />
+    <Compile Include="Gui\Fields\BooleanField.vala" />
+    <Compile Include="Gui\Fields\StringField.vala" />
+    <Compile Include="Gui\Fields\LabeledField.vala" />
+    <Compile Include="Gui\Fields\IntegerField.vala" />
+    <Compile Include="Gui\GuiEntity.vala" />
+    <Compile Include="Gui\DialogReader.vala" />
+    <Compile Include="Gui\Fields\Fieldset.vala" />
+    <Compile Include="Gui\EntityDialog.vala" />
+    <Compile Include="Gui\Fields\EntityReferenceField.vala" />
+    <Compile Include="Gui\Fields\EnumField.vala" />
+    <Compile Include="Gui\Fields\ValueSelectionField.vala" />
+    <Compile Include="Gui\Fields\DoubleField.vala" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
@@ -98,5 +111,6 @@
     <Folder Include="Data\" />
     <Folder Include="Data\ProgramDefinition\" />
     <Folder Include="Data\ProgramDefinition\OptionType\" />
+    <Folder Include="Gui\Fields\" />
   </ItemGroup>
 </Project>
