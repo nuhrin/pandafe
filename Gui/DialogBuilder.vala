@@ -47,6 +47,13 @@ namespace yayafe.Gui
 			labeledFields.add(field);
 			return field;
 		}
+		public FlagsField add_flags(string name, string? label=null, Value flags_value)
+			requires(flags_value.type().is_flags())
+		{
+			var field = new FlagsField(name, label, flags_value);
+			labeledFields.add(field);
+			return field;
+		}
 
 		public void add_object_properties(Object obj) {
 			unowned ObjectClass klass = obj.get_class();
@@ -86,6 +93,8 @@ namespace yayafe.Gui
 				return add_bool(property.name, GetPropertyLabel(property), (bool)value);
 			if (type.is_enum())
 				return add_enum(property.name, GetPropertyLabel(property), value);
+			if (type.is_flags())
+				return add_flags(property.name, GetPropertyLabel(property), value);
 			var intProp = property as ParamSpecInt;
 			if (intProp != null)
 				return add_int(property.name, GetPropertyLabel(property), (int)value, intProp.minimum, intProp.maximum);
