@@ -88,6 +88,11 @@
     <Compile Include="Gui\Fields\EnumField.vala" />
     <Compile Include="Gui\Fields\ValueSelectionField.vala" />
     <Compile Include="Gui\Fields\DoubleField.vala" />
+    <Compile Include="Gui\Fields\ValueMultipleSelectionField.vala" />
+    <Compile Include="Gui\Fields\FlagsField.vala" />
+    <Compile Include="Gui\Widgets\ComboButton.vala" />
+    <Compile Include="Gui\GdkKeySyms.vapi" />
+    <Compile Include="VapiPatch\gobject.vapi" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
@@ -112,5 +117,6 @@
     <Folder Include="Data\ProgramDefinition\" />
     <Folder Include="Data\ProgramDefinition\OptionType\" />
     <Folder Include="Gui\Fields\" />
+    <Folder Include="Gui\Widgets\" />
   </ItemGroup>
 </Project>
