@@ -63,6 +63,7 @@ namespace yayafe.Gui.Fields
 			get {
 				if (_combo_box == null) {
 					_combo_box = new ComboBox();
+					//_combo_box.set_property("appears-as-list", true);
 					_combo_box.changed.connect(() => this.changed());
 				}
 				return _combo_box;
@@ -73,7 +74,7 @@ namespace yayafe.Gui.Fields
 			get {
 				if (_list_store == null) {
 					_list_store = new ListStore(2, typeof(string), value_type);
-					combo_box.set_model(list_store);
+					combo_box.set_model(_list_store);
 					var cell = new CellRendererText();
 					combo_box.pack_start(cell, true);
 					combo_box.add_attribute(cell, "text", 0);
