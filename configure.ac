@@ -1,0 +1,40 @@
+AC_INIT([yayafe], m4_esyscmd([build-aux/git-version-gen .tarball-version]), [nuhrin@oceanic.to], [yayafe])
+AC_CONFIG_SRCDIR([Makefile.am])
+AC_CONFIG_AUX_DIR([build-aux])
+AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_MACRO_DIR([m4])
+AM_INIT_AUTOMAKE([no-dist-gzip dist-bzip2])
+
+m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
+
+AM_MAINTAINER_MODE
+
+# Checks for programs.
+AC_PROG_CC
+AM_PROG_CC_C_O
+
+AM_PROG_VALAC([0.11.0])
+AC_SUBST(VALAC)
+AC_SUBST(VALAFLAGS)
+
+GLIB_REQUIRED=2.16.0
+PKG_CHECK_MODULES(GLIB, glib-2.0 >= $GLIB_REQUIRED gobject-2.0 >= $GLIB_REQUIRED)
+AC_SUBST(GLIB_CFLAGS)
+AC_SUBST(GLIB_LIBS)
+
+GTK_REQUIRED=2.18
+PKG_CHECK_MODULES(GTK, gtk+-2.0 >= $GTK_REQUIRED)
+AC_SUBST(GTK_CFLAGS)
+AC_SUBST(GTK_LIBS)
+
+GEE_REQUIRED=0.6.1
+PKG_CHECK_MODULES(GEE, gee-1.0 >= $GEE_REQUIRED)
+AC_SUBST(GEE_CFLAGS)
+AC_SUBST(GEE_LIBS)
+
+AC_CONFIG_FILES([
+	Makefile
+	src/Makefile
+	vapi/Makefile
+])
+AC_OUTPUT
