@@ -46,10 +46,10 @@ public class MainClass: Object {
 			print("%s\n", e.message);
 			return 1;
 		}
-		if (options.Testset != null) {
-			TestRunner.run_requested_tests(options);
-			return 0;
-		}
+//		if (options.Testset != null) {
+//		TestRunner.run_requested_tests(options);
+//		return 0;
+//		}
 
 
 		Gtk.init(ref args);
