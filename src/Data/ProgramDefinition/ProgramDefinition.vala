@@ -1,5 +1,7 @@
 using Gee;
 using YamlDB;
+using YamlDB.Helpers;
+
 using yayafe.Data.ProgramDefinition;
 
 public class ProgramDefinition : NamedEntity
@@ -11,6 +13,7 @@ public class ProgramDefinition : NamedEntity
 		ListValueDelimiter = "";
 		Arguments = new ArrayList<ProgramArgument>();
 	}
+
 	public string Version { get; set; }
 	internal OptionSet OptionSet { get; private set; }
 	public OptionSetState DefaultOptionState { get; private set; }
@@ -37,4 +40,9 @@ public class ProgramDefinition : NamedEntity
 	}
 	int primaryArgumentIndex;
 	internal ProgramArgument? get_primary_argument() { return (primaryArgumentIndex < 0 || primaryArgumentIndex >= Arguments.size) ? null : Arguments[primaryArgumentIndex]; }
+
+	protected override string generate_id() {
+		string id = Name + "_" + Version;
+		return RegexHelper.NonWordCharacters.replace(id, "").down();
+	}
 }
