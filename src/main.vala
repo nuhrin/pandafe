@@ -19,7 +19,7 @@ public class MainClass: Object {
 //		return 0;
 //		}
 
-		yayafe.libpndtest.test_search();
+		pandafe.libpndtest.test_search();
 		return 0;
 
 		Gtk.init(ref args);

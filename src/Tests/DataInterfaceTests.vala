@@ -1,7 +1,7 @@
 using Catapult;
 using Gee;
 
-namespace yayafe.Tests
+namespace pandafe.Tests
 {
 	public class DataInterfaceTests : TestSet
 	{
@@ -49,7 +49,7 @@ namespace yayafe.Tests
 	//
 	//		print("%d\n", foo.Emulators.count());
 			//string config_folder = Environment.get_user_config_dir();
-			//string data_folder = Path.build_filename(config_folder, "yayafe");
+			//string data_folder = Path.build_filename(config_folder, "pandafe");
 			string data_folder = "DataInterfaceTest";
 			DataInterface db = new DataInterface(data_folder);
 			//var emus = db.load_all<Emulator>();
@@ -74,7 +74,7 @@ namespace yayafe.Tests
 		void write()
 		{
 			//string config_folder = Environment.get_user_config_dir();
-			//string data_folder = Path.build_filename(config_folder, "yayafe");
+			//string data_folder = Path.build_filename(config_folder, "pandafe");
 			string data_folder = "DataInterfaceTest";
 			DataInterface db = new DataInterface(data_folder);
 			var emus = db.load_all<Emulator>();

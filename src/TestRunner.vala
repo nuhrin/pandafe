@@ -1,4 +1,4 @@
-using yayafe.Tests;
+using pandafe.Tests;
 using Gee;
 
 public static class TestRunner {

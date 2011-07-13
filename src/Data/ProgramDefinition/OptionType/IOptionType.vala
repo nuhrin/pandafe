@@ -1,7 +1,7 @@
 using Gtk;
 using Catapult;
 
-namespace yayafe.Data.ProgramDefinition.OptionType
+namespace pandafe.Data.ProgramDefinition.OptionType
 {
 	public interface IOptionType : IYamlObject
 	{

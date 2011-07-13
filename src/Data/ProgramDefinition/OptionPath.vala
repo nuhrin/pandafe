@@ -1,7 +1,7 @@
 using Catapult;
 using Gee;
 
-namespace yayafe.Data.ProgramDefinition
+namespace pandafe.Data.ProgramDefinition
 {
 	public class OptionPath : Object
 	{

@@ -5,13 +5,13 @@ AM_CPPFLAGS = \
 	$(PANDORA_GLIB_CFLAGS) \
 	$(NULL)
 
-BUILT_SOURCES = yayafe.vala.stamp
+BUILT_SOURCES = pandafe.vala.stamp
 
 bin_PROGRAMS = \
-	yayafe \
+	pandafe \
 	$(NULL)
 
-yayafe_VALASOURCES = \
+pandafe_VALASOURCES = \
 	main.vala \
 	libpndtest.vala \
 	Options.vala \
@@ -27,22 +27,22 @@ yayafe_VALASOURCES = \
 	Data/ProgramDefinition/ProgramDefinition.vala \
 	$(NULL)
 
-yayafe_SOURCES = \
-	yayafe.vala.stamp \
-	$(yayafe_VALASOURCES:.vala=.c) \
+pandafe_SOURCES = \
+	pandafe.vala.stamp \
+	$(pandafe_VALASOURCES:.vala=.c) \
 	$(NULL)
 
-yayafe.vala.stamp: $(yayafe_VALASOURCES)
-	$(VALA_V)$(VALAC) $(VALAFLAGS) -C --vapidir $(srcdir)/../vapi --pkg catapult-gui --pkg catapult --pkg pandora-glib --pkg gee-1.0 --pkg gtk+-2.0 --pkg config --pkg GdkKeySyms --pkg pnd $^
+pandafe.vala.stamp: $(pandafe_VALASOURCES)
+	$(VALA_V)$(VALAC) $(VALAFLAGS) -C --vapidir $(srcdir)/../vapi --pkg catapult-gui --pkg catapult --pkg pandora-glib --pkg gee-1.0 --pkg gtk+-2.0 --pkg config --pkg GdkKeySyms $^
 	@touch $@
 
-yayafe_LDADD = \
+pandafe_LDADD = \
 	$(CATAPULT_GUI_LIBS) \
 	$(PANDORA_GLIB_LIBS) \
 	$(NULL)
 
-EXTRA_DIST = $(yayafe_VALASOURCES) yayafe.vala.stamp
+EXTRA_DIST = $(pandafe_VALASOURCES) pandafe.vala.stamp
 
 MAINTAINERCLEANFILES = \
-  $(yayafe_VALASOURCES:.vala=.c) \
+  $(pandafe_VALASOURCES:.vala=.c) \
   $(NULL)

@@ -2,7 +2,7 @@ using Catapult;
 using Catapult.Helpers;
 using Gee;
 
-namespace yayafe.Tests
+namespace pandafe.Tests
 {
 	public class IndirectGenericsTests : TestSet
 	{

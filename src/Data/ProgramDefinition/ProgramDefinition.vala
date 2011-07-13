@@ -2,12 +2,12 @@ using Gee;
 using Catapult;
 using Catapult.Helpers;
 
-using yayafe.Data.ProgramDefinition;
+using pandafe.Data.ProgramDefinition;
 
 public class ProgramDefinition : NamedEntity
 {
 	construct {
-		OptionSet = new yayafe.Data.ProgramDefinition.OptionSet();
+		OptionSet = new pandafe.Data.ProgramDefinition.OptionSet();
 		DefaultOptionState = new OptionSetState();
 		OptionValueDelimiter = "";
 		ListValueDelimiter = "";

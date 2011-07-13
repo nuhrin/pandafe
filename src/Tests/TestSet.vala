@@ -1,6 +1,6 @@
 using Catapult;
 
-namespace yayafe.Tests
+namespace pandafe.Tests
 {
 	public delegate void TestMethod();
 	public abstract class TestSet : Object

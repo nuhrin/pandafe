@@ -1,7 +1,7 @@
 using Catapult;
 using Gee;
 
-namespace yayafe.Tests
+namespace pandafe.Tests
 {
 	public class EnumerableTests : TestSet
 	{

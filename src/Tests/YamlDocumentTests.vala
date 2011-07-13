@@ -1,7 +1,7 @@
 using Catapult;
 using Catapult.Yaml;
 
-namespace yayafe.Tests
+namespace pandafe.Tests
 {
 	public class YamlDocumentTests : TestSet
 	{

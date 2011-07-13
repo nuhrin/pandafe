@@ -1,7 +1,7 @@
 using Catapult;
-using yayafe.Data.ProgramDefinition.OptionType;
+using pandafe.Data.ProgramDefinition.OptionType;
 
-namespace yayafe.Data.ProgramDefinition
+namespace pandafe.Data.ProgramDefinition
 {
 	public class Option : Object
 	{

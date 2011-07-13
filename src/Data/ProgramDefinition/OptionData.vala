@@ -1,7 +1,7 @@
 using Gee;
 using Catapult;
 
-namespace yayafe.Data.ProgramDefinition
+namespace pandafe.Data.ProgramDefinition
 {
 	public class OptionData : Object
 	{

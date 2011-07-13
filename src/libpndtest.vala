@@ -1,5 +1,5 @@
 using Pandora;
-namespace yayafe.libpndtest
+namespace pandafe.libpndtest
 {
 	public void test_search() {
 		//print_all_apps();
