@@ -1,5 +1,5 @@
 using Gee;
-using YamlDB;
+using Catapult;
 
 public enum PlatformType {
 	ROM,

@@ -1,5 +1,5 @@
 using Gtk;
-using YamlDB;
+using Catapult;
 
 namespace yayafe.Data.ProgramDefinition.OptionType
 {

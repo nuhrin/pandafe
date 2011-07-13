@@ -1,5 +1,5 @@
-using YamlDB;
-using YamlDB.Yaml;
+using Catapult;
+using Catapult.Yaml;
 
 namespace yayafe.Tests
 {
@@ -69,8 +69,8 @@ namespace yayafe.Tests
 		}
 
 		static void add_mapping(OrderedMappingSet mapping, string key, string value) {
-			YamlDB.Yaml.Node keyNode = new ScalarNode(null, null, key);
-			YamlDB.Yaml.Node valueNode = new ScalarNode(null, null, value);
+			Catapult.Yaml.Node keyNode = new ScalarNode(null, null, key);
+			Catapult.Yaml.Node valueNode = new ScalarNode(null, null, value);
 			mapping[keyNode] = valueNode;
 
 		}

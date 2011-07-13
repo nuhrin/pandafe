@@ -1,7 +1,7 @@
 NULL =
 
 AM_CPPFLAGS = \
-	$(YAMLDB_GUI_CFLAGS) \
+	$(CATAPULT_GUI_CFLAGS) \
 	$(PANDORA_GLIB_CFLAGS) \
 	$(NULL)
 
@@ -33,11 +33,11 @@ yayafe_SOURCES = \
 	$(NULL)
 
 yayafe.vala.stamp: $(yayafe_VALASOURCES)
-	$(VALA_V)$(VALAC) $(VALAFLAGS) -C --vapidir $(srcdir)/../vapi --pkg yamldb-gui --pkg yamldb --pkg pandora-glib --pkg gee-1.0 --pkg gtk+-2.0 --pkg config --pkg GdkKeySyms --pkg pnd $^
+	$(VALA_V)$(VALAC) $(VALAFLAGS) -C --vapidir $(srcdir)/../vapi --pkg catapult-gui --pkg catapult --pkg pandora-glib --pkg gee-1.0 --pkg gtk+-2.0 --pkg config --pkg GdkKeySyms --pkg pnd $^
 	@touch $@
 
 yayafe_LDADD = \
-	$(YAMLDB_GUI_LIBS) \
+	$(CATAPULT_GUI_LIBS) \
 	$(PANDORA_GLIB_LIBS) \
 	$(NULL)
 

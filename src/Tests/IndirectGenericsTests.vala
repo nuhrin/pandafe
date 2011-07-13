@@ -1,5 +1,5 @@
-using YamlDB;
-using YamlDB.Helpers;
+using Catapult;
+using Catapult.Helpers;
 using Gee;
 
 namespace yayafe.Tests
