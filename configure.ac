@@ -25,6 +25,21 @@ PKG_CHECK_MODULES(PANDORA_GLIB, pandora-glib);
 AC_SUBST(PANDORA_GLIB_CFLAGS)
 AC_SUBST(PANDORA_GLIB_LIBS)
 
+PKG_CHECK_MODULES(SDL, sdl);
+AC_SUBST(SDL_CFLAGS)
+AC_SUBST(SDL_LIBS)
+
+have_sdl_ttf=no
+AC_SEARCH_LIBS([TTF_Init], [SDL_ttf], [have_sdl_ttf=yes])
+if test "x${have_sdl_ttf}" = xyes; then
+  AC_CHECK_HEADERS([SDL/SDL_ttf.h], [], [have_sdl_ttf=no])
+fi
+if test "x${have_sdl_ttf}" = xno; then
+  AC_MSG_ERROR([libSDL_ttf not found.])
+fi
+SDL_TTF_LIBS="$LIBS"
+AC_SUBST(SDL_TTF_LIBS)
+
 AC_CONFIG_FILES([
 	Makefile
 	src/Makefile

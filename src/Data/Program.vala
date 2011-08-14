@@ -2,40 +2,82 @@ using Catapult;
 using Catapult.Gui;
 using Catapult.Gui.Fields;
 using Catapult.Gui.Fieldsets;
+using Fields;
 
-public class Program : NamedEntity, GuiEntity
+namespace Data
 {
-	public string pnd_id { get; set; }
-	public string pnd_app_id { get; set; }
-	public string exe_path { get; set; }
+	public class Program : Object, GuiEntity
+	{
+		public string name { get; set; }
+		public string pnd_id { get; set; }
+		public string pnd_app_id { get; set; }
+		public string command { get; set; }
 
-	public string options { get; set; }
-	public uint clockspeed { get; set; }
+		public string arguments { get; set; }
+		public uint clockspeed { get; set; }
 
-	protected void populate_field_container(FieldContainer container) {
-		var notebook = new NotebookFieldset("kupo");
-		var page = notebook.add_page("page1", "Neat Page", false, 0);
-		var page2 = notebook.add_page("page2", "Empty Page", false, 0);
-		var frame = new FrameFieldset(this.Name ?? "new Program", "Program Fields", false, 8);
-		page.add_field(frame);
-		frame.add_string("Name", "_Name", this.Name);
+		protected void populate_field_container(FieldContainer container) {
+			// add Program frame
+			var program_frame = new FrameFieldset("ProgramFrame", "Program");
+			program_frame.add_string("name", "_Name", this.name);
 
-		frame.add_object_properties(this);
-		container.add_field(notebook);
-	}
+			var pndData = Data.pnd_data();
+			pnd_id_field = new PndSelectionField(pndData, "pnd_id", "_Pnd", pnd_id);
+			program_frame.add_field(pnd_id_field);
+			app_id_field = new PndAppSelectionField(pndData, "pnd_app_id", "Pnd _App", pnd_id, pnd_app_id);
+			program_frame.add_field(app_id_field);
 
-	protected void apply_fieldset(Fieldset fieldset) {
-		var fields = fieldset.value_fields();
-		foreach(var field in fields) {
-			if (field.has_changes()) {
-				debug("setting program field %s", field.id);
-				this.set_property(field.id, field.value);
+			command_field = program_frame.add_string("command", "_Command", command ?? "");
+			container.add_field(program_frame);
+
+			// add Options frame
+			var options_frame = new FrameFieldset("OptionsFrame", "Options");
+
+			arguments_field = options_frame.add_string("arguments", "_Arguments", arguments ?? "");
+			clockspeed_field = new ClockspeedField("clockspeed", "_Clockspeed", clockspeed);
+			options_frame.add_field(clockspeed_field);
+
+			container.add_field(options_frame);
+
+			initialize_fields();
+		}
+		void initialize_fields() {
+			pnd_id_field.changed.connect(() => {
+				var pnd_id = pnd_id_field.value;
+				app_id_field.reload(pnd_id);
+				app_id_field.sensitive = (pnd_id != "");
+			});
+			if (pnd_id == "")
+				app_id_field.sensitive = false;
+			app_id_field.changed.connect(() => update_fields_from_app(true));
+
+			update_fields_from_app(false);
+		}
+		void update_fields_from_app(bool replace) {
+			var app = app_id_field.get_selected_app();
+			command_field.sensitive = (app == null);
+			if (app != null) {
+				command_field.sensitive = false;
+				if (replace == true || command_field.value == "")
+					command_field.value = app.exec_command ?? "";
+				if (replace == true || arguments_field.value == "")
+					arguments_field.value = app.exec_arguments ?? "";
+				if (replace == true || clockspeed_field.enabled == false) {
+					if (app.clockspeed == 0) {
+						clockspeed_field.enabled = false;
+					} else {
+						clockspeed_field.enabled = true;
+						clockspeed_field.value = app.clockspeed;
+					}
+				}
+			} else {
+				command_field.sensitive = true;
 			}
 		}
+		PndSelectionField pnd_id_field;
+		PndAppSelectionField app_id_field;
+		StringField command_field;
+		StringField arguments_field;
+		ClockspeedField clockspeed_field;
 	}
-
-	protected Field get_reference_selection_field(DataInterface data_interface, string id, string? label) {
-		return new EntityReferenceField(data_interface, id, label, typeof(Program), (Name != null) ? this : null);
-	}
-
 }
