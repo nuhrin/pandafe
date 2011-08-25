@@ -5,14 +5,18 @@ public abstract class Selector : Object
 {
 	const int DEPTH = 32;
 	const int16 ITEM_SPACING = 5;
-	const Color ITEM_COLOR = {255, 255, 255};
-	const Color SELECTED_ITEM_COLOR = {0, 100, 255};
 	Surface surface;
 	unowned Font font;
 	unowned PixelFormat format;
 	int font_height;
 	int surface_width;
 	int visible_items;
+	uint32 background_color_rgb;
+	Color background_color;
+	Color item_color;
+	Color selected_item_color;
+	int index_before_select_first;
+	int index_before_select_last;
 
 	protected Selector(PixelFormat* format, Font* font, int width, int visible_items) {
 		this.format = format;
@@ -20,9 +24,25 @@ public abstract class Selector : Object
 		font_height = (int16)this.font.height();
 		surface_width = width;
 		this.visible_items = visible_items;
+		update_colors();
 		selected_index = -1;
+		index_before_select_first = -1;
+		index_before_select_last = -1;
 	}
 	public int selected_index { get; private set; }
+
+	public void update_colors() {
+		var preferences = Data.preferences();
+		background_color = preferences.background_color_sdl();
+		background_color_rgb = format.map_rgb(background_color.r, background_color.g, background_color.b);
+		item_color = preferences.item_color_sdl();
+		selected_item_color = preferences.selected_item_color_sdl();
+
+		surface = null;
+	}
+	public void update_font(Font* font) {
+		this.font = font;
+	}
 
 	public void blit_to(Surface other, int16 x, int16 y) {
 		ensure_surface();
@@ -74,20 +94,50 @@ public abstract class Selector : Object
 		return select_item(index);
 	}
 
+	public bool select_first() {
+		if (index_before_select_first != -1)
+			return select_item(index_before_select_first);
+
+		int index = selected_index;
+		if (select_item(0) == false)
+			return false;
+
+		index_before_select_first = index;
+		return true;
+	}
+	public bool select_last() {
+		if (index_before_select_last != -1)
+			return select_item(index_before_select_last);
+
+		int last_index = get_item_count() - 1;
+		if (last_index < 0)
+			return false;
+
+		int index = selected_index;
+		if (select_item(last_index) == false)
+			return false;
+
+		index_before_select_last = index;
+		return true;
+	}
+
 	public bool select_item(int index) {
 		int16 offset = get_item_offset(index);
 		if (offset == -1)
 			return false;
 
+		index_before_select_first = -1;
+		index_before_select_last = -1;
+
 		ensure_surface();
 
 		if (selected_index != -1) {
 			Rect oldrect = {0, get_item_offset(selected_index)};
-			font.render_blended(get_item_name(selected_index), ITEM_COLOR).blit(null, surface, oldrect);
+			font.render_blended(get_item_name(selected_index), item_color).blit(null, surface, oldrect);
 		}
 		Rect rect = {0, offset};
-		font.render_blended(get_item_name(index), {0,0,0}).blit(null, surface, rect);
-		font.render_blended(get_item_name(index), SELECTED_ITEM_COLOR).blit(null, surface, rect);
+		font.render_blended(get_item_name(index), background_color).blit(null, surface, rect);
+		font.render_blended(get_item_name(index), selected_item_color).blit(null, surface, rect);
 
 		surface.flip();
 		selected_index = index;
@@ -112,11 +162,12 @@ public abstract class Selector : Object
 		int font_height = font.height();
 		int height = (font_height * surface_items) + (ITEM_SPACING * surface_items) + (ITEM_SPACING * 2);
 		surface = new Surface.RGB(SurfaceFlag.SWSURFACE, this.surface_width, height, DEPTH, format.Rmask, format.Gmask, format.Bmask, format.Amask);
+		surface.fill(null, background_color_rgb);
 
 		Rect rect = {0, ITEM_SPACING};
 		for(int index=0; index < item_count; index++) {
 			var name = get_item_name(index);
-			var text = font.render_blended(name, ITEM_COLOR);
+			var text = font.render_blended(name, (selected_index == index) ? selected_item_color : item_color);
 			text.blit(null, surface, rect);
 			rect.y = (int16)(rect.y + font_height + ITEM_SPACING);
 		}

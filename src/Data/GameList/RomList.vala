@@ -8,13 +8,22 @@ namespace Data.GameList
 		string root_folder_name;
 		string root_folder_path;
 
-		public RomList(string name, string root_folder_path, string filespec) {
+		public RomList(Platform platform, string name, string root_folder_path, string filespec) {
+			base(platform);
 			root_folder_name = name;
 			this.root_folder_path = root_folder_path;
 			patterns = new PatternSpecSet(filespec);
 		}
 
-		public override bool run_game(GameItem game) { return false; }
+		public override uint run_game(GameItem game) {
+			var program = platform.default_program;
+			if (program == null) {
+				debug("No program found to run '%s'.", game.name);
+				return -1;
+			}
+
+			return run_program_with_premount(program, null, get_full_path(game));
+		}
 
 		public override string get_unique_id(GameListNode node) {
 			return get_relative_path(node);
@@ -81,8 +90,9 @@ namespace Data.GameList
 			public PatternSpecSet(string spec) {
 				var spec_set = spec.split_set(";, ");
 				patterns = new PatternSpec[spec_set.length];
-				for(int index=0;index<spec_set.length;index++)
+				for(int index=0;index<spec_set.length;index++) {
 					patterns[index] = new PatternSpec(spec_set[index]);
+				}
 			}
 			public bool match (uint string_length, string str, string? str_reversed)
 			{

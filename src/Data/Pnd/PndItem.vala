@@ -23,7 +23,7 @@ namespace Data.Pnd
 		public string pnd_id { get; set; }
 		public string filename { get; set; }
 		public string path { get; set; }
-		public string fullpath() { return path + filename; }
+		public string get_fullpath() { return path + filename; }
 
 		public Enumerable<AppItem> apps { get; private set; }
 

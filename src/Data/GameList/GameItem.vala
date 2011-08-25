@@ -6,7 +6,7 @@ namespace Data.GameList
 			base(name, provider, parent, id);
 		}
 
-		public bool run() { return provider.run_game(this); }
+		public uint run() { return provider.run_game(this); }
 
 	}
 }

@@ -21,7 +21,7 @@ namespace Fields
 		}
 
 		public AppItem? get_selected_app() {
-			return data.get_app(value);
+			return data.get_app(value ?? "");
 		}
 
 		public void reload(string? pnd_id) {

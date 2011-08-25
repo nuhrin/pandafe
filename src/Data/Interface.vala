@@ -7,6 +7,7 @@ namespace Data
 	public DataInterface data_interface() { return Interface.instance().data_interface; }
 
 	public Gee.List<Platform> platforms() { return Interface.instance().get_platforms(); }
+	public void flush_platforms() { Interface.instance().flush_platforms(); }
 
 	public Preferences preferences() { return Interface.instance().get_preferences(); }
 	public bool save_preferences() { return Interface.instance().save_preferences(); }
@@ -15,8 +16,9 @@ namespace Data
 	public bool save_browser_state() { return Interface.instance().save_browser_state(); }
 
 	public PndData pnd_data() { return Interface.instance().get_pnd_data(); }
-	public PndData rescan_pnd_data(string? overrides_path=null) { return Interface.instance().rescan_pnd_data(overrides_path); }
+	public PndData rescan_pnd_data() { return Interface.instance().rescan_pnd_data(); }
 
+	public MountSet pnd_mountset() { return Interface.instance().get_mountset(); }
 
 	public class Interface
 	{
@@ -111,6 +113,10 @@ namespace Data
 		}
 		Gee.List<Platform> _platforms;
 
+		public void flush_platforms() {
+			_platforms = null;
+		}
+
 		public PndData get_pnd_data() {
 			if (_pnd_data == null) {
 				try {
@@ -125,11 +131,18 @@ namespace Data
 			return _pnd_data;
 		}
 		PndData _pnd_data;
-		public PndData rescan_pnd_data(string? overrides_path=null) {
+		public PndData rescan_pnd_data() {
 			_pnd_data = new PndData(data_interface);
-			_pnd_data.rescan(overrides_path);
+			_pnd_data.rescan();
 			return _pnd_data;
 		}
+
+		public MountSet get_mountset() {
+			if (_mountset_config == null)
+				_mountset_config = new MountSet();
+			return _mountset_config;
+		}
+		MountSet _mountset_config;
 
 	}
 }

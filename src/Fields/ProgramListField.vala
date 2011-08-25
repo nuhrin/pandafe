@@ -36,7 +36,7 @@ namespace Fields
 		protected override bool on_edit_button_pressed(Program item) {
 			bool retVal = false;
 			try {
-				retVal = EntityDialog.edit<Program>(Data.data_interface(), item);
+				retVal = EntityDialog.edit_object(Data.data_interface(), item, "Program", item.name);
 			} catch (Error e) {
 				debug("Error while editing Program: %s", e.message);
 			}

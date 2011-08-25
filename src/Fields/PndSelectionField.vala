@@ -25,10 +25,10 @@ namespace Fields
 			return data.get_pnd(value);
 		}
 
-		public void rescan(string? overrides_path=null) {
+		public void rescan() {
 			var selected_id = value;
 			clear_items();
-			data.rescan(overrides_path);
+			data.rescan();
 			populate_items(selected_id);
 			if (value == selected_id)
 				make_clean();

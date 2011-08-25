@@ -7,15 +7,54 @@ using Fields;
 
 public class ConfigGui : Window
 {
+	static bool gtk_is_initialized;
+	static void ensure_gtk_init() {
+		if (gtk_is_initialized == true)
+			return;
+		unowned string[] args = NULL_ARGS;
+		Gtk.init(ref args);
+	}
 	static string[] NULL_ARGS = null;
 
 	public static void run() {
-		unowned string[] args = NULL_ARGS;
-		Gtk.init(ref args);
+		ensure_gtk_init();
 
 		new ConfigGui().show_all();
 
 		Gtk.main();
+	}
+
+	public static void edit_platform(Platform platform) {
+		ensure_gtk_init();
+
+		try {
+			EntityDialog.edit(Data.data_interface(), platform);
+		} catch(Error e) {
+			debug("Error editing platform %s: %s", platform.name, e.message);
+		}
+		debug("all done platform!");
+	}
+	public static void edit_program(Platform platform, Data.Program program) {
+		bool platform_owns_program = false;
+		foreach(var prog in platform.programs) {
+			if (prog == program) {
+				platform_owns_program = true;
+				break;
+			}
+		}
+		if (platform_owns_program == false)
+			return;
+
+		ensure_gtk_init();
+
+		try {
+			var data_interface = Data.data_interface();
+			if (EntityDialog.edit_object(data_interface, program, "Program", program.name, Gtk.Stock.SAVE) == true)
+				data_interface.save(platform);
+		} catch(Error e) {
+			debug("Error editing program %s: %s", platform.name, e.message);
+		}
+		debug("all done program!");
 	}
 
 	NotebookFieldset platforms_notebook;
@@ -62,9 +101,9 @@ public class ConfigGui : Window
 		this.add(alignment);
 
 
-
+		title = "Pandafe Configuration";
 		set_default_size (800, 480);
-		//fullscreen();
+		fullscreen();
 		decorated = false;
 		destroy.connect(close_requested);
 	}
@@ -116,6 +155,7 @@ public class ConfigGui : Window
 		}
 		if (platform_list_field.has_changes()) {
 			preferences.update_platform_order(platform_list_field.get_items());
+			Data.flush_platforms();
 			needs_save = true;
 		}
 		if (needs_save == true)

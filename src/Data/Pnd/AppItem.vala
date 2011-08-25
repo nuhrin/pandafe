@@ -12,6 +12,7 @@ namespace Data.Pnd
 			clockspeed = app.clockspeed;
 			exec_command = app.exec_command ?? "";
 			exec_arguments = app.exec_arguments ?? "";
+			startdir = app.startdir ?? "";
 			main_category = app.main_category ?? "";
 			main_category1 = app.main_category1 ?? "";
 			main_category2 = app.main_category2 ?? "";
@@ -22,9 +23,10 @@ namespace Data.Pnd
 		public string id { get; set; }
 		public string title { get; set; }
 		public string description { get; set; }
-		public int clockspeed { get; set; }
+		public uint clockspeed { get; set; }
 		public string exec_command { get; set; }
 		public string exec_arguments { get; set; }
+		public string startdir { get; set; }
 		public string main_category { get; set; }
 		public string main_category1 { get; set; }
 		public string main_category2 { get; set; }

@@ -12,6 +12,7 @@ namespace Data
 		public string pnd_id { get; set; }
 		public string pnd_app_id { get; set; }
 		public string command { get; set; }
+		public string custom_command { get; set; }
 
 		public string arguments { get; set; }
 		public uint clockspeed { get; set; }
@@ -28,6 +29,9 @@ namespace Data
 			program_frame.add_field(app_id_field);
 
 			command_field = program_frame.add_string("command", "_Command", command ?? "");
+			custom_command_field = new CustomCommandField("custom_command", "C_ustom Command", name, custom_command, pnd_id, pnd_app_id);
+			program_frame.add_field(custom_command_field);
+
 			container.add_field(program_frame);
 
 			// add Options frame
@@ -46,10 +50,15 @@ namespace Data
 				var pnd_id = pnd_id_field.value;
 				app_id_field.reload(pnd_id);
 				app_id_field.sensitive = (pnd_id != "");
+				custom_command_field.pnd_id = pnd_id;
+				custom_command_field.pnd_app_id = app_id_field.value;
 			});
 			if (pnd_id == "")
 				app_id_field.sensitive = false;
-			app_id_field.changed.connect(() => update_fields_from_app(true));
+			app_id_field.changed.connect(() =>  {
+				update_fields_from_app(true);
+				custom_command_field.pnd_app_id = app_id_field.value;
+			});
 
 			update_fields_from_app(false);
 		}
@@ -77,6 +86,7 @@ namespace Data
 		PndSelectionField pnd_id_field;
 		PndAppSelectionField app_id_field;
 		StringField command_field;
+		CustomCommandField custom_command_field;
 		StringField arguments_field;
 		ClockspeedField clockspeed_field;
 	}

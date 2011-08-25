@@ -25,11 +25,10 @@ public class Platform : NamedEntity, GuiEntity
 	public Program default_program { get; set; }
 
 	public GameFolder get_root_folder() {
-		if (_provider == null)
-			_provider = new RomList(name, rom_folder_root, rom_filespec);
+		ensure_provider();
 		return _provider.root_folder;
 	}
-	GameListProvider _provider;
+
 	public GameFolder? get_folder(string unique_id) {
 		if (unique_id == null || unique_id == "")
 			return null;
@@ -41,6 +40,13 @@ public class Platform : NamedEntity, GuiEntity
 		}
 		return null;
 	}
+
+	void ensure_provider() {
+		if (_provider == null) {
+			_provider = new RomList(this, name, rom_folder_root, rom_filespec);
+		}
+	}
+	GameListProvider _provider;
 
 	// yaml
 	protected override Yaml.Node build_yaml_node(Yaml.NodeBuilder builder) {

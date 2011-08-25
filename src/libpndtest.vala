@@ -15,7 +15,7 @@ namespace pandafe.libpndtest
 				print("  * %s [%s]\n", app.title, app.id);
 				print("    - path: %s%s\n", app.path, app.filename);
 				print("    - description: %s\n", app.description);
-				print("    - clockspeed: %d\n", app.clockspeed);
+				print("    - clockspeed: %d\n", (int)app.clockspeed);
 				//print("    - object_type: %d\n", (int)app.info.object_type);
 				print("    - object_flags: %d\n", (int)app.flags);
 				print("    - subapp_number: %d\n", (int)app.subapp_number);
@@ -41,15 +41,19 @@ namespace pandafe.libpndtest
 			}
 			print("\n");
 		}
-		print("seachpath: %s\n", Pandora.Config.apps_searchpath());
+		try {
+			print("seachpath: %s\n", Pandora.Config.get_config_apps().searchpath);
+		} catch(Error e) {
+			debug(e.message);
+		}
 	}
 
 	public void print_all_apps() {
-		foreach(var app in Apps.get_all_pnd_apps()) {
+		foreach(var app in Apps.get_all_apps()) {
 				print("  * %s [%s]\n", app.title, app.id);
 				print("    - path: %s%s\n", app.path, app.filename);
 				print("    - description: %s\n", app.description);
-				print("    - clockspeed: %d\n", app.clockspeed);
+				print("    - clockspeed: %d\n", (int)app.clockspeed);
 				print("    - object_flags: %d\n", (int)app.flags);
 				print("    - subapp_number: %d\n", (int)app.subapp_number);
 				print("    - package_id: %s\n", app.package_id);
@@ -73,8 +77,11 @@ namespace pandafe.libpndtest
 				print("    - info_type: %s\n", app.info_type);
 			}
 			print("\n");
-
-		print("seachpath: %s\n", Pandora.Config.apps_searchpath());
+		try {
+			print("seachpath: %s\n", Pandora.Config.get_config_apps().searchpath);
+		} catch(Error e) {
+			debug(e.message);
+		}
 	}
 
 

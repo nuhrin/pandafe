@@ -1,6 +1,7 @@
 NULL =
 
 SUBDIRS = \
+	scripts \
 	src \
 	vapi \
 	$(NULL)

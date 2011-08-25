@@ -18,9 +18,10 @@ namespace Data.Pnd
 				reload_from_cache(cache);
 		}
 
-		public void rescan(string? overrides_path=null) {
-			Pandora.Apps.scan_pnds(overrides_path);
+		public void rescan() {
+			Pandora.Apps.scan_pnds();
 			var cache = new PndCache.from_pnds(Pandora.Apps.get_all_pnds());
+
 			try {
 				data_interface.save(cache, CACHED_DATA_ID, CACHED_DATA_FOLDER);
 			} catch (Error e) {
