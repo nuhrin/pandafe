@@ -1,6 +1,7 @@
 NULL =
 
 SUBDIRS = \
+	data \
 	scripts \
 	src \
 	vapi \

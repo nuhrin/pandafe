@@ -1,0 +1,33 @@
+name: NES
+platform-type: rom
+rom-folder-root: /alcove/pandora/fake_sd/roms/nes
+rom-filespec: ! '*.nes'
+programs:
+- name: gpFCE-GP2X
+  pnd-id: gpfcegp2x
+  pnd-app-id: gpfcegp2x
+  command: ginge.sh
+  custom-command: ! "#!/bin/sh\n\nexport FBDEV=/dev/fb1\nofbset -fb $FBDEV -pos 80
+    0 -size 640 480 -mem 614400 -en 1\nfbset -fb $FBDEV -g 320 240 320 480 16\n\n#
+    make it runnable from ssh\nif [ -z \"$DISPLAY\" ]; then\nexport DISPLAY=:0\nfi\n\n./ginge_prep
+    ./gpfce.gpe \"$@\"\n  \nofbset -fb $FBDEV -pos 0 0 -size 0 0 -mem 0 -en 0"
+  arguments: !!null 
+  clockspeed: 0
+- name: Mednafen
+  pnd-id: package.mednafen-pandora.r3
+  pnd-app-id: mednafen-nes
+  command: mednafen-nes.sh
+  custom-command: ! '#!/bin/bash
+
+
+    source ./mednafen-common.sh
+
+
+    export SDL_OMAP_LAYER_SIZE=512x448
+
+
+    ./mednafen "$@"'
+  arguments: !!null 
+  clockspeed: 725
+default-program: gpFCE-GP2X
+

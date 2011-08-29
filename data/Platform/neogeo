@@ -1,0 +1,22 @@
+name: Neo Geo
+platform-type: rom
+rom-folder-root: /home/nuhrin/dev/vala/pandafe/pandafe
+rom-filespec: ! '*'
+programs:
+- name: Gngeo
+  pnd-id: gngeopnd-pepone
+  pnd-app-id: gngeopnd-pepone
+  command: ./runme.sh
+  custom-command: ! "#!/bin/sh\n# gngeo pnd launching script\n# Thanks SteveM!\n\nmkdir
+    -p conf roms save\nif [ ! -f ./conf/gngeorc ] ; then\n    echo \"effect none\"
+    >> ./conf/gngeorc\n    #echo \"hwsurface false\" >> ./conf/gngeorc\n    echo \"fullscreen
+    true\" >> ./conf/gngeorc\n    echo \"autoframeskip false\"\n    echo \"vsync true\"\n\tzenity
+    --question --text=\"Where gngeo will search roms?\\nThe default location is\\n/pandora/appdata/gngeo_pepone/roms\"
+    --ok-label=\"Use defaults dir\" --cancel-label=\"Use a custom dir\"\n\tif [ $?
+    -eq 0 ] ; then # Use Default Dir\n\t\techo \"rompath ./roms\" >> ./conf/gngeorc\n\telse\n\t\trompath=`zenity
+    --file-selection --directory`\n\t\techo \"rompath $rompath\" >> ./conf/gngeorc\n\tfi\nfi\n\nexport
+    SDL_VIDEODRIVER=omapdss\n#export SDL_OMAP_LAYER_SIZE=640x480\nexport SDL_OMAP_VSYNC=1\nsudo
+    -n /usr/pandora/scripts/op_lcdrate.sh 60\nLD_PRELOAD=./libSDL-1.2.so.0 ./gngeo"
+  arguments: !!null 
+  clockspeed: 0
+

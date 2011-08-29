@@ -1,0 +1,12 @@
+name: SNES
+platform-type: rom
+rom-folder-root: /alcove/pandora/fake_sd/roms/snes
+rom-filespec: ! '*.zip'
+programs:
+- name: Snes9x4P
+  pnd-id: snes9x4p_ivanovic
+  pnd-app-id: snes9x.skeezix.alpha
+  command: ./run.sh
+  arguments: !!null 
+  clockspeed: 0
+

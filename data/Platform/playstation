@@ -1,0 +1,13 @@
+name: Playstation
+platform-type: rom
+rom-folder-root: /home/nuhrin/dev/vala/pandafe/pandafe
+rom-filespec: ! '*'
+programs:
+- name: PCSX ReARMed
+  pnd-id: package.pcsx_rearmed.notaz.r8
+  pnd-app-id: pcsx_rearmed.notaz.r8
+  command: pcsx.sh
+  custom-command: !!null 
+  arguments: !!null 
+  clockspeed: 0
+

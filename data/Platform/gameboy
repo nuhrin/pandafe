@@ -1,0 +1,37 @@
+name: Gameboy
+platform-type: rom
+rom-folder-root: /alcove/pandora/fake_sd/roms/gb
+rom-filespec: ! '*.gb; *.gbc'
+programs:
+- name: GnuBoy
+  pnd-id: sdlgnuboy
+  pnd-app-id: sdlgnuboy
+  command: ./run.sh
+  custom-command: ! "#!/bin/bash\nexport LD_LIBRARY_PATH=\"./lib:${LD_LIBRARY_PATH:-\"/usr/lib:/lib\"}\"\nmainsel=$(zenity
+    --title=\"Select Screensize\" --width=\"300\" --height=\"300\" --list --column
+    \"id\" --column \"Please select\" --hide-column=1 --text=\"In-Game keys:\\n0 -
+    9: Select Saveslot\\nL + S: Load and Save Savestate\\nQ: Quit\\n\\nPlease select
+    scaling:\" \"fullscreen\" \"Scale to fullscreen\" \"normal\" \"Scale proportional\"
+    \"double\" \"Simple 2x scaling\" \"small\" \"No scaling\");\n\ncase $mainsel in\n
+    \ \"fullscreen\")\n  ARGS=\"--vmode=800,480,16\"\n  ;;\n\n  \"normal\")\n  ARGS=\"--vmode=533,480,16\"\n\n
+    \ ;;\n\n   \"double\")\n  ARGS=\"--vmode=480,432,16\"\n\n  ;;\n  \"small\")\n
+    \ ARGS=\"\"\nesac\n\nrm -R /tmp/gnuboy\n\n# run it!\nif [ $(echo \"$1\" | awk
+    '{ print substr( $0, length($0) - 1, length($0) ) }') = \"7z\" ] \nthen\n\t\t./util/7za
+    e -y -o\"/tmp/gnuboy/\" \"$1\"\n\t\tFILENAME=$(ls \"/tmp/gnuboy/\")\n\t\texport
+    SDL_VIDEODRIVER=omapdss\n\t\t./sdlgnuboy --source gnuboy.rc $ARGS \"/tmp/gnuboy/$FILENAME\"\n\t\trm
+    \"/tmp/gnuboy/*\"\nfi\nif [ $(echo \"$1\" | awk '{ print substr( $0, length($0)
+    - 2, length($0) ) }') = \"zip\" ]\nthen\n        ./util/7za e -y -o\"/tmp/gnuboy/\"
+    \"$1\" \n\t\tFILENAME=$(ls \"/tmp/gnuboy/\")\n\t\texport SDL_VIDEODRIVER=omapdss\n\t\t./sdlgnuboy
+    --source gnuboy.rc $ARGS \"/tmp/gnuboy/$FILENAME\"\n\t\trm -R /tmp/gnuboy\n\t\nelse
+    \n\texport SDL_VIDEODRIVER=omapdss\n\t./sdlgnuboy --source gnuboy.rc $ARGS \"$1\"\nfi"
+  arguments: ! '%g -love'
+  clockspeed: 0
+- name: Mednafen
+  pnd-id: package.mednafen-pandora.r3
+  pnd-app-id: mednafen-gb
+  command: mednafen-gb.sh
+  custom-command: !!null 
+  arguments: !!null 
+  clockspeed: 0
+default-program: GnuBoy
+

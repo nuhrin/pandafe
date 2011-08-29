@@ -9,6 +9,10 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 AM_MAINTAINER_MODE
 
+LOCAL_CONFIG_DIR=./PandafeData
+AC_SUBST(LOCAL_CONFIG_DIR)
+AC_DEFINE_UNQUOTED(LOCAL_CONFIG_DIR, "$LOCAL_CONFIG_DIR", [Local configuration directory])
+
 # Checks for programs.
 AC_PROG_CC
 AM_PROG_CC_C_O
@@ -46,6 +50,8 @@ AC_SUBST(SDL_TTF_LIBS)
 
 AC_CONFIG_FILES([
 	Makefile
+	data/Makefile
+	data/Platform/Makefile
 	scripts/Makefile
 	src/Makefile
 	vapi/Makefile
