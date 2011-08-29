@@ -32,7 +32,7 @@ namespace Data
 		public DataInterface data_interface { get; private set; }
 		public Interface() {
 			try {
-				data_interface = new DataInterface("PandafeData");
+				data_interface = new DataInterface(Config.LOCAL_CONFIG_DIR);
 			} catch (Error e) {
 				error("Unable to create DataInterface instance: %s", e.message);
 				//assert_not_reached();
@@ -93,6 +93,16 @@ namespace Data
 			if (_platforms == null) {
 				_platforms = new ArrayList<Platform>();
 				var platform_ids = get_preferences().platform_order;
+				if (platform_ids.size == 0) {
+					try {
+						_platforms = data_interface.load_all<Platform>()
+							.sort((a,b) => strcmp(a.name, b.name))
+							.to_list();
+					} catch (Error e) {
+						debug("Error while loading platforms: %s", e.message);
+					}
+					return _platforms;
+				}
 				foreach(var id in platform_ids) {
 					try {
 						var platform = data_interface.load<Platform>(id);
@@ -105,7 +115,7 @@ namespace Data
 						_platforms.add(platform);
 					}
 					catch (Error e) {
-						debug("Error while retrieving platform '%s': %s", id, e.message);
+						debug("Error while loading platform '%s': %s", id, e.message);
 					}
 				}
 			}
