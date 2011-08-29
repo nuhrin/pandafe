@@ -1,6 +1,6 @@
 NULL =
 
 scriptsdir=$(pkgdatadir)/scripts
-scripts_SCRIPTS = \
+dist_scripts_SCRIPTS = \
 	pnd_run.sh \
 	$(NULL)
