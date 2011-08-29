@@ -10,11 +10,13 @@ namespace Data
 	public class Preferences : Entity, GuiEntity
 	{
 		const string DEFAULT_FONT_PATH  = "/usr/share/fonts/truetype/";
+		const string DEFAULT_FONT = "/usr/share/fonts/truetype/DejaVuSansMono.ttf";
 
 		internal const string ENTITY_ID = "preferences";
 		protected override string generate_id() { return ENTITY_ID; }
 
 		construct {
+			font = DEFAULT_FONT;
 			platform_order = new ArrayList<string>();
 			// default colors
 			var color = Gdk.Color();

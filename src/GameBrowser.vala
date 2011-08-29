@@ -7,7 +7,6 @@ public class GameBrowser
 {
 	Preferences preferences;
 	unowned SDL.Screen screen;
-	const string DEFAULT_FONT_PATH = "/usr/share/fonts/truetype/DejaVuSansMono.ttf";
 	const int FONT_SIZE = 16;
     const int DELAY = 10;
     const int VISIBLE_WITDH = 440;
@@ -29,9 +28,7 @@ public class GameBrowser
 		this.screen = screen;
 		font = new Font(preferences.font, FONT_SIZE);
 		if (font == null) {
-			font = new Font(DEFAULT_FONT_PATH, FONT_SIZE);
-			if (font == null)
-				GLib.error("Error loading font: %s", SDL.get_error());
+			GLib.error("Error loading font: %s", SDL.get_error());
 		}
 		current_platform_index = -1;
 		background_color = preferences.background_color_sdl();
@@ -76,7 +73,7 @@ public class GameBrowser
 			current_folder = null;
 			selector = new PlatformSelector(this.screen.format, this.font, VISIBLE_WITDH, VISIBLE_ITEMS);
 		} else {
-			current_folder = current_platform.get_folder(state.get_current_platform_folder_id());
+			current_folder = current_platform.get_folder(state.get_current_platform_folder_id() ?? "");
 			if (current_folder == null)
 				current_folder = current_platform.get_root_folder();
 			selector = new GameFolderSelector(current_folder, this.screen.format, this.font, VISIBLE_WITDH, VISIBLE_ITEMS);
