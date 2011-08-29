@@ -95,7 +95,7 @@ namespace Data.GameList
 			if (has_custom_command == true) {
 				string appdata_path = mountset.get_appdata_path(pnd.pnd_id);
 				if (appdata_path == null) {
-					debug("appdata path for not found for '%s'", mount_id);
+					debug("appdata path not found for '%s'", mount_id);
 				} else if (FileUtils.test(appdata_path, FileTest.EXISTS) == false) {
 					debug("appdata path does not exist: %s", appdata_path);
 				} else {
@@ -116,7 +116,10 @@ namespace Data.GameList
 				}
 			}
 			// run the pnd
-			Pandora.Apps.set_pndrun_path(CUSTOM_PNDRUN_PATH);
+			var runpath = Path.build_filename(Config.PACKAGE_DATADIR, CUSTOM_PNDRUN_PATH);
+			if (FileUtils.test(runpath, FileTest.EXISTS) == false)
+				runpath = CUSTOM_PNDRUN_PATH;
+			Pandora.Apps.set_pndrun_path(runpath);
 			var result = Pandora.Apps.execute_app(pnd.get_fullpath(), mount_id, command, startdir, args, clockspeed, Pandora.Apps.ExecOption.BLOCK);
 			Pandora.Apps.unset_pndrun_path();
 			return result;
