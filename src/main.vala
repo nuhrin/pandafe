@@ -20,6 +20,8 @@ public class MainClass: Object {
 //		test_romlist(args);
 //		return 0;
 
+		ensure_pandafedata_folder();
+
 		unowned SDL.Screen screen = inititialize_sdl();
 		WindowManager.set_caption("Pandafe", "");
         new GameBrowser(screen).run();
@@ -63,4 +65,48 @@ public class MainClass: Object {
 		return screen;
     }
 
+	static void ensure_pandafedata_folder() {
+		if (FileUtils.test(Config.LOCAL_CONFIG_DIR, FileTest.IS_DIR) == false) {
+			if (FileUtils.test(Config.LOCAL_CONFIG_DIR, FileTest.EXISTS) == true)
+				GLib.error("Local config directory '%s' exists but is not a directory.", Config.LOCAL_CONFIG_DIR);
+		}
+		string platforms_path = Path.build_filename(Config.LOCAL_CONFIG_DIR, "Platform");
+		if (FileUtils.test(platforms_path, FileTest.IS_DIR) == true)
+			return;
+
+		if (FileUtils.test(platforms_path, FileTest.EXISTS) == true)
+			GLib.error("Local config directory '%s' exists but is not a directory.", platforms_path);
+
+		// check for default platforms in the pkgconfigdir
+		string package_platforms_path = Path.build_filename(Config.PACKAGE_DATADIR, "Platform");
+		if (FileUtils.test(package_platforms_path, FileTest.IS_DIR) == false)
+			return;
+
+		// create the local Platform folder
+		try {
+			if (File.new_for_path(platforms_path).make_directory_with_parents() == false)
+				GLib.error("Local config directory '%s' could not be created.", platforms_path);
+		} catch(GLib.Error e) {
+			GLib.error("Error creating local config directory '%s': %s", platforms_path, e.message);
+		}
+
+		// copy all package platforms to local Platform folder
+		try {
+			var enumerator = File.new_for_path(package_platforms_path).enumerate_children(FILE_ATTRIBUTE_STANDARD_NAME, FileQueryInfoFlags.NONE);
+			FileInfo file_info;
+			while ((file_info = enumerator.next_file()) != null) {
+				var name = file_info.get_name();
+				var source = File.new_for_path(Path.build_filename(package_platforms_path, name));
+				var destination = File.new_for_path(Path.build_filename(platforms_path, name));
+				source.copy(destination, FileCopyFlags.NONE);
+			}
+		}
+		catch(GLib.Error e)
+		{
+			debug("Error while populating local config directory '%s': %s", platforms_path, e.message);
+		}
+
+		// create preferences file
+		Data.save_preferences();
+	}
 }

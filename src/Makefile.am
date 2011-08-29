@@ -5,6 +5,7 @@ AM_CPPFLAGS = \
 	$(GTK_SOURCEVIEW_CFLAGS) \
 	$(PANDORA_GLIB_CFLAGS) \
 	$(SDL_CFLAGS) \
+	-DPACKAGE_DATADIR=\"$(pkgdatadir)\" \
 	$(NULL)
 
 BUILT_SOURCES = pandafe.vala.stamp
