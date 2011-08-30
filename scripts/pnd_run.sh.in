@@ -14,8 +14,8 @@
 #find a clean way of shutting down x without a fixed dm, mabye avoid nohup usage somehow
 #add options to just mount iso without union and to mount the union later
 
-SCRIPT_DIR="/usr/pandora/scripts"
-. $SCRIPT_DIR/pnd_loging
+SCRIPT_DIR="@scriptsdir@"
+. "$SCRIPT_DIR/pnd_logging"
 PND_LogDateFormat=PND_Time
 
 PND_MOUNT_DIR="/mnt/pnd"
