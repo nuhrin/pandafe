@@ -6,7 +6,7 @@ namespace Data.GameList
 	public abstract class GameListProvider
 	{
 		const string CUSTOM_COMMAND_SCRIPT_PATH = "pandafe-custom-run.sh";
-		const string CUSTOM_PNDRUN_PATH = "scripts/pnd_run.sh";
+		const string CUSTOM_PNDRUN_PATH = "scripts/pnd_run_nomount.sh";
 
 		protected GameListProvider(Platform platform) {
 			this.platform = platform;
@@ -96,8 +96,10 @@ namespace Data.GameList
 				string appdata_path = mountset.get_appdata_path(pnd.pnd_id);
 				if (appdata_path == null) {
 					debug("appdata path not found for '%s'", mount_id);
+					return -1;
 				} else if (FileUtils.test(appdata_path, FileTest.EXISTS) == false) {
 					debug("appdata path does not exist: %s", appdata_path);
+					return -1;
 				} else {
 					string custom_path = appdata_path + CUSTOM_COMMAND_SCRIPT_PATH;
 					if (already_mounted == false || FileUtils.test(custom_path, FileTest.EXISTS) == false) {
@@ -109,6 +111,7 @@ namespace Data.GameList
 						}
 						catch(FileError e) {
 							debug("Unable to save %s: %s", custom_path, e.message);
+							return -1;
 						}
 					} else {
 						command = CUSTOM_COMMAND_SCRIPT_PATH;
