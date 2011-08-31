@@ -34,7 +34,8 @@ namespace Fields
 		public void unmount_pnds() {
 			mountset.unmount_all();
 			clear_items();
-			loadBtn.sensitive = false;
+			loadBtn.visible = false;
+			scanBtn.visible = true;
 		}
 
 		public signal void content_requested(string content);
@@ -67,6 +68,8 @@ namespace Fields
 			if (combo_box.active == -1 && item_count > 0)
 				combo_box.active = 0;
 
+			scanBtn.visible = false;
+			loadBtn.visible = true;
 			loadBtn.sensitive = (item_count > 0);
 			hbox.parent.sensitive = true;
 		}
@@ -96,21 +99,25 @@ namespace Fields
 
 		void build_target_with_buttons() {
 			hbox = new PndFileBox(false, 4, combo_box);
-			var rescanBtn = new Button();
-			rescanBtn.image = new Image.from_stock(Stock.REFRESH, IconSize.BUTTON);
-			rescanBtn.can_focus = false;
-			rescanBtn.clicked.connect(() => this.rescan_clicked());
-			hbox.pack_start(rescanBtn, false, false, 0);
 			hbox.pack_start(combo_box, true, true, 0);
+			scanBtn = new Button.with_label("Scan Pnd");
+			//scanBtn.image = new Image.from_stock(Stock.REFRESH, IconSize.BUTTON);
+			scanBtn.can_focus = false;
+			scanBtn.no_show_all = true;
+			scanBtn.visible = true;
+			scanBtn.clicked.connect(() => this.scan_clicked());
+			hbox.pack_start(scanBtn, false, false, 0);
 			loadBtn = new Button.with_label("Load");
+			loadBtn.no_show_all = true;
+			loadBtn.visible = false;
 			loadBtn.can_focus = false;
-			loadBtn.sensitive = false;
 			loadBtn.clicked.connect(() => this.load_clicked());
 			hbox.pack_start(loadBtn, false, false, 0);
 		}
 		HBox hbox;
 		Button loadBtn;
-		void rescan_clicked() {
+		Button scanBtn;
+		void scan_clicked() {
 			debug("rescan clicked");
 			rescan(pnd_id, pnd_app_id);
 		}
