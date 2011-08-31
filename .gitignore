@@ -31,7 +31,10 @@ stamp-h1
 .version
 
 src/pandafe
+scripts/pnd_run_nomount.sh
 PandafeData/
+
+pandafe*.tar.*
 
 *~
 
