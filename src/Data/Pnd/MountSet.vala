@@ -57,12 +57,12 @@ namespace Data.Pnd
 			return null;
 		}
 
-		public bool mount(string unique_id, string? mount_id=null) {
+		public bool mount(string unique_id) {
 			if (is_mounted(unique_id) == false) {
 				string path = data.get_pnd_fullpath(unique_id);
 				if (path == null)
 					return false;
-				var name = mount_id ?? File.new_for_path(path).get_basename();
+				var name = unique_id; // ?? File.new_for_path(path).get_basename();
 				if (mount_prefix != null)
 					name = mount_prefix + name;
 
