@@ -12,6 +12,7 @@ namespace Data.Pnd
 		ArrayList<PndItem> pnd_list;
 		HashMap<string, PndItem> pnd_id_hash;
 		HashMap<string, AppItem> app_id_hash;
+		HashMap<string, PndItem> app_id_pnd_hash;
 		public PndData(DataInterface data_interface, PndCache? cache=null) {
 			this.data_interface = data_interface;
 			if (cache != null)
@@ -34,12 +35,14 @@ namespace Data.Pnd
 			pnd_list = new ArrayList<PndItem>();
 			pnd_id_hash = new HashMap<string, PndItem>();
 			app_id_hash = new HashMap<string, AppItem>();
+			app_id_pnd_hash = new HashMap<string, PndItem>();
 
 			foreach(var pnd in cache.pnd_list) {
 				pnd_list.add(pnd);
 				pnd_id_hash[pnd.pnd_id] = pnd;
 				foreach(var app in pnd.apps) {
 					app_id_hash[app.id] = app;
+					app_id_pnd_hash[app.id] = pnd;
 				}
 			}
 		}
@@ -61,6 +64,14 @@ namespace Data.Pnd
 		public AppItem? get_app(string id) {
 			if (app_id_hash.has_key(id) == true)
 				return app_id_hash[id];
+			return null;
+		}
+
+		public string? get_pnd_fullpath(string unique_id) {
+			if (app_id_pnd_hash.has_key(unique_id) == true)
+				return app_id_pnd_hash[unique_id].get_fullpath();
+			if (pnd_id_hash.has_key(unique_id) == true)
+				return pnd_id_hash[unique_id].get_fullpath();
 			return null;
 		}
 	}

@@ -84,16 +84,16 @@ namespace Data.GameList
 			bool already_mounted = false;
 			// mount the pnd
 			var mountset = Data.pnd_mountset();
-			already_mounted = mountset.is_mounted(pnd.pnd_id);
-			if (mountset.mount(pnd.pnd_id, unique_id) == false) {
-				debug("Unable to mount pnd '%s'.", pnd.pnd_id);
+			already_mounted = mountset.is_mounted(unique_id);
+			if (mountset.mount(unique_id) == false) {
+				debug("Unable to mount pnd for id '%s'.", unique_id);
 				return -1;
 			}
-			string mount_id = mountset.get_mount_id(pnd.pnd_id);
+			string mount_id = mountset.get_mount_id(unique_id);
 
 			// ensure custom_command script, if specified
 			if (has_custom_command == true) {
-				string appdata_path = mountset.get_appdata_path(pnd.pnd_id);
+				string appdata_path = mountset.get_appdata_path(unique_id);
 				if (appdata_path == null) {
 					debug("appdata path not found for '%s'", mount_id);
 					return -1;
