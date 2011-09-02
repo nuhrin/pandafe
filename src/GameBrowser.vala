@@ -103,12 +103,12 @@ public class GameBrowser
 		string platform_name = (current_platform != null) ? current_platform.name : null;
 		if (platform_name != null) {
 			Rect platform_rect = {20, 20};
-			font.render(platform_name, selected_item_color).blit(null, screen, platform_rect);
+			font.render_shaded(platform_name, selected_item_color, background_color).blit(null, screen, platform_rect);
 		}
 
 		string folder_id = (current_folder != null) ? current_folder.unique_id().strip() : "";
 		if (folder_id != null && folder_id != "") {
-			var rendered_folder_id = font.render(folder_id, selected_item_color);
+			var rendered_folder_id = font.render_shaded(folder_id, selected_item_color, background_color);
 			Rect folder_id_rect = {(int16)(780 - rendered_folder_id.w), 20};
 			rendered_folder_id.blit(null, screen, folder_id_rect);
 		}
@@ -119,7 +119,7 @@ public class GameBrowser
     }
 	void show_status_message(string message) {
 		Rect rect = {10, 420, 460};
-		font.render(message, selected_item_color).blit(null, screen, rect);
+		font.render_shaded(message, selected_item_color, background_color).blit(null, screen, rect);
 		screen.flip();
 	}
 	void clear_status_message() {

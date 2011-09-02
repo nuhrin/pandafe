@@ -133,11 +133,11 @@ public abstract class Selector : Object
 
 		if (selected_index != -1) {
 			Rect oldrect = {0, get_item_offset(selected_index)};
-			font.render(get_item_name(selected_index), item_color).blit(null, surface, oldrect);
+			font.render_shaded(get_item_name(selected_index), item_color, background_color).blit(null, surface, oldrect);
 		}
 		Rect rect = {0, offset};
-		font.render(get_item_name(index), background_color).blit(null, surface, rect);
-		font.render(get_item_name(index), selected_item_color).blit(null, surface, rect);
+		font.render_shaded(get_item_name(index), background_color, background_color).blit(null, surface, rect);
+		font.render_shaded(get_item_name(index), selected_item_color, background_color).blit(null, surface, rect);
 
 		surface.flip();
 		selected_index = index;
@@ -167,7 +167,7 @@ public abstract class Selector : Object
 		Rect rect = {0, ITEM_SPACING};
 		for(int index=0; index < item_count; index++) {
 			var name = get_item_name(index);
-			var text = font.render(name, (selected_index == index) ? selected_item_color : item_color);
+			var text = font.render_shaded(name, (selected_index == index) ? selected_item_color : item_color, background_color);
 			text.blit(null, surface, rect);
 			rect.y = (int16)(rect.y + font_height + ITEM_SPACING);
 		}
