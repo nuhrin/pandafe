@@ -23,11 +23,6 @@ pandafe_VALASOURCES = \
 	PlatformSelector.vala \
 	Selector.vala \
 	Options.vala \
-	Data/GameList/GameFolder.vala \
-	Data/GameList/GameItem.vala \
-	Data/GameList/GameListNode.vala \
-	Data/GameList/GameListProvider.vala \
-	Data/GameList/RomList.vala \
 	Data/GameBrowserState.vala \
 	Data/Interface.vala \
 	Data/Platform.vala \
@@ -38,6 +33,11 @@ pandafe_VALASOURCES = \
 	Data/Pnd/PndItem.vala \
 	Data/Preferences.vala \
 	Data/Program.vala \
+	GameList/GameFolder.vala \
+	GameList/GameItem.vala \
+	GameList/GameListNode.vala \
+	GameList/GameListProvider.vala \
+	GameList/RomList.vala \
 	Fields/ColorField.vala \
 	Fields/ClockspeedField.vala \
 	Fields/CustomCommandField.vala \
