@@ -7,6 +7,7 @@ namespace Data.Pnd
 		public AppItem() { }
 		public AppItem.from_app(Pandora.Apps.App app) {
 			id = app.id;
+			appdata_dirname = app.appdata_dirname;
 			title = app.title;
 			description = app.description;
 			clockspeed = app.clockspeed;
@@ -21,6 +22,7 @@ namespace Data.Pnd
 			alt_category2 = app.alt_category2 ?? "";
 		}
 		public string id { get; set; }
+		public string appdata_dirname { get; set; }
 		public string title { get; set; }
 		public string description { get; set; }
 		public uint clockspeed { get; set; }

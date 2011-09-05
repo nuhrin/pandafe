@@ -28,48 +28,54 @@ namespace Data.Pnd
 			return (mounted_pnd_name_hash.has_key(unique_id));
 		}
 
-		public string? get_mounted_path(string unique_id) {
-			if (is_mounted(unique_id) == false)
-				return null;
-
-			return UNION_MOUNT_PATH + mounted_pnd_name_hash[unique_id];
-		}
 		public string? get_mount_id(string unique_id) {
 			if (is_mounted(unique_id) == false)
 				return null;
 
 			return mounted_pnd_name_hash[unique_id];
 		}
+		public string? get_mounted_path(string unique_id) {
+			if (is_mounted(unique_id) == false)
+				return null;
 
+			return UNION_MOUNT_PATH + mounted_pnd_name_hash[unique_id];
+		}
 		public string? get_appdata_path(string unique_id) {
 			if (is_mounted(unique_id) == false)
 				return null;
+
 			if (pnd_appdata_path_hash.has_key(unique_id) == true)
 				return pnd_appdata_path_hash[unique_id];
 
 			string pnd_path = data.get_pnd_fullpath(unique_id);
 			if (pnd_path != null) {
 				string path = Pandora.Apps.get_appdata_path(pnd_path, mounted_pnd_name_hash[unique_id]);
-				pnd_appdata_path_hash[unique_id] = path;
-				return path;
+				if (path != null) {
+					pnd_appdata_path_hash[unique_id] = path;
+					return path;
+				}
 			}
 
 			return null;
 		}
 
 		public bool mount(string unique_id) {
-			if (is_mounted(unique_id) == false) {
-				string path = data.get_pnd_fullpath(unique_id);
-				if (path == null)
-					return false;
-				var name = unique_id; // ?? File.new_for_path(path).get_basename();
-				if (mount_prefix != null)
-					name = mount_prefix + name;
+			if (is_mounted(unique_id) == true)
+				return true;
 
-				if (Pandora.Apps.mount_pnd(path, name) == false)
-					return false;
-				mounted_pnd_name_hash[unique_id] = name;
-			}
+			string path = data.get_pnd_fullpath(unique_id);
+			if (path == null)
+				return false;
+
+			var name = mount_prefix + unique_id;
+			var app = data.get_app(unique_id);
+			if (app != null && app.appdata_dirname != null)
+				name = mount_prefix + app.appdata_dirname;
+
+			if (Pandora.Apps.mount_pnd(path, name) == false)
+				return false;
+			mounted_pnd_name_hash[unique_id] = name;
+
 			return true;
 		}
 
@@ -77,8 +83,13 @@ namespace Data.Pnd
 			if (is_mounted(unique_id) == false)
 				return true;
 
-			if (unmount_real(unique_id) == false)
+			var path = data.get_pnd_fullpath(unique_id);
+			if (path == null)
 				return false;
+
+			if (Pandora.Apps.unmount_pnd(path, mounted_pnd_name_hash[unique_id]) == false)
+				return false;
+
 			mounted_pnd_name_hash.unset(unique_id);
 			return true;
 		}
@@ -91,13 +102,5 @@ namespace Data.Pnd
 			}
 			return true;
 		}
-		bool unmount_real(string unique_id) {
-			string path = data.get_pnd_fullpath(unique_id);
-			if (path == null)
-				return false;
-			var name = mounted_pnd_name_hash[unique_id];
-			return Pandora.Apps.unmount_pnd(path, name);
-		}
-
 	}
 }

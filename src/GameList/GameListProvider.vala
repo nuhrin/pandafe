@@ -54,6 +54,8 @@ namespace Data.GameList
 				app = data.get_app(program.pnd_app_id);
 
 			string unique_id = (app != null) ? app.id : pnd.pnd_id;
+			string appdata_dirname = (app != null) ? app.appdata_dirname : null;
+			string command = (app != null) ? app.exec_command : program.command;
 			string startdir = (app != null) ? app.startdir : null;
 			uint clockspeed = program.clockspeed;
 			if (clockspeed == 0 && app != null)
@@ -61,31 +63,27 @@ namespace Data.GameList
 			string args = game_args ?? program.arguments;
 			if ((args == null || args == "") && app != null)
 				args = app.exec_arguments;
+
 			if (game_path != null) {
 				if (args != null && args.index_of("%g") != -1)
-					args = args.replace("%g", game_path);
+					args = args.replace("%g", "'" + game_path + "'");
 				else
-					args = "%s %s".printf((args ?? ""), game_path);
+					args = "%s '%s'".printf((args ?? ""), game_path);
 			}
 
 			bool has_custom_command = (program.custom_command != null && program.custom_command != "");
-			string command = (app != null) ? app.exec_command : program.command;
-			if (has_custom_command == false) {
-				if (command == null || command == "") {
-					debug("No command specified for '%s' program '%s'.", platform.name, program.name);
-					return -1;
-				}
+			if (has_custom_command == false && (command == null || command == "")) {
+				debug("No command specified for '%s' program '%s'.", platform.name, program.name);
+				return -1;
 			}
 
-			// run the pnd without premount
-			if (has_custom_command == false && premount == false)
-				return Pandora.Apps.execute_app(pnd.get_fullpath(), unique_id, command, startdir, args, clockspeed, Pandora.Apps.ExecOption.BLOCK);
+			if (has_custom_command == false && premount == false) // run the pnd without premount
+				return Pandora.Apps.execute_app(pnd.get_fullpath(), appdata_dirname ?? unique_id, command, startdir, args, clockspeed, Pandora.Apps.ExecOption.BLOCK);
 
-			bool already_mounted = false;
 			// mount the pnd
 			var mountset = Data.pnd_mountset();
-			already_mounted = mountset.is_mounted(unique_id);
-			if (mountset.mount(unique_id) == false) {
+			bool already_mounted = mountset.is_mounted(unique_id);
+			if (already_mounted == false && mountset.mount(unique_id) == false) {
 				debug("Unable to mount pnd for id '%s'.", unique_id);
 				return -1;
 			}
@@ -93,6 +91,7 @@ namespace Data.GameList
 
 			// ensure custom_command script, if specified
 			if (has_custom_command == true) {
+				command = CUSTOM_COMMAND_SCRIPT_PATH;
 				string appdata_path = mountset.get_appdata_path(unique_id);
 				if (appdata_path == null) {
 					debug("appdata path not found for '%s'", mount_id);
@@ -100,21 +99,16 @@ namespace Data.GameList
 				} else if (FileUtils.test(appdata_path, FileTest.EXISTS) == false) {
 					debug("appdata path does not exist: %s", appdata_path);
 					return -1;
-				} else {
-					string custom_path = appdata_path + CUSTOM_COMMAND_SCRIPT_PATH;
-					if (already_mounted == false || FileUtils.test(custom_path, FileTest.EXISTS) == false) {
-						try {
-							if (FileUtils.set_contents(custom_path, program.custom_command) == true
-							 && FileUtils.chmod(custom_path, 0775) == 0) {
-								command = CUSTOM_COMMAND_SCRIPT_PATH;
-							}
-						}
-						catch(FileError e) {
-							debug("Unable to save %s: %s", custom_path, e.message);
-							return -1;
-						}
-					} else {
-						command = CUSTOM_COMMAND_SCRIPT_PATH;
+				}
+				string custom_path = appdata_path + CUSTOM_COMMAND_SCRIPT_PATH;
+				if (already_mounted == false || FileUtils.test(custom_path, FileTest.EXISTS) == false) {
+					try {
+						if (FileUtils.set_contents(custom_path, program.custom_command) == true)
+							FileUtils.chmod(custom_path, 0775);
+					}
+					catch(FileError e) {
+						debug("Unable to save %s: %s", custom_path, e.message);
+						return -1;
 					}
 				}
 			}

@@ -94,14 +94,14 @@ namespace Data.GameList
 					patterns[index] = new PatternSpec(spec_set[index]);
 				}
 			}
-			public bool match (uint string_length, string str, string? str_reversed)
-			{
-				for(int index=0;index<patterns.length;index++) {
-					if (patterns[index].match(string_length, str, str_reversed) == true)
-						return true;
-				}
-				return false;
-			}
+//~ 			public bool match (uint string_length, string str, string? str_reversed)
+//~ 			{
+//~ 				for(int index=0;index<patterns.length;index++) {
+//~ 					if (patterns[index].match(string_length, str, str_reversed) == true)
+//~ 						return true;
+//~ 				}
+//~ 				return false;
+//~ 			}
 			public bool match_string (string str) {
 				for(int index=0;index<patterns.length;index++) {
 					if (patterns[index].match_string(str) == true)
