@@ -51,8 +51,11 @@ namespace Data.Pnd
 			return new Enumerable<PndItem>(pnd_list);
 		}
 		public PndItem? get_pnd(string id) {
+			if (app_id_pnd_hash.has_key(id) == true)
+				return app_id_pnd_hash[id];
 			if (pnd_id_hash.has_key(id) == true)
 				return pnd_id_hash[id];
+
 			return null;
 		}
 		public Enumerable<AppItem> get_pnd_apps(string pnd_id) {
@@ -64,14 +67,6 @@ namespace Data.Pnd
 		public AppItem? get_app(string id) {
 			if (app_id_hash.has_key(id) == true)
 				return app_id_hash[id];
-			return null;
-		}
-
-		public string? get_pnd_fullpath(string unique_id) {
-			if (app_id_pnd_hash.has_key(unique_id) == true)
-				return app_id_pnd_hash[unique_id].get_fullpath();
-			if (pnd_id_hash.has_key(unique_id) == true)
-				return pnd_id_hash[unique_id].get_fullpath();
 			return null;
 		}
 	}
