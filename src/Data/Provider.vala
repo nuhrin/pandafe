@@ -4,33 +4,33 @@ using Data.Pnd;
 
 namespace Data
 {
-	public DataInterface data_interface() { return Interface.instance().data_interface; }
+	public DataInterface data_interface() { return Provider.instance().data_interface; }
 
-	public Gee.List<Platform> platforms() { return Interface.instance().get_platforms(); }
-	public void flush_platforms() { Interface.instance().flush_platforms(); }
+	public Gee.List<Platform> platforms() { return Provider.instance().get_platforms(); }
+	public void flush_platforms() { Provider.instance().flush_platforms(); }
 
-	public Preferences preferences() { return Interface.instance().get_preferences(); }
-	public bool save_preferences() { return Interface.instance().save_preferences(); }
+	public Preferences preferences() { return Provider.instance().get_preferences(); }
+	public bool save_preferences() { return Provider.instance().save_preferences(); }
 
-	public GameBrowserState browser_state() { return Interface.instance().get_browser_state(); }
-	public bool save_browser_state() { return Interface.instance().save_browser_state(); }
+	public GameBrowserState browser_state() { return Provider.instance().get_browser_state(); }
+	public bool save_browser_state() { return Provider.instance().save_browser_state(); }
 
-	public PndData pnd_data() { return Interface.instance().get_pnd_data(); }
-	public PndData rescan_pnd_data() { return Interface.instance().rescan_pnd_data(); }
+	public PndData pnd_data() { return Provider.instance().get_pnd_data(); }
+	public PndData rescan_pnd_data() { return Provider.instance().rescan_pnd_data(); }
 
-	public MountSet pnd_mountset() { return Interface.instance().get_mountset(); }
+	public MountSet pnd_mountset() { return Provider.instance().get_mountset(); }
 
-	public class Interface
+	public class Provider
 	{
-		static Interface _instance;
-		public static Interface instance() {
+		static Provider _instance;
+		public static Provider instance() {
 			if (_instance == null)
-				_instance = new Interface();
+				_instance = new Provider();
 			return _instance;
 		}
 
 		public DataInterface data_interface { get; private set; }
-		public Interface() {
+		public Provider() {
 			try {
 				data_interface = new DataInterface(Config.LOCAL_CONFIG_DIR);
 			} catch (Error e) {
