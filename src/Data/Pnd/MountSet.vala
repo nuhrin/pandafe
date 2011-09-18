@@ -25,82 +25,94 @@ namespace Data.Pnd
 		public bool has_mounted { get { return (mounted_pnd_name_hash.size > 0); } }
 
 		public bool is_mounted(string unique_id) {
-			return (mounted_pnd_name_hash.has_key(unique_id));
+			return is_pnd_mounted(get_pnd_id(unique_id));
 		}
-
 		public string? get_mount_id(string unique_id) {
-			if (is_mounted(unique_id) == false)
+			unowned string pnd_id = get_pnd_id(unique_id);
+			if (is_pnd_mounted(pnd_id) == false)
 				return null;
 
-			return mounted_pnd_name_hash[unique_id];
+			return mounted_pnd_name_hash[pnd_id];
 		}
 		public string? get_mounted_path(string unique_id) {
-			if (is_mounted(unique_id) == false)
+			unowned string pnd_id = get_pnd_id(unique_id);
+			if (is_pnd_mounted(pnd_id) == false)
 				return null;
 
-			return UNION_MOUNT_PATH + mounted_pnd_name_hash[unique_id];
+			return UNION_MOUNT_PATH + mounted_pnd_name_hash[pnd_id];
 		}
 		public string? get_appdata_path(string unique_id) {
-			if (is_mounted(unique_id) == false)
+			var pnd = data.get_pnd(unique_id);
+			if (pnd == null || is_pnd_mounted(pnd.pnd_id) == false)
 				return null;
 
-			if (pnd_appdata_path_hash.has_key(unique_id) == true)
-				return pnd_appdata_path_hash[unique_id];
+			if (pnd_appdata_path_hash.has_key(pnd.pnd_id) == true)
+				return pnd_appdata_path_hash[pnd.pnd_id];
 
-			string pnd_path = data.get_pnd_fullpath(unique_id);
-			if (pnd_path != null) {
-				string path = Pandora.Apps.get_appdata_path(pnd_path, mounted_pnd_name_hash[unique_id]);
-				if (path != null) {
-					pnd_appdata_path_hash[unique_id] = path;
-					return path;
-				}
+			string path = Pandora.Apps.get_appdata_path(pnd.get_fullpath(), mounted_pnd_name_hash[pnd.pnd_id]);
+			if (path != null) {
+				pnd_appdata_path_hash[pnd.pnd_id] = path;
+				return path;
 			}
 
 			return null;
 		}
 
 		public bool mount(string unique_id) {
-			if (is_mounted(unique_id) == true)
+			var pnd = data.get_pnd(unique_id);
+			if (pnd == null)
+				return false;
+			if(is_pnd_mounted(pnd.pnd_id) == true)
 				return true;
 
-			string path = data.get_pnd_fullpath(unique_id);
-			if (path == null)
-				return false;
-
-			var name = mount_prefix + unique_id;
+			var name =  unique_id;
 			var app = data.get_app(unique_id);
 			if (app != null && app.appdata_dirname != null)
-				name = mount_prefix + app.appdata_dirname;
+				name = app.appdata_dirname;
+			if (mount_prefix != null)
+				name = mount_prefix + name;
 
-			if (Pandora.Apps.mount_pnd(path, name) == false)
+			if (Pandora.Apps.mount_pnd(pnd.get_fullpath(), name) == false)
 				return false;
-			mounted_pnd_name_hash[unique_id] = name;
+			mounted_pnd_name_hash[pnd.pnd_id] = name;
 
 			return true;
 		}
 
 		public bool unmount(string unique_id) {
-			if (is_mounted(unique_id) == false)
+			var pnd = data.get_pnd(unique_id);
+			if (pnd == null)
+				return false;
+			if(is_pnd_mounted(pnd.pnd_id) == false)
 				return true;
 
-			var path = data.get_pnd_fullpath(unique_id);
-			if (path == null)
+			if (Pandora.Apps.unmount_pnd(pnd.get_fullpath(), mounted_pnd_name_hash[pnd.pnd_id]) == false)
 				return false;
 
-			if (Pandora.Apps.unmount_pnd(path, mounted_pnd_name_hash[unique_id]) == false)
-				return false;
-
-			mounted_pnd_name_hash.unset(unique_id);
+			mounted_pnd_name_hash.unset(pnd.pnd_id);
 			return true;
 		}
 		public bool unmount_all() {
 			var keys = mounted_pnd_name_hash.keys.to_array();
-			foreach(string unique_id in keys) {
-				debug("unmounting %s...", unique_id);
-				if (unmount(unique_id) == false)
+			foreach(string pnd_id in keys) {
+				debug("unmounting %s...", mounted_pnd_name_hash[pnd_id]);
+				if (unmount(pnd_id) == false)
 					return false;
 			}
 			return true;
 		}
+
+		bool is_pnd_mounted(string? pnd_id) {
+			if (pnd_id == null)
+				return false;
+			return mounted_pnd_name_hash.has_key(pnd_id);
+		}
+		unowned string? get_pnd_id(string unique_id) {
+			var pnd = data.get_pnd(unique_id);
+			if (pnd != null)
+				return pnd.pnd_id;
+			return null;
+		}
+
 	}
 }
