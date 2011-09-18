@@ -19,6 +19,7 @@ pandafe_VALASOURCES = \
 	ConfigGui.vala \
 	libpndtest.vala \
 	GameBrowser.vala \
+	InterfaceHelper.vala \
 	Options.vala \
 	Data/GameBrowserState.vala \
 	Data/Platform.vala \

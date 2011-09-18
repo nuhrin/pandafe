@@ -7,8 +7,8 @@ public class PlatformSelector : Selector
 {
 	Gee.List<Platform> items;
 
-	public PlatformSelector(PixelFormat* format, Font* font, int width, int visible_items) {
-		base(format, font, width, visible_items);
+	public PlatformSelector(InterfaceHelper @interface, int width, int visible_items) {
+		base(@interface, width, visible_items);
 		items = new Catapult.Enumerable<Platform>(Data.platforms()).where(p=>p.rom_folder_root != null).to_list();
 	}
 

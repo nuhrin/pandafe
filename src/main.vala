@@ -24,7 +24,8 @@ public class MainClass: Object {
 
 		unowned SDL.Screen screen = inititialize_sdl();
 		WindowManager.set_caption("Pandafe", "");
-        new GameBrowser(screen).run();
+		InterfaceHelper @interface = new InterfaceHelper(screen);
+        new GameBrowser(@interface).run();
 
         SDL.quit();
 
@@ -33,7 +34,6 @@ public class MainClass: Object {
     const int SCREEN_WIDTH = 800;
     const int SCREEN_HEIGHT = 480;
     const int SCREEN_DEPTH = 32;
-
 
 	static unowned SDL.Screen inititialize_sdl() {
         if (SDL.init(InitFlag.VIDEO) == -1)

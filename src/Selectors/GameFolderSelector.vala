@@ -8,8 +8,8 @@ public class GameFolderSelector : Selector
 	GameFolder folder;
 	Gee.List<GameListNode> items;
 
-	public GameFolderSelector(GameFolder folder, PixelFormat* format, Font* font, int width, int visible_items) {
-		base(format, font, width, visible_items);
+	public GameFolderSelector(GameFolder folder, InterfaceHelper @interface, int width, int visible_items) {
+		base(@interface, width, visible_items);
 		this.folder = folder;
 		items = folder.children().to_list();
 	}

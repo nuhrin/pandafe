@@ -32,16 +32,6 @@ namespace Data
 		public Gdk.Color selected_item_color { get; set; }
 		public Gee.List<string> platform_order { get; set; }
 
-		public SDL.Color background_color_sdl() { return get_sdl_color(background_color); }
-		public SDL.Color item_color_sdl() { return get_sdl_color(item_color); }
-		public SDL.Color selected_item_color_sdl() { return get_sdl_color(selected_item_color); }
-		SDL.Color get_sdl_color(Gdk.Color color) {
-			return { convert_color(color.red), convert_color(color.green), convert_color(color.blue) };
-		}
-		uchar convert_color(uint16 color) {
-			return (255*color)/65535;
-		}
-
 		public void update_platform_order(Iterable<Platform> platforms) {
 			platform_order.clear();
 			foreach(var platform in platforms)

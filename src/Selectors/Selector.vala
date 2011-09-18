@@ -4,25 +4,20 @@ using Gee;
 
 public abstract class Selector : Object
 {
-	const int DEPTH = 32;
 	const int16 ITEM_SPACING = 5;
 	Surface surface;
-	unowned PixelFormat format;
-	unowned Font font;
-	int font_height;
+	InterfaceHelper @interface;
 	int surface_width;
 	int visible_items;
-	uint32 background_color_rgb;
 	int index_before_select_first;
 	int index_before_select_last;
 
-	protected Selector(PixelFormat* format, Font* font, int width, int visible_items) {
-		this.format = format;
-		this.font = font;
-		font_height = (int16)this.font.height();
+	protected Selector(InterfaceHelper @interface, int width, int visible_items) {
+		this.@interface = @interface;
+		@interface.font_updated.connect(reset_surface);
+		@interface.colors_updated.connect(reset_surface);
 		surface_width = width;
 		this.visible_items = visible_items;
-		update_colors();
 		selected_index = -1;
 		index_before_select_first = -1;
 		index_before_select_last = -1;
@@ -30,7 +25,7 @@ public abstract class Selector : Object
 	SelectorItemSet items {
 		get {
 			if (_items == null)
-				_items = new SelectorItemSet(font, this, (s,i)=>s.get_item_name(i));
+				_items = new SelectorItemSet(@interface, this, (s,i)=>s.get_item_name(i));
 
 			return _items;
 		}
@@ -39,24 +34,13 @@ public abstract class Selector : Object
 
 	public int selected_index { get; private set; }
 
-	public void update_colors() {
-		var preferences = Data.preferences();
-		var background_color = preferences.background_color_sdl();
-		background_color_rgb = format.map_rgb(background_color.r, background_color.g, background_color.b);
-		if (_items != null)
-			_items.update_colors();
-
-		surface = null;
-	}
-	public void update_font(Font* font) {
-		items.update_font(font);
-
+	void reset_surface() {
 		surface = null;
 	}
 
-	public void blit_to(Surface other, int16 x, int16 y) {
+	public void blit_to_screen(int16 x, int16 y) {
 		ensure_surface();
-		int16 height = (int16)((font_height * visible_items) + (ITEM_SPACING * visible_items) + ITEM_SPACING);
+		int16 height = (int16)((@interface.font_height * visible_items) + (ITEM_SPACING * visible_items) + ITEM_SPACING);
 		int16 offset = 0;
 		int item_count = get_item_count();
 		var half = visible_items / 2;
@@ -68,7 +52,7 @@ public abstract class Selector : Object
 		}
 		Rect source_r = {0, offset, (int16)surface_width, height};
 		Rect dest_r = {x, y};
-		surface.blit(source_r, other, dest_r);
+		@interface.screen_blit(surface, source_r, dest_r);
 	}
 
 	public bool has_previous { get { return selected_index > 0; } }
@@ -158,7 +142,7 @@ public abstract class Selector : Object
 	int16 get_item_offset(int index) {
 		if (index < 0 || index >= get_item_count())
 			return -1;
-		return (int16)((font_height * index) + (ITEM_SPACING * index) + ITEM_SPACING);
+		return (int16)((@interface.font_height * index) + (ITEM_SPACING * index) + ITEM_SPACING);
 	}
 	void ensure_surface() {
 		if (surface != null)
@@ -169,10 +153,9 @@ public abstract class Selector : Object
 		if (visible_items > item_count)
 			surface_items = visible_items;
 
-		int font_height = font.height();
-		int height = (font_height * surface_items) + (ITEM_SPACING * surface_items) + (ITEM_SPACING * 2);
-		surface = new Surface.RGB(SurfaceFlag.SWSURFACE, this.surface_width, height, DEPTH, format.Rmask, format.Gmask, format.Bmask, format.Amask);
-		surface.fill(null, background_color_rgb);
+		int height = (@interface.font_height * surface_items) + (ITEM_SPACING * surface_items) + (ITEM_SPACING * 2);
+		surface = @interface.get_blank_surface(this.surface_width, height);
+		surface.fill(null, @interface.background_color_rgb);
 
 		Rect rect = {0, ITEM_SPACING};
 		for(int index=0; index < item_count; index++) {
@@ -180,7 +163,7 @@ public abstract class Selector : Object
 				items.get_item_selected_rendering(index).blit(null, surface, rect);
 			else
 				items.get_item_rendering(index).blit(null, surface, rect);
-			rect.y = (int16)(rect.y + font_height + ITEM_SPACING);
+			rect.y = (int16)(rect.y + @interface.font_height + ITEM_SPACING);
 		}
 
 		surface.flip();

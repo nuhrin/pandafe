@@ -15,18 +15,16 @@ public class SelectorItemSet : Object
 	int[] item_positions;
 	string items_str;
 
-	unowned Font font;
-	Color background_color;
-	Color item_color;
-	Color selected_item_color;
+	InterfaceHelper @interface;
 
-	public class SelectorItemSet(Font* font, Selector selector, TFunc2<Selector,int, string> get_item_func) {
+	public class SelectorItemSet(InterfaceHelper @interface, Selector selector, TFunc2<Selector,int, string> get_item_func) {
+		this.@interface = @interface;
+		@interface.font_updated.connect(flush_renderings);
+		@interface.colors_updated.connect(flush_renderings);
 		this.selector = selector;
 		this.get_item_func = get_item_func;
 
-		// prepare for text renderings
-		this.font = font;
-		update_colors();
+		flush_renderings();
 
 		// concatenate items into single string and note indexes (for quick regex searching)
 		int item_count = selector.get_item_count();
@@ -92,31 +90,19 @@ public class SelectorItemSet : Object
 			GLib.error("Index out of range.");
 
 		if (item_renderings[index] == null)
-			item_renderings[index] = font.render_shaded(get_item_func(selector, index), item_color, background_color);
+			item_renderings[index] = @interface.render_text(get_item_func(selector, index));
 
 		return item_renderings[index];
 	}
 	public Surface get_item_selected_rendering(int index) {
 		if (index < 0 || index >= item_positions.length)
 			GLib.error("Index out of range.");
-		return font.render_shaded(get_item_func(selector, index), selected_item_color, background_color);
+		return @interface.render_text_selected(get_item_func(selector, index));
 	}
 	public Surface get_item_blank_rendering(int index) {
 		if (index < 0 || index >= item_positions.length)
 			GLib.error("Index out of range.");
-		return font.render_shaded(get_item_func(selector, index), background_color, background_color);
-	}
-	public void update_colors() {
-		var preferences = Data.preferences();
-		background_color = preferences.background_color_sdl();
-		item_color = preferences.item_color_sdl();
-		selected_item_color = preferences.selected_item_color_sdl();
-
-		flush_renderings();
-	}
-	public void update_font(Font* font) {
-		this.font = font;
-		flush_renderings();
+		return @interface.render_text_blank(get_item_func(selector, index));
 	}
 	void flush_renderings() {
 		item_renderings = new Surface[selector.get_item_count()];

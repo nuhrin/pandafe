@@ -5,19 +5,13 @@ using Data.GameList;
 
 public class GameBrowser
 {
-	Preferences preferences;
-	unowned SDL.Screen screen;
-	const int FONT_SIZE = 16;
+	InterfaceHelper @interface;
     const int DELAY = 10;
     const int VISIBLE_WITDH = 440;
     const int VISIBLE_ITEMS = 15;
 
 	bool event_loop_done;
 
-	Font font;
-	Color background_color;
-	uint32 background_color_rgb;
-	Color selected_item_color;
 	int16 pos_y_status_message;
 
     Selector selector;
@@ -26,19 +20,10 @@ public class GameBrowser
     int current_platform_index;
 	GameFolder current_folder;
 
-    public GameBrowser(SDL.Screen* screen) {
-		preferences = Data.preferences();
-		this.screen = screen;
-		font = new Font(preferences.font, FONT_SIZE);
-		if (font == null) {
-			GLib.error("Error loading font: %s", SDL.get_error());
-		}
+    public GameBrowser(InterfaceHelper @interface) {
+		this.@interface = @interface;
 		current_platform_index = -1;
-		background_color = preferences.background_color_sdl();
-		background_color_rgb = this.screen.format.map_rgb(background_color.r, background_color.g, background_color.b);
-		selected_item_color = preferences.selected_item_color_sdl();
-
-		pos_y_status_message = 470 - font.height();
+		pos_y_status_message = 470 - @interface.font_height;
 	}
 
 	public void run() {
@@ -77,12 +62,12 @@ public class GameBrowser
 		var state = Data.browser_state();
 		if (current_platform == null) {
 			current_folder = null;
-			selector = new PlatformSelector(this.screen.format, this.font, VISIBLE_WITDH, VISIBLE_ITEMS);
+			selector = new PlatformSelector(@interface, VISIBLE_WITDH, VISIBLE_ITEMS);
 		} else {
 			current_folder = current_platform.get_folder(state.get_current_platform_folder_id() ?? "");
 			if (current_folder == null)
 				current_folder = current_platform.get_root_folder();
-			selector = new GameFolderSelector(current_folder, this.screen.format, this.font, VISIBLE_WITDH, VISIBLE_ITEMS);
+			selector = new GameFolderSelector(current_folder, @interface, VISIBLE_WITDH, VISIBLE_ITEMS);
 		}
 		int item_index = state.get_current_platform_item_index();
 		if (item_index > 0) {
@@ -100,29 +85,29 @@ public class GameBrowser
 	}
 
 	void redraw_screen() {
-		screen.fill(null, background_color_rgb);
+		@interface.screen_fill(null, @interface.background_color_rgb);
 		_set_header();
 		redraw_selector();
 	}
 	void _set_header() {
 		Rect clear_rect = {20, 20, 760};
-		screen.fill(clear_rect, background_color_rgb);
+		@interface.screen_fill(clear_rect, @interface.background_color_rgb);
 
 		string platform_name = (current_platform != null) ? current_platform.name : null;
 		if (platform_name != null) {
 			Rect platform_rect = {20, 20};
-			font.render_shaded(platform_name, selected_item_color, background_color).blit(null, screen, platform_rect);
+			@interface.screen_blit(@interface.render_text_selected(platform_name), null, platform_rect);
 		}
 
 		string folder_id = (current_folder != null) ? current_folder.unique_id().strip() : "";
 		if (folder_id != null && folder_id != "") {
-			var rendered_folder_id = font.render_shaded(folder_id, selected_item_color, background_color);
+			var rendered_folder_id = @interface.render_text_selected(folder_id);
 			Rect folder_id_rect = {(int16)(780 - rendered_folder_id.w), 20};
-			rendered_folder_id.blit(null, screen, folder_id_rect);
+			@interface.screen_blit(rendered_folder_id, null, folder_id_rect);
 		}
 	}
 	void redraw_selector() {
-		selector.blit_to(screen, 100, 60);
+		selector.blit_to_screen(100, 60);
 		update_selection_message();
     }
 
@@ -139,7 +124,7 @@ public class GameBrowser
 			wipe_status_message();
 		status_message_stack.push_head(new StatusMessage(message, centered));
 		write_status_message();
-		screen.flip();
+		@interface.screen_flip();
 	}
 	void pop_status_message() {
 		if (status_message_stack == null || status_message_stack.is_empty() == true)
@@ -148,28 +133,28 @@ public class GameBrowser
 		wipe_status_message();
 		if (status_message_stack.is_empty() == false)
 			write_status_message();
-		screen.flip();
+		@interface.screen_flip();
 	}
 	void clear_status_messages() {
 		if (status_message_stack == null)
 			return;
 		status_message_stack.clear();
 		wipe_status_message();
-		screen.flip();
+		@interface.screen_flip();
 	}
 	void wipe_status_message() {
-		Rect rect = {10, pos_y_status_message, 780, (int16)font.height()};
-		screen.fill(rect, background_color_rgb);
+		Rect rect = {10, pos_y_status_message, 780, @interface.font_height};
+		@interface.screen_fill(rect, @interface.background_color_rgb);
 	}
 	void write_status_message() {
 		var sm = status_message_stack.peek_head();
-		var rendered_message = font.render_shaded(sm.message, selected_item_color, background_color);
+		var rendered_message = @interface.render_text_selected(sm.message);
 		Rect rect;
 		if (sm.is_centered == true)
 			rect = {(int16)(390 - rendered_message.w/2), pos_y_status_message};
 		else
 			rect = {10, pos_y_status_message, 780};
-		rendered_message.blit(null, screen, rect);
+		@interface.screen_blit(rendered_message, null, rect);
 	}
 	class StatusMessage : Object
 	{
@@ -285,9 +270,7 @@ public class GameBrowser
     void do_configuration() {
 		push_status_message("running main configuration...");
 		ConfigGui.run();
-		font = new Font(preferences.font, FONT_SIZE);
-		selector.update_colors();
-		selector.update_font(font);
+		@interface.update_from_preferences();
 		redraw_screen();
 	}
 	void edit_current_platform() {
@@ -369,7 +352,7 @@ public class GameBrowser
 		if (platform_selector != null) {
 			current_platform = platform_selector.selected_platform();
 			current_folder = current_platform.get_root_folder();
-			selector = new GameFolderSelector(current_folder, this.screen.format, this.font, VISIBLE_WITDH, VISIBLE_ITEMS);
+			selector = new GameFolderSelector(current_folder, @interface, VISIBLE_WITDH, VISIBLE_ITEMS);
 			selector.select_item(0);
 			redraw_screen();
 			return;
@@ -385,7 +368,7 @@ public class GameBrowser
 			var folder = item as GameFolder;
 			if (folder != null) {
 				current_folder = folder;
-				selector = new GameFolderSelector(current_folder, this.screen.format, this.font, VISIBLE_WITDH, VISIBLE_ITEMS);
+				selector = new GameFolderSelector(current_folder, @interface, VISIBLE_WITDH, VISIBLE_ITEMS);
 				selector.select_item(0);
 				redraw_screen();
 				return;
@@ -404,7 +387,7 @@ public class GameBrowser
 		if (game_selector != null) {
 			if (current_folder.parent == null) {
 				current_folder = null;
-				selector = new PlatformSelector(this.screen.format, this.font, VISIBLE_WITDH, VISIBLE_ITEMS);
+				selector = new PlatformSelector(@interface, VISIBLE_WITDH, VISIBLE_ITEMS);
 				int index=0;
 				foreach(var platform in Data.platforms()) {
 					if (platform.name == current_platform.name)
@@ -418,7 +401,7 @@ public class GameBrowser
 			}
 			var current_id = current_folder.unique_id();
 			current_folder = current_folder.parent;
-			selector = new GameFolderSelector(current_folder, this.screen.format, this.font, VISIBLE_WITDH, VISIBLE_ITEMS);
+			selector = new GameFolderSelector(current_folder, @interface, VISIBLE_WITDH, VISIBLE_ITEMS);
 			int index=0;
 			foreach(var subfolder in current_folder.child_folders()) {
 				if (subfolder.unique_id() == current_id)
