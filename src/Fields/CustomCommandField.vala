@@ -8,9 +8,12 @@ namespace Fields
 	public class CustomCommandField : SourceEditField
 	{
 		public const string MIME_TYPE="application/x-shellscript";
+		const string DEFAULT_VALUE = "#/bin/sh\n";
+		string? original_contents;
 		public CustomCommandField(string id, string? label=null, string? name=null, string? contents=null, string? pnd_id=null, string? pnd_app_id=null) {
 			string title = "Custom command " + ((name != null && name != "") ? "for " + name : null);
-			base(id, label, MIME_TYPE, title, contents ?? "#/bin/sh\n");
+			base(id, label, MIME_TYPE, title, contents ?? DEFAULT_VALUE);
+			original_contents = contents;
 			extend_edit_dialog(pnd_id, pnd_app_id);
 		}
 
@@ -35,6 +38,14 @@ namespace Fields
 			});
 			dialog.vbox.pack_start(file_field.widget, false, false, 0);
 			dialog.vbox.pack_start(new HSeparator(), false, false, 6);
+			var buttonbox = dialog.get_action_area() as HButtonBox;
+			var btnRevert = new Button.with_label("_Revert");
+			btnRevert.use_underline = true;
+			btnRevert.clicked.connect(() => {
+				source_buffer.set_text(original_contents);
+			});
+			buttonbox.pack_start(btnRevert, false, false, 0);
+			buttonbox.set_child_secondary(btnRevert, true);
 		}
 		PndScriptFileField file_field;
 
