@@ -81,7 +81,7 @@ public abstract class Selector : Object
 		return select_item(selected_index - 1);
 	}
 	public bool select_previous_by(uint count) {
-		if (count == 0)
+		if (count == 0 || selected_index == 0)
 			return false;
 		int index = selected_index - (int)count;
 		if (index < 0)
@@ -95,10 +95,10 @@ public abstract class Selector : Object
 		return select_item(selected_index + 1);
 	}
 	public bool select_next_by(uint count) {
-		if (count == 0)
+		int item_count = get_item_count();
+		if (count == 0 || selected_index == item_count - 1)
 			return false;
 		int index = selected_index + (int)count;
-		int item_count = get_item_count();
 		if (index >= item_count)
 			index = item_count - 1;
 		return select_item(index);
@@ -151,8 +151,6 @@ public abstract class Selector : Object
 
 		surface.flip();
 		selected_index = index;
-
-		debug("selected index: %d", index);
 
 		return true;
 	}
