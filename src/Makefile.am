@@ -19,12 +19,8 @@ pandafe_VALASOURCES = \
 	ConfigGui.vala \
 	libpndtest.vala \
 	GameBrowser.vala \
-	GameFolderSelector.vala \
-	PlatformSelector.vala \
-	Selector.vala \
 	Options.vala \
 	Data/GameBrowserState.vala \
-	Data/Interface.vala \
 	Data/Platform.vala \
 	Data/Pnd/AppItem.vala \
 	Data/Pnd/MountSet.vala \
@@ -33,6 +29,7 @@ pandafe_VALASOURCES = \
 	Data/Pnd/PndItem.vala \
 	Data/Preferences.vala \
 	Data/Program.vala \
+	Data/Provider.vala \
 	GameList/GameFolder.vala \
 	GameList/GameItem.vala \
 	GameList/GameListNode.vala \
@@ -48,6 +45,10 @@ pandafe_VALASOURCES = \
 	Fields/PlatformListField.vala \
 	Fields/ProgramListField.vala \
 	Fields/SourceEditField.vala \
+	Selectors/GameFolderSelector.vala \
+	Selectors/PlatformSelector.vala \
+	Selectors/Selector.vala \
+	Selectors/SelectorItemSet.vala \
 	$(NULL)
 
 pandafe_SOURCES = \
