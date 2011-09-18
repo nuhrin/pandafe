@@ -32,7 +32,7 @@ namespace Fields
 		}
 
 		void populate_items(string? pnd_id, string? selected_app_id) {
-			add_item("None", "");
+			add_item("None", Value(typeof(string)));
 			if (pnd_id == null)
 				return;
 			var pnd = data.get_pnd(pnd_id);
