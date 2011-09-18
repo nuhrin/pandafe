@@ -8,31 +8,33 @@ namespace Fields
 	public class PndScriptFileField : StringSelectionField
 	{
 		MountSet mountset;
-		public PndScriptFileField(string id, string? label=null, string pnd_id, string? pnd_app_id=null) {
+		HashSet<string> mounted_id_set;
+		public PndScriptFileField(string id, string? label=null, string? pnd_id=null, string? pnd_app_id=null) {
 			base(id, label);
-			mountset = new MountSet("pandafe/configtmp/");
+			mountset = Data.pnd_mountset(); //new MountSet("pandafe/configtmp/");
+			mounted_id_set = new HashSet<string>();
 			this.pnd_id = pnd_id;
 			this.pnd_app_id = pnd_app_id;
 			build_target_with_buttons();
 		}
-		public string pnd_id { get; set; }
-		public string pnd_app_id { get; set; }
+		public string? pnd_id { get; set; }
+		public string? pnd_app_id { get; set; }
 
 		public new string? value {
 			owned get { return (string)get_active_value(); }
 			set { set_active_value(value); }
 		}
 
-		public void rescan(string pnd_id, string? pnd_app_id=null) {
-			this.pnd_id = pnd_id;
-			var selected_id = value ?? pnd_app_id;
+		public void rescan() {
+			var selected_id = value;
 			clear_items();
 			populate_items(selected_id);
 			if (value == selected_id)
 				make_clean();
 		}
 		public void unmount_pnds() {
-			mountset.unmount_all();
+			foreach(string id in mounted_id_set)
+				mountset.unmount(id);
 			clear_items();
 			loadBtn.visible = false;
 			scanBtn.visible = true;
@@ -42,14 +44,24 @@ namespace Fields
 
 		void populate_items(string? selected_file) {
 			hbox.parent.sensitive = false;
-			// try to mount the pnd
-			if (mountset.is_mounted(pnd_id) == false) {
-				if (mountset.mount(pnd_id) == false)
-					return;
-			}
-			string path = mountset.get_mounted_path(pnd_id);
-			if (path == null)
+
+			var unique_id = pnd_app_id ?? pnd_id;
+			if (unique_id == null)
 				return;
+
+			// try to mount the pnd
+			if (mountset.is_mounted(unique_id) == false) {
+				if (mountset.mount(unique_id) == false) {
+					hbox.parent.sensitive = true;
+					return;
+				}
+				mounted_id_set.add(unique_id);
+			}
+			var path = mountset.get_mounted_path(unique_id);
+			if (path == null) {
+				hbox.parent.sensitive = true;
+				return;
+			}
 
 			// search pnd for script files
 			try {
@@ -118,21 +130,18 @@ namespace Fields
 		Button loadBtn;
 		Button scanBtn;
 		void scan_clicked() {
-			debug("rescan clicked");
-			rescan(pnd_id, pnd_app_id);
+			rescan();
 		}
 		void load_clicked() {
-			debug("load clicked");
 			var selected = active_item;
 			if (selected == null)
 				return;
-			string path = mountset.get_mounted_path(pnd_id);
+			string path = mountset.get_mounted_path(pnd_app_id ?? pnd_id);
 			if (path == null)
 				return;
 			path = path + "/" + selected;
 			string contents;
 			try {
-
 				if (FileUtils.get_contents(path, out contents) == true)
 					content_requested(contents);
 			} catch(FileError e) {
