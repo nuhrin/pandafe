@@ -47,7 +47,9 @@ namespace Data.GameList
 						folder_list.add(subfolder);
 					}
 				}
+				folder_list.sort((CompareFunc?)GameListNode.compare);
 				child_folders = folder_list;
+				game_list.sort((CompareFunc?)GameListNode.compare);
 				child_games = game_list;
 				return true;
 			}

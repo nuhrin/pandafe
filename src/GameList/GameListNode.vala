@@ -15,5 +15,9 @@ namespace Data.GameList
 		public string id { get { return (_id != null) ? _id : name; } }
 		public string unique_id() { return provider.get_unique_id(this); }
 
+		public static int compare(GameListNode a, GameListNode b) {
+			return strcmp(a.name, b.name);
+		}
+
 	}
 }
