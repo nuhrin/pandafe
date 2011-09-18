@@ -1,20 +1,18 @@
 using SDL;
 using SDLTTF;
+using Gee;
 
 public abstract class Selector : Object
 {
 	const int DEPTH = 32;
 	const int16 ITEM_SPACING = 5;
 	Surface surface;
-	unowned Font font;
 	unowned PixelFormat format;
+	unowned Font font;
 	int font_height;
 	int surface_width;
 	int visible_items;
 	uint32 background_color_rgb;
-	Color background_color;
-	Color item_color;
-	Color selected_item_color;
 	int index_before_select_first;
 	int index_before_select_last;
 
@@ -29,19 +27,31 @@ public abstract class Selector : Object
 		index_before_select_first = -1;
 		index_before_select_last = -1;
 	}
+	SelectorItemSet items {
+		get {
+			if (_items == null)
+				_items = new SelectorItemSet(font, this, (s,i)=>s.get_item_name(i));
+
+			return _items;
+		}
+	}
+	SelectorItemSet _items;
+
 	public int selected_index { get; private set; }
 
 	public void update_colors() {
 		var preferences = Data.preferences();
-		background_color = preferences.background_color_sdl();
+		var background_color = preferences.background_color_sdl();
 		background_color_rgb = format.map_rgb(background_color.r, background_color.g, background_color.b);
-		item_color = preferences.item_color_sdl();
-		selected_item_color = preferences.selected_item_color_sdl();
+		if (_items != null)
+			_items.update_colors();
 
 		surface = null;
 	}
 	public void update_font(Font* font) {
-		this.font = font;
+		items.update_font(font);
+
+		surface = null;
 	}
 
 	public void blit_to(Surface other, int16 x, int16 y) {
@@ -133,14 +143,16 @@ public abstract class Selector : Object
 
 		if (selected_index != -1) {
 			Rect oldrect = {0, get_item_offset(selected_index)};
-			font.render_shaded(get_item_name(selected_index), item_color, background_color).blit(null, surface, oldrect);
+			items.get_item_rendering(selected_index).blit(null, surface, oldrect);
 		}
 		Rect rect = {0, offset};
-		font.render_shaded(get_item_name(index), background_color, background_color).blit(null, surface, rect);
-		font.render_shaded(get_item_name(index), selected_item_color, background_color).blit(null, surface, rect);
+		items.get_item_blank_rendering(index).blit(null, surface, rect);
+		items.get_item_selected_rendering(index).blit(null, surface, rect);
 
 		surface.flip();
 		selected_index = index;
+
+		debug("selected index: %d", index);
 
 		return true;
 	}
@@ -166,15 +178,31 @@ public abstract class Selector : Object
 
 		Rect rect = {0, ITEM_SPACING};
 		for(int index=0; index < item_count; index++) {
-			var name = get_item_name(index);
-			var text = font.render_shaded(name, (selected_index == index) ? selected_item_color : item_color, background_color);
-			text.blit(null, surface, rect);
+			if (selected_index == index)
+				items.get_item_selected_rendering(index).blit(null, surface, rect);
+			else
+				items.get_item_rendering(index).blit(null, surface, rect);
 			rect.y = (int16)(rect.y + font_height + ITEM_SPACING);
 		}
 
 		surface.flip();
 	}
 
-	protected abstract int get_item_count();
-	protected abstract string get_item_name(int index);
+	public abstract int get_item_count();
+	public abstract string get_item_name(int index);
+
+	// filtering related
+
+	public bool filter(string pattern) {
+		ArrayList<int> matching_indexes;
+		bool is_partial;
+		if (items.search(pattern, out matching_indexes, out is_partial) == false)
+			return false;
+
+		print("matches: ");
+		foreach(var index in matching_indexes)
+			print("[%d] ", index);
+		print("\n");
+		return !is_partial;
+	}
 }
