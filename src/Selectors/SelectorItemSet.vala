@@ -12,6 +12,7 @@ public class SelectorItemSet : Object
 	Surface[] item_renderings;
 	int items_rendered_count;
 	int[] item_positions;
+	Gee.List<int> folder_item_indexes;
 	string items_str;
 
 	InterfaceHelper @interface;
@@ -28,14 +29,24 @@ public class SelectorItemSet : Object
 		int item_count = selector.get_item_count();
 		var sb = new StringBuilder();
 		item_positions = new int[item_count];
+		folder_item_indexes = new ArrayList<int>();
 		for(int index=0; index<item_count; index++) {
+			string name = selector.get_item_name(index);
 			item_positions[index] = (int)sb.len;
-			sb.append("%s\n".printf(selector.get_item_name(index).strip()));
+			if (name.has_suffix("/") == true) {
+				folder_item_indexes.add(index);
+				sb.append("\n");
+			} else {
+				sb.append("%s\n".printf(selector.get_item_name(index).strip()));
+			}
 		}
+		folder_item_indexes = folder_item_indexes.read_only_view;
 		items_str = sb.str;
 	}
 
-	public bool search(string pattern, out ArrayList<int> matching_indexes, out bool is_partial) {
+	public Gee.List<int> get_folder_indexes() { return folder_item_indexes; }
+
+	public bool search(string pattern, out Gee.List<int> matching_indexes, out bool is_partial) {
 		if (item_positions.length == 0)
 			return false;
 
@@ -74,7 +85,7 @@ public class SelectorItemSet : Object
 				break;
 			}
 		}
-		matching_indexes = filter_match_indexes;
+		matching_indexes = filter_match_indexes.read_only_view;
 		is_partial = !has_full_match;
 		return (filter_match_indexes.size > 0);
 	}

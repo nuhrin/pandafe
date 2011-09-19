@@ -177,7 +177,7 @@ public abstract class Selector : Object
 	// filtering related
 
 	public bool filter(string pattern) {
-		ArrayList<int> matching_indexes;
+		Gee.List<int> matching_indexes;
 		bool is_partial;
 		if (items.search(pattern, out matching_indexes, out is_partial) == false)
 			return false;

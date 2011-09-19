@@ -28,14 +28,14 @@ public class GameFolderSelector : Selector
 	protected override int get_item_count() { return items.size + 1; }
 	protected override string get_item_name(int index) {
 		if (index == 0)
-			return "..";
+			return "../";
 
 		var item = items[index-1];
 		return (item is GameFolder) ? item.name + "/" : item.name;
 	}
 	protected override string get_item_full_name(int index) {
 		if (index == 0)
-			return "..";
+			return "../";
 
 		var item = items[index-1];
 		return (item is GameFolder) ? item.name + "/" : item.full_name;
