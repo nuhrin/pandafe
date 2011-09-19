@@ -25,7 +25,7 @@ public abstract class Selector : Object
 	SelectorItemSet items {
 		get {
 			if (_items == null)
-				_items = new SelectorItemSet(@interface, this, (s,i)=>s.get_item_name(i));
+				_items = new SelectorItemSet(@interface, this);
 
 			return _items;
 		}
@@ -125,11 +125,12 @@ public abstract class Selector : Object
 
 		ensure_surface();
 
+		Rect rect = {0, offset};
 		if (selected_index != -1) {
 			Rect oldrect = {0, get_item_offset(selected_index)};
+			items.get_item_blank_rendering(selected_index).blit(null, surface, oldrect);
 			items.get_item_rendering(selected_index).blit(null, surface, oldrect);
 		}
-		Rect rect = {0, offset};
 		items.get_item_blank_rendering(index).blit(null, surface, rect);
 		items.get_item_selected_rendering(index).blit(null, surface, rect);
 
@@ -171,6 +172,7 @@ public abstract class Selector : Object
 
 	public abstract int get_item_count();
 	public abstract string get_item_name(int index);
+	public abstract string get_item_full_name(int index);
 
 	// filtering related
 

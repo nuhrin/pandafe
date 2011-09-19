@@ -40,10 +40,13 @@ namespace Data.GameList
 					var type = file_info.get_file_type();
 					var name = file_info.get_name();
 					if (type == FileType.REGULAR && patterns.match_string(name)) {
-						var game = new GameItem(name, this, folder);
+						var display_name = get_rom_display_name(name);
+						if (display_name == "")
+							continue;
+						var game = new GameItem(display_name, this, folder, name, get_rom_full_name(name));
 						game_list.add(game);
 					} else if (type == FileType.DIRECTORY) {
-						var subfolder = new GameFolder(name, this, folder);
+						var subfolder = new GameFolder(name.replace("_", " "), this, folder);
 						folder_list.add(subfolder);
 					}
 				}
@@ -63,6 +66,32 @@ namespace Data.GameList
 		}
 
 		protected override GameFolder create_root_folder() { return new GameFolder.root(root_folder_name, this, root_folder_path); }
+
+
+		string get_rom_display_name(string filename) {
+			// strips "GoodRom" decorations as well as extension
+			try {
+				if (_regex_rom_display_name == null)
+					_regex_rom_display_name = new Regex("""(\([\w \.]*\)|\[.*\]| *?)*\.\w*$""", RegexCompileFlags.OPTIMIZE);
+				return _regex_rom_display_name.replace(filename.replace("_", " "), -1, 0, "");
+			} catch (RegexError e) {
+				debug("Regex error while generating rom display name: %s", e.message);
+			}
+			return filename.replace("_", " ");
+		}
+		string get_rom_full_name(string filename) {
+			// strips just extension
+			try {
+				if (_regex_rom_full_name == null)
+					_regex_rom_full_name = new Regex(""" *?\.\w*$""", RegexCompileFlags.OPTIMIZE);
+				return _regex_rom_full_name.replace(filename.replace("_", " "), -1, 0, "");
+			} catch (RegexError e) {
+				debug("Regex error while generating rom display name: %s", e.message);
+			}
+			return filename.replace("_", " ");
+		}
+		static Regex _regex_rom_display_name;
+		static Regex _regex_rom_full_name;
 
 		string get_relative_path(GameListNode node) {
 			if (node.parent == null)

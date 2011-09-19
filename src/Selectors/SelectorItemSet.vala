@@ -8,7 +8,6 @@ public class SelectorItemSet : Object
 	const RegexCompileFlags REGEX_COMPILE_FLAGS = RegexCompileFlags.CASELESS | RegexCompileFlags.MULTILINE | RegexCompileFlags.NEWLINE_LF;
 	const RegexMatchFlags REGEX_MATCH_FLAGS = RegexMatchFlags.PARTIAL | RegexMatchFlags.NEWLINE_LF;
 
-	TFunc2<Selector,int, string> get_item_func;
 	Selector selector;
 	Surface[] item_renderings;
 	int items_rendered_count;
@@ -17,12 +16,11 @@ public class SelectorItemSet : Object
 
 	InterfaceHelper @interface;
 
-	public class SelectorItemSet(InterfaceHelper @interface, Selector selector, TFunc2<Selector,int, string> get_item_func) {
+	public class SelectorItemSet(InterfaceHelper @interface, Selector selector) {
 		this.@interface = @interface;
 		@interface.font_updated.connect(flush_renderings);
 		@interface.colors_updated.connect(flush_renderings);
 		this.selector = selector;
-		this.get_item_func = get_item_func;
 
 		flush_renderings();
 
@@ -32,7 +30,7 @@ public class SelectorItemSet : Object
 		item_positions = new int[item_count];
 		for(int index=0; index<item_count; index++) {
 			item_positions[index] = (int)sb.len;
-			sb.append("%s\n".printf(get_item_func(selector, index).strip()));
+			sb.append("%s\n".printf(selector.get_item_name(index).strip()));
 		}
 		items_str = sb.str;
 	}
@@ -90,19 +88,19 @@ public class SelectorItemSet : Object
 			GLib.error("Index out of range.");
 
 		if (item_renderings[index] == null)
-			item_renderings[index] = @interface.render_text(get_item_func(selector, index));
+			item_renderings[index] = @interface.render_text(selector.get_item_name(index));
 
 		return item_renderings[index];
 	}
 	public Surface get_item_selected_rendering(int index) {
 		if (index < 0 || index >= item_positions.length)
 			GLib.error("Index out of range.");
-		return @interface.render_text_selected(get_item_func(selector, index));
+		return @interface.render_text_selected(selector.get_item_full_name(index));
 	}
 	public Surface get_item_blank_rendering(int index) {
 		if (index < 0 || index >= item_positions.length)
 			GLib.error("Index out of range.");
-		return @interface.render_text_blank(get_item_func(selector, index));
+		return @interface.render_text_blank(selector.get_item_full_name(index));
 	}
 	void flush_renderings() {
 		item_renderings = new Surface[selector.get_item_count()];

@@ -33,4 +33,11 @@ public class GameFolderSelector : Selector
 		var item = items[index-1];
 		return (item is GameFolder) ? item.name + "/" : item.name;
 	}
+	protected override string get_item_full_name(int index) {
+		if (index == 0)
+			return "..";
+
+		var item = items[index-1];
+		return (item is GameFolder) ? item.name + "/" : item.full_name;
+	}
 }

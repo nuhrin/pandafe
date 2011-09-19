@@ -113,8 +113,6 @@ public class GameBrowser
 
 	void update_selection_message() {
 		clear_status_messages();
-		if (selector.selected_index <= 0)
-			return;
 		push_status_message("%d / %d".printf(selector.selected_index, selector.get_item_count() - 1), true);
 	}
 	void push_status_message(string message, bool centered=false) {
