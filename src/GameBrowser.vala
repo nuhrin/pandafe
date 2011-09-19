@@ -175,6 +175,10 @@ public class GameBrowser
 				case EventType.KEYDOWN:
 					this.on_keyboard_event(event.key);
 					break;
+				case EventType.KEYUP:
+					if (event.key.keysym.sym != KeySymbol.SPACE)
+						process_unicode_disabled = false;
+					break;
 			}
         }
     }
@@ -188,6 +192,9 @@ public class GameBrowser
 
 		if (event.keysym.mod == KeyModifier.NONE) {
 			switch(event.keysym.sym) {
+				case KeySymbol.SPACE:
+					process_unicode_disabled = true;
+					return;
 				case KeySymbol.UP:
 					select_previous();
 					break;
@@ -256,15 +263,20 @@ public class GameBrowser
 		}
     }
     bool process_unicode(uint16 unicode) {
+		if (process_unicode_disabled)
+			return true;
+
 		if (unicode <= uint8.MAX) {
 			char c = (char)unicode;
 			if (c.isalnum() == true) {
+				//debug("'%c' pressed", c);
 				select_next_starting_with(c);
 				return false;
 			}
 		}
 		return true;
 	}
+	bool process_unicode_disabled;
 
     void do_configuration() {
 		push_status_message("running main configuration...");
