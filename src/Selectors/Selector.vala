@@ -115,6 +115,17 @@ public abstract class Selector : Object
 		return true;
 	}
 
+	public bool select_item_starting_with(string str, int index=0) {
+		Gee.List<int> matching_indexes;
+		if (items.search("^" + str, out matching_indexes, null) == false)
+			return false;
+
+		if (matching_indexes.size >= index + 1)
+			return select_item(matching_indexes[index]);
+
+		return false;
+	}
+
 	public bool select_item(int index) {
 		int16 offset = get_item_offset(index);
 		if (offset == -1)

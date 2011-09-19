@@ -183,9 +183,9 @@ public class GameBrowser
         while(Event.poll(event) == 1);
 	}
     void on_keyboard_event (KeyboardEvent event) {
-		char c = get_alphanumeric(event.keysym.unicode);
-		if (c > 0)
-			debug("Alphanumeric character pressed: %c", c);
+		if (process_unicode(event.keysym.unicode) == false)
+			return;
+
 		if (event.keysym.mod == KeyModifier.NONE) {
 			switch(event.keysym.sym) {
 				case KeySymbol.UP:
@@ -255,14 +255,15 @@ public class GameBrowser
 //~ 			}
 		}
     }
-    char get_alphanumeric(uint16 unicode) {
-		if (unicode > uint8.MAX)
-			return 0;
-		char c = (char)unicode;
-		if (c.isalnum() == true)
-			return c;
-
-		return 0;
+    bool process_unicode(uint16 unicode) {
+		if (unicode <= uint8.MAX) {
+			char c = (char)unicode;
+			if (c.isalnum() == true) {
+				select_next_starting_with(c);
+				return false;
+			}
+		}
+		return true;
 	}
 
     void do_configuration() {
@@ -337,6 +338,25 @@ public class GameBrowser
 		apply_platform_state();
 		redraw_screen();
 	}
+	void select_next_starting_with(char c) {
+		if (last_pressed_alphanumeric == c) {
+			last_pressed_alphanumeric_repeat_count++;
+		} else {
+			last_pressed_alphanumeric = c;
+			last_pressed_alphanumeric_repeat_count = 0;
+		}
+		if (last_pressed_alphanumeric_repeat_count > 0) {
+			if (selector.select_item_starting_with(last_pressed_alphanumeric.to_string(), last_pressed_alphanumeric_repeat_count) == true) {
+				redraw_selector();
+				return;
+			}
+			last_pressed_alphanumeric_repeat_count = 0;
+		}
+		if(selector.select_item_starting_with(last_pressed_alphanumeric.to_string()) == true)
+			redraw_selector();
+	}
+	char last_pressed_alphanumeric = 0;
+	int last_pressed_alphanumeric_repeat_count;
 
 	void apply_list_filter() {
 		selector.filter("ar$");
