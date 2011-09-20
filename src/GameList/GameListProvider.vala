@@ -66,9 +66,10 @@ namespace Data.GameList
 
 			if (game_path != null) {
 				if (args != null && args.index_of("%g") != -1)
-					args = args.replace("%g", "'" + game_path + "'");
+					args = args.replace("%g", game_path.replace(" ", "\\ "));
 				else
-					args = "%s '%s'".printf((args ?? ""), game_path);
+					args = "%s %s".printf((args ?? ""), game_path.replace(" ", "\\ "));
+				debug("args: %s", args);
 			}
 
 			bool has_custom_command = (program.custom_command != null && program.custom_command != "");
