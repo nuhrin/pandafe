@@ -19,7 +19,7 @@ namespace Data.GameList
 		public string unique_id() { return provider.get_unique_id(this); }
 
 		public static int compare(GameListNode a, GameListNode b) {
-			return strcmp(a.name, b.name);
+			return a.name.ascii_casecmp(b.name);
 		}
 
 	}
