@@ -22,8 +22,11 @@ pandafe_VALASOURCES = \
 	InterfaceHelper.vala \
 	Options.vala \
 	Data/GameBrowserState.vala \
+	Data/NativePlatform.vala \
+	Data/NativePlatformCategory.vala \
 	Data/Platform.vala \
 	Data/Pnd/AppItem.vala \
+	Data/Pnd/Category.vala \
 	Data/Pnd/MountSet.vala \
 	Data/Pnd/PndCache.vala \
 	Data/Pnd/PndData.vala \
@@ -36,6 +39,7 @@ pandafe_VALASOURCES = \
 	GameList/GameListNode.vala \
 	GameList/GameListProvider.vala \
 	GameList/RomList.vala \
+	GameList/PndList.vala \
 	Fields/ColorField.vala \
 	Fields/ClockspeedField.vala \
 	Fields/CustomCommandField.vala \

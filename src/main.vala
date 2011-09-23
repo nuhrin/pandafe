@@ -17,7 +17,7 @@ public class MainClass: Object {
 //~ //		}
 //~
 
-//		test_romlist(args);
+//		test_app_categories();
 //		return 0;
 
 		ensure_pandafedata_folder();

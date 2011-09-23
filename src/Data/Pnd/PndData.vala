@@ -13,6 +13,9 @@ namespace Data.Pnd
 		HashMap<string, PndItem> pnd_id_hash;
 		HashMap<string, AppItem> app_id_hash;
 		HashMap<string, PndItem> app_id_pnd_hash;
+		ArrayList<string> main_category_name_list;
+		HashMap<string, Category> category_name_hash;
+
 		public PndData(DataInterface data_interface, PndCache? cache=null) {
 			this.data_interface = data_interface;
 			if (cache != null)
@@ -36,6 +39,8 @@ namespace Data.Pnd
 			pnd_id_hash = new HashMap<string, PndItem>();
 			app_id_hash = new HashMap<string, AppItem>();
 			app_id_pnd_hash = new HashMap<string, PndItem>();
+			main_category_name_list = null;
+			category_name_hash = null;
 
 			foreach(var pnd in cache.pnd_list) {
 				pnd_list.add(pnd);
@@ -68,6 +73,57 @@ namespace Data.Pnd
 			if (app_id_hash.has_key(id) == true)
 				return app_id_hash[id];
 			return null;
+		}
+
+		public Enumerable<string> get_main_category_names() {
+			ensure_category_data();
+			return new Enumerable<string>(main_category_name_list);
+		}
+		public Enumerable<Category> get_main_categories() {
+			return get_main_category_names().select<Category>(name=> category_name_hash[name]);
+		}
+		public Category? get_category(string main_category_name) {
+			ensure_category_data();
+			if (category_name_hash.has_key(main_category_name) == true)
+				return category_name_hash[main_category_name];
+			return null;
+		}
+
+		void ensure_category_data() {
+			if (main_category_name_list != null)
+				return;
+
+			main_category_name_list = new ArrayList<string>();
+			category_name_hash = new HashMap<string, Category>();
+
+			foreach(var pnd in pnd_list) {
+				foreach(var app in pnd.apps) {
+					string main_category = app.main_category;
+					Category category = null;
+					if (category_name_hash.has_key(main_category) == false) {
+						main_category_name_list.add(main_category);
+						category = new Category(main_category);
+						category_name_hash[main_category] = category;
+					} else {
+						category = category_name_hash[main_category];
+					}
+					string subcategory1 = app.subcategory1;
+					string subcategory2 = app.subcategory2;
+					bool has_subcategory = (subcategory1 != "" || subcategory2 != "");
+					if (has_subcategory == false) {
+						category.add_app(app);
+					} else {
+						if (subcategory1 != "") {
+							var sub1 = category.ensure_subcategory(subcategory1);
+							sub1.add_app(app);
+						}
+						if (subcategory2 != "") {
+							var sub2 = category.ensure_subcategory(subcategory2);
+							sub2.add_app(app);
+						}
+					}
+				}
+			}
 		}
 	}
 }

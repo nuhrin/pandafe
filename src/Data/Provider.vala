@@ -7,6 +7,8 @@ namespace Data
 	public DataInterface data_interface() { return Provider.instance().data_interface; }
 
 	public Gee.List<Platform> platforms() { return Provider.instance().get_platforms(); }
+	public NativePlatform native_platform() { return Provider.instance().get_native_platform(); }
+	public bool save_native_platform() { return Provider.instance().save_native_platform(); }
 	public void flush_platforms() { Provider.instance().flush_platforms(); }
 
 	public Preferences preferences() { return Provider.instance().get_preferences(); }
@@ -98,6 +100,7 @@ namespace Data
 						_platforms = data_interface.load_all<Platform>()
 							.sort((a,b) => strcmp(a.name, b.name))
 							.to_list();
+						_platforms.insert(0, get_native_platform());
 					} catch (Error e) {
 						debug("Error while loading platforms: %s", e.message);
 					}
@@ -105,6 +108,10 @@ namespace Data
 				}
 				foreach(var id in platform_ids) {
 					try {
+						if (id == NativePlatform.ENTITY_ID) {
+							_platforms.add(get_native_platform());
+							continue;
+						}
 						var platform = data_interface.load<Platform>(id);
 						if (platform.platform_type == PlatformType.ROM) {
 							if (platform.rom_folder_root == null)
@@ -123,6 +130,37 @@ namespace Data
 		}
 		Gee.List<Platform> _platforms;
 
+		public NativePlatform get_native_platform() {
+			if (_native_platform == null) {
+				try {
+					debug("try load native_platform");
+					_native_platform = data_interface.load<NativePlatform>(NativePlatform.ENTITY_ID, "");
+					debug("finished loading native_platform");
+				}
+				catch (Error e) {
+					debug("Error while retrieving native platform: %s", e.message);
+					_native_platform = null;
+				}
+				if (_native_platform == null) {
+					_native_platform = new NativePlatform();
+					_native_platform.categories.add(new NativePlatformCategory() { name = "Games" });
+					save_native_platform();
+				}
+			}
+			return _native_platform;
+		}
+		NativePlatform _native_platform;
+		public bool save_native_platform() {
+			var platform = get_native_platform();
+			try {
+				data_interface.save(platform, NativePlatform.ENTITY_ID, "");
+				return true;
+			}
+			catch (Error e) {
+				debug("Error while saving native platform: %s", e.message);
+			}
+			return false;
+		}
 		public void flush_platforms() {
 			_platforms = null;
 		}

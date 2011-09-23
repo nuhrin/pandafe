@@ -9,7 +9,7 @@ public class PlatformSelector : Selector
 
 	public PlatformSelector(InterfaceHelper @interface, int width, int visible_items) {
 		base(@interface, width, visible_items);
-		items = new Catapult.Enumerable<Platform>(Data.platforms()).where(p=>p.rom_folder_root != null).to_list();
+		items = new Catapult.Enumerable<Platform>(Data.platforms()).to_list();
 	}
 
 	public Platform? selected_platform()

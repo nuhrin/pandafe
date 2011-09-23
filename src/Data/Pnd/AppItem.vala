@@ -15,11 +15,8 @@ namespace Data.Pnd
 			exec_arguments = app.exec_arguments ?? "";
 			startdir = app.startdir ?? "";
 			main_category = app.main_category ?? "";
-			main_category1 = app.main_category1 ?? "";
-			main_category2 = app.main_category2 ?? "";
-			alt_category = app.alt_category ?? "";
-			alt_category1 = app.alt_category1 ?? "";
-			alt_category2 = app.alt_category2 ?? "";
+			subcategory1 = app.main_category1 ?? "";
+			subcategory2 = app.main_category2 ?? "";
 		}
 		public string id { get; set; }
 		public string appdata_dirname { get; set; }
@@ -30,11 +27,8 @@ namespace Data.Pnd
 		public string exec_arguments { get; set; }
 		public string startdir { get; set; }
 		public string main_category { get; set; }
-		public string main_category1 { get; set; }
-		public string main_category2 { get; set; }
-		public string alt_category { get; set; }
-		public string alt_category1 { get; set; }
-		public string alt_category2 { get; set; }
+		public string subcategory1 { get; set; }
+		public string subcategory2 { get; set; }
 
 		protected override Yaml.Node build_yaml_node(Yaml.NodeBuilder builder) {
 			return builder.build_object_mapping(this);

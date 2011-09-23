@@ -9,6 +9,7 @@ using Data.GameList;
 
 public enum PlatformType {
 	ROM,
+	CUSTOM,
 	NATIVE
 }
 public class Platform : NamedEntity, GuiEntity
@@ -16,8 +17,21 @@ public class Platform : NamedEntity, GuiEntity
 	construct {
 		programs = new ArrayList<Program>();
 	}
-	public PlatformType platform_type { get; set; }
+	public PlatformType platform_type {
+		get {
+			if (this.get_type() == typeof(NativePlatform))
+				return PlatformType.NATIVE;
+			return _platform_type;
+		}
+		set {
+			if (value == PlatformType.NATIVE)
+				error("Setting PlatformType.NATIVE is not valid.");
+			_platform_type = value;
+		}
+	}
+	PlatformType _platform_type;
 
+	// properties for ROM platforms
 	public string rom_folder_root { get; set; }
 	public string rom_filespec { get; set; }
 
@@ -42,11 +56,13 @@ public class Platform : NamedEntity, GuiEntity
 	}
 
 	void ensure_provider() {
-		if (_provider == null) {
-			_provider = new RomList(this, name, rom_folder_root, rom_filespec);
-		}
+		if (_provider == null)
+			_provider = get_provider();
 	}
 	GameListProvider _provider;
+	protected virtual GameListProvider get_provider() {
+		return new RomList(this, name, rom_folder_root, rom_filespec);
+	}
 
 	// yaml
 	protected override Yaml.Node build_yaml_node(Yaml.NodeBuilder builder) {
@@ -91,7 +107,7 @@ public class Platform : NamedEntity, GuiEntity
 	}
 
 	// gui
-	protected void populate_field_container(FieldContainer container) {
+	protected virtual void populate_field_container(FieldContainer container) {
 		// add Platform frame
 		var platform_frame = new FrameFieldset("PlatformFrame", "Platform");
 		platform_frame.add_string("name", "_Name", this.name);
