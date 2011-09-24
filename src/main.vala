@@ -57,6 +57,8 @@ public class MainClass: Object {
 		if (SDL.enable_key_repeat() == -1)
 			GLib.error("Error enabling key repeat: %s", SDL.get_error());
 
+		SDL.Cursor.show(0);
+
 		if (needsFullscreenBlip == true) {
 			// now leave fullscreen, to ensure fullscreen child windows work and for better compatibility with launched programs
 			WindowManager.toggle_fullscreen(screen);
