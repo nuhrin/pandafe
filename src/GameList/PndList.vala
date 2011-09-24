@@ -25,7 +25,16 @@ namespace Data.GameList
 		}
 
 		public override uint run_game(GameItem game) {
-			error("run_game() not implemented.");
+			var ids = game.id.split("|");
+			var pnd = pnddata.get_pnd(ids[0]);
+			if (pnd != null) {
+				var app = pnd.apps.first_where(a=>a.id == ids[1]);
+				if (app != null) {
+					return app.execute();
+				}
+			}
+			debug("Unable to run pnd '%s' (%s).", game.name, game.id);
+			return -1;
 		}
 
 		public override string get_unique_id(GameListNode node) {
@@ -78,8 +87,23 @@ namespace Data.GameList
 			}
 
 			if (category != null) {
-				foreach(var app in category.apps)
-					game_list.add(new GameItem(app.title, this, folder, app.id));
+				var title_game_hash = new HashMap<string, GameItem?>();
+				var title_packageid_hash = new HashMap<string, string>();
+				foreach(var app in category.apps) {
+					GameItem game = new GameItem(app.title, this, folder, "%s|%s".printf(app.package_id, app.id));
+					if (title_game_hash.has_key(app.title) == true) {
+						var old_game_item = title_game_hash[app.title];
+						if (old_game_item != null) {
+							old_game_item.full_name = "%s (%s)".printf(app.title, title_packageid_hash[app.title]);
+							title_game_hash[app.title] = null;
+						}
+						game.full_name = "%s (%s)".printf(app.title, app.package_id);
+					} else {
+						title_game_hash[app.title] = game;
+						title_packageid_hash[app.title] = app.package_id;
+					}
+					game_list.add(game);
+				}
 				game_list.sort((CompareFunc?)GameListNode.compare);
 			}
 		}

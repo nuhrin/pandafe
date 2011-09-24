@@ -133,9 +133,7 @@ namespace Data
 		public NativePlatform get_native_platform() {
 			if (_native_platform == null) {
 				try {
-					debug("try load native_platform");
 					_native_platform = data_interface.load<NativePlatform>(NativePlatform.ENTITY_ID, "");
-					debug("finished loading native_platform");
 				}
 				catch (Error e) {
 					debug("Error while retrieving native platform: %s", e.message);

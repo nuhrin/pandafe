@@ -13,7 +13,10 @@ namespace Data.GameList
 		}
 		protected GameListProvider provider { get; private set; }
 		public string name { get; private set; }
-		public string full_name { get { return (_full_name != null) ? _full_name : name; } }
+		public string full_name {
+			get { return (_full_name != null) ? _full_name : name; }
+			set { _full_name = value; }
+		}
 		public GameFolder? parent { get; private set; }
 		public string id { get { return (_id != null) ? _id : name; } }
 		public string unique_id() { return provider.get_unique_id(this); }

@@ -32,6 +32,7 @@ namespace Data.GameList
 		public override bool get_children(GameFolder folder, out ArrayList<GameFolder> child_folders, out ArrayList<GameItem> child_games) {
 			var folder_list = new ArrayList<GameFolder>();
 			var game_list = new ArrayList<GameItem>();
+			var displayname_game_hash = new HashMap<string, GameItem?>();
 			try {
 				var directory = File.new_for_path(get_full_path(folder));
 				var enumerator = directory.enumerate_children("standard::*", FileQueryInfoFlags.NONE);
@@ -40,10 +41,21 @@ namespace Data.GameList
 					var type = file_info.get_file_type();
 					var name = file_info.get_name();
 					if (type == FileType.REGULAR && patterns.match_string(name)) {
+						GameItem game = null;
 						var display_name = get_rom_display_name(name);
 						if (display_name == "")
 							continue;
-						var game = new GameItem(display_name, this, folder, name, get_rom_full_name(name));
+						if (displayname_game_hash.has_key(display_name) == true) {
+							var old_game_item = displayname_game_hash[display_name];
+							if (old_game_item != null) {
+								old_game_item.full_name = get_rom_full_name(old_game_item.id);
+								displayname_game_hash[display_name] = null;
+							}
+							game = new GameItem(display_name, this, folder, name, get_rom_full_name(name));
+						} else {
+							game = new GameItem(display_name, this, folder, name);
+							displayname_game_hash[display_name] = game;
+						}
 						game_list.add(game);
 					} else if (type == FileType.DIRECTORY) {
 						var subfolder = new GameFolder(name.replace("_", " "), this, folder);

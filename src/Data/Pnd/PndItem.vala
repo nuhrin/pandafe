@@ -16,6 +16,7 @@ namespace Data.Pnd
 			var items = new ArrayList<AppItem>();
 			foreach(var app in pnd.apps) {
 				var item = new AppItem.from_app(app);
+				item.set_pnd(this);
 				items.add(item);
 			}
 			apps = new Enumerable<AppItem>(items);
@@ -49,8 +50,10 @@ namespace Data.Pnd
 					var apps_node = map.Mappings[key] as Yaml.SequenceNode;
 					foreach(var app_node in apps_node.Items) {
 						var item = (AppItem)parser.parse_value_of_type(app_node, typeof(AppItem), null);
-						if (item != null)
+						if (item != null) {
+							item.set_pnd(this);
 							app_list.add(item);
+						}
 					}
 					apps = new Enumerable<AppItem>(app_list);
 				}
