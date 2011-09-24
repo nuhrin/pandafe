@@ -7,6 +7,7 @@ namespace Data.GameList
 	{
 		const string CUSTOM_COMMAND_SCRIPT_PATH = "pandafe-custom-run.sh";
 		const string CUSTOM_PNDRUN_PATH = "scripts/pnd_run_nomount.sh";
+		const string TMP_PATH = "/tmp/pandafe";
 
 		protected GameListProvider(Platform platform) {
 			this.platform = platform;
@@ -64,11 +65,15 @@ namespace Data.GameList
 			if ((args == null || args == "") && app != null)
 				args = app.exec_arguments;
 
+			string game_path_link = null;
 			if (game_path != null) {
+				if (game_path.index_of(" ") != -1)
+					// if game path contains spaces, use a temp symlink without spaces to workaround libpnd issues
+					game_path_link = get_game_symlink_path(game_path);
 				if (args != null && args.index_of("%g") != -1)
-					args = args.replace("%g", game_path.replace(" ", "\\ "));
+					args = args.replace("%g", game_path_link ?? game_path);
 				else
-					args = "%s %s".printf((args ?? ""), game_path.replace(" ", "\\ "));
+					args = "%s %s".printf((args ?? ""), game_path_link ?? game_path);
 				debug("args: %s", args);
 			}
 
@@ -114,14 +119,56 @@ namespace Data.GameList
 				}
 			}
 			// run the pnd
+			if (game_path_link != null) {
+				if (create_game_symlink(game_path_link, game_path) == false) {
+					return -1;
+				}
+			}
 			var runpath = Path.build_filename(Config.PACKAGE_DATADIR, CUSTOM_PNDRUN_PATH);
 			if (FileUtils.test(runpath, FileTest.EXISTS) == false)
 				runpath = CUSTOM_PNDRUN_PATH;
 			Pandora.Apps.set_pndrun_path(runpath);
 			var result = Pandora.Apps.execute_app(pnd.get_fullpath(), mount_id, command, startdir, args, clockspeed, Pandora.Apps.ExecOption.BLOCK);
 			Pandora.Apps.unset_pndrun_path();
+			if (game_path_link != null) {
+				delete_game_symlink(game_path_link);
+			}
 			return result;
 		}
 
+		string? get_game_symlink_path(string game_path) {
+			return "%s%c%s".printf(TMP_PATH, Path.DIR_SEPARATOR, File.new_for_path(game_path).get_basename().replace(" ", "_"));
+		}
+		bool create_game_symlink(string linkpath, string game_path) {
+			try {
+				if (FileUtils.test(TMP_PATH, FileTest.EXISTS) == false) {
+					if (File.new_for_path(TMP_PATH).make_directory_with_parents() == false) {
+						debug("unable to create directory '%s'", TMP_PATH);
+						return false;
+					}
+				}
+				var linkfile = File.new_for_path(linkpath);
+				if (FileUtils.test(linkpath, FileTest.EXISTS) == true)
+					linkfile.delete();
+
+				if (linkfile.make_symbolic_link(game_path) == false) {
+					debug("unable to create symbolic link '%s' => '%s'", linkpath, game_path);
+					return false;
+				}
+				return true;
+			}
+			catch (Error e) {
+				debug("unable to create symbolic link '%s' => '%s': %s", linkpath, game_path, e.message);
+			}
+			return false;
+		}
+		bool delete_game_symlink(string linkpath) {
+			try {
+				return File.new_for_path(linkpath).delete();
+			} catch(Error e) {
+				debug("unable to delete symbolic link '%s': %s", linkpath, e.message);
+			}
+			return false;
+		}
 	}
 }
