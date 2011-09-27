@@ -14,9 +14,9 @@ public class SelectorItemSet : Object
 	int[] item_positions;
 	Gee.List<int> folder_item_indexes;
 	string items_str;
-
 	InterfaceHelper @interface;
-
+	int first_rendered_item;
+	int last_rendered_item;
 	public class SelectorItemSet(InterfaceHelper @interface, Selector selector) {
 		this.@interface = @interface;
 		@interface.font_updated.connect(flush_renderings);
@@ -26,7 +26,7 @@ public class SelectorItemSet : Object
 		flush_renderings();
 
 		// concatenate items into single string and note indexes (for quick regex searching)
-		int item_count = selector.get_item_count();
+		int item_count = selector.item_count;
 		var sb = new StringBuilder();
 		item_positions = new int[item_count];
 		folder_item_indexes = new ArrayList<int>();
@@ -42,6 +42,10 @@ public class SelectorItemSet : Object
 		}
 		folder_item_indexes = folder_item_indexes.read_only_view;
 		items_str = sb.str;
+
+		first_rendered_item = item_count / 2;
+		last_rendered_item = first_rendered_item;
+		@interface.connect_idle_function("selector_item_set", rendering_iteration);
 	}
 
 	public Gee.List<int> get_folder_indexes() { return folder_item_indexes; }
@@ -108,13 +112,23 @@ public class SelectorItemSet : Object
 			GLib.error("Index out of range.");
 		return @interface.render_text_selected(selector.get_item_full_name(index));
 	}
-	public Surface get_item_blank_rendering(int index) {
-		if (index < 0 || index >= item_positions.length)
-			GLib.error("Index out of range.");
-		return @interface.render_text_blank(selector.get_item_full_name(index));
-	}
 	void flush_renderings() {
-		item_renderings = new Surface[selector.get_item_count()];
+		item_renderings = new Surface[selector.item_count];
 		items_rendered_count = 0;
+	}
+	void rendering_iteration() {
+		bool done = true;
+		if (first_rendered_item > 0) {
+			first_rendered_item--;
+			get_item_rendering(first_rendered_item);
+			done = false;
+		}
+		if (last_rendered_item < selector.item_count - 1) {
+			last_rendered_item++;
+			get_item_rendering(last_rendered_item);
+			done = false;
+		}
+		if (done == true)
+			@interface.disconnect_idle_function("selector_item_set");
 	}
 }

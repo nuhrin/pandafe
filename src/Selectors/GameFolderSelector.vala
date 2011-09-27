@@ -8,8 +8,8 @@ public class GameFolderSelector : Selector
 	GameFolder folder;
 	Gee.List<GameListNode> items;
 
-	public GameFolderSelector(GameFolder folder, InterfaceHelper @interface, int width, int visible_items) {
-		base(@interface, width, visible_items);
+	public GameFolderSelector(GameFolder folder, InterfaceHelper @interface) {
+		base(@interface);
 		this.folder = folder;
 		items = folder.children().to_list();
 	}
@@ -25,7 +25,7 @@ public class GameFolderSelector : Selector
 		return items[selected_index-1];
 	}
 
-	protected override int get_item_count() { return items.size + 1; }
+	protected override int get_itemcount() { return items.size + 1; }
 	protected override string get_item_name(int index) {
 		if (index == 0)
 			return "../";

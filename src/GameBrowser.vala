@@ -6,9 +6,6 @@ using Data.GameList;
 public class GameBrowser
 {
 	InterfaceHelper @interface;
-    const int DELAY = 10;
-    const int VISIBLE_WITDH = 440;
-    const int VISIBLE_ITEMS = 15;
 
 	bool event_loop_done;
 
@@ -33,7 +30,7 @@ public class GameBrowser
 		Key.enable_unicode(1);
         while(event_loop_done == false) {
             process_events();
-            SDL.Timer.delay(DELAY);
+            @interface.execute_idle_loop_work();
         }
 		update_browser_state();
 		Data.save_browser_state();
@@ -62,12 +59,12 @@ public class GameBrowser
 		var state = Data.browser_state();
 		if (current_platform == null) {
 			current_folder = null;
-			selector = new PlatformSelector(@interface, VISIBLE_WITDH, VISIBLE_ITEMS);
+			selector = new PlatformSelector(@interface);
 		} else {
 			current_folder = current_platform.get_folder(state.get_current_platform_folder_id() ?? "");
 			if (current_folder == null)
 				current_folder = current_platform.get_root_folder();
-			selector = new GameFolderSelector(current_folder, @interface, VISIBLE_WITDH, VISIBLE_ITEMS);
+			selector = new GameFolderSelector(current_folder, @interface);
 		}
 		int item_index = state.get_current_platform_item_index();
 		if (item_index > 0) {
@@ -113,7 +110,7 @@ public class GameBrowser
 
 	void update_selection_message() {
 		clear_status_messages();
-		push_status_message("%d / %d".printf(selector.selected_index, selector.get_item_count() - 1), true);
+		push_status_message("%d / %d".printf(selector.selected_index, selector.item_count - 1), true);
 	}
 	void push_status_message(string message, bool centered=false) {
 		if (status_message_stack == null)
@@ -307,7 +304,7 @@ public class GameBrowser
 			redraw_selector();
 	}
 	void select_previous_page() {
-		if (selector.select_previous_by(VISIBLE_ITEMS))
+		if (selector.select_previous_by(@interface.SELECTOR_VISIBLE_ITEMS))
 			redraw_selector();
 	}
 	void select_next() {
@@ -315,7 +312,7 @@ public class GameBrowser
 			redraw_selector();
 	}
 	void select_next_page() {
-		if (selector.select_next_by(VISIBLE_ITEMS))
+		if (selector.select_next_by(@interface.SELECTOR_VISIBLE_ITEMS))
 			redraw_selector();
 	}
 	void select_first() {
@@ -382,7 +379,7 @@ public class GameBrowser
 		if (platform_selector != null) {
 			current_platform = platform_selector.selected_platform();
 			current_folder = current_platform.get_root_folder();
-			selector = new GameFolderSelector(current_folder, @interface, VISIBLE_WITDH, VISIBLE_ITEMS);
+			selector = new GameFolderSelector(current_folder, @interface);
 			selector.select_item(0);
 			redraw_screen();
 			return;
@@ -398,7 +395,7 @@ public class GameBrowser
 			var folder = item as GameFolder;
 			if (folder != null) {
 				current_folder = folder;
-				selector = new GameFolderSelector(current_folder, @interface, VISIBLE_WITDH, VISIBLE_ITEMS);
+				selector = new GameFolderSelector(current_folder, @interface);
 				selector.select_item(0);
 				redraw_screen();
 				return;
@@ -417,7 +414,7 @@ public class GameBrowser
 		if (game_selector != null) {
 			if (current_folder.parent == null) {
 				current_folder = null;
-				selector = new PlatformSelector(@interface, VISIBLE_WITDH, VISIBLE_ITEMS);
+				selector = new PlatformSelector(@interface);
 				int index=0;
 				foreach(var platform in Data.platforms()) {
 					if (platform.name == current_platform.name)
@@ -431,7 +428,7 @@ public class GameBrowser
 			}
 			var current_id = current_folder.unique_id();
 			current_folder = current_folder.parent;
-			selector = new GameFolderSelector(current_folder, @interface, VISIBLE_WITDH, VISIBLE_ITEMS);
+			selector = new GameFolderSelector(current_folder, @interface);
 			int index=0;
 			foreach(var subfolder in current_folder.child_folders()) {
 				if (subfolder.unique_id() == current_id)
