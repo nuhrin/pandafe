@@ -74,13 +74,13 @@ public class SelectorItemSet : Object
 
 			int match_position;
 			if (match_info.fetch_pos(0, out match_position, null) == true) {
-				if (match_position < item_positions[matched_item_index])
-					continue;
-				while(match_position >= item_positions[matched_item_index + 1] && (matched_item_index < last_item_index))
-					matched_item_index++;
+				if (match_position >= item_positions[matched_item_index]) {
+					while(match_position >= item_positions[matched_item_index + 1] && (matched_item_index < last_item_index))
+						matched_item_index++;
 
-				filter_match_indexes.add(matched_item_index);
-				matched_item_index++;
+					filter_match_indexes.add(matched_item_index);
+					matched_item_index++;
+				}
 			}
 			try {
 				match_info.next();

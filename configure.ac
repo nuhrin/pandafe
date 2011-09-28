@@ -48,6 +48,17 @@ fi
 SDL_TTF_LIBS="$LIBS"
 AC_SUBST(SDL_TTF_LIBS)
 
+have_sdl_gfx=no
+AC_SEARCH_LIBS([rectangleColor], [SDL_gfx], [have_sdl_gfx=yes])
+if test "x${have_sdl_gfx}" = xyes; then
+  AC_CHECK_HEADERS([SDL/SDL_gfxPrimitives.h], [], [have_sdl_gfx=no])
+fi
+if test "x${have_sdl_gfx}" = xno; then
+  AC_MSG_ERROR([libSDL_gfx not found.])
+fi
+SDL_GFX_LIBS="$LIBS"
+AC_SUBST(SDL_GFX_LIBS)
+
 AC_CONFIG_FILES([
 	Makefile
 	data/Makefile

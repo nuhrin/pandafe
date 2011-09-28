@@ -157,6 +157,8 @@ public abstract class Selector : Object
 	}
 
 	public bool filter(string pattern) {
+		_filter = pattern;
+		debug("filtering by '%s'", pattern);
 		Gee.List<int> matching_indexes;
 		bool is_partial;
 		if (items.search(pattern, out matching_indexes, out is_partial) == false)
@@ -168,6 +170,11 @@ public abstract class Selector : Object
 		print("\n");
 		return !is_partial;
 	}
+	public void clear_filter() {
+		_filter = null;
+	}
+	public string? get_filter_pattern() { return _filter; }
+	string _filter;
 
 	public abstract int get_itemcount();
 	public abstract string get_item_name(int index);

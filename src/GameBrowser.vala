@@ -232,6 +232,9 @@ public class GameBrowser
 					select_previous_platform();
 					drain_events();
 					break;
+				case KeySymbol.SLASH:
+					filter_selector();
+					break;
 				case KeySymbol.c:
 					do_configuration();
 					drain_events();
@@ -441,4 +444,18 @@ public class GameBrowser
 		}
 	}
 
+	void filter_selector() {
+		var active_pattern = selector.get_filter_pattern();
+		var entry = new TextEntry(@interface, 200, active_pattern);
+		@interface.dim_screen(75);
+		var new_pattern = entry.run(300, 200);
+		if (active_pattern != new_pattern) {
+			if (new_pattern != "")
+				selector.filter(new_pattern);
+			else
+				selector.clear_filter();
+		}
+
+		redraw_screen();
+	}
 }
