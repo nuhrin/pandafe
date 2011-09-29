@@ -6,12 +6,10 @@ public class TextEntry : Object
 	InterfaceHelper @interface;
 	Surface surface;
 	Surface blank_textarea;
-	int16 x;
-	int16 y;
 	unowned Font font;
 	int16 font_height;
-	string text;
-	string original_text;
+	int16 x;
+	int16 y;
 	int16 max_text_width;
 	int16 char_width;
 	int max_characters;
@@ -19,27 +17,29 @@ public class TextEntry : Object
 	int16 cursor_y;
 	int16 cursor_height;
 	bool event_loop_done;
+	string text;
+	string original_text;
 
-	public TextEntry(InterfaceHelper @interface, int16 width, string? value=null) {
+	public TextEntry(InterfaceHelper @interface, int16 x, int16 y, int16 width, string? value=null) {
 		this.@interface = @interface;
 		font = @interface.get_monospaced_font();
 		font_height = (int16)font.height();
+		this.x = x;
+		this.y = y;
 		surface = @interface.get_blank_surface(width, font_height + 10);
-		blank_textarea = @interface.get_blank_surface(width - 6, font_height + 8);
+		blank_textarea = @interface.get_blank_surface(width - 6, font_height + 6);
 		max_text_width = width - 8;
 		char_width = (int16)font.render_shaded(" ", @interface.black_color, @interface.black_color).w;
 		max_characters = max_text_width / char_width;
 		cursor_y = 5 + (font_height / 3) * 2;
 		cursor_height = font_height / 3;
-		@interface.draw_rectangle_outline(0, 0, width-2, (int16)surface.h-2, {255, 255, 255}, 255, surface);
 		cursor_pos = (value != null) ? value.length : 0;
-		update_text(value ?? "");
+		@interface.draw_rectangle_outline(0, 0, width-2, (int16)surface.h-2, {255, 255, 255}, 255, surface);
+		set_text(value ?? "");
 		original_text = value;
 	}
 
-	public string? run(int16 x, int16 y) {
-		this.x = x;
-		this.y = y;
+	public string? run() {
 		blit_to_screen();
 		drain_events();
 		while(event_loop_done == false) {
@@ -49,6 +49,12 @@ public class TextEntry : Object
         drain_events();
         return text;
 	}
+
+	public string value {
+		get { return text; }
+		set { text = value; }
+	}
+	public signal void changed(string text);
 
 	void drain_events() {
 		Event event = Event();
@@ -88,28 +94,24 @@ public class TextEntry : Object
 					if (cursor_pos > 0) {
 						cursor_pos--;
 						update_text();
-						blit_to_screen();
 					}
 					break;
 				case KeySymbol.RIGHT:
 					if (cursor_pos < text.length) {
 						cursor_pos++;
 						update_text();
-						blit_to_screen();
 					}
 					break;
 				case KeySymbol.HOME:
 					if (cursor_pos > 0) {
 						cursor_pos = 0;
 						update_text();
-						blit_to_screen();
 					}
 					break;
 				case KeySymbol.END:
 					if (cursor_pos < text.length) {
 						cursor_pos = text.length;
 						update_text();
-						blit_to_screen();
 					}
 					break;
 				case KeySymbol.BACKSPACE:
@@ -120,7 +122,6 @@ public class TextEntry : Object
 						} else {
 							update_text(text.splice(cursor_pos, cursor_pos + 1));
 						}
-						blit_to_screen();
 					}
 					break;
 				case KeySymbol.DELETE:
@@ -129,7 +130,6 @@ public class TextEntry : Object
 							update_text(text.substring(0, text.length - 1));
 						else
 							update_text(text.splice(cursor_pos, cursor_pos + 1));
-						blit_to_screen();
 					}
 					break;
 				default:
@@ -148,7 +148,6 @@ public class TextEntry : Object
 					cursor_pos++;
 					update_text(text.splice(cursor_pos - 1, cursor_pos - 1, c.to_string()));
 				}
-				blit_to_screen();
 				return false;
 			}
 		}
@@ -163,29 +162,40 @@ public class TextEntry : Object
 	}
 
 	void update_text(string? new_text=null) {
+		set_text(new_text);
+		if (new_text != null)
+			this.changed(new_text);
+		blit_to_screen();
+	}
+	void set_text(string? new_text=null) {
 		if (new_text != null)
 			this.text = new_text;
+
 		var resolved_text = text + " ";
 		int relative_cursor_pos = cursor_pos;
-		if (text.length > max_characters) {
-			if (cursor_pos <= max_characters) {
+		int half = max_characters / 2;
+		if (resolved_text.length > max_characters) {
+			if (cursor_pos <= half) {
 				// beginning of string
+				debug("in the beginning...");
 				resolved_text = resolved_text.substring(0, max_characters);
-			} else if (cursor_pos > text.length - max_characters) {
+			} else if (cursor_pos > text.length - half) {
 				// end of string
+				debug("at the end...");
 				resolved_text = resolved_text.substring(resolved_text.length - max_characters);
-				relative_cursor_pos = resolved_text.length - cursor_pos;
+				relative_cursor_pos = (cursor_pos == text.length) ? max_characters - 1 : cursor_pos - (text.length - max_characters) - 1;
 			} else {
 				// middle of string
-				relative_cursor_pos = max_characters / 2;
+				debug("(in the middle)");
+				relative_cursor_pos = half + (max_characters % 2) - 1;
 				resolved_text = resolved_text.substring(cursor_pos - relative_cursor_pos, max_characters);
 			}
 		}
-		debug("cursor[%d]: '%c', relative_cursor[%d]: '%c'",
-			cursor_pos,
-			(cursor_pos == text.length) ? ' ' : text[cursor_pos],
-			relative_cursor_pos,
-			resolved_text[relative_cursor_pos]);
+//~ 		debug("cursor[%d]: '%c', relative_cursor[%d]: '%c'",
+//~ 			cursor_pos,
+//~ 			(cursor_pos == text.length) ? ' ' : text[cursor_pos],
+//~ 			relative_cursor_pos,
+//~ 			resolved_text[relative_cursor_pos]);
 
 		// clear text area
 		Rect textarea_rect = {1, 1, max_text_width + 2};

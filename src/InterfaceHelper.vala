@@ -102,7 +102,10 @@ public class InterfaceHelper : Object
 		Rectangle.fill_rgba(surface, x, y, x+width, y+height, color.r, color.g, color.b, alpha);
 	}
 	public void dim_screen(int percentage) {
-		Rectangle.fill_rgba(screen, 0, 0, (int16)screen.w, (int16)screen.h, 0, 0, 0, (uchar)(2.55*percentage));
+		dim_surface(percentage, screen);
+	}
+	public void dim_surface(int percentage, Surface surface) {
+		Rectangle.fill_rgba(surface, 0, 0, (int16)surface.w, (int16)surface.h, 0, 0, 0, (uchar)(2.55*percentage));
 	}
 
 	public int screen_fill(Rect? dst, uint32 color) {

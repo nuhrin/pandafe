@@ -6,7 +6,6 @@ using Data.GameList;
 public class GameBrowser
 {
 	InterfaceHelper @interface;
-
 	bool event_loop_done;
 
 	int16 pos_y_status_message;
@@ -15,6 +14,7 @@ public class GameBrowser
     Gee.List<Platform> platforms;
     Platform current_platform;
     int current_platform_index;
+    string current_filter;
 	GameFolder current_folder;
 
     public GameBrowser(InterfaceHelper @interface) {
@@ -66,6 +66,7 @@ public class GameBrowser
 				current_folder = current_platform.get_root_folder();
 			selector = new GameFolderSelector(current_folder, @interface);
 		}
+		selector.filter(state.get_current_platform_filter());
 		int item_index = state.get_current_platform_item_index();
 		if (item_index > 0) {
 			selector.select_item(item_index);
@@ -78,7 +79,7 @@ public class GameBrowser
 		var state = Data.browser_state();
 		state.current_platform = (current_platform != null) ? current_platform.id : null;
 		if (current_platform != null)
-			state.apply_platform_state(current_platform, (current_folder != null) ? current_folder.unique_id() : null, selector.selected_index);
+			state.apply_platform_state(current_platform, (current_folder != null) ? current_folder.unique_id() : null, selector.selected_index, selector.get_filter_pattern());
 	}
 
 	void redraw_screen() {
@@ -110,14 +111,19 @@ public class GameBrowser
 
 	void update_selection_message() {
 		clear_status_messages();
-		push_status_message("%d / %d".printf(selector.selected_index, selector.item_count - 1), true);
+		string center = "%d / %d".printf(selector.selected_display_index(), selector.display_item_count - 1);
+		string? right = null;
+		string? active_pattern = selector.get_filter_pattern();
+		if (active_pattern != null)
+			right = "\"%s\"".printf(active_pattern);
+		push_status_message(null, center, right);
 	}
-	void push_status_message(string message, bool centered=false) {
+	void push_status_message(string? left=null, string? center=null, string? right=null) {
 		if (status_message_stack == null)
 			status_message_stack = new GLib.Queue<StatusMessage>();
 		if (status_message_stack.is_empty() == false)
 			wipe_status_message();
-		status_message_stack.push_head(new StatusMessage(message, centered));
+		status_message_stack.push_head(new StatusMessage(left, center, right));
 		write_status_message();
 		@interface.screen_flip();
 	}
@@ -143,22 +149,34 @@ public class GameBrowser
 	}
 	void write_status_message() {
 		var sm = status_message_stack.peek_head();
-		var rendered_message = @interface.render_text_selected(sm.message);
+		Surface rendered_message;
 		Rect rect;
-		if (sm.is_centered == true)
+		if (sm.left != null) {
+			rendered_message = @interface.render_text_selected(sm.left);
+			rect = {10, pos_y_status_message};
+			@interface.screen_blit(rendered_message, null, rect);
+		}
+		if (sm.center != null) {
+			rendered_message = @interface.render_text_selected(sm.center);
 			rect = {(int16)(390 - rendered_message.w/2), pos_y_status_message};
-		else
-			rect = {10, pos_y_status_message, 780};
-		@interface.screen_blit(rendered_message, null, rect);
+			@interface.screen_blit(rendered_message, null, rect);
+		}
+		if (sm.right != null) {
+			rendered_message = @interface.render_text_selected(sm.right);
+			rect = {(int16)(790 - rendered_message.w), pos_y_status_message};
+			@interface.screen_blit(rendered_message, null, rect);
+		}
 	}
 	class StatusMessage : Object
 	{
-		public StatusMessage(string message, bool is_centered) {
-			this.message = message;
-			this.is_centered = is_centered;
+		public StatusMessage(string? left=null, string? center=null, string? right=null) {
+			this.left = left;
+			this.center = center;
+			this.right = right;
 		}
-		public string message;
-		public bool is_centered;
+		public string? left;
+		public string? center;
+		public string? right;
 	}
 	GLib.Queue<StatusMessage> status_message_stack;
 
@@ -383,6 +401,10 @@ public class GameBrowser
 			current_platform = platform_selector.selected_platform();
 			current_folder = current_platform.get_root_folder();
 			selector = new GameFolderSelector(current_folder, @interface);
+			var state = Data.browser_state();
+			Data.browser_state().current_platform = current_platform.id;
+			current_filter = state.get_current_platform_filter();
+			selector.filter(current_filter);
 			selector.select_item(0);
 			redraw_screen();
 			return;
@@ -399,6 +421,7 @@ public class GameBrowser
 			if (folder != null) {
 				current_folder = folder;
 				selector = new GameFolderSelector(current_folder, @interface);
+				selector.filter(current_filter);
 				selector.select_item(0);
 				redraw_screen();
 				return;
@@ -417,6 +440,7 @@ public class GameBrowser
 		if (game_selector != null) {
 			if (current_folder.parent == null) {
 				current_folder = null;
+				current_filter = null;
 				selector = new PlatformSelector(@interface);
 				int index=0;
 				foreach(var platform in Data.platforms()) {
@@ -432,6 +456,7 @@ public class GameBrowser
 			var current_id = current_folder.unique_id();
 			current_folder = current_folder.parent;
 			selector = new GameFolderSelector(current_folder, @interface);
+			selector.filter(current_filter);
 			int index=0;
 			foreach(var subfolder in current_folder.child_folders()) {
 				if (subfolder.unique_id() == current_id)
@@ -445,15 +470,23 @@ public class GameBrowser
 	}
 
 	void filter_selector() {
-		var active_pattern = selector.get_filter_pattern();
-		var entry = new TextEntry(@interface, 200, active_pattern);
-		@interface.dim_screen(75);
-		var new_pattern = entry.run(300, 200);
-		if (active_pattern != new_pattern) {
-			if (new_pattern != "")
-				selector.filter(new_pattern);
-			else
-				selector.clear_filter();
+		int dim_percentage = 50;
+		clear_status_messages();
+		@interface.dim_screen(dim_percentage);
+		var entry = new TextEntry(@interface, 600, 450, 200, selector.get_filter_pattern());
+		entry.changed.connect((text) => {
+			selector.filter(text);
+			selector.dim(dim_percentage);
+			selector.blit_to_screen(100, 60);
+			@interface.screen_flip();
+		});
+		var new_pattern = entry.run();
+		if (new_pattern != "") {
+			selector.filter(new_pattern);
+			current_filter = new_pattern;
+		} else {
+			selector.clear_filter();
+			current_filter = null;
 		}
 
 		redraw_screen();
