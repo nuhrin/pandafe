@@ -50,6 +50,7 @@ pandafe_VALASOURCES = \
 	Fields/PlatformListField.vala \
 	Fields/ProgramListField.vala \
 	Fields/SourceEditField.vala \
+	Selectors/EverythingSelector.vala \
 	Selectors/GameFolderSelector.vala \
 	Selectors/PlatformSelector.vala \
 	Selectors/Selector.vala \

@@ -12,7 +12,7 @@ namespace Data.GameList
 		protected GameListProvider(Platform platform) {
 			this.platform = platform;
 		}
-		protected weak Platform platform { get; private set; }
+		public weak Platform platform { get; private set; }
 
 		public GameFolder root_folder {
 			get {

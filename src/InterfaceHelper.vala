@@ -81,6 +81,9 @@ public class InterfaceHelper : Object
 	public Surface render_text_with_color(string text, SDL.Color color, SDL.Color background_color) {
 		return font.render_shaded(text, color, background_color);
 	}
+	public Surface render_text_selected_fast(string text) {
+		return font.render(text, _selected_item_color);
+	}
 
 	public unowned Font get_monospaced_font() { return font_mono; }
 

@@ -12,6 +12,7 @@ namespace Data.GameList
 			this._full_name = full_name;
 		}
 		protected GameListProvider provider { get; private set; }
+
 		public string name { get; private set; }
 		public string full_name {
 			get { return (_full_name != null) ? _full_name : name; }
@@ -20,6 +21,8 @@ namespace Data.GameList
 		public GameFolder? parent { get; private set; }
 		public string id { get { return (_id != null) ? _id : name; } }
 		public string unique_id() { return provider.get_unique_id(this); }
+
+		public Platform platform() { return provider.platform; }
 
 		public static int compare(GameListNode a, GameListNode b) {
 			return a.name.ascii_casecmp(b.name);

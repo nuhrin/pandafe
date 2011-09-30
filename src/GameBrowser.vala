@@ -9,8 +9,13 @@ public class GameBrowser
 	bool event_loop_done;
 
 	int16 pos_y_status_message;
+	Surface blank_header;
+	Surface blank_status;
 
     Selector selector;
+    Selector existing_selector;
+    EverythingSelector everything_selector;
+    bool everything_active;
     Gee.List<Platform> platforms;
     Platform current_platform;
     int current_platform_index;
@@ -21,6 +26,8 @@ public class GameBrowser
 		this.@interface = @interface;
 		current_platform_index = -1;
 		pos_y_status_message = 470 - @interface.font_height;
+		blank_header = @interface.get_blank_background_surface(760, @interface.font_height);
+		blank_status = @interface.get_blank_background_surface(780, @interface.font_height);
 	}
 
 	public void run() {
@@ -40,6 +47,8 @@ public class GameBrowser
 		}
 	}
 
+	//
+	// browser state
 	void initialize_from_browser_state() {
 		var state = Data.browser_state();
 		current_platform = null;
@@ -53,7 +62,28 @@ public class GameBrowser
 				}
 			}
 		}
-		apply_platform_state();
+		if (apply_all_games_state() == false)
+			apply_platform_state();
+	}
+	bool apply_all_games_state(bool active=false) {
+		var all_games = Data.browser_state().all_games;
+
+		if (all_games != null && (active == true || all_games.active == true)) {
+			debug("all_games get!");
+			everything_active = true;
+			everything_selector = new EverythingSelector(@interface);
+			selector = everything_selector;
+			if (all_games != null) {
+				if (all_games.filter != null)
+					selector.filter(all_games.filter);
+				if (all_games.item_index > 0)
+					selector.select_item(all_games.item_index);
+				else
+					selector.select_first();
+			}
+			return true;
+		}
+		return false;
 	}
 	void apply_platform_state() {
 		var state = Data.browser_state();
@@ -66,42 +96,66 @@ public class GameBrowser
 				current_folder = current_platform.get_root_folder();
 			selector = new GameFolderSelector(current_folder, @interface);
 		}
-		selector.filter(state.get_current_platform_filter());
+		var filter = state.get_current_platform_filter();
+		if (filter != null)
+			selector.filter(filter);
 		int item_index = state.get_current_platform_item_index();
-		if (item_index > 0) {
+		if (item_index > 0)
 			selector.select_item(item_index);
-			update_selection_message();
-		} else {
-			selector.select_item(0);
-		}
+		else
+			selector.select_first();
 	}
 	void update_browser_state() {
 		var state = Data.browser_state();
 		state.current_platform = (current_platform != null) ? current_platform.id : null;
 		if (current_platform != null)
 			state.apply_platform_state(current_platform, (current_folder != null) ? current_folder.unique_id() : null, selector.selected_index, selector.get_filter_pattern());
+		if (everything_selector != null)
+			state.apply_all_games_state(everything_active, everything_selector.selected_index, everything_selector.get_filter_pattern());
+		else
+			state.apply_all_games_state(false, 0, null);
 	}
 
+	//
+	// screen updates
 	void redraw_screen() {
 		@interface.screen_fill(null, @interface.background_color_rgb);
-		_set_header();
+		set_header();
 		redraw_selector();
 	}
-	void _set_header() {
-		Rect clear_rect = {20, 20, 760};
-		@interface.screen_fill(clear_rect, @interface.background_color_rgb);
+	void set_header() {
+		Rect rect = {20, 20};
+		@interface.screen_blit(blank_header, null, rect);
 
-		string platform_name = (current_platform != null) ? current_platform.name : null;
-		if (platform_name != null) {
-			Rect platform_rect = {20, 20};
-			@interface.screen_blit(@interface.render_text_selected(platform_name), null, platform_rect);
+		string left = null;
+		string center = null;
+		string right = null;
+		Surface rendered_text;
+		if (everything_active == true) {
+			left = "All Games";
+			var game = everything_selector.selected_game();
+			if (game != null) {
+				center = game.platform().name;
+				if (game.parent.parent != null)
+					right = game.parent.unique_id().strip();
+			}
 		}
-
-		string folder_id = (current_folder != null) ? current_folder.unique_id().strip() : "";
-		if (folder_id != null && folder_id != "") {
-			var rendered_folder_id = @interface.render_text_selected(folder_id);
-			Rect folder_id_rect = {(int16)(780 - rendered_folder_id.w), 20};
-			@interface.screen_blit(rendered_folder_id, null, folder_id_rect);
+		else if (current_platform != null) {
+			left = current_platform.name;
+			right = current_folder.unique_id().strip();
+		}
+		if (left != null) {
+			@interface.screen_blit(@interface.render_text_selected_fast(left), null, rect);
+		}
+		if (center != null) {
+			rendered_text = @interface.render_text_selected_fast(center);
+			rect = {(int16)(390 - rendered_text.w/2), 20};
+			@interface.screen_blit(rendered_text, null, rect);
+		}
+		if (right != null && right != "") {
+			rendered_text = @interface.render_text_selected_fast(right);
+			rect = {(int16)(780 - rendered_text.w), 20};
+			@interface.screen_blit(rendered_text, null, rect);
 		}
 	}
 	void redraw_selector() {
@@ -109,7 +163,11 @@ public class GameBrowser
 		update_selection_message();
     }
 
+	//
+	// status messages
 	void update_selection_message() {
+		if (everything_active == true)
+			set_header();
 		clear_status_messages();
 		string center = "%d / %d".printf(selector.selected_display_index(), selector.display_item_count - 1);
 		string? right = null;
@@ -144,31 +202,30 @@ public class GameBrowser
 		@interface.screen_flip();
 	}
 	void wipe_status_message() {
-		Rect rect = {10, pos_y_status_message, 780, @interface.font_height};
-		@interface.screen_fill(rect, @interface.background_color_rgb);
+		Rect rect = {10, pos_y_status_message};
+		@interface.screen_blit(blank_status, null, rect);
 	}
 	void write_status_message() {
 		var sm = status_message_stack.peek_head();
 		Surface rendered_message;
 		Rect rect;
 		if (sm.left != null) {
-			rendered_message = @interface.render_text_selected(sm.left);
+			rendered_message = @interface.render_text_selected_fast(sm.left);
 			rect = {10, pos_y_status_message};
 			@interface.screen_blit(rendered_message, null, rect);
 		}
 		if (sm.center != null) {
-			rendered_message = @interface.render_text_selected(sm.center);
+			rendered_message = @interface.render_text_selected_fast(sm.center);
 			rect = {(int16)(390 - rendered_message.w/2), pos_y_status_message};
 			@interface.screen_blit(rendered_message, null, rect);
 		}
 		if (sm.right != null) {
-			rendered_message = @interface.render_text_selected(sm.right);
+			rendered_message = @interface.render_text_selected_fast(sm.right);
 			rect = {(int16)(790 - rendered_message.w), pos_y_status_message};
 			@interface.screen_blit(rendered_message, null, rect);
 		}
 	}
-	class StatusMessage : Object
-	{
+	class StatusMessage : Object {
 		public StatusMessage(string? left=null, string? center=null, string? right=null) {
 			this.left = left;
 			this.center = center;
@@ -180,6 +237,8 @@ public class GameBrowser
 	}
 	GLib.Queue<StatusMessage> status_message_stack;
 
+	//
+	// events
     void process_events() {
         Event event = Event();
         while(Event.poll(event) == 1) {
@@ -188,11 +247,10 @@ public class GameBrowser
 					this.event_loop_done = true;
 					break;
 				case EventType.KEYDOWN:
-					this.on_keyboard_event(event.key);
+					this.on_keydown_event(event.key);
 					break;
 				case EventType.KEYUP:
-					if (event.key.keysym.sym != KeySymbol.SPACE)
-						process_unicode_disabled = false;
+					this.on_keyup_event(event.key);
 					break;
 			}
         }
@@ -201,9 +259,24 @@ public class GameBrowser
 		Event event = Event();
         while(Event.poll(event) == 1);
 	}
-    void on_keyboard_event (KeyboardEvent event) {
+    void on_keydown_event (KeyboardEvent event) {
 		if (process_unicode(event.keysym.unicode) == false)
 			return;
+
+		if (event.keysym.sym == KeySymbol.RCTRL) {
+			// pandora L
+			L_pressed = true;
+			if (R_pressed == true)
+				L_R_both_pressed = true;
+			return;
+		}
+		if (event.keysym.sym == KeySymbol.RSHIFT) {
+			// pandora R
+			R_pressed = true;
+			if (L_pressed == true)
+				L_R_both_pressed = true;
+			return;
+		}
 
 		if (event.keysym.mod == KeyModifier.NONE) {
 			switch(event.keysym.sym) {
@@ -230,7 +303,7 @@ public class GameBrowser
 					break;
 				case KeySymbol.ESCAPE:
 				case KeySymbol.HOME: // pandora A
-					if (current_platform == null) {
+					if (everything_active == true || current_platform == null) {
 						this.event_loop_done = true;
 						return;
 					}
@@ -241,14 +314,6 @@ public class GameBrowser
 					break;
 				case KeySymbol.END: // pandora B
 					select_last();
-					break;
-				case KeySymbol.RSHIFT: // pandora R
-					select_next_platform();
-					drain_events();
-					break;
-				case KeySymbol.RCTRL: // pandora L
-					select_previous_platform();
-					drain_events();
 					break;
 				case KeySymbol.SLASH:
 					filter_selector();
@@ -261,25 +326,61 @@ public class GameBrowser
 					edit_current_platform();
 					drain_events();
 					break;
-				case KeySymbol.s:
-					apply_list_filter();
-					break;
 				case KeySymbol.q:
 					this.event_loop_done = true;
 					break;
 				default:
 					break;
 			}
-		} else if ((event.keysym.mod & KeyModifier.SHIFT) != 0) {
+			return;
+		}
+
+		if ((event.keysym.mod & KeyModifier.SHIFT) != 0) {
 			if (event.keysym.sym == KeySymbol.p) {
 				edit_current_program();
 				drain_events();
+				return;
 			}
-//~ 			if (event.keysym.sym == KeySymbol.RETURN || event.keysym.sym == KeySymbol.KP_ENTER) {
-//~ 				WindowManager.toggle_fullscreen(screen);
-//~ 			}
 		}
     }
+    void on_keyup_event (KeyboardEvent event) {
+		if (event.keysym.sym != KeySymbol.SPACE)
+			process_unicode_disabled = false;
+
+		if (event.keysym.sym == KeySymbol.RCTRL) {
+			// pandora L
+			L_pressed = false;
+			if (L_R_both_pressed == true) {
+				if (R_pressed == true)
+					return;
+				L_R_both_pressed = false;
+				toggle_everything();
+				drain_events();
+				return;
+			}
+			select_previous_platform();
+			drain_events();
+			return;
+		}
+		if (event.keysym.sym == KeySymbol.RSHIFT) {
+			// pandora R
+			R_pressed = false;
+			if (L_R_both_pressed == true) {
+				if (L_pressed == true)
+					return;
+				L_R_both_pressed = false;
+				toggle_everything();
+				drain_events();
+				return;
+			}
+			select_next_platform();
+			drain_events();
+			return;
+		}
+	}
+	bool L_pressed;
+	bool R_pressed;
+	bool L_R_both_pressed;
     bool process_unicode(uint16 unicode) {
 		if (process_unicode_disabled)
 			return true;
@@ -296,6 +397,8 @@ public class GameBrowser
 	}
 	bool process_unicode_disabled;
 
+	//
+	// commands: configuration
     void do_configuration() {
 		push_status_message("running main configuration...");
 		ConfigGui.run();
@@ -303,14 +406,30 @@ public class GameBrowser
 		redraw_screen();
 	}
 	void edit_current_platform() {
-		if (current_platform != null) {
-			push_status_message("editing platform %s...".printf(current_platform.name));
-			ConfigGui.edit_platform(current_platform);
+		Platform platform = null;
+		if (everything_active == true) {
+			var game = everything_selector.selected_game();
+			if (game != null)
+				platform = game.platform();
+		} else if (current_platform != null) {
+			platform = current_platform;
+		}
+		if (platform != null) {
+			push_status_message("editing platform %s...".printf(platform.name));
+			ConfigGui.edit_platform(platform);
 			pop_status_message();
 		}
 	}
 	void edit_current_program() {
-		if (current_platform != null) {
+		Platform platform = null;
+		if (everything_active == true) {
+			var game = everything_selector.selected_game();
+			if (game != null)
+				platform = game.platform();
+		} else if (current_platform != null) {
+			platform = current_platform;
+		}
+		if (platform != null) {
 			var program = current_platform.default_program;
 			if (program != null) {
 				push_status_message("editing program %s...".printf(program.name));
@@ -320,6 +439,8 @@ public class GameBrowser
 		}
 	}
 
+	//
+	// commands: selection
 	void select_previous() {
 		if (selector.select_previous())
 			redraw_selector();
@@ -345,7 +466,7 @@ public class GameBrowser
 			redraw_selector();
 	}
 	void select_next_platform() {
-		if (current_platform == null)
+		if (everything_active == true || current_platform == null)
 			return;
 		update_browser_state();
 		current_platform_index++;
@@ -357,7 +478,7 @@ public class GameBrowser
 		redraw_screen();
 	}
 	void select_previous_platform() {
-		if (current_platform == null)
+		if (everything_active == true || current_platform == null)
 			return;
 		update_browser_state();
 		current_platform_index--;
@@ -388,13 +509,21 @@ public class GameBrowser
 	char last_pressed_alphanumeric = 0;
 	int last_pressed_alphanumeric_repeat_count;
 
-	void apply_list_filter() {
-		selector.filter("ar$");
-	}
-
+	//
+	// commands: misc
     void activate_selected() {
 		if (selector.selected_index == -1)
 			return;
+
+		if (everything_active == true) {
+			var game = everything_selector.selected_game();
+			if (game != null) {
+				push_status_message("running '%s'...".printf(game.unique_id()));
+				game.run();
+				pop_status_message();
+			}
+			return;
+		}
 
 		var platform_selector = selector as PlatformSelector;
 		if (platform_selector != null) {
@@ -404,7 +533,8 @@ public class GameBrowser
 			var state = Data.browser_state();
 			Data.browser_state().current_platform = current_platform.id;
 			current_filter = state.get_current_platform_filter();
-			selector.filter(current_filter);
+			if (current_filter != null)
+				selector.filter(current_filter);
 			selector.select_item(0);
 			redraw_screen();
 			return;
@@ -421,7 +551,8 @@ public class GameBrowser
 			if (folder != null) {
 				current_folder = folder;
 				selector = new GameFolderSelector(current_folder, @interface);
-				selector.filter(current_filter);
+				if (current_filter != null)
+					selector.filter(current_filter);
 				selector.select_item(0);
 				redraw_screen();
 				return;
@@ -456,7 +587,8 @@ public class GameBrowser
 			var current_id = current_folder.unique_id();
 			current_folder = current_folder.parent;
 			selector = new GameFolderSelector(current_folder, @interface);
-			selector.filter(current_filter);
+			if (current_filter != null)
+				selector.filter(current_filter);
 			int index=0;
 			foreach(var subfolder in current_folder.child_folders()) {
 				if (subfolder.unique_id() == current_id)
@@ -489,6 +621,24 @@ public class GameBrowser
 			current_filter = null;
 		}
 
+		redraw_screen();
+	}
+
+	void toggle_everything() {
+		if (everything_active == false) {
+			existing_selector = selector;
+			if (everything_selector == null)
+				apply_all_games_state(true);
+			else
+				selector = everything_selector;
+			everything_active = true;
+		} else {
+			if (existing_selector == null)
+				apply_platform_state();
+			else
+				selector = existing_selector;
+			everything_active = false;
+		}
 		redraw_screen();
 	}
 }
