@@ -4,15 +4,9 @@ using Gee;
 
 public abstract class Selector : Object
 {
+	const int ITEMS_PER_SURFACE = 50;
 	InterfaceHelper @interface;
-	int visible_items;
-	int16 item_spacing;
-	Surface surface;
-	int16 surface_width;
-	int16 surface_window_height;
-	bool all_items_rendered;
-	int first_rendered_item;
-	int last_rendered_item;
+	SelectorSurfaceSet surfaces;
 	int index_before_select_first;
 	int index_before_select_last;
 	string _filter;
@@ -23,16 +17,9 @@ public abstract class Selector : Object
 		this.@interface = @interface;
 		@interface.font_updated.connect(update_font);
 		@interface.colors_updated.connect(reset_surface);
-		visible_items = @interface.SELECTOR_VISIBLE_ITEMS;
-		item_spacing = @interface.SELECTOR_ITEM_SPACING;
-		surface_width = @interface.SELECTOR_WITDH;
-		surface_window_height = get_surface_window_height();
 		selected_index = -1;
-		first_rendered_item = -1;
-		last_rendered_item = -1;
 		index_before_select_first = -1;
 		index_before_select_last = -1;
-		@interface.connect_idle_function("selector", rendering_iteration);
 	}
 	SelectorItemSet items {
 		get {
@@ -59,24 +46,22 @@ public abstract class Selector : Object
 	public int selected_display_index() { return get_display_index_from_index(selected_index); }
 
 	public void blit_to_screen(int16 x, int16 y) {
-		if (surface == null)
-			ensure_surface(selected_index);
-		int16 offset = 0;
-		var half = visible_items / 2;
-		int s_display_index = selected_display_index();
-		if (visible_items < display_item_count && s_display_index > half) {
-			int display_top_index = s_display_index - half;
-			if (display_item_count - s_display_index < half + 1)
-				display_top_index = display_item_count - visible_items;
-			offset = get_item_offset(display_top_index) - item_spacing;
+//~ 		print("blit to screen: selected_index: %d\n", selected_index);
+		var s_display_index = selected_display_index();
+		if (surfaces == null)
+			ensure_surfaces(s_display_index);
+		var window = surfaces.get_window(s_display_index);
+//~ 		print("  surface one: x: %d, y: %d, h: %d\n", window.rect_one.x, window.rect_one.y, window.rect_one.h);
+		window.surface_one.blit_to_screen(x, y, window.rect_one);
+		if (window.surface_two != null) {
+//~ 			print("  surface two: x: %d, y: %d, h: %d\n", window.rect_two.x, window.rect_two.y, window.rect_one.h);
+			window.surface_two.blit_to_screen(x, y + (int16)window.rect_one.h, window.rect_two);
 		}
-		Rect source_r = {0, offset, surface_width, surface_window_height};
-		Rect dest_r = {x, y};
-		@interface.screen_blit(surface, source_r, dest_r);
 	}
 
 	public void dim(int percentage) {
-		@interface.dim_surface(percentage, surface);
+		if (surfaces != null)
+			surfaces.dim(percentage);
 	}
 
 	public bool has_previous { get { return selected_display_index() > 0; } }
@@ -150,29 +135,20 @@ public abstract class Selector : Object
 
 		return false;
 	}
-	public bool select_display_item(int display_index) {
-		return select_item(get_index_from_display_index(display_index));
-	}
 	public bool select_item(int index) {
-		int16 offset = get_item_offset(index);
-		if (offset == -1)
-			return false;
-
+		return select_display_item(get_display_index_from_index(index));
+	}
+	public bool select_display_item(int display_index) {
 		index_before_select_first = -1;
 		index_before_select_last = -1;
 
-		ensure_surface(index);
-
-		Rect rect = {0, offset};
-		if (selected_index != -1) {
-			Rect oldrect = {0, get_item_offset(selected_index)};
-			@interface.get_blank_item_surface().blit(null, surface, oldrect);
-			items.get_item_rendering(selected_index).blit(null, surface, oldrect);
+//~ 		debug("select_display_item(): %d", display_index);
+		ensure_surfaces(display_index);
+		if (surfaces.select_item(display_index, selected_display_index()) == true) {
+			selected_index = get_index_from_display_index(display_index);
+			return true;
 		}
-		items.get_item_selected_rendering(index).blit(null, surface, rect);
-		selected_index = index;
-
-		return true;
+		return false;
 	}
 
 	public bool filter(string pattern) {
@@ -202,7 +178,7 @@ public abstract class Selector : Object
 		if (display_index != -1)
 			select_display_item(display_index);
 		else
-			ensure_surface(0);
+			ensure_surfaces(0);
 
 		return success;
 	}
@@ -211,7 +187,7 @@ public abstract class Selector : Object
 		_filter_match_indexes = null;
 		_filter_index_position_hash = null;
 		reset_surface();
-		ensure_surface(selected_index);
+		ensure_surfaces(selected_index);
 	}
 	public string? get_filter_pattern() { return _filter; }
 
@@ -220,112 +196,18 @@ public abstract class Selector : Object
 	public abstract string get_item_full_name(int index);
 
 	void reset_surface() {
-		surface = null;
-		first_rendered_item = -1;
-		last_rendered_item = -1;
-		all_items_rendered = false;
+		surfaces = null;
 	}
 	void update_font() {
 		reset_surface();
-		surface_window_height = get_surface_window_height();
 	}
-	int16 get_surface_window_height() { return (int16)((@interface.font_height * visible_items) + (item_spacing * visible_items) + item_spacing); }
 
-	int16 get_display_item_offset(int display_index) {
-		if (display_index < 0 || display_index >= display_item_count)
-			return -1;
-		return (int16)((@interface.font_height * display_index) + (item_spacing * display_index) + item_spacing);
+	void ensure_surfaces(int display_index) {
+		if (surfaces == null)
+			surfaces = new SelectorSurfaceSet(display_item_count, ITEMS_PER_SURFACE, @interface, items, get_index_from_display_index);
+		surfaces.ensure_surfaces(display_index);
 	}
-	int16 get_item_offset(int index) {
-		return get_display_item_offset(get_display_index_from_index(index));
-	}
-	void ensure_surface(int select_index) {
-		if (surface == null) {
-			int surface_items = (visible_items > display_item_count)
-				? visible_items
-				: display_item_count;
-			int height = (@interface.font_height * surface_items) + (item_spacing * surface_items) + (item_spacing * 2);
-			surface = @interface.get_blank_background_surface(this.surface_width, height);
-		}
 
-		if (all_items_rendered == true)
-			return;
-
-		if (first_rendered_item == 0 && last_rendered_item == display_item_count - 1) {
-			all_items_rendered = true;
-			return;
-		}
-
-		int top_index;
-		int bottom_index;
-		get_display_range(get_display_index_from_index(select_index), out top_index, out bottom_index);
-
-		if (first_rendered_item == -1) {
-			render_item_range(top_index, bottom_index);
-			first_rendered_item = top_index;
-			last_rendered_item = bottom_index;
-			surface.flip();
-			return;
-		}
-
-		bool needs_flip = false;
-
-		if (top_index < first_rendered_item) {
-			render_item_range(top_index, first_rendered_item - 1);
-			first_rendered_item = top_index;
-			needs_flip = true;
-		}
-		if (bottom_index > last_rendered_item) {
-			render_item_range(last_rendered_item + 1, bottom_index);
-			last_rendered_item = bottom_index;
-			needs_flip = true;
-		}
-
-		if (needs_flip == true)
-			surface.flip();
-	}
-	void rendering_iteration() {
-		bool needs_flip = false;
-		if (first_rendered_item > 0) {
-			first_rendered_item--;
-			render_item_range(first_rendered_item, first_rendered_item);
-			needs_flip = true;
-		}
-		if (last_rendered_item < display_item_count - 1) {
-			last_rendered_item++;
-			render_item_range(last_rendered_item, last_rendered_item);
-			needs_flip = true;
-		}
-		if (needs_flip == true) {
-			surface.flip();
-		} else {
-			all_items_rendered = true;
-			@interface.disconnect_idle_function("selector");
-		}
-	}
-	void render_item_range(int top_index, int bottom_index) {
-		int16 offset = get_display_item_offset(top_index);
-		if (offset == -1 || display_item_count < 1)
-			return;
-		Rect rect = {0, offset};
-		for(int display_index=top_index; display_index <= bottom_index; display_index++) {
-			items.get_item_rendering(get_index_from_display_index(display_index)).blit(null, surface, rect);
-			rect.y = (int16)(rect.y + @interface.font_height + item_spacing);
-		}
-	}
-	void get_display_range(int center_index, out int top_index, out int bottom_index) {
-		top_index = center_index - (visible_items / 2);
-		if (top_index < 0)
-			top_index = 0;
-		bottom_index = top_index + visible_items;
-		if (bottom_index > display_item_count)
-			bottom_index = display_item_count;
-		bottom_index--;
-		if ((bottom_index - top_index) < visible_items)
-			top_index = bottom_index - visible_items;
-		if (bottom_index < visible_items || top_index < 0)
-			top_index = 0;
-	}
 	int get_index_from_display_index(int display_index) {
 		if (_filter_match_indexes == null)
 			return display_index;
@@ -360,6 +242,507 @@ public abstract class Selector : Object
 			}
 		}
 		return closest_item_index;
+	}
+
+	class SelectorWindow : Object {
+		public SelectorWindow(int16 width) {
+			rect_one = {0,0,width,0};
+			rect_two = {0,0,width,0};
+		}
+		public SelectorSurface? surface_one;
+		public Rect rect_one;
+		public SelectorSurface? surface_two;
+		public Rect rect_two;
+	}
+	delegate int TransformIndex(int index);
+	class SelectorSurfaceSet : Object {
+		InterfaceHelper @interface;
+		SelectorItemSet items;
+		TransformIndex get_index_from_display_index;
+		int item_count;
+		int items_per_surface;
+		SelectorSurface? top;
+		SelectorSurface? mid;
+		SelectorSurface? bot;
+		int surface_count;
+		int top_index;
+		int mid_index;
+		int bot_index;
+		int visible_items;
+		int16 item_spacing;
+		SelectorWindow window;
+
+		public SelectorSurfaceSet(int item_count, int items_per_surface, InterfaceHelper @interface, SelectorItemSet items, TransformIndex get_index_from_display_index) {
+			this.item_count = item_count;
+			this.items_per_surface = items_per_surface;
+			this.@interface = @interface;
+			this.items = items;
+			this.get_index_from_display_index = get_index_from_display_index;
+
+			surface_count = (item_count + items_per_surface - 1) / items_per_surface;
+			if (surface_count < 1)
+				surface_count = 1;
+			top_index = -1;
+			mid_index = -1;
+			bot_index = -1;
+
+			visible_items = @interface.SELECTOR_VISIBLE_ITEMS;
+			item_spacing = @interface.SELECTOR_ITEM_SPACING;
+		}
+		public bool select_item(int new_index, int old_index) {
+			//debug("SelectorSurfaceSet.select_item(%d, %d)", new_index, old_index);
+			var ss_new = get_surface_for_index(new_index);
+			if (ss_new == null)
+				return false;
+			bool result = ss_new.select_item(new_index);
+			var ss_old = get_surface_for_index(old_index);
+			if (ss_old != null)
+				ss_old.unselect_item(old_index);
+
+			return result;
+		}
+		public void ensure_surfaces(int display_index) {
+			if (display_index < 0 || display_index > item_count - 1)
+				return;
+
+			if (surface_count == 1) { 					// one surface only
+//~ 				debug("one surface only");
+				if (top == null)
+					top = create_surface(0, true);
+				top.ensure_surface(display_index);
+				return;
+			}
+
+			int display_page = ((display_index + items_per_surface) / items_per_surface) - 1;
+			if (surface_count == 2) {			// two surfaces only
+//~ 				debug("two surface only");
+				if (top == null)
+					top = create_surface(0);
+				if (mid == null)
+					mid = create_surface(1, true);
+
+				top.ensure_surface(display_index);
+				mid.ensure_surface(display_index);
+				return;
+			}
+			if (surface_count == 3) {			// three surfaces only
+//~ 				debug("three surface only");
+				if (top == null)
+					top = create_surface(0);
+				if (mid == null)
+					mid = create_surface(1);
+				if (bot == null)
+					bot = create_surface(2, true);
+
+				top.ensure_surface(display_index);
+				mid.ensure_surface(display_index);
+				bot.ensure_surface(display_index);
+				return;
+			}
+
+			//
+			// three dymanic surfaces
+			if (display_page == 0) { 	// top surface at top of selector
+//~ 				debug("top surface at top of selector");
+				if (top_index == 1) {
+					// reuse existing top as mid
+					mid = top;
+					mid_index = 1;
+				}
+				if (top_index != 0) {
+					top = create_surface(0);
+					top_index = 0;
+				}
+				if (mid_index != 1) {
+					mid = create_surface(1);
+					mid_index = 1;
+				}
+				if (bot_index != 2) {
+					bot = create_surface(2);
+					bot_index = 2;
+				}
+				top.ensure_surface(display_index);
+				mid.ensure_surface(display_index);
+				bot.ensure_surface(display_index);
+				return;
+			}
+
+			if (display_page == 1) { 	// mid surface at top of selector
+//~ 				debug("mid surface at top of selector");
+				if (mid_index == 2) {
+					bot = mid;
+					bot_index = 2;
+				}
+				if (top_index == 1) {
+					mid = top;
+					mid_index = 1;
+				}
+				if (mid_index != 1) {
+					mid = create_surface(1);
+					mid_index = 1;
+				}
+				if (top_index != 0) {
+					top = create_surface(0);
+					top_index = 0;
+				}
+				if (bot_index != 2) {
+					bot = create_surface(2);
+					bot_index = 2;
+				}
+				top.ensure_surface(display_index);
+				mid.ensure_surface(display_index);
+				bot.ensure_surface(display_index);
+				return;
+			}
+
+			int expected_bot_index = surface_count - 1;
+			int expected_mid_index = expected_bot_index - 1;
+			int expected_top_index = expected_mid_index - 1;
+//~ 			debug("display_page: %d", display_page);
+			if (display_page == expected_bot_index) { 	// bottom surface at bottom of selector
+//~ 				debug("bottom surface at bottom of selector");
+				if (bot_index == expected_mid_index) {
+					mid = bot;
+					mid_index = expected_mid_index;
+				}
+				if (bot_index != expected_bot_index) {
+					bot = create_surface(expected_bot_index, true);
+					bot_index = expected_bot_index;
+				}
+				if (mid_index != expected_mid_index) {
+					mid = create_surface(expected_mid_index);
+					mid_index = expected_mid_index;
+				}
+				if (top_index != expected_top_index) {
+					top = create_surface(expected_top_index);
+					top_index = expected_top_index;
+				}
+				top.ensure_surface(display_index);
+				mid.ensure_surface(display_index);
+				bot.ensure_surface(display_index);
+				return;
+			}
+
+			if (display_page == expected_mid_index) { 	// mid surface at bottom of selector
+//~ 				debug("mid surface at bottom of selector");
+				if (mid_index == expected_top_index) {
+					top = mid;
+					top_index = expected_top_index;
+				}
+				if (bot_index == expected_mid_index) {
+					mid = bot;
+					mid_index = expected_mid_index;
+				}
+				if (mid_index != expected_mid_index) {
+					mid = create_surface(expected_mid_index);
+					mid_index = expected_mid_index;
+				}
+				if (bot_index != expected_bot_index) {
+					bot = create_surface(expected_bot_index, true);
+					bot_index = expected_bot_index;
+				}
+				if (top_index != expected_top_index) {
+					top = create_surface(expected_top_index);
+					top_index = expected_top_index;
+				}
+				top.ensure_surface(display_index);
+				mid.ensure_surface(display_index);
+				bot.ensure_surface(display_index);
+				return;
+			}
+
+			// somewhere in the middle...
+//~ 			debug("somewhere in the middle... (display_page: %d)", display_page);
+			expected_mid_index = display_page;
+			if (top_index == expected_mid_index) {
+				// moving down...
+//~ 				debug("moving down...");
+				bot = mid;
+				bot_index = mid_index;
+				mid = top;
+				mid_index = top_index;
+			} else if (bot_index == expected_mid_index) {
+				// moving up...
+//~ 				debug("moving up...");
+				top = mid;
+				top_index = mid_index;
+				mid = bot;
+				mid_index = bot_index;
+			}
+			if (mid_index != expected_mid_index) {
+				mid = create_surface(expected_mid_index);
+				mid_index = expected_mid_index;
+			}
+			if (bot_index != expected_mid_index + 1) {
+				bot = create_surface(expected_mid_index + 1);
+				bot_index = expected_mid_index + 1;
+			}
+			if (top_index != expected_mid_index - 1) {
+				top = create_surface(expected_mid_index - 1);
+				top_index = expected_mid_index - 1;
+			}
+			top.ensure_surface(display_index);
+			mid.ensure_surface(display_index);
+			bot.ensure_surface(display_index);
+		}
+		public SelectorWindow get_window(int display_index) {
+			if (window == null)
+				window = new SelectorWindow(@interface.SELECTOR_WITDH);
+
+			int top_index;
+			int bottom_index;
+			get_display_range(display_index, out top_index, out bottom_index);
+
+			var target_surface = get_surface_for_index(display_index);
+			var offset = target_surface.get_offset(top_index);
+			if (offset != -1) {
+				window.surface_one = target_surface;
+				window.rect_one.y = offset;
+				if (target_surface.bottom_item_index >= bottom_index) {
+					// one surface only
+//~ 					debug("window: one_surface_only");
+					window.rect_one.h = get_surface_window_height(top_index, bottom_index);
+					window.surface_two = null;
+					return window;
+				}
+				// two surfaces, display_index in first
+//~ 				debug("window: two surfaces, display_index in first");
+				window.rect_one.h = get_surface_window_height(top_index, target_surface.bottom_item_index);
+				window.surface_two = get_surface_for_index(bottom_index);
+				window.rect_two.y = window.surface_two.get_offset(window.surface_two.top_item_index);
+				window.rect_two.h = get_surface_window_height(window.surface_two.top_item_index, bottom_index);
+				return window;
+			}
+
+			// two surfaces, display_index in second
+//~ 			debug("window: two surfaces, display_index in second");
+			window.surface_one = get_surface_for_index(top_index);
+			window.rect_one.y = window.surface_one.get_offset(top_index);
+			window.rect_one.h = get_surface_window_height(top_index, window.surface_one.bottom_item_index);
+			window.surface_two = target_surface;
+			window.rect_two.y = target_surface.get_offset(target_surface.top_item_index);
+			window.rect_two.h = get_surface_window_height(target_surface.top_item_index, bottom_index);
+			return window;
+		}
+
+		public void dim(int percentage) {
+			if (top != null)
+				top.dim(percentage);
+			if (mid != null)
+				mid.dim(percentage);
+			if (bot != null)
+				bot.dim(percentage);
+		}
+		SelectorSurface? get_surface_for_index(int display_index) {
+			if (display_index < 0 || display_index > item_count - 1)
+				return null;
+
+			if (surface_count == 1) { 			// one surface only
+				return top;
+			} else if (surface_count == 2) {	// two surfaces only
+				return (display_index < items_per_surface)
+					? top : mid;
+			} else if (surface_count == 3) {	// three surfaces only
+				if (display_index < items_per_surface) {
+					return top;
+				} else if (display_index < (items_per_surface + items_per_surface)) {
+					return mid;
+				} else {
+					return bot;
+				}
+			}
+
+			//
+			// three dymanic surfaces (assume ensure_surfaces(display_index) has been run
+			if (display_index < mid.top_item_index)
+				return top;
+			else if (display_index > mid.bottom_item_index)
+				return bot;
+			else
+				return mid;
+		}
+
+		SelectorSurface create_surface(int surface_index, bool is_last=false) {
+//~ 			if (is_last)
+//~ 				debug("creating new surface @index: %d, is_last", surface_index);
+//~ 			else
+//~ 				debug("creating new surface @index: %d", surface_index);
+			int first_index = surface_index * items_per_surface;
+			return new SelectorSurface(first_index, (is_last) ? item_count - 1 : first_index + items_per_surface - 1,
+				@interface, items, get_index_from_display_index);
+		}
+
+		int16 get_surface_window_height(int first, int last) {
+			int items = (last - first) + 1;
+			return (int16)((@interface.font_height * items) + (item_spacing * items));// + item_spacing);
+		}
+		void get_display_range(int center_index, out int top_index, out int bottom_index) {
+			top_index = center_index - (visible_items / 2);
+			if (top_index < 0)
+				top_index = 0;
+			bottom_index = top_index + visible_items - 1;
+			if (bottom_index > item_count - 1)
+				bottom_index = item_count - 1;
+			//bottom_index--;
+			if ((bottom_index - top_index) < visible_items - 1)
+				top_index = bottom_index - visible_items + 1;
+			if (bottom_index < visible_items - 1 || top_index < 0)
+				top_index = 0;
+		}
+	}
+	class SelectorSurface : Object {
+		InterfaceHelper @interface;
+		SelectorItemSet items;
+		TransformIndex get_index_from_display_index;
+		Surface surface;
+		int visible_items;
+		int item_spacing;
+		int first_index;
+		int last_index;
+		int first_rendered_index;
+		int last_rendered_index;
+		bool all_items_rendered;
+		string idle_function_name;
+
+		public SelectorSurface(int first_index, int last_index, InterfaceHelper @interface, SelectorItemSet items, TransformIndex get_index_from_display_index) {
+			this.first_index = first_index;
+			this.last_index = last_index;
+			this.@interface = @interface;
+			this.items = items;
+			this.get_index_from_display_index = get_index_from_display_index;
+			first_rendered_index = -1;
+			last_rendered_index = -1;
+			visible_items = @interface.SELECTOR_VISIBLE_ITEMS;
+			item_spacing = @interface.SELECTOR_ITEM_SPACING;
+			int surface_items = last_index - first_index + 1;
+			int height = (@interface.font_height * surface_items) + (item_spacing * surface_items) + (item_spacing * 2);
+			surface = @interface.get_blank_background_surface(@interface.SELECTOR_WITDH, height);
+			idle_function_name = "selector-" + Random.next_int().to_string();
+			@interface.connect_idle_function(idle_function_name, rendering_iteration);
+		}
+
+		public int item_height { get { return (last_index - first_index); } }
+		public int top_item_index { get { return first_index; } }
+		public int bottom_item_index { get { return last_index; } }
+
+		public void blit_to_screen(int16 x, int16 y, Rect source_r) {
+			Rect dest_r = {x, y};
+			@interface.screen_blit(surface, source_r, dest_r);
+		}
+		public void dim(int percentage) {
+			@interface.dim_surface(percentage, surface);
+		}
+		public bool select_item(int display_index) {
+			int16 offset = get_offset(display_index);
+			if (offset == -1) {
+//~ 				debug("SelectorSurface.select_item(%d): get_offset() fail!", display_index);
+//~ 				debug("  first_index: %d, last_index: %d", first_index, last_index);
+				return false;
+			}
+
+			ensure_surface(display_index);
+
+			Rect rect = {0, offset};
+			items.get_item_selected_rendering(get_index_from_display_index(display_index)).blit(null, surface, rect);
+//~ 			debug("selected display_index: %d", display_index);
+			surface.flip();
+
+			return true;
+		}
+		public void unselect_item(int display_index) {
+			if (display_index < first_rendered_index || display_index > last_rendered_index)
+				return;
+			Rect rect = {0, get_offset(display_index)};
+			@interface.get_blank_item_surface().blit(null, surface, rect);
+			items.get_item_rendering(get_index_from_display_index(display_index)).blit(null, surface, rect);
+			surface.flip();
+		}
+		public void ensure_surface(int display_index) {
+			if (all_items_rendered == true)
+				return;
+
+			if (first_rendered_index == first_index && last_rendered_index == last_index) {
+				all_items_rendered = true;
+				return;
+			}
+
+			int top_index;
+			int bottom_index;
+			get_display_range(display_index, out top_index, out bottom_index);
+
+			if (first_rendered_index == -1) {
+				render_item_range(top_index, bottom_index);
+				first_rendered_index = top_index;
+				last_rendered_index = bottom_index;
+				surface.flip();
+				return;
+			}
+
+			bool needs_flip = false;
+
+			if (top_index < first_rendered_index) {
+				render_item_range(top_index, first_rendered_index - 1);
+				first_rendered_index = top_index;
+				needs_flip = true;
+			}
+			if (bottom_index > last_rendered_index) {
+				render_item_range(last_rendered_index+ 1, bottom_index);
+				last_rendered_index = bottom_index;
+				needs_flip = true;
+			}
+
+			if (needs_flip)
+				surface.flip();
+		}
+		public int16 get_offset(int display_index) {
+			if (display_index < this.first_index || display_index > this.last_index)
+				return -1;
+			var index = display_index - first_index;
+			return (int16)((@interface.font_height * index) + (item_spacing * index) + item_spacing);
+		}
+
+		void get_display_range(int center_index, out int top_index, out int bottom_index) {
+			top_index = center_index - (visible_items / 2);
+			if (top_index < first_index)
+				top_index = first_index;
+			bottom_index = top_index + visible_items - 1;
+			if (bottom_index > last_index)
+				bottom_index = last_index;
+			//bottom_index--;
+			if ((bottom_index - top_index) < visible_items - 1)
+				top_index = bottom_index - visible_items + 1;
+			if (bottom_index < visible_items || top_index < first_index)
+				top_index = first_index;
+		}
+		void render_item_range(int top_index, int bottom_index) {
+			int16 offset = get_offset(top_index);
+			if (offset == -1)
+				return;
+			Rect rect = {0, offset};
+			for(int display_index=top_index; display_index <= bottom_index; display_index++) {
+				items.get_item_rendering(get_index_from_display_index(display_index)).blit(null, surface, rect);
+				rect.y = (int16)(rect.y + @interface.font_height + item_spacing);
+			}
+		}
+		void rendering_iteration() {
+			bool needs_flip = false;
+			if (first_rendered_index > first_index) {
+				first_rendered_index--;
+				render_item_range(first_rendered_index, first_rendered_index);
+				needs_flip = true;
+			}
+			if (last_rendered_index < last_index) {
+				last_rendered_index++;
+				render_item_range(last_rendered_index, last_rendered_index);
+				needs_flip = true;
+			}
+			if (needs_flip == true) {
+				surface.flip();
+			} else {
+				all_items_rendered = true;
+				@interface.disconnect_idle_function(idle_function_name);
+			}
+		}
 	}
 }
 
