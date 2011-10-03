@@ -69,7 +69,6 @@ public class GameBrowser
 		var all_games = Data.browser_state().all_games;
 
 		if (all_games != null && (active == true || all_games.active == true)) {
-			debug("all_games get!");
 			everything_active = true;
 			everything_selector = new EverythingSelector(@interface);
 			selector = everything_selector;
@@ -570,6 +569,8 @@ public class GameBrowser
 		var game_selector = selector as GameFolderSelector;
 		if (game_selector != null) {
 			if (current_folder.parent == null) {
+				Data.browser_state().apply_platform_state(current_platform, current_folder.unique_id(),
+					selector.selected_index, selector.get_filter_pattern());
 				current_folder = null;
 				current_filter = null;
 				selector = new PlatformSelector(@interface);
