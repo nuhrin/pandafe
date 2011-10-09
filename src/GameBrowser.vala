@@ -168,7 +168,7 @@ public class GameBrowser
 		if (everything_active == true)
 			set_header();
 		clear_status_messages();
-		string center = "%d / %d".printf(selector.selected_display_index(), selector.display_item_count - 1);
+		string center = "%d / %d".printf(selector.selected_display_index() + 1, selector.display_item_count);
 		string? right = null;
 		string? active_pattern = selector.get_filter_pattern();
 		if (active_pattern != null)
@@ -262,14 +262,14 @@ public class GameBrowser
 		if (process_unicode(event.keysym.unicode) == false)
 			return;
 
-		if (event.keysym.sym == KeySymbol.RCTRL) {
+		if (event.keysym.sym == KeySymbol.RSHIFT) {
 			// pandora L
 			L_pressed = true;
 			if (R_pressed == true)
 				L_R_both_pressed = true;
 			return;
 		}
-		if (event.keysym.sym == KeySymbol.RSHIFT) {
+		if (event.keysym.sym == KeySymbol.RCTRL) {
 			// pandora R
 			R_pressed = true;
 			if (L_pressed == true)
@@ -296,11 +296,10 @@ public class GameBrowser
 					break;
 				case KeySymbol.RETURN:
 				case KeySymbol.KP_ENTER:
-				case KeySymbol.PAGEDOWN: // pandora X
+				case KeySymbol.END: // pandora B
 					activate_selected();
 					drain_events();
 					break;
-				case KeySymbol.ESCAPE:
 				case KeySymbol.HOME: // pandora A
 					if (everything_active == true || current_platform == null) {
 						this.event_loop_done = true;
@@ -308,10 +307,10 @@ public class GameBrowser
 					}
 					go_back();
 					break;
-				case KeySymbol.PAGEUP: // pandora X
+				case KeySymbol.PAGEUP: // pandora Y
 					select_first();
 					break;
-				case KeySymbol.END: // pandora B
+				case KeySymbol.PAGEDOWN: // pandora X
 					select_last();
 					break;
 				case KeySymbol.SLASH:
@@ -325,6 +324,7 @@ public class GameBrowser
 					edit_current_platform();
 					drain_events();
 					break;
+				case KeySymbol.ESCAPE:
 				case KeySymbol.q:
 					this.event_loop_done = true;
 					break;
@@ -346,7 +346,7 @@ public class GameBrowser
 		if (event.keysym.sym != KeySymbol.SPACE)
 			process_unicode_disabled = false;
 
-		if (event.keysym.sym == KeySymbol.RCTRL) {
+		if (event.keysym.sym == KeySymbol.RSHIFT) {
 			// pandora L
 			L_pressed = false;
 			if (L_R_both_pressed == true) {
@@ -361,7 +361,7 @@ public class GameBrowser
 			drain_events();
 			return;
 		}
-		if (event.keysym.sym == KeySymbol.RSHIFT) {
+		if (event.keysym.sym == KeySymbol.RCTRL) {
 			// pandora R
 			R_pressed = false;
 			if (L_R_both_pressed == true) {
@@ -541,10 +541,6 @@ public class GameBrowser
 
 		var game_selector = selector as GameFolderSelector;
 		if (game_selector != null) {
-			if (game_selector.is_go_back_selected() == true) {
-				go_back();
-				return;
-			}
 			var item = game_selector.selected_item();
 			var folder = item as GameFolder;
 			if (folder != null) {
