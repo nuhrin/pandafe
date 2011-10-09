@@ -127,7 +127,7 @@ public abstract class Selector : Object
 	}
 	public bool select_item_starting_with(string str, int index=0) {
 		Gee.List<int> matching_indexes;
-		if (items.search("^" + str, out matching_indexes, null) == false)
+		if (items.search("^" + str, out matching_indexes) == false)
 			return false;
 
 		if (matching_indexes.size >= index + 1)
@@ -159,7 +159,7 @@ public abstract class Selector : Object
 		//debug("filtering by '%s'", pattern);
 		Gee.List<int> matching_indexes;
 		bool success;
-		success = items.search(pattern, out matching_indexes, null);
+		success = items.search(pattern, out matching_indexes);
 		if (success == true) {
 //~ 			print("matches: ");
 //~ 			foreach(var index in matching_indexes)

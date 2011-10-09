@@ -6,7 +6,7 @@ using Catapult;
 public class SelectorItemSet : Object
 {
 	const RegexCompileFlags REGEX_COMPILE_FLAGS = RegexCompileFlags.CASELESS | RegexCompileFlags.MULTILINE | RegexCompileFlags.NEWLINE_LF;
-	const RegexMatchFlags REGEX_MATCH_FLAGS = RegexMatchFlags.PARTIAL | RegexMatchFlags.NEWLINE_LF;
+	const RegexMatchFlags REGEX_MATCH_FLAGS = RegexMatchFlags.NEWLINE_LF;
 
 	Selector selector;
 	Surface[] item_renderings;
@@ -50,7 +50,7 @@ public class SelectorItemSet : Object
 
 	public Gee.List<int> get_folder_indexes() { return folder_item_indexes; }
 
-	public bool search(string pattern, out Gee.List<int> matching_indexes, out bool is_partial) {
+	public bool search(string pattern, out Gee.List<int> matching_indexes) {
 		if (item_positions.length == 0)
 			return false;
 
@@ -62,16 +62,12 @@ public class SelectorItemSet : Object
 			return false;
 		}
 		var filter_match_indexes = new ArrayList<int>();
-		bool has_full_match = false;
 
 		int matched_item_index = 0;
 		int last_item_index = item_positions.length - 1;
 		MatchInfo match_info;
 		regex.match(items_str, 0, out match_info);
 		while((matched_item_index < item_positions.length) && match_info.matches()) {
-			if (has_full_match == false && match_info.is_partial_match() == false)
-				has_full_match = true;
-
 			int match_position;
 			if (match_info.fetch_pos(0, out match_position, null) == true) {
 				if (match_position >= item_positions[matched_item_index]) {
@@ -90,7 +86,6 @@ public class SelectorItemSet : Object
 			}
 		}
 		matching_indexes = filter_match_indexes.read_only_view;
-		is_partial = !has_full_match;
 		return (filter_match_indexes.size > 0);
 	}
 
