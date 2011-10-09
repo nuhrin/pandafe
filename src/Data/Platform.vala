@@ -33,7 +33,7 @@ public class Platform : NamedEntity, GuiEntity
 
 	// properties for ROM platforms
 	public string rom_folder_root { get; set; }
-	public string rom_filespec { get; set; }
+	public string rom_file_extensions { get; set; }
 
 	public Gee.List<Program> programs { get; set; }
 	public Program default_program { get; set; }
@@ -61,7 +61,7 @@ public class Platform : NamedEntity, GuiEntity
 	}
 	GameListProvider _provider;
 	protected virtual GameListProvider get_provider() {
-		return new RomList(this, name, rom_folder_root, rom_filespec);
+		return new RomList(this, name, rom_folder_root, rom_file_extensions);
 	}
 
 	// yaml
@@ -114,7 +114,7 @@ public class Platform : NamedEntity, GuiEntity
 		platform_frame.add_enum("platform_type", "_Type", this.platform_type);
 		rom_folder_root_field = new FolderField("rom_folder_root", "_Rom Folder Root", this.rom_folder_root);
 		platform_frame.add_field(rom_folder_root_field);
-		rom_filespec_field = platform_frame.add_string("rom_filespec", "Rom _Filespec", this.rom_filespec);
+		rom_filespec_field = platform_frame.add_string("rom_file_extensions", "Rom _File Extensions", this.rom_file_extensions);
 
 		container.add_field(platform_frame);
 

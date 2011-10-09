@@ -1,7 +1,7 @@
 name: Neo Geo
 platform-type: rom
 rom-folder-root: /home/nuhrin/dev/vala/pandafe/pandafe
-rom-filespec: ! '*'
+rom-file-extensions: 
 programs:
 - name: Gngeo
   pnd-id: gngeopnd-pepone

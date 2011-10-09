@@ -1,7 +1,7 @@
 name: Gameboy
 platform-type: rom
 rom-folder-root: /alcove/pandora/fake_sd/roms/gb
-rom-filespec: ! '*.gb; *.gbc'
+rom-file-extensions: ! 'gb; gbc'
 programs:
 - name: GnuBoy
   pnd-id: sdlgnuboy

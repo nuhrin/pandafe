@@ -116,8 +116,8 @@ namespace Data
 						if (platform.platform_type == PlatformType.ROM) {
 							if (platform.rom_folder_root == null)
 								platform.rom_folder_root = "";
-							if (platform.rom_filespec == null)
-								platform.rom_filespec = "*";
+							if (platform.rom_file_extensions == null)
+								platform.rom_file_extensions = "";
 						}
 						_platforms.add(platform);
 					}

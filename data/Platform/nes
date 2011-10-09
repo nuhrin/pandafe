@@ -1,7 +1,7 @@
 name: NES
 platform-type: rom
 rom-folder-root: /alcove/pandora/fake_sd/roms/nes
-rom-filespec: ! '*.nes'
+rom-file-extensions: nes
 programs:
 - name: gpFCE-GP2X
   pnd-id: gpfcegp2x

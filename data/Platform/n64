@@ -1,7 +1,7 @@
 name: Nintendo 64
 platform-type: rom
 rom-folder-root: /alcove/pandora/fake_sd/roms
-rom-filespec: ! '*'
+rom-file-extensions: 
 programs:
 - name: Mupen64Plus
   pnd-id: mupen64plus
