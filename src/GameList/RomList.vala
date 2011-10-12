@@ -31,11 +31,11 @@ namespace Data.GameList
 			return run_program_with_premount(program, null, get_full_path(game));
 		}
 
-		public override string get_unique_id(GameListNode node) {
+		public override string get_unique_id(IGameListNode node) {
 			return get_relative_path(node);
 		}
 
-		public override bool get_children(GameFolder folder, out ArrayList<GameFolder> child_folders, out ArrayList<GameItem> child_games) {
+		protected override bool get_children(GameFolder folder, out ArrayList<GameFolder> child_folders, out ArrayList<GameItem> child_games) {
 			var folder_list = new ArrayList<GameFolder>();
 			var file_names = new ArrayList<string>();
 			try {
@@ -45,6 +45,8 @@ namespace Data.GameList
 				while ((file_info = enumerator.next_file ()) != null) {
 					var type = file_info.get_file_type();
 					var name = file_info.get_name();
+					if (name.has_prefix(".") == true)
+						continue;
 					if (type == FileType.REGULAR) {
 						file_names.add(name);
 					} else if (type == FileType.DIRECTORY) {
@@ -52,7 +54,7 @@ namespace Data.GameList
 						folder_list.add(subfolder);
 					}
 				}
-				folder_list.sort((CompareFunc?)GameListNode.compare);
+				folder_list.sort((CompareFunc?)IGameListNode.compare);
 				child_folders = folder_list;
 				child_games = get_game_items(folder, file_names);
 				return true;
@@ -94,21 +96,21 @@ namespace Data.GameList
 		static Regex _regex_rom_display_name;
 		static Regex _regex_rom_full_name;
 
-		string get_relative_path(GameListNode node) {
+		string get_relative_path(IGameListNode node) {
 			if (node.parent == null)
 				return "";
 			return get_relative_path_sb(node).str;
 		}
-		string get_full_path(GameListNode node) {
+		string get_full_path(IGameListNode node) {
 			if (node.parent == null)
 				return root_folder_path;
 			var path = get_relative_path_sb(node);
 			path.prepend_c(Path.DIR_SEPARATOR).prepend(root_folder_path);
 			return path.str;
 		}
-		StringBuilder get_relative_path_sb(GameListNode node) {
+		StringBuilder get_relative_path_sb(IGameListNode node) {
 			var path = new StringBuilder(node.id);
-			GameListNode current = node.parent;
+			IGameListNode current = node.parent;
 			while (current.parent != null) {
 				path.prepend_c(Path.DIR_SEPARATOR).prepend(current.id);
 				current = current.parent;
@@ -166,17 +168,17 @@ namespace Data.GameList
 				if (displayname_game_hash.has_key(display_name) == true) {
 					var old_game_item = displayname_game_hash[display_name];
 					if (old_game_item != null) {
-						old_game_item.full_name = get_rom_full_name(old_game_item.id);
+						GameItem.set_full_name(old_game_item, get_rom_full_name(old_game_item.id));
 						displayname_game_hash[display_name] = null;
 					}
-					game = new GameItem(display_name, this, folder, name, get_rom_full_name(name));
+					game = GameItem.create(display_name, this, folder, name, get_rom_full_name(name));
 				} else {
-					game = new GameItem(display_name, this, folder, name);
+					game = GameItem.create(display_name, this, folder, name);
 					displayname_game_hash[display_name] = game;
 				}
 				games.add(game);
 			}
-			games.sort((CompareFunc?)GameListNode.compare);
+			games.sort((CompareFunc?)IGameListNode.compare);
 			return games;
 		}
 
@@ -214,16 +216,16 @@ namespace Data.GameList
 			return null;
 		}
 
-		class PatternSpecSet
-		{
-			PatternSpec[] patterns;
-			public PatternSpecSet(string spec) {
-				var spec_set = spec.split_set(";, ");
-				patterns = new PatternSpec[spec_set.length];
-				for(int index=0;index<spec_set.length;index++) {
-					patterns[index] = new PatternSpec(spec_set[index]);
-				}
-			}
+//~ 		class PatternSpecSet
+//~ 		{
+//~ 			PatternSpec[] patterns;
+//~ 			public PatternSpecSet(string spec) {
+//~ 				var spec_set = spec.split_set(";, ");
+//~ 				patterns = new PatternSpec[spec_set.length];
+//~ 				for(int index=0;index<spec_set.length;index++) {
+//~ 					patterns[index] = new PatternSpec(spec_set[index]);
+//~ 				}
+//~ 			}
 //~ 			public bool match (uint string_length, string str, string? str_reversed)
 //~ 			{
 //~ 				for(int index=0;index<patterns.length;index++) {
@@ -232,13 +234,13 @@ namespace Data.GameList
 //~ 				}
 //~ 				return false;
 //~ 			}
-			public bool match_string (string str) {
-				for(int index=0;index<patterns.length;index++) {
-					if (patterns[index].match_string(str) == true)
-						return true;
-				}
-				return false;
-			}
-		}
+//~ 			public bool match_string (string str) {
+//~ 				for(int index=0;index<patterns.length;index++) {
+//~ 					if (patterns[index].match_string(str) == true)
+//~ 						return true;
+//~ 				}
+//~ 				return false;
+//~ 			}
+//~ 		}
 	}
 }

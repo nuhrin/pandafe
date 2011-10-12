@@ -37,13 +37,13 @@ namespace Data.GameList
 			return -1;
 		}
 
-		public override string get_unique_id(GameListNode node) {
+		public override string get_unique_id(IGameListNode node) {
 			if (node is GameItem || node.parent == null || node.parent.id == "")
 				return node.id;
 			return "%s/%s".printf(node.parent.id, node.id);
 		}
 
-		public override bool get_children(GameFolder folder, out ArrayList<GameFolder> child_folders, out ArrayList<GameItem> child_games) {
+		protected override bool get_children(GameFolder folder, out ArrayList<GameFolder> child_folders, out ArrayList<GameItem> child_games) {
 			var folder_list = new ArrayList<GameFolder>();
 			var game_list = new ArrayList<GameItem>();
 			add_subfolders(folder, folder_list);
@@ -71,7 +71,7 @@ namespace Data.GameList
 						folder_list.add(new GameFolder(subcategory.name, this, folder));
 				}
 			}
-			folder_list.sort((CompareFunc?)GameListNode.compare);
+			folder_list.sort((CompareFunc?)IGameListNode.compare);
 		}
 		void add_games(GameFolder folder, ArrayList<GameItem> game_list) {
 			if (folder.id == "")
@@ -90,21 +90,21 @@ namespace Data.GameList
 				var title_game_hash = new HashMap<string, GameItem?>();
 				var title_packageid_hash = new HashMap<string, string>();
 				foreach(var app in category.apps) {
-					GameItem game = new GameItem(app.title, this, folder, "%s|%s".printf(app.package_id, app.id));
+					GameItem game = GameItem.create(app.title, this, folder, "%s|%s".printf(app.package_id, app.id));
 					if (title_game_hash.has_key(app.title) == true) {
 						var old_game_item = title_game_hash[app.title];
 						if (old_game_item != null) {
-							old_game_item.full_name = "%s (%s)".printf(app.title, title_packageid_hash[app.title]);
+							GameItem.set_full_name(old_game_item, "%s (%s)".printf(app.title, title_packageid_hash[app.title]));
 							title_game_hash[app.title] = null;
 						}
-						game.full_name = "%s (%s)".printf(app.title, app.package_id);
+						GameItem.set_full_name(game, "%s (%s)".printf(app.title, app.package_id));
 					} else {
 						title_game_hash[app.title] = game;
 						title_packageid_hash[app.title] = app.package_id;
 					}
 					game_list.add(game);
 				}
-				game_list.sort((CompareFunc?)GameListNode.compare);
+				game_list.sort((CompareFunc?)IGameListNode.compare);
 			}
 		}
 	}

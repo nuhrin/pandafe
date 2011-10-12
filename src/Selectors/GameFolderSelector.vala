@@ -6,7 +6,7 @@ using Data.GameList;
 public class GameFolderSelector : Selector
 {
 	GameFolder folder;
-	Gee.List<GameListNode> items;
+	Gee.List<IGameListNode> items;
 
 	public GameFolderSelector(GameFolder folder, InterfaceHelper @interface) {
 		base(@interface);
@@ -14,7 +14,7 @@ public class GameFolderSelector : Selector
 		items = folder.children().to_list();
 	}
 
-	public GameListNode? selected_item()
+	public IGameListNode? selected_item()
 	{
 		if (selected_index == -1)
 			return null;

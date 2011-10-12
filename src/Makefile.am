@@ -35,9 +35,10 @@ pandafe_VALASOURCES = \
 	Data/Program.vala \
 	Data/Provider.vala \
 	GameList/GameFolder.vala \
+	GameList/GameFolderCache.vala \
 	GameList/GameItem.vala \
-	GameList/GameListNode.vala \
 	GameList/GameListProvider.vala \
+	GameList/IGameListNode.vala \
 	GameList/RomList.vala \
 	GameList/PndList.vala \
 	Fields/ColorField.vala \

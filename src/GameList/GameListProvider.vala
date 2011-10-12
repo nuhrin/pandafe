@@ -24,10 +24,23 @@ namespace Data.GameList
 		GameFolder _root;
 
 		public abstract uint run_game(GameItem game);
+		public abstract string get_unique_id(IGameListNode node);
 
-		public abstract bool get_children(GameFolder folder, out ArrayList<GameFolder> child_folders, out ArrayList<GameItem> child_games);
-		public abstract string get_unique_id(GameListNode node);
 
+		public void rescan() {
+			root_folder.rescan_children(true);
+		}
+		public void clear_cache() {
+			assert_not_reached();
+		}
+		public bool scan_children(GameFolder folder, out ArrayList<GameFolder> child_folders, out ArrayList<GameItem> child_games) {
+			bool result = get_children(folder, out child_folders, out child_games);
+			// todo: notify some signal of folder scan
+			debug("folder '%s' scanned.", folder.unique_id());
+			return result;
+		}
+
+		protected abstract bool get_children(GameFolder folder, out ArrayList<GameFolder> child_folders, out ArrayList<GameItem> child_games);
 		protected abstract GameFolder create_root_folder();
 
 		protected uint run_program(Program program, string? game_args=null, string? game_path=null) {
