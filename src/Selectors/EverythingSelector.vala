@@ -18,7 +18,7 @@ public class EverythingSelector : Selector {
 					var platform_games = platform.get_root_folder().all_games().to_list();
 					_items.add_all(platform_games);
 				}
-				_items.sort((CompareFunc?)IGameListNode.compare);
+				_items.sort();
 			}
 			return _items;
 		}

@@ -28,7 +28,7 @@ namespace Data.GameList
 			var ids = game.id.split("|");
 			var pnd = pnddata.get_pnd(ids[0]);
 			if (pnd != null) {
-				var app = pnd.apps.first_where(a=>a.id == ids[1]);
+				var app = pnd.apps.where(a=>a.id == ids[1]).first();
 				if (app != null) {
 					return app.execute();
 				}
@@ -71,7 +71,7 @@ namespace Data.GameList
 						folder_list.add(new GameFolder(subcategory.name, this, folder));
 				}
 			}
-			folder_list.sort((CompareFunc?)IGameListNode.compare);
+			folder_list.sort();
 		}
 		void add_games(GameFolder folder, ArrayList<GameItem> game_list) {
 			if (folder.id == "")
@@ -104,7 +104,7 @@ namespace Data.GameList
 					}
 					game_list.add(game);
 				}
-				game_list.sort((CompareFunc?)IGameListNode.compare);
+				game_list.sort();
 			}
 		}
 	}

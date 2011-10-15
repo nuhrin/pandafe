@@ -28,10 +28,8 @@ namespace Fields
 			} catch (Error e) {
 				debug("Error while creating Program: %s", e.message);
 			}
-			if (item == null)
-				return false;
 			new_item = item;
-			return true;
+			return (item != null);
 		}
 		protected override bool on_edit_button_pressed(Program item) {
 			bool retVal = false;

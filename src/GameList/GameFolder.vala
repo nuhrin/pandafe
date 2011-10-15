@@ -3,7 +3,7 @@ using Catapult;
 
 namespace Data.GameList
 {
-	public class GameFolder : Object, IGameListNode
+	public class GameFolder : Object, Gee.Comparable<IGameListNode>, IGameListNode
 	{
 		const string YAML_FOLDER_ROOT = "GameListCache";
 
@@ -36,6 +36,10 @@ namespace Data.GameList
 		public int child_count() {
 			ensure_children();
 			return ((_child_folders != null) ? _child_folders.size : 0) + ((_child_games != null) ? _child_games.size : 0);
+		}
+
+		public int compare_to(IGameListNode other) {
+			return name.ascii_casecmp(other.name);
 		}
 
 		public Enumerable<IGameListNode> children() {

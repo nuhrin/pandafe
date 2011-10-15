@@ -239,8 +239,8 @@ public class GameBrowser
 	//
 	// events
     void process_events() {
-        Event event = Event();
-        while(Event.poll(event) == 1) {
+        Event event;
+        while(Event.poll(out event) == 1) {
             switch(event.type) {
 				case EventType.QUIT:
 					this.event_loop_done = true;
@@ -255,8 +255,8 @@ public class GameBrowser
         }
     }
     void drain_events() {
-		Event event = Event();
-        while(Event.poll(event) == 1);
+		Event event;
+        while(Event.poll(out event) == 1);
 	}
     void on_keydown_event (KeyboardEvent event) {
 		if (process_unicode(event.keysym.unicode) == false)

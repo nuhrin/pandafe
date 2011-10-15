@@ -90,7 +90,7 @@ public class InterfaceHelper : Object
 	public unowned Surface get_blank_item_surface() { return _blank_item_surface; }
 
 	public Surface get_blank_surface(int width, int height) {
-		return new Surface.RGB(SurfaceFlag.SWSURFACE, width, height, DEPTH, screen.format.Rmask, screen.format.Gmask, screen.format.Bmask, screen.format.Amask);
+		return new Surface.RGB(SurfaceFlag.SWSURFACE, width, height, DEPTH, 0, 0, 0, 0);
 	}
 	public Surface get_blank_background_surface(int width, int height) {
 		var surface = get_blank_surface(width, height);

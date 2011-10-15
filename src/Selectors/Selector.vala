@@ -160,14 +160,8 @@ public abstract class Selector : Object
 		Gee.List<int> matching_indexes;
 		bool success;
 		success = items.search(pattern, out matching_indexes);
-		if (success == true) {
-//~ 			print("matches: ");
-//~ 			foreach(var index in matching_indexes)
-//~ 				print("[%d] ", index);
-//~ 			print("\n");
-
+		if (success == true)
 			_filter_match_indexes.add_all(matching_indexes);
-		}
 
 		var display_index = get_closest_display_index(selected_index);
 
@@ -272,12 +266,12 @@ public abstract class Selector : Object
 		int16 item_spacing;
 		SelectorWindow window;
 
-		public SelectorSurfaceSet(int item_count, int items_per_surface, InterfaceHelper @interface, SelectorItemSet items, TransformIndex get_index_from_display_index) {
+		public SelectorSurfaceSet(int item_count, int items_per_surface, InterfaceHelper @interface, SelectorItemSet items, owned TransformIndex get_index_from_display_index) {
 			this.item_count = item_count;
 			this.items_per_surface = items_per_surface;
 			this.@interface = @interface;
 			this.items = items;
-			this.get_index_from_display_index = get_index_from_display_index;
+			this.get_index_from_display_index = (owned)get_index_from_display_index;
 
 			surface_count = (item_count + items_per_surface - 1) / items_per_surface;
 			if (surface_count < 1)
@@ -569,7 +563,7 @@ public abstract class Selector : Object
 //~ 				debug("creating new surface @index: %d", surface_index);
 			int first_index = surface_index * items_per_surface;
 			return new SelectorSurface(first_index, (is_last) ? item_count - 1 : first_index + items_per_surface - 1,
-				@interface, items, get_index_from_display_index);
+				@interface, items, (owned)get_index_from_display_index);
 		}
 
 		int16 get_surface_window_height(int first, int last) {
@@ -604,12 +598,12 @@ public abstract class Selector : Object
 		bool all_items_rendered;
 		string idle_function_name;
 
-		public SelectorSurface(int first_index, int last_index, InterfaceHelper @interface, SelectorItemSet items, TransformIndex get_index_from_display_index) {
+		public SelectorSurface(int first_index, int last_index, InterfaceHelper @interface, SelectorItemSet items, owned TransformIndex get_index_from_display_index) {
 			this.first_index = first_index;
 			this.last_index = last_index;
 			this.@interface = @interface;
 			this.items = items;
-			this.get_index_from_display_index = get_index_from_display_index;
+			this.get_index_from_display_index = (owned)get_index_from_display_index;
 			first_rendered_index = -1;
 			last_rendered_index = -1;
 			visible_items = @interface.SELECTOR_VISIBLE_ITEMS;

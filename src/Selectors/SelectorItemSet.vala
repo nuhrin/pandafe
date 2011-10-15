@@ -51,6 +51,7 @@ public class SelectorItemSet : Object
 	public Gee.List<int> get_folder_indexes() { return folder_item_indexes; }
 
 	public bool search(string pattern, out Gee.List<int> matching_indexes) {
+		matching_indexes = null;
 		if (item_positions.length == 0)
 			return false;
 
@@ -103,7 +104,7 @@ public class SelectorItemSet : Object
 		return item_renderings[index];
 	}
 	public Surface get_item_selected_rendering(int index) {
-		if (index < 0 || index >= item_positions.length)
+		if (index < 0 || index >= item_renderings.length)
 			GLib.error("Index out of range.");
 		return @interface.render_text_selected(selector.get_item_full_name(index));
 	}

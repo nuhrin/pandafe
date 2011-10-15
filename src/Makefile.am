@@ -65,7 +65,7 @@ pandafe_SOURCES = \
 	$(NULL)
 
 pandafe.vala.stamp: $(pandafe_VALASOURCES)
-	$(VALA_V)$(VALAC) $(VALAFLAGS) -C --vapidir $(srcdir)/../vapi --pkg catapult-gui --pkg catapult --pkg gtksourceview-2.0 --pkg pandora-glib --pkg gee-1.0 --pkg gtk+-2.0 --pkg sdl --pkg sdl-ttf --pkg sdl-gfx --pkg config --pkg GdkKeySyms --pkg sdl-keyboard $^
+	$(VALA_V)$(VALAC) $(VALAFLAGS) -C --vapidir $(srcdir)/../vapi --pkg catapult-gui --pkg catapult --pkg gtksourceview-2.0 --pkg pandora-glib --pkg gee-0.8 --pkg gtk+-2.0 --pkg sdl --pkg sdl-ttf --pkg sdl-gfx --pkg config --pkg GdkKeySyms --pkg sdl-keyboard $^
 	@touch $@
 
 pandafe_LDADD = \

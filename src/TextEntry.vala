@@ -57,12 +57,12 @@ public class TextEntry : Object
 	public signal void changed(string text);
 
 	void drain_events() {
-		Event event = Event();
-        while(Event.poll(event) == 1);
+		Event event;
+        while(Event.poll(out event) == 1);
 	}
 	void process_events() {
-        Event event = Event();
-        while(Event.poll(event) == 1) {
+        Event event;
+        while(Event.poll(out event) == 1) {
             switch(event.type) {
 				case EventType.QUIT:
 					this.event_loop_done = true;

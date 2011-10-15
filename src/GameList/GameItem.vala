@@ -2,7 +2,7 @@ using Catapult;
 
 namespace Data.GameList
 {
-	public class GameItem : YamlObject, IGameListNode
+	public class GameItem : YamlObject, Gee.Comparable<IGameListNode>, IGameListNode
 	{
 		string _name;
 		GameListProvider _provider;
@@ -69,5 +69,9 @@ namespace Data.GameList
 			return true;
 		}
 
+
+		public int compare_to(IGameListNode other) {
+			return this.name.ascii_casecmp(other.name);
+		}
 	}
 }

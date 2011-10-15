@@ -54,7 +54,7 @@ namespace Data.GameList
 						folder_list.add(subfolder);
 					}
 				}
-				folder_list.sort((CompareFunc?)IGameListNode.compare);
+				folder_list.sort();
 				child_folders = folder_list;
 				child_games = get_game_items(folder, file_names);
 				return true;
@@ -178,7 +178,7 @@ namespace Data.GameList
 				}
 				games.add(game);
 			}
-			games.sort((CompareFunc?)IGameListNode.compare);
+			games.sort();
 			return games;
 		}
 
