@@ -592,7 +592,7 @@ public class GameBrowser
 					break;
 				index++;
 			}
-			selector.select_item(index+1);
+			selector.select_item(index);
 			redraw_screen();
 			return;
 		}
