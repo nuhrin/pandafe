@@ -35,7 +35,7 @@ namespace Fields
 			var scalar = node as Yaml.ScalarNode;
 			if (scalar != null) {
 				Gdk.Color color = Gdk.Color();
-				if (color.parse(scalar.Value, out color) == true)
+				if (color.parse(scalar.value, out color) == true)
 					return color;
 			}
 			return Gdk.Color();

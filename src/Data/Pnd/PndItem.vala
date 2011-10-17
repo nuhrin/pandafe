@@ -36,19 +36,19 @@ namespace Data.Pnd
 			var apps_node = new Yaml.SequenceNode();
 			foreach(var app in apps) {
 				var app_node = builder.build_yaml_object(app);
-				apps_node.Items.add(app_node);
+				apps_node.add(app_node);
 			}
 			var appsKey = builder.build_value("apps");
-			map.Mappings[appsKey] = apps_node;
+			map[appsKey] = apps_node;
 			return map;
 		}
 		protected override bool apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
 			var map = node as Yaml.MappingNode;
-			foreach(var key in map.Mappings.scalar_keys()) {
-				if (key.Value == "apps") {
+			foreach(var key in map.scalar_keys()) {
+				if (key.value == "apps") {
 					var app_list = new ArrayList<AppItem>();
-					var apps_node = map.Mappings[key] as Yaml.SequenceNode;
-					foreach(var app_node in apps_node.Items) {
+					var apps_node = map[key] as Yaml.SequenceNode;
+					foreach(var app_node in apps_node.items()) {
 						var item = (AppItem)parser.parse_value_of_type(app_node, typeof(AppItem), null);
 						if (item != null) {
 							item.set_pnd(this);

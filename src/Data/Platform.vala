@@ -75,7 +75,7 @@ public class Platform : NamedEntity, GuiEntity
 		}
 		if (programs.size > 1) {
 			string default_program_name = (default_program != null) ? default_program.name : null;
-			mapping.Mappings.set_scalar("default-program", new Yaml.ScalarNode(null, null, default_program_name));
+			mapping.set_scalar("default-program", new Yaml.ScalarNode(null, null, default_program_name));
 		}
 		return mapping;
 	}
@@ -83,17 +83,17 @@ public class Platform : NamedEntity, GuiEntity
 		var mapping = node as Yaml.MappingNode;
 		if (mapping != null) {
 			Yaml.ScalarNode default_program_key_node = null;
-			foreach(var key_node in mapping.Mappings.scalar_keys()) {
-				if (key_node.Value != "default-program")
+			foreach(var key_node in mapping.scalar_keys()) {
+				if (key_node.value != "default-program")
 					parser.populate_object_property(mapping, key_node, this);
 				else
 					default_program_key_node = key_node;
 			}
 			if (default_program_key_node != null) {
-				var default_program_value_node = mapping.Mappings[default_program_key_node] as Yaml.ScalarNode;
+				var default_program_value_node = mapping[default_program_key_node] as Yaml.ScalarNode;
 				if (default_program_value_node != null) {
 					foreach(var program in programs) {
-						if (program.name == default_program_value_node.Value) {
+						if (program.name == default_program_value_node.value) {
 							default_program = program;
 						}
 					}

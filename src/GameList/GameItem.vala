@@ -44,22 +44,24 @@ namespace Data.GameList
 			return mapping;
 		}
 		protected override bool apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
+			//var timer = new TimerBlock("GameItem apply_yaml_node: ");
 			var mapping = node as Yaml.MappingNode;
 			if (mapping == null)
 				return false;
 
-			foreach(var key_node in mapping.Mappings.scalar_keys()) {
-				var value_node = mapping.Mappings[key_node] as Yaml.ScalarNode;
+ 			var keys = mapping.scalar_keys();
+			foreach(var key_node in keys) {
+				var value_node = mapping[key_node] as Yaml.ScalarNode;
 				if (value_node != null) {
-					switch(key_node.Value) {
+					switch(key_node.value) {
 						case "id":
-							_id = value_node.Value;
+							_id = value_node.value;
 							break;
 						case "name":
-							_name = value_node.Value;
+							_name = value_node.value;
 							break;
 						case "full-name":
-							_full_name = value_node.Value;
+							_full_name = value_node.value;
 							break;
 						default:
 							break;

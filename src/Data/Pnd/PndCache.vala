@@ -26,14 +26,14 @@ namespace Data.Pnd
 			var sequence = new Yaml.SequenceNode();
 			foreach(var pnd in pnd_list) {
 				var pnd_node = builder.build_yaml_object(pnd);
-				sequence.Items.add(pnd_node);
+				sequence.add(pnd_node);
 			}
 			return sequence;
 		}
 		protected override bool apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
 			var sequence = node as Yaml.SequenceNode;
 			var list = new ArrayList<PndItem>();
-			foreach(var childNode in sequence.Items) {
+			foreach(var childNode in sequence.items()) {
 				var item = (PndItem)parser.parse_value_of_type(childNode, typeof(PndItem), null);
 				if (item != null)
 					list.add(item);

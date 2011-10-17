@@ -17,8 +17,8 @@ public class MainClass: Object {
 //~ //		}
 //~
 
-//		test_app_categories();
-//		return 0;
+		//test_document_reader();
+		//return 0;
 
 		ensure_pandafedata_folder();
 
@@ -31,6 +31,7 @@ public class MainClass: Object {
 
  		return 0;
 	}
+
     const int SCREEN_WIDTH = 800;
     const int SCREEN_HEIGHT = 480;
     const int SCREEN_DEPTH = 32;
