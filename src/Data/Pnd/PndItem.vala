@@ -3,7 +3,7 @@ using Catapult;
 
 namespace Data.Pnd
 {
-	public class PndItem : YamlObject
+	public class PndItem : YamlObject, Comparable<PndItem>
 	{
 		public PndItem() {
 			apps = Enumerable.empty<AppItem>();
@@ -27,6 +27,8 @@ namespace Data.Pnd
 		public string get_fullpath() { return path + filename; }
 
 		public Enumerable<AppItem> apps { get; private set; }
+
+		public int compare_to(PndItem other) { return strcmp(pnd_id, other.pnd_id); }
 
 		protected override Yaml.Node build_yaml_node(Yaml.NodeBuilder builder) {
 			var map = new Yaml.MappingNode();

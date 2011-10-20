@@ -17,7 +17,7 @@ public class MainClass: Object {
 //~ //		}
 //~
 
-		//test_document_reader();
+		//test_pnd_scan();
 		//return 0;
 
 		ensure_pandafedata_folder();

@@ -15,6 +15,7 @@ namespace Data.Pnd
 				var item = new PndItem.from_pnd(pnd);
 				items.add(item);
 			}
+			items.sort();
 			pnd_list = new Enumerable<PndItem>(items);
 		}
 
