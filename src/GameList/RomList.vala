@@ -75,7 +75,7 @@ namespace Data.GameList
 			// strips "GoodRom" decorations as well as extension
 			try {
 				if (_regex_rom_display_name == null)
-					_regex_rom_display_name = new Regex("""(^\d* +- +)|(\([\w \.]*\)|\[.*\]| *?)*\.\w*$""", RegexCompileFlags.OPTIMIZE);
+					_regex_rom_display_name = new Regex("""(^\d* ?- ?)|(\([\w \.]*\)|\[.*\]| *?)*\.\w*$""", RegexCompileFlags.OPTIMIZE);
 				return _regex_rom_display_name.replace(filename.replace("_", " "), -1, 0, "");
 			} catch (RegexError e) {
 				debug("Regex error while generating rom display name: %s", e.message);
@@ -86,7 +86,7 @@ namespace Data.GameList
 			// strips just extension
 			try {
 				if (_regex_rom_full_name == null)
-					_regex_rom_full_name = new Regex("""(^\d* +- +)| *?\.\w*$""", RegexCompileFlags.OPTIMIZE);
+					_regex_rom_full_name = new Regex(""" *?\.\w*$""", RegexCompileFlags.OPTIMIZE);
 				return _regex_rom_full_name.replace(filename.replace("_", " "), -1, 0, "");
 			} catch (RegexError e) {
 				debug("Regex error while generating rom display name: %s", e.message);
