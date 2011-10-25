@@ -2,6 +2,8 @@ using SDL;
 using SDLTTF;
 using Data;
 using Data.GameList;
+using Menus;
+using Menus.Fields;
 
 public class GameBrowser
 {
@@ -324,6 +326,10 @@ public class GameBrowser
 					edit_current_platform();
 					drain_events();
 					break;
+				case KeySymbol.PERIOD:
+					show_test_menu();
+					drain_events();
+					break;
 				case KeySymbol.ESCAPE:
 				case KeySymbol.q:
 					this.event_loop_done = true;
@@ -637,5 +643,23 @@ public class GameBrowser
 			everything_active = false;
 		}
 		redraw_screen();
+	}
+
+	void show_test_menu() {
+		var browser = new MenuBrowser(GetTestMenu(), @interface, 40, 40);
+		browser.run();
+		redraw_screen();
+	}
+
+	Menu GetTestMenu() {
+		var menu = new Menu("test");
+		menu.add_item(new MenuItem("Configuration"));
+		menu.add_item(new MenuItem("Edit Current Platform"));
+		menu.add_item(new MenuItem("Edit Current Program"));
+		menu.add_item(new BooleanField("flag", "Flag"));
+		menu.add_item(new MenuItem("Return"));
+		menu.add_item(new MenuItem("Quit"));
+
+		return menu;
 	}
 }

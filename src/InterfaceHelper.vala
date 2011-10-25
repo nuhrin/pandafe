@@ -21,6 +21,8 @@ public class InterfaceHelper : Object
 
 	Font font;
 	Font font_mono;
+	int16 font_mono_char_width;
+	int16 font_mono_height;
 	int16 _font_height;
 	Surface _blank_item_surface;
 	Color _background_color;
@@ -29,6 +31,7 @@ public class InterfaceHelper : Object
 	Color _selected_item_color;
 	Color _black_color;
 	Color _white_color;
+	uint32 _white_color_rgb;
 
 	HashMap<string, ulong> idle_function_hash;
 
@@ -37,12 +40,16 @@ public class InterfaceHelper : Object
 		this.screen = screen;
 		idle_function_hash = new HashMap<string, ulong>();
 
+		_black_color = {0, 0, 0};
+		_white_color = {255, 255, 255};
+		_white_color_rgb = this.screen.format.map_rgb(255, 255, 255);
+
 		font_mono = new Font(FONT_MONO, FONT_SIZE);
 		if (font_mono == null) {
 			GLib.error("Error loading monospaced font: %s", SDL.get_error());
 		}
-		_black_color = {0, 0, 0};
-		_white_color = {255, 255, 255};
+		font_mono_height = (int16)font_mono.height();
+		font_mono_char_width = (int16)font_mono.render_shaded(" ", _black_color, _black_color).w;
 
 		update_from_preferences();
 	}
@@ -70,6 +77,7 @@ public class InterfaceHelper : Object
 	public unowned SDL.Color selected_item_color { get { return _selected_item_color; } }
 	public unowned SDL.Color black_color { get { return _black_color; } }
 	public unowned SDL.Color white_color { get{ return _white_color; } }
+	public uint32 white_color_rgb { get { return _white_color_rgb; } }
 
 	public int16 font_height { get { return _font_height; } }
 	public Surface render_text(string text) {
@@ -86,6 +94,8 @@ public class InterfaceHelper : Object
 	}
 
 	public unowned Font get_monospaced_font() { return font_mono; }
+	public int16 get_monospaced_font_width(uint chars=1) { return (int16)(font_mono_char_width * chars); }
+	public int16 get_monospaced_font_height() { return font_mono_height; }
 
 	public unowned Surface get_blank_item_surface() { return _blank_item_surface; }
 
