@@ -5,7 +5,6 @@ namespace Menus
 {
 	public class MenuBrowser
 	{
-		InterfaceHelper @interface;
 		int16 pos_y_status_message;
 		Surface blank_header_area;
 		Surface blank_message_area;
@@ -18,17 +17,16 @@ namespace Menus
 		uint8 max_name_length;
 		uint8 max_value_length;
 
-		public MenuBrowser(Menu menu, InterfaceHelper @interface, uint8 max_name_length, uint8 max_value_length) {
+		public MenuBrowser(Menu menu, uint8 max_name_length, uint8 max_value_length) {
 			if (menu.items.size == 0)
 				GLib.error("Menu '%s' has no items.", menu.name);
-			this.@interface = @interface;
 			font = @interface.get_monospaced_font();
 			font_height = @interface.get_monospaced_font_height();
 			pos_y_status_message = 470 - (font_height * 2);
 			blank_header_area = @interface.get_blank_surface(760, font_height);
 			blank_message_area = @interface.get_blank_surface(780, font_height * 2);
 			menu_stack = new GLib.Queue<MenuSelector>();
-			selector = new MenuSelector(menu, @interface, max_name_length, max_value_length);
+			selector = new MenuSelector(menu, max_name_length, max_value_length);
 			selector.select_first();
 			this.max_name_length = max_name_length;
 			this.max_value_length = max_value_length;

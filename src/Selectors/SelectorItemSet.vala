@@ -14,11 +14,9 @@ public class SelectorItemSet : Object
 	int[] item_positions;
 	Gee.List<int> folder_item_indexes;
 	string items_str;
-	InterfaceHelper @interface;
 	int first_rendered_item;
 	int last_rendered_item;
-	public class SelectorItemSet(InterfaceHelper @interface, Selector selector) {
-		this.@interface = @interface;
+	public class SelectorItemSet(Selector selector) {
 		@interface.font_updated.connect(flush_renderings);
 		@interface.colors_updated.connect(flush_renderings);
 		this.selector = selector;

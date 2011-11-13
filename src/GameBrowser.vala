@@ -7,7 +7,6 @@ using Menus.Fields;
 
 public class GameBrowser
 {
-	InterfaceHelper @interface;
 	bool event_loop_done;
 
 	int16 pos_y_status_message;
@@ -24,8 +23,7 @@ public class GameBrowser
     string current_filter;
 	GameFolder current_folder;
 
-    public GameBrowser(InterfaceHelper @interface) {
-		this.@interface = @interface;
+    public GameBrowser() {
 		current_platform_index = -1;
 		pos_y_status_message = 470 - @interface.font_height;
 		blank_header = @interface.get_blank_background_surface(760, @interface.font_height);
@@ -72,7 +70,7 @@ public class GameBrowser
 
 		if (all_games != null && (active == true || all_games.active == true)) {
 			everything_active = true;
-			everything_selector = new EverythingSelector(@interface);
+			everything_selector = new EverythingSelector();
 			selector = everything_selector;
 			if (all_games != null) {
 				if (all_games.filter != null)
@@ -90,12 +88,12 @@ public class GameBrowser
 		var state = Data.browser_state();
 		if (current_platform == null) {
 			current_folder = null;
-			selector = new PlatformSelector(@interface);
+			selector = new PlatformSelector();
 		} else {
 			current_folder = current_platform.get_folder(state.get_current_platform_folder_id() ?? "");
 			if (current_folder == null)
 				current_folder = current_platform.get_root_folder();
-			selector = new GameFolderSelector(current_folder, @interface);
+			selector = new GameFolderSelector(current_folder);
 		}
 		var filter = state.get_current_platform_filter();
 		if (filter != null)
@@ -534,7 +532,7 @@ public class GameBrowser
 		if (platform_selector != null) {
 			current_platform = platform_selector.selected_platform();
 			current_folder = current_platform.get_root_folder();
-			selector = new GameFolderSelector(current_folder, @interface);
+			selector = new GameFolderSelector(current_folder);
 			var state = Data.browser_state();
 			Data.browser_state().current_platform = current_platform.id;
 			current_filter = state.get_current_platform_filter();
@@ -551,7 +549,7 @@ public class GameBrowser
 			var folder = item as GameFolder;
 			if (folder != null) {
 				current_folder = folder;
-				selector = new GameFolderSelector(current_folder, @interface);
+				selector = new GameFolderSelector(current_folder);
 				if (current_filter != null)
 					selector.filter(current_filter);
 				selector.select_item(0);
@@ -575,7 +573,7 @@ public class GameBrowser
 					selector.selected_index, selector.get_filter_pattern());
 				current_folder = null;
 				current_filter = null;
-				selector = new PlatformSelector(@interface);
+				selector = new PlatformSelector();
 				int index=0;
 				foreach(var platform in Data.platforms()) {
 					if (platform.name == current_platform.name)
@@ -589,7 +587,7 @@ public class GameBrowser
 			}
 			var current_id = current_folder.unique_id();
 			current_folder = current_folder.parent;
-			selector = new GameFolderSelector(current_folder, @interface);
+			selector = new GameFolderSelector(current_folder);
 			if (current_filter != null)
 				selector.filter(current_filter);
 			int index=0;
@@ -646,7 +644,7 @@ public class GameBrowser
 	}
 
 	void show_test_menu() {
-		var browser = new MenuBrowser(GetTestMenu(), @interface, 40, 40);
+		var browser = new MenuBrowser(GetTestMenu(), 40, 40);
 		browser.run();
 		redraw_screen();
 	}

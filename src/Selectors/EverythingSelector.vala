@@ -5,8 +5,8 @@ using Data.GameList;
 
 public class EverythingSelector : Selector {
 
-	public EverythingSelector(InterfaceHelper @interface) {
-		base(@interface);
+	public EverythingSelector() {
+		base();
 	}
 
 	Gee.List<GameItem> items {

@@ -5,7 +5,6 @@ using Gee;
 public abstract class Selector : Object
 {
 	const int ITEMS_PER_SURFACE = 50;
-	InterfaceHelper @interface;
 	SelectorSurfaceSet surfaces;
 	int index_before_select_first;
 	int index_before_select_last;
@@ -13,8 +12,7 @@ public abstract class Selector : Object
 	Gee.List<int> _filter_match_indexes;
 	HashMap<int,int> _filter_index_position_hash;
 
-	protected Selector(InterfaceHelper @interface) {
-		this.@interface = @interface;
+	protected Selector() {
 		@interface.font_updated.connect(update_font);
 		@interface.colors_updated.connect(reset_surface);
 		selected_index = -1;
@@ -24,7 +22,7 @@ public abstract class Selector : Object
 	SelectorItemSet items {
 		get {
 			if (_items == null)
-				_items = new SelectorItemSet(@interface, this);
+				_items = new SelectorItemSet(this);
 
 			return _items;
 		}

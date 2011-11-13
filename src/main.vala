@@ -24,8 +24,8 @@ public class MainClass: Object {
 
 		unowned SDL.Screen screen = inititialize_sdl();
 		WindowManager.set_caption("Pandafe", "");
-		InterfaceHelper @interface = new InterfaceHelper(screen);
-        new GameBrowser(@interface).run();
+		@interface = new InterfaceHelper(screen);
+        new GameBrowser().run();
 
         SDL.quit();
 

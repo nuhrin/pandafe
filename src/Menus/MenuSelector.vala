@@ -7,7 +7,6 @@ namespace Menus
 {
 	public class MenuSelector : Object
 	{
-		InterfaceHelper @interface;
 		Menu menu;
 		uint8 max_name_length;
 		uint8 max_value_length;
@@ -29,9 +28,8 @@ namespace Menus
 		int index_before_select_first;
 		int index_before_select_last;
 
-		public MenuSelector(Menu menu, InterfaceHelper @interface, uint8 max_name_length, uint8 max_value_length) {
+		public MenuSelector(Menu menu, uint8 max_name_length, uint8 max_value_length) {
 			this.menu = menu;
-			this.@interface = @interface;
 			this.max_name_length = max_name_length;
 			this.max_value_length = max_value_length;
 			visible_items = @interface.SELECTOR_VISIBLE_ITEMS;

@@ -5,6 +5,8 @@ using SDLGraphics;
 
 public delegate void IdleFunction();
 
+public InterfaceHelper @interface;
+
 public class InterfaceHelper : Object
 {
 	const string FONT_MONO = "/usr/share/fonts/truetype/DejaVuSansMono.ttf";

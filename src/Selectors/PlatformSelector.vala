@@ -7,8 +7,8 @@ public class PlatformSelector : Selector
 {
 	Gee.List<Platform> items;
 
-	public PlatformSelector(InterfaceHelper @interface) {
-		base(@interface);
+	public PlatformSelector() {
+		base();
 		items = new Catapult.Enumerable<Platform>(Data.platforms()).to_list();
 	}
 
