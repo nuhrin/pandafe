@@ -657,6 +657,8 @@ public class GameBrowser
 		menu.add_item(new MenuItem("Edit Current Platform"));
 		menu.add_item(new MenuItem("Edit Current Program"));
 		menu.add_item(new BooleanField("flag", "Flag"));
+		menu.add_item(new EnumField("node_type", "NodeType", null, Catapult.Yaml.NodeType.SCALAR));
+		menu.add_item(new IntegerField("integer", "Integer", null, 5, 1, 10, 2));
 		menu.add_item(new MenuItem("Return"));
 		menu.add_item(new MenuItem("Quit"));
 

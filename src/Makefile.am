@@ -52,6 +52,8 @@ pandafe_VALASOURCES = \
 	Fields/ProgramListField.vala \
 	Fields/SourceEditField.vala \
 	Menus/Fields/BooleanField.vala \
+	Menus/Fields/EnumField.vala \
+	Menus/Fields/IntegerField.vala \
 	Menus/Fields/MenuItemField.vala \
 	Menus/Menu.vala \
 	Menus/MenuItem.vala \

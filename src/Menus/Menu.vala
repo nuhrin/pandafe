@@ -6,8 +6,8 @@ namespace Menus
 	public class Menu : MenuItem
 	{
 		Menu? _parent;
-		public Menu(string name, Menu? parent=null) {
-			base(name);
+		public Menu(string name, string? help=null, Menu? parent=null) {
+			base(name, help);
 			items = new ArrayList<MenuItem>();
 		}
 		public Menu? parent { get { return _parent; } }

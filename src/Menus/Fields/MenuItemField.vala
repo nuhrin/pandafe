@@ -5,8 +5,8 @@ namespace Menus.Fields
 	public abstract class MenuItemField : MenuItem
 	{
 		bool is_dirty;
-		public MenuItemField(string id, string name) {
-			base(name);
+		public MenuItemField(string id, string name, string? help=null) {
+			base(name, help);
 			this.id = id;
 		}
 		public string id { get; private set; }
