@@ -2,6 +2,7 @@ using Gee;
 using SDL;
 using SDLTTF;
 using SDLGraphics;
+using Layers;
 
 public delegate void IdleFunction();
 
@@ -54,8 +55,41 @@ public class InterfaceHelper : Object
 		font_mono_char_width = (int16)font_mono.render_shaded(" ", _black_color, _black_color).w;
 
 		update_from_preferences();
+		
+		screen_layer_stack = new GLib.Queue<ScreenLayer>();
+		screen_layer_stack.push_head(new ScreenLayer("root_screen"));
 	}
 
+	public void push_screen_layer(ScreenLayer screen_layer, bool do_update=true) {
+		screen_layer_stack.push_head(screen_layer);
+		if (do_update)
+			screen_layer.update();
+	}
+	public ScreenLayer? pop_screen_layer() {
+		if (screen_layer_stack.get_length() < 2)
+			return null;
+		var layer = screen_layer_stack.pop_head();
+		screen_layer_stack.peek_head().update();
+		return layer;
+	}
+	public unowned ScreenLayer peek_screen_layer() { 
+		return screen_layer_stack.peek_head();
+	}
+	public void push_layer(Layer layer) {
+		peek_screen_layer().push_layer(layer);
+		layer.update();
+	}
+	public Layer? pop_layer() {
+		var screen = peek_screen_layer();
+		var layer = screen.pop_layer();
+		if (layer != null)
+			screen.update();
+		return layer;	
+	}
+	public Layer? peek_layer() {
+		return peek_screen_layer().peek_layer();
+	}
+	
 	public void update_from_preferences() {
 		font = new Font(preferences.font, FONT_SIZE);
 		if (font == null) {
@@ -81,7 +115,8 @@ public class InterfaceHelper : Object
 	public unowned SDL.Color white_color { get{ return _white_color; } }
 	public uint32 white_color_rgb { get { return _white_color_rgb; } }
 
-	public int16 font_height { get { return _font_height; } }
+	public uint32 map_rgb(SDL.Color color) { return this.screen.format.map_rgb(color.r, color.g, color.b); }
+
 	public Surface render_text(string text) {
 		return font.render_shaded(text, _item_color, _background_color);
 	}
@@ -95,19 +130,24 @@ public class InterfaceHelper : Object
 		return font.render(text, _selected_item_color);
 	}
 
+	public int16 font_height { get { return _font_height; } }
 	public unowned Font get_monospaced_font() { return font_mono; }
 	public int16 get_monospaced_font_width(uint chars=1) { return (int16)(font_mono_char_width * chars); }
 	public int16 get_monospaced_font_height() { return font_mono_height; }
 
 	public unowned Surface get_blank_item_surface() { return _blank_item_surface; }
 
-	public Surface get_blank_surface(int width, int height) {
-		return new Surface.RGB(SurfaceFlag.SWSURFACE, width, height, DEPTH, 0, 0, 0, 0);
+	public Surface get_blank_surface(int width, int height, uint32 rgb_color=0) {
+		var surface = new Surface.RGB(SurfaceFlag.SWSURFACE, width, height, DEPTH, 0, 0, 0, 0);
+		if (rgb_color > 0)
+			surface.fill(null, rgb_color);
+		return surface;
 	}
 	public Surface get_blank_background_surface(int width, int height) {
-		var surface = get_blank_surface(width, height);
-		surface.fill(null, _background_color_rgb);
-		return surface;
+		return get_blank_surface(width, height, _background_color_rgb);
+	}
+	public Surface get_blank_surface_color(int width, int height, SDL.Color color) {
+		return get_blank_surface(width, height, map_rgb(color));
 	}
 
 	public void draw_rectangle_outline(int16 x, int16 y, int16 width, int16 height, SDL.Color color, uchar alpha=255, Surface surface=screen) {
@@ -157,4 +197,6 @@ public class InterfaceHelper : Object
 	uchar convert_color(uint16 color) {
 		return (255*color)/65535;
 	}
+
+	GLib.Queue<ScreenLayer> screen_layer_stack;
 }

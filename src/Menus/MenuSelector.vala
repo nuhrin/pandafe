@@ -5,8 +5,10 @@ using Menus.Fields;
 
 namespace Menus
 {
-	public class MenuSelector : Object
+	public class MenuSelector : Layers.Layer
 	{
+		int16 xpos;
+		int16 ypos;
 		Menu menu;
 		uint8 max_name_length;
 		uint8 max_value_length;
@@ -28,7 +30,10 @@ namespace Menus
 		int index_before_select_first;
 		int index_before_select_last;
 
-		public MenuSelector(Menu menu, uint8 max_name_length, uint8 max_value_length) {
+		public MenuSelector(string id, int16 xpos, int16 ypos, Menu menu, uint8 max_name_length, uint8 max_value_length) {
+			base(id);
+			this.xpos = xpos;
+			this.ypos = ypos;
 			this.menu = menu;
 			this.max_name_length = max_name_length;
 			this.max_value_length = max_value_length;
@@ -50,9 +55,9 @@ namespace Menus
 		public uint selected_index { get; private set; }
 		public MenuItem selected_item() { return menu.items[(int)selected_index]; }
 
-		public void blit_to_screen(int16 x, int16 y) {
+		protected override void draw() {
 			ensure_surface();
-			Rect dest_r = {x, y};
+			Rect dest_r = {xpos, ypos};
 
 			uint top_index;
 			uint bottom_index;
@@ -60,7 +65,7 @@ namespace Menus
 			var items = (bottom_index - top_index) + 1;
 			var height = (int16)((font_height * items) + (item_spacing * items));
 			Rect source_r = {0, get_offset(top_index), (int16)_width, height};
-			@interface.screen_blit(surface, source_r, dest_r);
+			blit_surface(surface, source_r, dest_r);
 		}
 
 		public bool select_previous() {
@@ -113,11 +118,13 @@ namespace Menus
 			selected_index = index;
 			index_before_select_first = -1;
 			index_before_select_last = -1;
+			update();
 			return true;
 		}
 
 		public void update_selected_item_value() {
 			update_item_value((int)selected_index);
+			draw();
 		}
 
 		void reset_surface() {

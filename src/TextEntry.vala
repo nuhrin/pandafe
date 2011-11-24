@@ -1,10 +1,8 @@
 using SDL;
 using SDLTTF;
 
-public class TextEntry : Object
+public class TextEntry : Layers.SurfaceLayer
 {
-	InterfaceHelper @interface;
-	Surface surface;
 	Surface blank_textarea;
 	unowned Font font;
 	int16 font_height;
@@ -20,13 +18,12 @@ public class TextEntry : Object
 	string text;
 	string original_text;
 
-	public TextEntry(InterfaceHelper @interface, int16 x, int16 y, int16 width, string? value=null) {
-		this.@interface = @interface;
+	public TextEntry(string id, int16 x, int16 y, int16 width, string? value=null) {
+		base(id, width, @interface.get_monospaced_font_height() + 10, x, y);
 		font = @interface.get_monospaced_font();
-		font_height = (int16)font.height();
+		font_height = @interface.get_monospaced_font_height();
 		this.x = x;
 		this.y = y;
-		surface = @interface.get_blank_surface(width, font_height + 10);
 		blank_textarea = @interface.get_blank_surface(width - 6, font_height + 6);
 		max_text_width = width - 8;
 		char_width = (int16)font.render_shaded(" ", @interface.black_color, @interface.black_color).w;
@@ -34,19 +31,21 @@ public class TextEntry : Object
 		cursor_y = 5 + (font_height / 3) * 2;
 		cursor_height = font_height / 3;
 		cursor_pos = (value != null) ? value.length : 0;
-		@interface.draw_rectangle_outline(0, 0, width-2, (int16)surface.h-2, {255, 255, 255}, 255, surface);
-		set_text(value ?? "");
+		//this.text = value ?? "";
+		@interface.draw_rectangle_outline(0, 0, (int16)surface.w-2, (int16)surface.h-2, {255, 255, 255}, 255, surface);
+		set_text(value ?? "");		
 		original_text = value;
 	}
 
 	public string? run() {
-		blit_to_screen();
+		@interface.push_layer(this);
 		drain_events();
 		while(event_loop_done == false) {
             process_events();
             @interface.execute_idle_loop_work();
         }
         drain_events();
+        @interface.pop_layer();
         return text;
 	}
 
@@ -54,7 +53,13 @@ public class TextEntry : Object
 		get { return text; }
 		set { text = value; }
 	}
-	public signal void changed(string text);
+	public signal void text_changed(string text);
+
+	protected override void clear() {
+	}
+	protected override void draw() {
+		
+	}
 
 	void drain_events() {
 		Event event;
@@ -154,18 +159,11 @@ public class TextEntry : Object
 		return true;
 	}
 
-
-	void blit_to_screen() {
-		Rect rect = {x, y};
-		@interface.screen_blit(surface, null, rect);
-		@interface.screen_flip();
-	}
-
 	void update_text(string? new_text=null) {
 		set_text(new_text);
 		if (new_text != null)
-			this.changed(new_text);
-		blit_to_screen();
+			this.text_changed(new_text);
+		update();
 	}
 	void set_text(string? new_text=null) {
 		if (new_text != null)

@@ -51,6 +51,13 @@ pandafe_VALASOURCES = \
 	Fields/PlatformListField.vala \
 	Fields/ProgramListField.vala \
 	Fields/SourceEditField.vala \
+	Layers/GameBrowser/HeaderLayer.vala \
+	Layers/GameBrowser/StatusMessageLayer.vala \
+	Layers/MenuBrowser/MenuHeaderLayer.vala \
+	Layers/Layer.vala \
+	Layers/LayerBase.vala \
+	Layers/ScreenLayer.vala \
+	Layers/SurfaceLayer.vala \
 	Menus/Fields/BooleanField.vala \
 	Menus/Fields/EnumField.vala \
 	Menus/Fields/IntegerField.vala \

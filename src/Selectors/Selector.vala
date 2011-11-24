@@ -2,17 +2,22 @@ using SDL;
 using SDLTTF;
 using Gee;
 
-public abstract class Selector : Object
+public abstract class Selector : Layers.Layer
 {
 	const int ITEMS_PER_SURFACE = 50;
 	SelectorSurfaceSet surfaces;
+	int16 xpos;
+	int16 ypos;
 	int index_before_select_first;
 	int index_before_select_last;
 	string _filter;
 	Gee.List<int> _filter_match_indexes;
 	HashMap<int,int> _filter_index_position_hash;
 
-	protected Selector() {
+	protected Selector(string id, int16 xpos=0, int16 ypos=0) {
+		base(id);
+		this.xpos = xpos;
+		this.ypos = ypos;
 		@interface.font_updated.connect(update_font);
 		@interface.colors_updated.connect(reset_surface);
 		selected_index = -1;
@@ -43,23 +48,17 @@ public abstract class Selector : Object
 	public int selected_index { get; private set; }
 	public int selected_display_index() { return get_display_index_from_index(selected_index); }
 
-	public void blit_to_screen(int16 x, int16 y) {
-//~ 		print("blit to screen: selected_index: %d\n", selected_index);
+	protected override void draw() {
 		var s_display_index = selected_display_index();
 		if (surfaces == null)
 			ensure_surfaces(s_display_index);
 		var window = surfaces.get_window(s_display_index);
-//~ 		print("  surface one: x: %d, y: %d, h: %d\n", window.rect_one.x, window.rect_one.y, window.rect_one.h);
-		window.surface_one.blit_to_screen(x, y, window.rect_one);
+		Rect dest = {xpos, ypos};
+		blit_surface(window.surface_one.get_surface(), window.rect_one, dest);		
 		if (window.surface_two != null) {
-//~ 			print("  surface two: x: %d, y: %d, h: %d\n", window.rect_two.x, window.rect_two.y, window.rect_one.h);
-			window.surface_two.blit_to_screen(x, y + (int16)window.rect_one.h, window.rect_two);
+			dest.y += (int16)window.rect_one.h;
+			blit_surface(window.surface_two.get_surface(), window.rect_two, dest);
 		}
-	}
-
-	public void dim(int percentage) {
-		if (surfaces != null)
-			surfaces.dim(percentage);
 	}
 
 	public bool has_previous { get { return selected_display_index() > 0; } }
@@ -144,6 +143,7 @@ public abstract class Selector : Object
 		ensure_surfaces(display_index);
 		if (surfaces.select_item(display_index, selected_display_index()) == true) {
 			selected_index = get_index_from_display_index(display_index);
+			update();
 			return true;
 		}
 		return false;
@@ -517,14 +517,6 @@ public abstract class Selector : Object
 			return window;
 		}
 
-		public void dim(int percentage) {
-			if (top != null)
-				top.dim(percentage);
-			if (mid != null)
-				mid.dim(percentage);
-			if (bot != null)
-				bot.dim(percentage);
-		}
 		SelectorSurface? get_surface_for_index(int display_index) {
 			if (display_index < 0 || display_index > item_count - 1)
 				return null;
@@ -617,13 +609,7 @@ public abstract class Selector : Object
 		public int top_item_index { get { return first_index; } }
 		public int bottom_item_index { get { return last_index; } }
 
-		public void blit_to_screen(int16 x, int16 y, Rect source_r) {
-			Rect dest_r = {x, y};
-			@interface.screen_blit(surface, source_r, dest_r);
-		}
-		public void dim(int percentage) {
-			@interface.dim_surface(percentage, surface);
-		}
+		public unowned Surface get_surface() { return surface; }
 		public bool select_item(int display_index) {
 			int16 offset = get_offset(display_index);
 			if (offset == -1) {

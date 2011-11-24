@@ -1,68 +1,83 @@
 using SDL;
 using SDLTTF;
+using Layers;
+using Layers.MenuBrowser;
 
 namespace Menus
 {
-	public class MenuBrowser
+	public class MenuBrowser : ScreenLayer
 	{
-		int16 pos_y_status_message;
-		Surface blank_header_area;
-		Surface blank_message_area;
-		unowned Font font;
-		int16 font_height;
+		const int16 SELECTOR_XPOS = 100;
+		const int16 SELECTOR_YPOS = 60;
+		const string SELECTOR_ID = "selector";
+
+		uint8 max_name_length;
+		uint8 max_value_length;
 
 		bool event_loop_done;
 		GLib.Queue<MenuSelector> menu_stack;
 		MenuSelector selector;
-		uint8 max_name_length;
-		uint8 max_value_length;
+		MenuHeaderLayer header;
+		int16 pos_y_status_message;
+		Surface blank_message_area;
 
 		public MenuBrowser(Menu menu, uint8 max_name_length, uint8 max_value_length) {
 			if (menu.items.size == 0)
 				GLib.error("Menu '%s' has no items.", menu.name);
-			font = @interface.get_monospaced_font();
-			font_height = @interface.get_monospaced_font_height();
-			pos_y_status_message = 470 - (font_height * 2);
-			blank_header_area = @interface.get_blank_surface(760, font_height);
-			blank_message_area = @interface.get_blank_surface(780, font_height * 2);
-			menu_stack = new GLib.Queue<MenuSelector>();
-			selector = new MenuSelector(menu, max_name_length, max_value_length);
-			selector.select_first();
+			base("menubrowser");
 			this.max_name_length = max_name_length;
 			this.max_value_length = max_value_length;
+			//pos_y_status_message = 470 - (font_height * 2);
+			//blank_message_area = @interface.get_blank_surface(780, font_height * 2);
+			menu_stack = new GLib.Queue<MenuSelector>();
+			header = add_layer(new MenuHeaderLayer("header")) as MenuHeaderLayer;
+			selector = add_layer(get_selector(menu)) as MenuSelector;			
 		}
 
 		public void run() {
-			redraw_screen();
+			@interface.push_screen_layer(this);
+			set_header();
+			selector.select_first();
 			while(event_loop_done == false) {
 				process_events();
 				@interface.execute_idle_loop_work();
 			}
+			@interface.pop_screen_layer();
 		}
 
+		MenuSelector get_selector(Menu menu) {
+			var new_selector = new MenuSelector(SELECTOR_ID, SELECTOR_XPOS, SELECTOR_YPOS, menu, max_name_length, max_value_length);
+			new_selector.changed.connect(() => on_selector_changed());
+			return new_selector;
+		}
+		
 		//
 		// screen updates
-		void redraw_screen() {
-			@interface.screen_fill(null, 0);
+		void push_menu(Menu menu) {
+			selector = get_selector(menu);
+			menu_stack.push_head(selector);
+			replace_layer(SELECTOR_ID, selector);			
 			set_header();
-			redraw_selector();
+			selector.select_first();
+		}
+		void pop_menu() {
+			if (menu_stack.length == 0) {
+				event_loop_done = true;
+				return;
+			}
+			selector = menu_stack.pop_head();
+			replace_layer(SELECTOR_ID, selector);
+			set_header();
+			selector.update();
 		}
 		void set_header() {
-			Rect rect = {20, 20};
-			@interface.screen_blit(blank_header_area, null, rect);
-
-			var rendered_text = font.render(selector.menu_name, @interface.white_color);
-			rect = {(int16)(390 - rendered_text.w/2), 20};
-			@interface.screen_blit(rendered_text, null, rect);
+			header.set_text(null, selector.menu_name, null, false);
 		}
-		void redraw_selector() {
-			selector.blit_to_screen(100, 60);
-			//update_selection_message();
-			@interface.screen_flip();
+		void on_selector_changed() {
 		}
 		void redraw_item() {
 			selector.update_selected_item_value();
-			redraw_selector();
+			flip();
 		}
 
 		//
@@ -156,20 +171,16 @@ namespace Menus
 		//
 		// commands: selection
 		void select_previous() {
-			if (selector.select_previous())
-				redraw_selector();
+			selector.select_previous();
 		}
 		void select_next() {
-			if (selector.select_next())
-				redraw_selector();
+			selector.select_next();
 		}
 		void select_first() {
-			if (selector.select_first())
-				redraw_selector();
+			selector.select_first();
 		}
 		void select_last() {
-			if (selector.select_last())
-				redraw_selector();
+			selector.select_last();
 		}
 		void select_next_starting_with(char c) {
 			if (last_pressed_alphanumeric == c) {
@@ -179,14 +190,11 @@ namespace Menus
 				last_pressed_alphanumeric_repeat_count = 0;
 			}
 			if (last_pressed_alphanumeric_repeat_count > 0) {
-				if (selector.select_item_starting_with(last_pressed_alphanumeric.to_string(), last_pressed_alphanumeric_repeat_count) == true) {
-					redraw_selector();
-					return;
-				}
+				if (selector.select_item_starting_with(last_pressed_alphanumeric.to_string(), last_pressed_alphanumeric_repeat_count) == true)
+					return;				
 				last_pressed_alphanumeric_repeat_count = 0;
 			}
-			if(selector.select_item_starting_with(last_pressed_alphanumeric.to_string()) == true)
-				redraw_selector();
+			selector.select_item_starting_with(last_pressed_alphanumeric.to_string());
 		}
 		char last_pressed_alphanumeric = 0;
 		int last_pressed_alphanumeric_repeat_count;
@@ -199,12 +207,7 @@ namespace Menus
 		}
 
 		void go_back() {
-			if (menu_stack.length == 0) {
-				event_loop_done = true;
-				return;
-			}
-			selector = menu_stack.pop_head();
-			redraw_screen();
+			pop_menu();
 		}
 
 

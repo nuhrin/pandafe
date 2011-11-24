@@ -2,17 +2,20 @@ using SDL;
 using SDLTTF;
 using Data;
 using Data.GameList;
+using Layers.GameBrowser;
 using Menus;
 using Menus.Fields;
 
-public class GameBrowser
+public class GameBrowser : Layers.ScreenLayer
 {
+	const int16 SELECTOR_XPOS = 100;
+	const int16 SELECTOR_YPOS = 60;
+	const string SELECTOR_ID = "selector";
+	
 	bool event_loop_done;
 
-	int16 pos_y_status_message;
-	Surface blank_header;
-	Surface blank_status;
-
+	HeaderLayer header;
+	StatusMessageLayer status_message;
     Selector selector;
     Selector existing_selector;
     EverythingSelector everything_selector;
@@ -24,16 +27,17 @@ public class GameBrowser
 	GameFolder current_folder;
 
     public GameBrowser() {
+		base("gamebrowser", @interface.background_color_rgb);
 		current_platform_index = -1;
-		pos_y_status_message = 470 - @interface.font_height;
-		blank_header = @interface.get_blank_background_surface(760, @interface.font_height);
-		blank_status = @interface.get_blank_background_surface(780, @interface.font_height);
+		header = add_layer(new HeaderLayer("header")) as HeaderLayer;
+		status_message = add_layer(new StatusMessageLayer("status-message")) as StatusMessageLayer;
 	}
 
 	public void run() {
 		platforms = Data.platforms();
 		initialize_from_browser_state();
-		redraw_screen();
+		@interface.push_screen_layer(this, false);
+		flip();
 		Key.enable_unicode(1);
         while(event_loop_done == false) {
             process_events();
@@ -42,9 +46,10 @@ public class GameBrowser
 		update_browser_state();
 		Data.save_browser_state();
 		if (Data.pnd_mountset().has_mounted == true) {
-			push_status_message("Unmounting PNDs...");
+			status_message.push("Unmounting PNDs...");
 			Data.pnd_mountset().unmount_all();
 		}
+		@interface.pop_screen_layer();
 	}
 
 	//
@@ -70,8 +75,7 @@ public class GameBrowser
 
 		if (all_games != null && (active == true || all_games.active == true)) {
 			everything_active = true;
-			everything_selector = new EverythingSelector();
-			selector = everything_selector;
+			change_selector();
 			if (all_games != null) {
 				if (all_games.filter != null)
 					selector.filter(all_games.filter);
@@ -87,22 +91,21 @@ public class GameBrowser
 	void apply_platform_state() {
 		var state = Data.browser_state();
 		if (current_platform == null) {
-			current_folder = null;
-			selector = new PlatformSelector();
+			current_folder = null;			
 		} else {
 			current_folder = current_platform.get_folder(state.get_current_platform_folder_id() ?? "");
 			if (current_folder == null)
-				current_folder = current_platform.get_root_folder();
-			selector = new GameFolderSelector(current_folder);
+				current_folder = current_platform.get_root_folder();			
 		}
+		change_selector();
 		var filter = state.get_current_platform_filter();
 		if (filter != null)
 			selector.filter(filter);
 		int item_index = state.get_current_platform_item_index();
-		if (item_index > 0)
-			selector.select_item(item_index);
-		else
-			selector.select_first();
+		if (item_index < 0)
+			item_index = 0;
+		if (selector.select_item(item_index) == false)
+			selector.update();
 	}
 	void update_browser_state() {
 		var state = Data.browser_state();
@@ -116,20 +119,11 @@ public class GameBrowser
 	}
 
 	//
-	// screen updates
-	void redraw_screen() {
-		@interface.screen_fill(null, @interface.background_color_rgb);
-		set_header();
-		redraw_selector();
-	}
-	void set_header() {
-		Rect rect = {20, 20};
-		@interface.screen_blit(blank_header, null, rect);
-
+	// layer updates
+	void set_header() {		
 		string left = null;
 		string center = null;
 		string right = null;
-		Surface rendered_text;
 		if (everything_active == true) {
 			left = "All Games";
 			var game = everything_selector.selected_game();
@@ -143,99 +137,45 @@ public class GameBrowser
 			left = current_platform.name;
 			right = current_folder.unique_id().strip();
 		}
-		if (left != null) {
-			@interface.screen_blit(@interface.render_text_selected_fast(left), null, rect);
-		}
-		if (center != null) {
-			rendered_text = @interface.render_text_selected_fast(center);
-			rect = {(int16)(390 - rendered_text.w/2), 20};
-			@interface.screen_blit(rendered_text, null, rect);
-		}
-		if (right != null && right != "") {
-			rendered_text = @interface.render_text_selected_fast(right);
-			rect = {(int16)(780 - rendered_text.w), 20};
-			@interface.screen_blit(rendered_text, null, rect);
-		}
+		header.set_text(left, center, right, false);
 	}
-	void redraw_selector() {
-		selector.blit_to_screen(100, 60);
-		update_selection_message();
-    }
-
-	//
-	// status messages
-	void update_selection_message() {
+	void change_selector() {
+		Selector new_selector = null;
+		if (this.everything_active == true) {
+			if (everything_selector == null) {
+				everything_selector = new EverythingSelector(SELECTOR_ID, SELECTOR_XPOS, SELECTOR_YPOS);
+				everything_selector.changed.connect(() => on_selector_changed());
+			}
+			new_selector = everything_selector;
+		} else if (this.current_folder == null) {
+			new_selector = new PlatformSelector(SELECTOR_ID, SELECTOR_XPOS, SELECTOR_YPOS);
+			new_selector.changed.connect(() => on_selector_changed());
+		} else {
+			new_selector = new GameFolderSelector(this.current_folder, SELECTOR_ID, SELECTOR_XPOS, SELECTOR_YPOS);
+			new_selector.changed.connect(() => on_selector_changed());
+		}
+		
+		if (this.selector == null)
+			add_layer(new_selector);
+		else
+			replace_layer(SELECTOR_ID, new_selector);
+		
+		this.selector = new_selector;
+		clear();
+		set_header();
+	}
+	void on_selector_changed() {
 		if (everything_active == true)
 			set_header();
-		clear_status_messages();
+		status_message.clear();
 		string center = "%d / %d".printf(selector.selected_display_index() + 1, selector.display_item_count);
 		string? right = null;
 		string? active_pattern = selector.get_filter_pattern();
 		if (active_pattern != null)
 			right = "\"%s\"".printf(active_pattern);
-		push_status_message(null, center, right);
-	}
-	void push_status_message(string? left=null, string? center=null, string? right=null) {
-		if (status_message_stack == null)
-			status_message_stack = new GLib.Queue<StatusMessage>();
-		if (status_message_stack.is_empty() == false)
-			wipe_status_message();
-		status_message_stack.push_head(new StatusMessage(left, center, right));
-		write_status_message();
-		@interface.screen_flip();
-	}
-	void pop_status_message() {
-		if (status_message_stack == null || status_message_stack.is_empty() == true)
-			return;
-		status_message_stack.pop_head();
-		wipe_status_message();
-		if (status_message_stack.is_empty() == false)
-			write_status_message();
-		@interface.screen_flip();
-	}
-	void clear_status_messages() {
-		if (status_message_stack == null)
-			return;
-		status_message_stack.clear();
-		wipe_status_message();
-		@interface.screen_flip();
-	}
-	void wipe_status_message() {
-		Rect rect = {10, pos_y_status_message};
-		@interface.screen_blit(blank_status, null, rect);
-	}
-	void write_status_message() {
-		var sm = status_message_stack.peek_head();
-		Surface rendered_message;
-		Rect rect;
-		if (sm.left != null) {
-			rendered_message = @interface.render_text_selected_fast(sm.left);
-			rect = {10, pos_y_status_message};
-			@interface.screen_blit(rendered_message, null, rect);
-		}
-		if (sm.center != null) {
-			rendered_message = @interface.render_text_selected_fast(sm.center);
-			rect = {(int16)(390 - rendered_message.w/2), pos_y_status_message};
-			@interface.screen_blit(rendered_message, null, rect);
-		}
-		if (sm.right != null) {
-			rendered_message = @interface.render_text_selected_fast(sm.right);
-			rect = {(int16)(790 - rendered_message.w), pos_y_status_message};
-			@interface.screen_blit(rendered_message, null, rect);
-		}
-	}
-	class StatusMessage : Object {
-		public StatusMessage(string? left=null, string? center=null, string? right=null) {
-			this.left = left;
-			this.center = center;
-			this.right = right;
-		}
-		public string? left;
-		public string? center;
-		public string? right;
-	}
-	GLib.Queue<StatusMessage> status_message_stack;
-
+		status_message.push(null, center, right, false);
+	}	
+	
 	//
 	// events
     void process_events() {
@@ -403,10 +343,10 @@ public class GameBrowser
 	//
 	// commands: configuration
     void do_configuration() {
-		push_status_message("running main configuration...");
+		status_message.push("running main configuration...");
 		ConfigGui.run();
 		@interface.update_from_preferences();
-		redraw_screen();
+		this.update();
 	}
 	void edit_current_platform() {
 		Platform platform = null;
@@ -418,9 +358,9 @@ public class GameBrowser
 			platform = current_platform;
 		}
 		if (platform != null) {
-			push_status_message("editing platform %s...".printf(platform.name));
+			status_message.push("editing platform %s...".printf(platform.name));
 			ConfigGui.edit_platform(platform);
-			pop_status_message();
+			status_message.pop();
 		}
 	}
 	void edit_current_program() {
@@ -435,9 +375,9 @@ public class GameBrowser
 		if (platform != null) {
 			var program = current_platform.default_program;
 			if (program != null) {
-				push_status_message("editing program %s...".printf(program.name));
+				status_message.push("editing program %s...".printf(program.name));
 				ConfigGui.edit_program(current_platform, program);
-				pop_status_message();
+				status_message.pop();
 			}
 		}
 	}
@@ -445,28 +385,22 @@ public class GameBrowser
 	//
 	// commands: selection
 	void select_previous() {
-		if (selector.select_previous())
-			redraw_selector();
+		selector.select_previous();
 	}
 	void select_previous_page() {
-		if (selector.select_previous_by(@interface.SELECTOR_VISIBLE_ITEMS))
-			redraw_selector();
+		selector.select_previous_by(@interface.SELECTOR_VISIBLE_ITEMS);
 	}
 	void select_next() {
-		if (selector.select_next())
-			redraw_selector();
+		selector.select_next();
 	}
 	void select_next_page() {
-		if (selector.select_next_by(@interface.SELECTOR_VISIBLE_ITEMS))
-			redraw_selector();
+		selector.select_next_by(@interface.SELECTOR_VISIBLE_ITEMS);
 	}
 	void select_first() {
-		if (selector.select_first())
-			redraw_selector();
+		selector.select_first();
 	}
 	void select_last() {
-		if (selector.select_last())
-			redraw_selector();
+		selector.select_last();
 	}
 	void select_next_platform() {
 		if (everything_active == true || current_platform == null)
@@ -478,7 +412,7 @@ public class GameBrowser
 		current_platform = platforms[current_platform_index];
 		Data.browser_state().current_platform = current_platform.id;
 		apply_platform_state();
-		redraw_screen();
+		selector.update();
 	}
 	void select_previous_platform() {
 		if (everything_active == true || current_platform == null)
@@ -490,7 +424,7 @@ public class GameBrowser
 		current_platform = platforms[current_platform_index];
 		Data.browser_state().current_platform = current_platform.id;
 		apply_platform_state();
-		redraw_screen();
+		selector.update();
 	}
 	void select_next_starting_with(char c) {
 		if (last_pressed_alphanumeric == c) {
@@ -500,14 +434,11 @@ public class GameBrowser
 			last_pressed_alphanumeric_repeat_count = 0;
 		}
 		if (last_pressed_alphanumeric_repeat_count > 0) {
-			if (selector.select_item_starting_with(last_pressed_alphanumeric.to_string(), last_pressed_alphanumeric_repeat_count) == true) {
-				redraw_selector();
-				return;
-			}
+			if (selector.select_item_starting_with(last_pressed_alphanumeric.to_string(), last_pressed_alphanumeric_repeat_count) == true)
+				return;			
 			last_pressed_alphanumeric_repeat_count = 0;
 		}
-		if(selector.select_item_starting_with(last_pressed_alphanumeric.to_string()) == true)
-			redraw_selector();
+		selector.select_item_starting_with(last_pressed_alphanumeric.to_string());
 	}
 	char last_pressed_alphanumeric = 0;
 	int last_pressed_alphanumeric_repeat_count;
@@ -521,9 +452,9 @@ public class GameBrowser
 		if (everything_active == true) {
 			var game = everything_selector.selected_game();
 			if (game != null) {
-				push_status_message("running '%s'...".printf(game.unique_id()));
+				status_message.push("running '%s'...".printf(game.unique_id()));
 				game.run();
-				pop_status_message();
+				status_message.pop();
 			}
 			return;
 		}
@@ -532,14 +463,13 @@ public class GameBrowser
 		if (platform_selector != null) {
 			current_platform = platform_selector.selected_platform();
 			current_folder = current_platform.get_root_folder();
-			selector = new GameFolderSelector(current_folder);
+			change_selector();
 			var state = Data.browser_state();
 			Data.browser_state().current_platform = current_platform.id;
 			current_filter = state.get_current_platform_filter();
 			if (current_filter != null)
 				selector.filter(current_filter);
 			selector.select_item(0);
-			redraw_screen();
 			return;
 		}
 
@@ -549,18 +479,17 @@ public class GameBrowser
 			var folder = item as GameFolder;
 			if (folder != null) {
 				current_folder = folder;
-				selector = new GameFolderSelector(current_folder);
+				change_selector();
 				if (current_filter != null)
 					selector.filter(current_filter);
 				selector.select_item(0);
-				redraw_screen();
 				return;
 			}
 			var game = item as GameItem;
 			if (game != null) {
-				push_status_message("running '%s'...".printf(item.unique_id()));
+				status_message.push("running '%s'...".printf(item.unique_id()));
 				game.run();
-				pop_status_message();
+				status_message.pop();
 			}
 		}
 	}
@@ -573,7 +502,6 @@ public class GameBrowser
 					selector.selected_index, selector.get_filter_pattern());
 				current_folder = null;
 				current_filter = null;
-				selector = new PlatformSelector();
 				int index=0;
 				foreach(var platform in Data.platforms()) {
 					if (platform.name == current_platform.name)
@@ -581,13 +509,13 @@ public class GameBrowser
 					index++;
 				}
 				current_platform = null;
-				selector.select_item(index);
-				redraw_screen();
+				change_selector();
+				selector.select_item(index);				
 				return;
 			}
 			var current_id = current_folder.unique_id();
 			current_folder = current_folder.parent;
-			selector = new GameFolderSelector(current_folder);
+			change_selector();
 			if (current_filter != null)
 				selector.filter(current_filter);
 			int index=0;
@@ -596,23 +524,20 @@ public class GameBrowser
 					break;
 				index++;
 			}
-			selector.select_item(index);
-			redraw_screen();
+			selector.select_item(index);			
 			return;
 		}
 	}
 
 	void filter_selector() {
 		int dim_percentage = 50;
-		clear_status_messages();
-		@interface.dim_screen(dim_percentage);
-		var entry = new TextEntry(@interface, 600, 450, 200, selector.get_filter_pattern());
-		entry.changed.connect((text) => {
-			selector.filter(text);
-			selector.dim(dim_percentage);
-			selector.blit_to_screen(100, 60);
-			@interface.screen_flip();
-		});
+		status_message.flush();
+		//@interface.dim_screen(dim_percentage);
+		var entry = new TextEntry("selection_filter", 600, 450, 200, selector.get_filter_pattern());
+//~ 		entry.text_changed.connect((text) => {
+//~ 			selector.filter(text);
+//~ 			selector.update();
+//~ 		});
 		var new_pattern = entry.run();
 		if (new_pattern != "") {
 			selector.filter(new_pattern);
@@ -621,32 +546,36 @@ public class GameBrowser
 			selector.clear_filter();
 			current_filter = null;
 		}
-
-		redraw_screen();
+		update();
 	}
 
 	void toggle_everything() {
 		if (everything_active == false) {
 			existing_selector = selector;
-			if (everything_selector == null)
+			if (everything_selector == null) {
 				apply_all_games_state(true);
-			else
-				selector = everything_selector;
-			everything_active = true;
+			} else {
+				everything_active = true;
+				change_selector();
+				selector.update();
+			}
+			
 		} else {
-			if (existing_selector == null)
-				apply_platform_state();
-			else
-				selector = existing_selector;
 			everything_active = false;
+			if (existing_selector == null) {
+				apply_platform_state();
+			} else {
+				clear();			
+				selector = existing_selector;
+				replace_layer(SELECTOR_ID, selector);
+				set_header();
+				selector.update();			
+			}
 		}
-		redraw_screen();
 	}
 
 	void show_test_menu() {
-		var browser = new MenuBrowser(GetTestMenu(), 40, 40);
-		browser.run();
-		redraw_screen();
+		new MenuBrowser(GetTestMenu(), 40, 40).run();
 	}
 
 	Menu GetTestMenu() {
