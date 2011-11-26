@@ -580,15 +580,25 @@ public class GameBrowser : Layers.ScreenLayer
 
 	Menu GetTestMenu() {
 		var menu = new Menu("test");
-		menu.add_item(new MenuItem("Configuration"));
-		menu.add_item(new MenuItem("Edit Current Platform"));
-		menu.add_item(new MenuItem("Edit Current Program"));
+		menu.add_item(GetTestSubMenu("Configuration"));
+		menu.add_item(GetTestSubMenu("Edit Current Platform"));
+		menu.add_item(GetTestSubMenu("Edit Current Program"));
 		menu.add_item(new BooleanField("flag", "Flag"));
 		menu.add_item(new EnumField("node_type", "NodeType", null, Catapult.Yaml.NodeType.SCALAR));
 		menu.add_item(new IntegerField("integer", "Integer", null, 5, 1, 10, 2));
-		menu.add_item(new MenuItem("Return"));
-		menu.add_item(new MenuItem("Quit"));
+		menu.add_item(new MenuItem.cancel_item("Return"));
+		menu.add_item(new MenuItem.quit_item());
 
 		return menu;
 	}
+	Menu GetTestSubMenu(string name) {
+		var menu = new Menu(name);
+		menu.add_item(new BooleanField("flag", "Flag"));
+		menu.add_item(new EnumField("node_type", "NodeType", null, Catapult.Yaml.NodeType.SCALAR));
+		menu.add_item(new IntegerField("integer", "Integer", null, 5, 1, 10, 2));
+		menu.add_item(new MenuItem.save_item());
+		menu.add_item(new MenuItem.cancel_item());
+		return menu;
+	}
+	
 }

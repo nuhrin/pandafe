@@ -16,6 +16,15 @@ namespace Menus
 		public void add_item(MenuItem item) {
 			items.add(item);
 		}
+		
+		public virtual bool cancel() {
+			debug("Menu '%s': cancel", name);
+			return true;
+		}
+		public virtual bool save() { 
+			debug("Menu '%s': save", name);
+			return true;
+		}
 
 
 	}

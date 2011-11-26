@@ -64,6 +64,7 @@ pandafe_VALASOURCES = \
 	Menus/Fields/MenuItemField.vala \
 	Menus/Menu.vala \
 	Menus/MenuItem.vala \
+	Menus/MenuItemActionType.vala \
 	Menus/MenuSelector.vala \
 	Menus/MenuBrowser.vala \
 	Selectors/EverythingSelector.vala \

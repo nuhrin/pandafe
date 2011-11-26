@@ -31,7 +31,7 @@ namespace Menus
 			//blank_message_area = @interface.get_blank_surface(780, font_height * 2);
 			menu_stack = new GLib.Queue<MenuSelector>();
 			header = add_layer(new MenuHeaderLayer("header")) as MenuHeaderLayer;
-			selector = add_layer(get_selector(menu)) as MenuSelector;			
+			selector = add_layer(get_selector(menu)) as MenuSelector;
 		}
 
 		public void run() {
@@ -54,9 +54,10 @@ namespace Menus
 		//
 		// screen updates
 		void push_menu(Menu menu) {
-			selector = get_selector(menu);
 			menu_stack.push_head(selector);
-			replace_layer(SELECTOR_ID, selector);			
+			selector = get_selector(menu);
+			replace_layer(SELECTOR_ID, selector);
+			clear();
 			set_header();
 			selector.select_first();
 		}
@@ -67,6 +68,7 @@ namespace Menus
 			}
 			selector = menu_stack.pop_head();
 			replace_layer(SELECTOR_ID, selector);
+			clear();
 			set_header();
 			selector.update();
 		}
@@ -137,7 +139,8 @@ namespace Menus
 						drain_events();
 						break;
 					case KeySymbol.ESCAPE:
-						this.event_loop_done = true;
+						go_back();
+						drain_events();
 						break;
 					default:
 						break;
@@ -202,12 +205,35 @@ namespace Menus
 		//
 		// commands: misc
 		void activate_selected() {
-
+			var selected_item = selector.selected_item();
+			var selected_menu = selected_item as Menu;
+			if (selected_menu != null) {
+				push_menu(selected_menu);
+				return;
+			}
+			switch(selected_item.action) {				
+				case MenuItemActionType.CANCEL:
+					if (selector.menu.cancel() == true)
+						pop_menu();				
+					break;
+				case MenuItemActionType.SAVE:
+					if (selector.menu.save() == true)
+						pop_menu();					
+					break;
+				case MenuItemActionType.QUIT:
+					if (selector.menu.cancel() == true)
+						event_loop_done = true;
+					break;
+				default:
+					selected_item.activate();
+					break;					
+			}
 
 		}
 
 		void go_back() {
-			pop_menu();
+			if (selector.menu.cancel() == true)
+				pop_menu();
 		}
 
 

@@ -9,7 +9,7 @@ namespace Menus
 	{
 		int16 xpos;
 		int16 ypos;
-		Menu menu;
+		Menu _menu;
 		uint8 max_name_length;
 		uint8 max_value_length;
 		Surface surface;
@@ -34,7 +34,7 @@ namespace Menus
 			base(id);
 			this.xpos = xpos;
 			this.ypos = ypos;
-			this.menu = menu;
+			this._menu = menu;
 			this.max_name_length = max_name_length;
 			this.max_value_length = max_value_length;
 			visible_items = @interface.SELECTOR_VISIBLE_ITEMS;
@@ -47,7 +47,9 @@ namespace Menus
 			index_before_select_first = -1;
 			index_before_select_last = -1;
 		}
-		public unowned string menu_name { get { return menu.name; } }
+		public unowned string menu_name { get { return _menu.name; } }
+		public Menu menu { get { return _menu; } }
+		
 		public int height { get { return _height; } }
 		public int width { get { return _width; } }
 		public uint item_count { get { return menu.items.size; } }
