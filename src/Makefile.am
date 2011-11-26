@@ -51,6 +51,7 @@ pandafe_VALASOURCES = \
 	Fields/PlatformListField.vala \
 	Fields/ProgramListField.vala \
 	Fields/SourceEditField.vala \
+	Layers/Controls/TextEntry.vala \
 	Layers/GameBrowser/HeaderLayer.vala \
 	Layers/GameBrowser/StatusMessageLayer.vala \
 	Layers/MenuBrowser/MenuHeaderLayer.vala \
@@ -72,7 +73,6 @@ pandafe_VALASOURCES = \
 	Selectors/PlatformSelector.vala \
 	Selectors/Selector.vala \
 	Selectors/SelectorItemSet.vala \
-	TextEntry.vala \
 	$(NULL)
 
 pandafe_SOURCES = \

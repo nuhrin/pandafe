@@ -2,6 +2,7 @@ using SDL;
 using SDLTTF;
 using Data;
 using Data.GameList;
+using Layers.Controls;
 using Layers.GameBrowser;
 using Menus;
 using Menus.Fields;
