@@ -9,22 +9,21 @@ namespace Layers
 		static LayerDependencies dependencies;
 		
 		string _id;
-		uint _unique_id;
+		uint unique_id;
 		ArrayList<Layer> children;
 		ArrayList<Layer> additional_layer_stack;
 		bool needs_update;
 		
 		public LayerBase(string id) {
 			_id = id;
-			_unique_id = next_unique_id;
-			next_unique_id++;			
+			unique_id = next_unique_id;			
+			next_unique_id++;
 			if (dependencies == null)
 				dependencies = new LayerDependencies();
 			needs_update = true;
 		}
 		
 		public unowned string id { get { return _id; } }	
-		uint unique_id { get { return _unique_id; } }
 
 		//
 		// drawing
