@@ -1,3 +1,5 @@
+using Gee;
+using Layers.Controls;
 
 namespace Menus.Fields
 {
@@ -22,6 +24,19 @@ namespace Menus.Fields
 
 		protected override Value get_field_value() { return _value; }
 		protected override void set_field_value(Value value) { change_value((bool)value); }
+
+		protected override void activate(MenuSelector selector) {
+			var rect = selector.get_selected_item_value_entry_rect();
+			if (rect != null) {
+				var items = new ArrayList<bool>();
+				items.add(true);
+				items.add(false);				
+				var control = new ValueSelector<bool>(id + "_selector", rect.x, rect.y, (int16)rect.w, val=> (val) ? true_value : false_value, items, (_value) ? 0 : 1);
+				change_value(control.run() == 0);
+				selector.update_selected_item_value();
+				selector.update();
+			}
+		}
 
 		void change_value(bool new_value) {
 			if (new_value == _value)

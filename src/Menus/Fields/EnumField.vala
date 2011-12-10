@@ -1,4 +1,5 @@
 using Gee;
+using Layers.Controls;
 
 namespace Menus.Fields
 {
@@ -53,6 +54,22 @@ namespace Menus.Fields
 		protected override Value get_field_value() { return this.value; }
 		protected override void set_field_value(Value value) { this.value = value.get_enum(); }
 
+		protected override void activate(MenuSelector selector) {
+			var rect = selector.get_selected_item_value_entry_rect();
+			if (rect != null) {
+				var items = new ArrayList<int>();
+				for(int index=0;index<_nicks.size;index++)
+					items.add(index);
+				var control = new ValueSelector<int>(id + "_selector", rect.x, rect.y, (int16)rect.w, index=> _nicks[index], items, _value_index);
+				int new_index = (int)control.run();
+				if (new_index != _value_index) {
+					_value_index = new_index;
+					changed();
+				}
+				selector.update_selected_item_value();
+				selector.update();
+			}
+		}
 
 		protected override bool select_previous() {
 			if (_value_index < 1)
