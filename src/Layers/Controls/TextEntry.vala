@@ -22,9 +22,11 @@ namespace Layers.Controls
 		string text;
 		string original_text;
 		
-		Regex character_mask;
-
-		public TextEntry(string id, int16 x, int16 y, int16 width, string? value=null, string? character_mask=null) {
+		Regex character_mask_regex;
+		Regex? value_mask_regex;
+		bool _is_valid_value;
+		
+		public TextEntry(string id, int16 x, int16 y, int16 width, string? value=null, string? character_mask_regex=null, string? value_mask_regex=null) {
 			base(id, width, @interface.get_monospaced_font_height() + 10, x, y);
 			font = @interface.get_monospaced_font();
 			font_height = @interface.get_monospaced_font_height();
@@ -38,27 +40,14 @@ namespace Layers.Controls
 			cursor_height = font_height / 3;
 			cursor_pos = (value != null) ? value.length : 0;
 			
-			this.character_mask = initialize_regex(character_mask, DEFAULT_CHARACTER_MASK, RegexCompileFlags.OPTIMIZE);
+			initialize_character_mask_regex(character_mask_regex);
+			initialize_value_mask_regex(value_mask_regex);
+			
 			//this.text = value ?? "";
 			@interface.draw_rectangle_outline(0, 0, (int16)surface.w-2, (int16)surface.h-2, {255, 255, 255}, 255, surface);			
-			set_text(value ?? "");		
-			original_text = value;
-		}
-		Regex initialize_regex(string* regex, string* default_regex, RegexCompileFlags compile_options=0, RegexMatchFlags match_options=0) {
-			try {
-				if (regex != null)
-					return new Regex(regex, compile_options, match_options);				
-			}
-			catch(RegexError e) {
-				warning("Falling back to default regex '%s' due to RegexError for '%s': %s", default_regex, regex, e.message);				
-			}
-			try {
-				return new Regex(default_regex, compile_options, match_options);
-			}
-			catch(RegexError e) {
-				GLib.error("Unable to initialize default regex '%s': %s", default_regex, e.message);
-			}
-		}
+			set_text(value ?? "");
+			original_text = (has_valid_value) ? value : "";
+		}		
 
 		public string? run() {
 			@interface.push_layer(this);
@@ -74,15 +63,25 @@ namespace Layers.Controls
 
 		public string value {
 			get { return text; }
-			set { text = value; }
+			set { change_text(value); }
 		}
+		
+		public bool has_valid_value { get { return _is_valid_value; } }
+		
 		public signal void text_changed(string text);
+		public signal void validation_error();
 
-		protected override void clear() {
+		protected unowned string get_current_text_value() { return text; }
+		protected void change_text(string new_text) {
+			cursor_pos = new_text.length;
+			update_text(new_text);
 		}
-		protected override void draw() {
-			
-		}
+		protected virtual void on_text_changed() { }
+		protected virtual bool is_valid_value() { return true; }
+		protected virtual bool on_keydown_event(KeyboardEvent event) { return true; }
+		
+		protected override void clear() { }
+		protected override void draw() { }
 
 		void drain_events() {
 			Event event;
@@ -96,15 +95,15 @@ namespace Layers.Controls
 						this.event_loop_done = true;
 						break;
 					case EventType.KEYDOWN:
-						this.on_keyboard_event(event.key);
+						if (on_keydown_event(event.key) == true)
+							this.on_keyboard_event(event.key);
 						break;
 					default:
 						break;
 				}
 			}
-		}
-
-		void on_keyboard_event (KeyboardEvent event) {
+		}		
+		void on_keyboard_event(KeyboardEvent event) {
 			if (process_unicode(event.keysym.unicode) == false)
 				return;
 
@@ -112,11 +111,18 @@ namespace Layers.Controls
 				switch(event.keysym.sym) {
 					case KeySymbol.RETURN:
 					case KeySymbol.KP_ENTER:
-						event_loop_done = true;
+						if (has_valid_value == false)
+							validation_error();
+						else
+							event_loop_done = true;
 						break;
 					case KeySymbol.ESCAPE:
 						this.event_loop_done = true;
-						text = original_text;
+						update_text(original_text);
+						if (has_valid_value == false)
+							validation_error();
+						else
+							event_loop_done = true;
 						break;
 					case KeySymbol.LEFT:
 						if (cursor_pos > 0) {
@@ -171,30 +177,46 @@ namespace Layers.Controls
 				if (character_is_valid(c) == true) {
 					if (cursor_pos == text.length) {
 						cursor_pos++;
-						update_text(text + c.to_string());
+						if (update_text_using_value_mask(text + c.to_string()) == true)
+							return false;
+						else
+							cursor_pos--;
 					} else {
 						cursor_pos++;
-						update_text(text.splice(cursor_pos - 1, cursor_pos - 1, c.to_string()));
+						if (update_text_using_value_mask(text.splice(cursor_pos - 1, cursor_pos - 1, c.to_string())) == true)
+							return false;
+						else
+							cursor_pos--;
 					}
-					return false;
 				}
 			}
 			return true;
 		}
 		bool character_is_valid(char c) {
 			// return (c.isalnum() == true || c.ispunct() == true || c == ' ');
-			return character_mask.match(c.to_string());
+			return character_mask_regex.match(c.to_string());
 		}
-
+		bool update_text_using_value_mask(string new_text) {
+			if (value_mask_regex != null && value_mask_regex.match(new_text) == false)
+				return false;			
+			update_text(new_text);
+			return true;
+		}
 		void update_text(string? new_text=null) {
 			set_text(new_text);
-			if (new_text != null)
+			if (new_text != null) {
+				on_text_changed();
 				this.text_changed(new_text);
+			}
 			update();
 		}
 		void set_text(string? new_text=null) {
-			if (new_text != null)
+			if (new_text != null) {
 				this.text = new_text;
+				_is_valid_value = is_valid_value();
+				if (_is_valid_value == false)
+					validation_error();
+			}
 
 			var resolved_text = text + " ";
 			int relative_cursor_pos = cursor_pos;
@@ -235,6 +257,41 @@ namespace Layers.Controls
 			@interface.draw_rectangle_fill(cursor_x, cursor_y, char_width, cursor_height, @interface.background_color, 200, surface);
 
 			surface.flip();
+		}
+		
+		void initialize_character_mask_regex(string? regex) {
+			try {
+				if (regex != null) {
+					this.character_mask_regex = new Regex(regex, RegexCompileFlags.OPTIMIZE);
+					return;
+				}
+			}
+			catch(RegexError e) {
+				warning("Falling back to default character_mask_regex '%s' due to RegexError for '%s': %s", DEFAULT_CHARACTER_MASK, regex, e.message);				
+			}
+			try {
+				this.character_mask_regex = new Regex(DEFAULT_CHARACTER_MASK, RegexCompileFlags.OPTIMIZE);
+			}
+			catch(RegexError e) {
+				GLib.error("Unable to initialize default character_mask_regex '%s': %s", DEFAULT_CHARACTER_MASK, e.message);
+			}
+		}
+		void initialize_value_mask_regex(string? regex) {
+			if (regex == null) {
+				value_mask_regex = null;
+				return;
+			}
+			Regex? existing = value_mask_regex;
+			try {
+				if (regex != null) {
+					this.value_mask_regex = new Regex(regex, RegexCompileFlags.OPTIMIZE);
+					return;
+				}
+			}
+			catch(RegexError e) {
+				warning("Unable to initialize value_mask_regex '%s': %s", regex, e.message);
+			}
+			this.value_mask_regex = existing;
 		}
 	}
 }

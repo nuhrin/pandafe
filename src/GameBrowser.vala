@@ -534,7 +534,8 @@ public class GameBrowser : Layers.ScreenLayer
 		int dim_percentage = 50;
 		status_message.flush();
 		//@interface.dim_screen(dim_percentage);
-		var entry = new TextEntry("selection_filter", 600, 450, 200, selector.get_filter_pattern());
+		var entry = new TextEntry("selection_filter", 600, 450, 200, selector.get_filter_pattern(), "[-\\d\\.]", "^-?\\d*(\\.\\d*)?$");
+		//var entry = new IntegerEntry("selection_filter", 600, 450, 200, 43, 5, 100, 25);
 //~ 		entry.text_changed.connect((text) => {
 //~ 			selector.filter(text);
 //~ 			selector.update();
@@ -596,7 +597,38 @@ public class GameBrowser : Layers.ScreenLayer
 		var menu = new Menu(name);
 		menu.add_item(new BooleanField("flag", "Flag"));
 		menu.add_item(new EnumField("node_type", "NodeType", null, Catapult.Yaml.NodeType.SCALAR));
+//~ 		menu.add_item(new IntegerField("integer", "Integer", null, 5, 1, 10, 2));
+//~ 		menu.add_item(new IntegerField("integer", "Integer", null, 5, 1, 10, 2));
+//~ 		menu.add_item(new IntegerField("integer", "Integer", null, 5, 1, 10, 2));
+//~ 		menu.add_item(new IntegerField("integer", "Integer", null, 5, 1, 10, 2));
 		menu.add_item(new IntegerField("integer", "Integer", null, 5, 1, 10, 2));
+		menu.add_item(new StringField("string", "String", null, "(string)"));
+		
+		var ssf = new StringSelectionField("stringselection", "StringS");
+		ssf.add_item("Kupo!");
+		ssf.add_item("One");
+		ssf.add_item("Two");
+		ssf.add_item("Three");
+		ssf.add_item("4");
+		ssf.add_item("5");
+		ssf.add_item("6");
+		ssf.add_item("7");
+		ssf.add_item("8");
+		ssf.add_item("9");
+		ssf.add_item("10");
+		ssf.add_item("11");
+		ssf.add_item("12");
+		ssf.add_item("13");
+		ssf.add_item("14");
+		ssf.add_item("15");
+		ssf.add_item("16");
+		ssf.add_item("17");
+		ssf.add_item("18");
+		ssf.add_item("19");
+		ssf.add_item("20");
+		ssf.value = "Two";
+		menu.add_item(ssf);
+		
 		menu.add_item(new MenuItem.save_item());
 		menu.add_item(new MenuItem.cancel_item());
 		return menu;

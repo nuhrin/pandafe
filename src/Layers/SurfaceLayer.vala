@@ -19,14 +19,18 @@ namespace Layers
 				parent.blit_surface(surface, null, dest_rect);
 			else if (screen != null)
 				screen.blit_surface(surface, null, dest_rect);
-		}
-				
+		}				
 		protected override void clear() { 
 			surface.fill(null, background_color_rgb);
-		}
-		
+		}		
 		protected override void blit_surface(Surface surface, Rect? source_rect, Rect dest_rect) {
 			surface.blit(source_rect, this.surface, dest_rect);
+		}
+		protected override void draw_rectangle_outline(int16 x, int16 y, int16 width, int16 height, SDL.Color color, uchar alpha=255) {
+			@interface.draw_rectangle_outline(x, y, width, height, color, alpha, surface);
+		}
+		protected override void draw_rectangle_fill(int16 x, int16 y, int16 width, int16 height, SDL.Color color, uchar alpha=255) {
+			@interface.draw_rectangle_fill(x, y, width, height, color, alpha, surface);
 		}
 
 	}

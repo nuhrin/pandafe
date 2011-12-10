@@ -22,7 +22,7 @@ namespace Menus
 		public MenuItemActionType action { get; private set; }		
 		public unowned string? help { get { return _help; } }
 		
-		public virtual void activate() { }
+		public virtual void activate(MenuSelector selector) { }
 
 		public virtual bool process_keydown_event(KeyboardEvent event) { return false; }
 		public virtual bool process_keyup_event(KeyboardEvent event) { return false; }

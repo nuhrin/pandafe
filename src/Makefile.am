@@ -51,7 +51,12 @@ pandafe_VALASOURCES = \
 	Fields/PlatformListField.vala \
 	Fields/ProgramListField.vala \
 	Fields/SourceEditField.vala \
+	Layers/Controls/IntegerEntry.vala \
+	Layers/Controls/StringSelector.vala \
 	Layers/Controls/TextEntry.vala \
+	Layers/Controls/UIntEntry.vala \
+	Layers/Controls/ValueSelector.vala \
+	Layers/Controls/ValueSelectorBase.vala \
 	Layers/GameBrowser/HeaderLayer.vala \
 	Layers/GameBrowser/StatusMessageLayer.vala \
 	Layers/MenuBrowser/MenuHeaderLayer.vala \
@@ -63,6 +68,9 @@ pandafe_VALASOURCES = \
 	Menus/Fields/EnumField.vala \
 	Menus/Fields/IntegerField.vala \
 	Menus/Fields/MenuItemField.vala \
+	Menus/Fields/StringField.vala \
+	Menus/Fields/StringSelectionField.vala \
+	Menus/Fields/UIntField.vala \
 	Menus/Menu.vala \
 	Menus/MenuItem.vala \
 	Menus/MenuItemActionType.vala \

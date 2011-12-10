@@ -2,16 +2,16 @@ using Layers.Controls;
 
 namespace Menus.Fields
 {
-	public class IntegerField : MenuItemField
+	public class UIntField : MenuItemField
 	{
-		int _value;
-		int min_value;
-		int max_value;
+		uint _value;
+		uint min_value;
+		uint max_value;
 		uint step;
-		public IntegerField(string id, string name, string? help=null, int value, int min_value, int max_value, uint step=1) {
+		public UIntField(string id, string name, string? help=null, uint value, uint min_value, uint max_value, uint step=1) {
 			base(id, name, help);
 			if (max_value < min_value)
-				GLib.error("max_value (%d) < max_value (%d)", max_value, min_value);
+				GLib.error("max_value (%u) < max_value (%u)", max_value, min_value);
 
 			this.min_value = min_value;
 			this.max_value = max_value;
@@ -24,7 +24,7 @@ namespace Menus.Fields
 			this.step = step;
 		}
 
-		public new int value {
+		public new uint value {
 			get { return _value; }
 			set { change_value(value); }
 		}
@@ -32,13 +32,15 @@ namespace Menus.Fields
 		public override string get_value_text() { return _value.to_string(); }
 
 		protected override Value get_field_value() { return _value; }
-		protected override void set_field_value(Value value) { change_value((int)value); }
+		protected override void set_field_value(Value value) { change_value((uint)value); }
 
 		protected override bool select_previous() {
-			return change_value(_value - (int)step);
+			if (_value < step)
+				return change_value(0);
+			return change_value(_value - step);
 		}
 		protected override bool select_next() {
-			return change_value(_value + (int)step);
+			return change_value(_value + step);
 		}
 
 
@@ -54,9 +56,9 @@ namespace Menus.Fields
 				int16 width = @interface.get_monospaced_font_width((uint)max_length + 2);
 				if (width > rect.w)
 					width = (int16)rect.w;
-				var entry = new IntegerEntry(id + "_entry", rect.x, rect.y, width, _value, min_value, max_value, step);
+				var entry = new UIntEntry(id + "_entry", rect.x, rect.y, width, _value, min_value, max_value, step);
 				entry.validation_error.connect(() => {
-					debug("%s must be an integer between %d and %d (%d).", name, min_value, max_value, entry.value);
+					debug("%s must be an unsigned integer between %u and %u (%u).", name, min_value, max_value, entry.value);
 				});
 				change_value(entry.run());
 				selector.update_selected_item_value();
@@ -64,7 +66,7 @@ namespace Menus.Fields
 			}
 		}
 		
-		bool change_value(int new_value) {
+		bool change_value(uint new_value) {
 			if (new_value < min_value)
 				new_value = min_value;
 			else if (new_value > max_value)

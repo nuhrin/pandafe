@@ -225,7 +225,7 @@ namespace Menus
 						event_loop_done = true;
 					break;
 				default:
-					selected_item.activate();
+					selected_item.activate(selector);
 					break;					
 			}
 

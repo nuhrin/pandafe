@@ -21,6 +21,12 @@ namespace Layers
 		protected override void blit_surface(Surface surface, Rect? source_rect, Rect dest_rect) {
 			@interface.screen_blit(surface, source_rect, dest_rect);		
 		}
+		protected override void draw_rectangle_outline(int16 x, int16 y, int16 width, int16 height, SDL.Color color, uchar alpha=255) {
+			@interface.draw_rectangle_outline(x, y, width, height, color, alpha);
+		}
+		protected override void draw_rectangle_fill(int16 x, int16 y, int16 width, int16 height, SDL.Color color, uchar alpha=255) {
+			@interface.draw_rectangle_fill(x, y, width, height, color, alpha);
+		}
 
 		
 	}

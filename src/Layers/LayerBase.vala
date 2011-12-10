@@ -61,7 +61,9 @@ namespace Layers
 		protected virtual void blit() { }		
 		protected abstract void clear();
 		protected abstract void draw();		
-		protected abstract void blit_surface(Surface surface, Rect? source_rect, Rect dest_rect);		
+		protected abstract void blit_surface(Surface surface, Rect? source_rect, Rect dest_rect);
+		protected abstract void draw_rectangle_outline(int16 x, int16 y, int16 width, int16 height, SDL.Color color, uchar alpha=255);
+		protected abstract void draw_rectangle_fill(int16 x, int16 y, int16 width, int16 height, SDL.Color color, uchar alpha=255);
 		
 		//
 		// layer children and stack

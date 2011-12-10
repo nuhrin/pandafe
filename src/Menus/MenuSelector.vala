@@ -57,6 +57,16 @@ namespace Menus
 		public uint selected_index { get; private set; }
 		public MenuItem selected_item() { return menu.items[(int)selected_index]; }
 
+		public Rect? get_selected_item_value_entry_rect() {
+			var field = selected_item() as MenuItemField;
+			if (field == null)
+				return null;
+			Rect rect = {xpos + x_pos_value - 4, ypos + get_offset((int)selected_index) - 5};
+			rect.w = (int16)blank_value_area.w;
+			rect.h = (int16)blank_value_area.h;
+			return rect;
+		}
+
 		protected override void draw() {
 			ensure_surface();
 			Rect dest_r = {xpos, ypos};
@@ -182,7 +192,7 @@ namespace Menus
 			if (field != null)
 				return font.render_shaded(field_item_format.printf(field.name, field.get_value_text()), @interface.white_color, @interface.black_color);
 
-			return font.render_shaded(item.name, @interface.white_color, @interface.black_color);;
+			return font.render_shaded(item.name, @interface.white_color, @interface.black_color);
 		}
 		void update_item_name(int index, bool selected=false) {
 			Rect rect = {0, get_offset(index)};
@@ -207,18 +217,18 @@ namespace Menus
 			return (int16)((font_height * index) + (item_spacing * index));
 		}
 		void get_display_range(uint center_index, out uint top_index, out uint bottom_index) {
-			top_index = center_index - (visible_items / 2);
-			if (top_index < 0)
-				top_index = 0;
-			bottom_index = top_index + visible_items - 1;
-			if (bottom_index >= item_count)
-				bottom_index = item_count - 1;
-			if ((bottom_index - top_index) < visible_items - 1)
-				top_index = bottom_index - visible_items + 1;
-			if (bottom_index < visible_items - 1 || top_index < 0)
-				top_index = 0;
+			int top = (int)center_index - (visible_items / 2);
+			if (top < 0)
+				top = 0;
+			int bottom = top + visible_items - 1;
+			if (bottom >= item_count)
+				bottom = (int)item_count - 1;
+			if ((bottom - top) < visible_items - 1)
+				top = bottom - visible_items + 1;
+			if (bottom < visible_items - 1 || top < 0)
+				top = 0;			
+			top_index = (uint)top;
+			bottom_index = (uint)bottom;			
 		}
-
-
 	}
 }

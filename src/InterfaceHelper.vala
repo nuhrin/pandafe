@@ -150,11 +150,17 @@ public class InterfaceHelper : Object
 		return get_blank_surface(width, height, map_rgb(color));
 	}
 
-	public void draw_rectangle_outline(int16 x, int16 y, int16 width, int16 height, SDL.Color color, uchar alpha=255, Surface surface=screen) {
-		Rectangle.outline_rgba(surface, x, y, x+width, y+height, color.r, color.g, color.b, alpha);
+	public void draw_rectangle_outline(int16 x, int16 y, int16 width, int16 height, SDL.Color color, uchar alpha=255, Surface? surface=null) {
+		if (surface != null)
+			Rectangle.outline_rgba(surface, x, y, x+width, y+height, color.r, color.g, color.b, alpha);
+		else
+			Rectangle.outline_rgba(screen, x, y, x+width, y+height, color.r, color.g, color.b, alpha);
 	}
-	public void draw_rectangle_fill(int16 x, int16 y, int16 width, int16 height, SDL.Color color, uchar alpha=255, Surface surface=screen) {
-		Rectangle.fill_rgba(surface, x, y, x+width, y+height, color.r, color.g, color.b, alpha);
+	public void draw_rectangle_fill(int16 x, int16 y, int16 width, int16 height, SDL.Color color, uchar alpha=255, Surface? surface=null) {
+		if (surface != null)
+			Rectangle.fill_rgba(surface, x, y, x+width, y+height, color.r, color.g, color.b, alpha);
+		else
+			Rectangle.fill_rgba(screen, x, y, x+width, y+height, color.r, color.g, color.b, alpha);
 	}
 	public void dim_screen(int percentage) {
 		dim_surface(percentage, screen);
@@ -172,6 +178,8 @@ public class InterfaceHelper : Object
 	public int screen_blit(Surface src, Rect? srcrect, Rect? dstrect) {
 		return src.blit(srcrect, screen, dstrect);
 	}
+	public int screen_width { get { return screen.w; } }
+	public int screen_height { get { return screen.h; } }
 
 	public void connect_idle_function(string name, IdleFunction function) {
 		disconnect_idle_function(name);
