@@ -62,6 +62,7 @@ pandafe_VALASOURCES = \
 	Layers/MenuBrowser/MenuHeaderLayer.vala \
 	Layers/Layer.vala \
 	Layers/LayerBase.vala \
+	Layers/ScreenAlphaLayer.vala \
 	Layers/ScreenLayer.vala \
 	Layers/SurfaceLayer.vala \
 	Menus/Fields/BooleanField.vala \

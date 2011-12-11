@@ -49,8 +49,8 @@ namespace Layers.Controls
 			original_text = (has_valid_value) ? value : "";
 		}		
 
-		public string? run() {
-			@interface.push_layer(this);
+		public string? run(uchar screen_alpha=128, uint32 rgb_color=0) {
+			@interface.push_layer(this, screen_alpha, rgb_color);
 			drain_events();
 			while(event_loop_done == false) {
 				process_events();

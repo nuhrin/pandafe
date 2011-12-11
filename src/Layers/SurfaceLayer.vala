@@ -7,7 +7,7 @@ namespace Layers
 		protected Surface surface;
 		uint32 background_color_rgb;
 		Rect dest_rect;
-		public SurfaceLayer(string id, int width, int height, int16 xpos=0, int16 ypos=0, uint32 rgb_color=0) {
+		protected SurfaceLayer(string id, int width, int height, int16 xpos=0, int16 ypos=0, uint32 rgb_color=0) {
 			base(id);
 			surface = @interface.get_blank_surface(width, height, rgb_color);
 			background_color_rgb = rgb_color;

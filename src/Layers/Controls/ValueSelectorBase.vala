@@ -86,14 +86,14 @@ namespace Layers.Controls
 				add_item(item);
 		}
 				
-		public uint run() {
+		public uint run(uchar screen_alpha=128, uint32 rgb_color=0) {
 			if (items.size < 2)
 				GLib.error("ValueSelector '%s' has too few items (%d). At least two are required for selection to make sense.", id, items.size);
 				
 			ensure_surface();
 			update_item_name((int)_selected_index, true);
 			
-			@interface.push_layer(this);
+			@interface.push_layer(this, screen_alpha, rgb_color);
 			drain_events();
 			while(event_loop_done == false) {
 				process_events();

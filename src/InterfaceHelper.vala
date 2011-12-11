@@ -75,15 +75,23 @@ public class InterfaceHelper : Object
 	public unowned ScreenLayer peek_screen_layer() { 
 		return screen_layer_stack.peek_head();
 	}
-	public void push_layer(Layer layer) {
+	public void push_layer(Layer layer, uchar screen_alpha=0, uint32 rgb_color=0) {
+		if (screen_alpha > 0) {
+			var alpha_layer = new ScreenAlphaLayer(layer.id + "_alpha", screen_alpha, rgb_color);
+			peek_screen_layer().push_layer(alpha_layer);
+			alpha_layer.update();
+		}
 		peek_screen_layer().push_layer(layer);
 		layer.update();
 	}
 	public Layer? pop_layer() {
 		var screen = peek_screen_layer();
 		var layer = screen.pop_layer();
-		if (layer != null)
+		if (layer != null) {
+			if ((layer is ScreenAlphaLayer) == false && peek_layer() is ScreenAlphaLayer)
+				screen.pop_layer(); // remove alpha layer added by previous push			
 			screen.update();
+		}
 		return layer;	
 	}
 	public Layer? peek_layer() {

@@ -27,8 +27,8 @@ namespace Layers.Controls
 			this._value = value;
 		}
 		
-		public new uint run() {
-			string? text = base.run();
+		public new uint run(uchar screen_alpha=128, uint32 rgb_color=0) {
+			string? text = base.run(screen_alpha, rgb_color);
 			if (text == null)
 				return _value;
 			return (uint)int.parse(text);
