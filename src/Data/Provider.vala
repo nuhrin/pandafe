@@ -106,10 +106,12 @@ namespace Data
 					}
 					return _platforms;
 				}
+				bool have_native = false;
 				foreach(var id in platform_ids) {
 					try {
-						if (id == NativePlatform.ENTITY_ID) {
+						if (have_native == false && id == NativePlatform.ENTITY_ID) {
 							_platforms.add(get_native_platform());
+							have_native = true;
 							continue;
 						}
 						var platform = data_interface.load<Platform>(id);
@@ -123,8 +125,10 @@ namespace Data
 					}
 					catch (Error e) {
 						debug("Error while loading platform '%s': %s", id, e.message);
-					}
+					}					
 				}
+				if (have_native == false)
+					_platforms.insert(0, get_native_platform());				
 			}
 			return _platforms;
 		}
