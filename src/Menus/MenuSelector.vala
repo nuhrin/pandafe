@@ -47,6 +47,14 @@ namespace Menus
 			@interface.colors_updated.connect(reset_surface);
 			index_before_select_first = -1;
 			index_before_select_last = -1;
+			
+			for(int index=0; index<menu.items.size; index++) {
+				var field = menu.items[index] as MenuItemField;
+				if (field != null) {
+					int field_index = index;
+					field.changed.connect(()=>update_item_value(field_index));
+				}
+			}
 		}
 		public unowned string menu_name { get { return _menu.name; } }
 		public Menu menu { get { return _menu; } }
