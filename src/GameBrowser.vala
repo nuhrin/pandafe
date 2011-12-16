@@ -531,9 +531,7 @@ public class GameBrowser : Layers.ScreenLayer
 	}
 
 	void filter_selector() {
-		int dim_percentage = 50;
 		status_message.flush();
-		//@interface.dim_screen(dim_percentage);
 		var entry = new TextEntry("selection_filter", 600, 450, 200, selector.get_filter_pattern(), "[-\\d\\.]", "^-?\\d*(\\.\\d*)?$");
 		//var entry = new IntegerEntry("selection_filter", 600, 450, 200, 43, 5, 100, 25);
 //~ 		entry.text_changed.connect((text) => {

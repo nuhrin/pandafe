@@ -18,8 +18,8 @@ namespace Menus
 		GLib.Queue<MenuSelector> menu_stack;
 		MenuSelector selector;
 		MenuHeaderLayer header;
-		int16 pos_y_status_message;
-		Surface blank_message_area;
+		//int16 pos_y_status_message;
+		//Surface blank_message_area;
 
 		public MenuBrowser(Menu menu, uint8 max_name_length, uint8 max_value_length) {
 			if (menu.items.size == 0)
