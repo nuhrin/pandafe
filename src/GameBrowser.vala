@@ -586,6 +586,7 @@ public class GameBrowser : Layers.ScreenLayer
 		menu.add_item(new BooleanField("flag", "Flag"));
 		menu.add_item(new EnumField("node_type", "NodeType", null, Catapult.Yaml.NodeType.SCALAR));
 		menu.add_item(new IntegerField("integer", "Integer", null, 5, 1, 10, 2));
+		menu.add_item(new ColorField("color", "Color", null, new Data.Color(0, 0, 0)));
 		menu.add_item(new MenuItem.cancel_item("Return"));
 		menu.add_item(new MenuItem.quit_item());
 

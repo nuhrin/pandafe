@@ -21,6 +21,7 @@ pandafe_VALASOURCES = \
 	GameBrowser.vala \
 	InterfaceHelper.vala \
 	Options.vala \
+	Data/Color.vala \
 	Data/GameBrowserState.vala \
 	Data/NativePlatform.vala \
 	Data/NativePlatformCategory.vala \
@@ -41,7 +42,7 @@ pandafe_VALASOURCES = \
 	GameList/IGameListNode.vala \
 	GameList/RomList.vala \
 	GameList/PndList.vala \
-	Fields/ColorField.vala \
+	Fields/GColorField.vala \
 	Fields/ClockspeedField.vala \
 	Fields/CustomCommandField.vala \
 	Fields/DefaultProgramField.vala \
@@ -66,6 +67,7 @@ pandafe_VALASOURCES = \
 	Layers/ScreenLayer.vala \
 	Layers/SurfaceLayer.vala \
 	Menus/Fields/BooleanField.vala \
+	Menus/Fields/ColorField.vala \
 	Menus/Fields/EnumField.vala \
 	Menus/Fields/IntegerField.vala \
 	Menus/Fields/MenuItemField.vala \

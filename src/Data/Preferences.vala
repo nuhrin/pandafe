@@ -40,21 +40,21 @@ namespace Data
 
 		protected override Yaml.Node? build_unhandled_value_node(Yaml.NodeBuilder builder, Value value) {
 			if (value.holds(typeof(Gdk.Color))) {
-				return ColorField.color_to_node((Gdk.Color)value);
+				return GColorField.color_to_node((Gdk.Color)value);
 			}
 			return null;
 		}
 		protected override bool apply_unhandled_value_node(Yaml.Node node, string property_name, Yaml.NodeParser parser) {
 			if (property_name == "item-color") {
-				item_color = ColorField.node_to_color(node);
+				item_color = GColorField.node_to_color(node);
 				return true;
 			}
 			else if (property_name == "selected-item-color") {
-				selected_item_color = ColorField.node_to_color(node);
+				selected_item_color = GColorField.node_to_color(node);
 				return true;
 			}
 			else if (property_name == "background-color") {
-				background_color = ColorField.node_to_color(node);
+				background_color = GColorField.node_to_color(node);
 				return true;
 			}
 			return false;
@@ -73,11 +73,11 @@ namespace Data
 				font_field.current_folder = DEFAULT_FONT_PATH;
 			font_field.add_pattern("*.ttf");
 			frame.add_field(font_field);
-			var item_color_field = new ColorField("item-color", "Item _Color", item_color);
+			var item_color_field = new GColorField("item-color", "Item _Color", item_color);
 			frame.add_field(item_color_field);
-			var selected_item_color_field = new ColorField("selected-item-color", "_Selected Item Color", selected_item_color);
+			var selected_item_color_field = new GColorField("selected-item-color", "_Selected Item Color", selected_item_color);
 			frame.add_field(selected_item_color_field);
-			var background_color_field = new ColorField("background-color", "_Background Color", background_color);
+			var background_color_field = new GColorField("background-color", "_Background Color", background_color);
 			frame.add_field(background_color_field);
 
 			box.add_field(notebook);
