@@ -20,6 +20,7 @@ namespace Menus
 		uint8 max_name_length_real;
 		int16 x_pos_value;
 		string field_item_format;
+		string menu_item_format;
 		Surface blank_name_area;
 		Surface select_name_area;
 		Surface blank_value_area;
@@ -187,6 +188,7 @@ namespace Menus
 			blank_value_area = @interface.get_blank_surface(value_area_width, font_height);
 
 			field_item_format = "%-" + max_name_length_real.to_string() + "s : %s";
+			menu_item_format = "%-" + max_name_length_real.to_string() + "s >";
 		}
 
 		Surface render_item(int index) {
@@ -194,6 +196,9 @@ namespace Menus
 			var field = item as MenuItemField;
 			if (field != null)
 				return font.render_shaded(field_item_format.printf(field.name, field.get_value_text()), @interface.white_color, @interface.black_color);
+			var menu = item as Menu;
+			if (menu != null)
+				return font.render_shaded(menu_item_format.printf(menu.name), @interface.white_color, @interface.black_color);
 
 			return font.render_shaded(item.name, @interface.white_color, @interface.black_color);
 		}
