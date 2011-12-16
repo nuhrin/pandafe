@@ -162,6 +162,12 @@ namespace Layers.Controls
 					case KeySymbol.DOWN:
 						select_next();
 						break;
+					case KeySymbol.LEFT:
+						select_previous_page();
+						break;
+					case KeySymbol.RIGHT:
+						select_next_page();
+						break;
 					case KeySymbol.HOME:
 						select_first();
 						break;
@@ -179,8 +185,22 @@ namespace Layers.Controls
 				return;
 			select_item(_selected_index - 1);
 		}
+		void select_previous_page() {
+			if (_selected_index < visible_items) {
+				select_first();
+				return;
+			}
+			select_item(_selected_index - visible_items);
+		}
 		void select_next() {
 			select_item(_selected_index + 1);
+		}
+		void select_next_page() {
+			if (_selected_index + visible_items >= items.size) {
+				select_last();
+				return;
+			}
+			select_item(_selected_index + visible_items);			
 		}
 		void select_first() { select_item(0); }
 		void select_last() { select_item(items.size - 1); }		
