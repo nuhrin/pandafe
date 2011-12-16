@@ -82,13 +82,16 @@ namespace Menus
 
 		public bool select_previous() {
 			if (selected_index == 0)
-				return false;
+				return select_item(item_count - 1); // wrap around
+				//return false;
 
 			return select_item(selected_index - 1);
 		}
 		public bool select_next() {
 			if (selected_index == item_count - 1)
-				return false;
+				return select_item(0); // wrap around
+				//return false;
+				
 
 			return select_item(selected_index + 1);
 		}
