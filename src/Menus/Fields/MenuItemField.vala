@@ -1,4 +1,5 @@
 using SDL;
+using SDLTTF;
 
 namespace Menus.Fields
 {
@@ -20,6 +21,7 @@ namespace Menus.Fields
 		public virtual void make_clean() { is_dirty = false; }
 
 		public abstract string get_value_text();
+		public virtual Surface? get_value_rendering(Font* font) { return null; }
 
 		public override bool process_keydown_event(KeyboardEvent event) {
 			if (event.keysym.mod == KeyModifier.NONE) {

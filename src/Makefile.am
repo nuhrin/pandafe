@@ -60,6 +60,7 @@ pandafe_VALASOURCES = \
 	Layers/Controls/ValueSelectorBase.vala \
 	Layers/GameBrowser/HeaderLayer.vala \
 	Layers/GameBrowser/StatusMessageLayer.vala \
+	Layers/MenuBrowser/ColorDisplayLayer.vala \
 	Layers/MenuBrowser/MenuHeaderLayer.vala \
 	Layers/Layer.vala \
 	Layers/LayerBase.vala \

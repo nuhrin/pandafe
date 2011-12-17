@@ -13,6 +13,9 @@ namespace Layers
 			background_color_rgb = rgb_color;
 			dest_rect = {xpos, ypos};
 		}
+		protected SurfaceLayer.of_color(string id, int width, int height, int16 xpos=0, int16 ypos=0, SDL.Color color) {
+			this(id, width, height, xpos, ypos, @interface.map_rgb(color));			
+		}		
 	
 		protected override void blit() {
 			if (parent != null)

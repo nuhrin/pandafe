@@ -25,6 +25,9 @@ namespace Data
 		public Color.from_hsv(uint8 hue, uint8 saturation, uint8 value) {
 			set_hsv(hue, saturation, value);
 		}
+		Color.from_other(Color color) {
+			copy_from(color);
+		}
 		
 		public static bool parse (string spec, out Color color) {
 			Gdk.Color gcolor;
@@ -35,6 +38,18 @@ namespace Data
 			}
 			color = null;
 			return false;
+		}
+		public Color copy() {
+			return new Color.from_other(this);
+		}
+		public void copy_from(Color other) {
+			_red = other._red;
+			_green = other._green;
+			_blue = other._blue;
+			_hue = other._hue;
+			_saturation = other._saturation;
+			_value = other._value;
+			_spec = other._spec;
 		}
 
 		public uchar red {
@@ -270,7 +285,7 @@ namespace Data
 			_blue = (uchar)scale_round(blue, 255);
 		}
 		void update_hex() {
-			_spec = "#%2X%2X%2X".printf(_red, _green, _blue);
+			_spec = "#%2X%2X%2X".printf(_red, _green, _blue).replace(" ", "0");
 		}
 		
 		uint scale_round(double val, double factor) {

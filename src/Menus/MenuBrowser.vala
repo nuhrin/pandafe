@@ -44,6 +44,10 @@ namespace Menus
 			}
 			@interface.pop_screen_layer();
 		}
+		
+		public Rect get_selector_rect() {
+			return { SELECTOR_XPOS, SELECTOR_YPOS, (int16)selector.width };
+		}
 
 		MenuSelector get_selector(Menu menu) {
 			var new_selector = new MenuSelector(SELECTOR_ID, SELECTOR_XPOS, SELECTOR_YPOS, menu, max_name_length, max_value_length);

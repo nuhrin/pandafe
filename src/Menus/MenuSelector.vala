@@ -227,7 +227,10 @@ namespace Menus
 				return;
 			Rect rect = {x_pos_value, get_offset(index)};
 			blank_value_area.blit(null, surface, rect);
-			font.render_shaded(field.get_value_text(), @interface.white_color, @interface.black_color).blit(null, surface, rect);
+			Surface? value_surface = field.get_value_rendering(font);
+			if (value_surface == null)
+				value_surface = font.render_shaded(field.get_value_text(), @interface.white_color, @interface.black_color);
+			value_surface.blit(null, surface, rect);
 		}
 		int16 get_offset(uint index) {
 			return (int16)((font_height * index) + (item_spacing * index));
