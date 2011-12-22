@@ -45,6 +45,8 @@ namespace Menus
 			@interface.pop_screen_layer();
 		}
 		
+		public signal void menu_changed(Menu menu);
+		
 		public Rect get_selector_rect() {
 			return { SELECTOR_XPOS, SELECTOR_YPOS, (int16)selector.width };
 		}
@@ -64,6 +66,7 @@ namespace Menus
 			clear();
 			set_header();
 			selector.select_first();
+			menu_changed(menu);
 		}
 		void pop_menu() {
 			if (menu_stack.length == 0) {
@@ -75,6 +78,7 @@ namespace Menus
 			clear();
 			set_header();
 			selector.update();
+			menu_changed(selector.menu);
 		}
 		void set_header() {
 			header.set_text(null, selector.menu_name, null, false);
@@ -227,6 +231,10 @@ namespace Menus
 				case MenuItemActionType.QUIT:
 					if (selector.menu.cancel() == true)
 						event_loop_done = true;
+					break;
+				case MenuItemActionType.SAVE_AND_QUIT:
+					if (selector.menu.save() == true)
+						event_loop_done = true;					
 					break;
 				default:
 					selected_item.activate(selector);

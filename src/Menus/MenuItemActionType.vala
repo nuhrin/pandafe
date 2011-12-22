@@ -6,6 +6,7 @@ namespace Menus
 		NONE,
 		CANCEL,
 		SAVE,
+		SAVE_AND_QUIT,
 		QUIT;
 		
 		public unowned string name() {

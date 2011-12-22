@@ -42,7 +42,6 @@ namespace Menus.Fields
 		protected abstract void set_field_value(Value value);
 
 		protected virtual void on_changed() { is_dirty = true; }
-
 		protected virtual bool select_previous() { return false; }
 		protected virtual bool select_next() { return false; }
 	}

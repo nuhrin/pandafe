@@ -52,6 +52,9 @@ pandafe_VALASOURCES = \
 	Fields/PlatformListField.vala \
 	Fields/ProgramListField.vala \
 	Fields/SourceEditField.vala \
+	Layers/Controls/Chooser/FolderSelector.vala \
+	Layers/Controls/Chooser/ChooserHeader.vala \
+	Layers/Controls/FolderChooser.vala \
 	Layers/Controls/IntegerEntry.vala \
 	Layers/Controls/StringSelector.vala \
 	Layers/Controls/TextEntry.vala \
@@ -67,9 +70,11 @@ pandafe_VALASOURCES = \
 	Layers/ScreenAlphaLayer.vala \
 	Layers/ScreenLayer.vala \
 	Layers/SurfaceLayer.vala \
+	Menus/Concrete/MainConfiguration.vala \
 	Menus/Fields/BooleanField.vala \
 	Menus/Fields/ColorField.vala \
 	Menus/Fields/EnumField.vala \
+	Menus/Fields/FolderField.vala \
 	Menus/Fields/IntegerField.vala \
 	Menus/Fields/MenuItemField.vala \
 	Menus/Fields/StringField.vala \

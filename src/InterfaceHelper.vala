@@ -17,6 +17,7 @@ public class InterfaceHelper : Object
 	public const int16 SELECTOR_ITEM_SPACING = 5;
 
 	const int FONT_SIZE = 16;
+	const int FONT_SMALL_SIZE = 12;
 	const int DEPTH = 32;
 
 	Data.Preferences preferences;
@@ -24,9 +25,11 @@ public class InterfaceHelper : Object
 
 	Font font;
 	Font font_mono;
+	Font font_mono_small;
 	int16 font_mono_char_width;
-	int16 font_mono_height;
 	int16 _font_height;
+	int16 font_mono_height;
+	int16 font_mono_small_height;
 	Surface _blank_item_surface;
 	Color _background_color;
 	uint32 _background_color_rgb;
@@ -54,7 +57,11 @@ public class InterfaceHelper : Object
 		font_mono_height = (int16)font_mono.height();
 		font_mono_char_width = (int16)font_mono.render_shaded(" ", _black_color, _black_color).w;
 
-		update_from_preferences();
+		font_mono_small = new Font(FONT_MONO, FONT_SMALL_SIZE);
+		font_mono_small_height = (int16)font_mono_small.height();
+
+		update_fonts_from_preferences();
+		update_colors_from_preferences();
 		
 		screen_layer_stack = new GLib.Queue<ScreenLayer>();
 		screen_layer_stack.push_head(new ScreenLayer("root_screen"));
@@ -97,18 +104,20 @@ public class InterfaceHelper : Object
 	public Layer? peek_layer() {
 		return peek_screen_layer().peek_layer();
 	}
-	
-	public void update_from_preferences() {
+		
+	public void update_fonts_from_preferences() {
 		font = new Font(preferences.font, FONT_SIZE);
 		if (font == null) {
 			GLib.error("Error loading font: %s", SDL.get_error());
 		}
 		_font_height = (int16)font.height();
-		font_updated();
-		_background_color = get_sdl_color(preferences.background_color);
+		font_updated();		
+	}
+	public void update_colors_from_preferences() {
+		_background_color = preferences.background_color.get_sdl_color();
 		_background_color_rgb = this.screen.format.map_rgb(background_color.r, background_color.g, background_color.b);
-		_item_color = get_sdl_color(preferences.item_color);
-		_selected_item_color = get_sdl_color(preferences.selected_item_color);
+		_item_color = preferences.item_color.get_sdl_color();
+		_selected_item_color = preferences.selected_item_color.get_sdl_color();
 		_blank_item_surface = get_blank_background_surface(SELECTOR_WITDH, _font_height);
 		colors_updated();
 	}
@@ -142,6 +151,8 @@ public class InterfaceHelper : Object
 	public unowned Font get_monospaced_font() { return font_mono; }
 	public int16 get_monospaced_font_width(uint chars=1) { return (int16)(font_mono_char_width * chars); }
 	public int16 get_monospaced_font_height() { return font_mono_height; }
+	public unowned Font get_monospaced_small_font() { return font_mono_small; }
+	public int16 get_monospaced_small_font_height() { return font_mono_small_height; }
 
 	public unowned Surface get_blank_item_surface() { return _blank_item_surface; }
 
@@ -200,13 +211,6 @@ public class InterfaceHelper : Object
 			SDL.Timer.delay(IDLE_DELAY);
 	}
 	signal void idle_worker();
-
-	SDL.Color get_sdl_color(Gdk.Color color) {
-		return { convert_color(color.red), convert_color(color.green), convert_color(color.blue) };
-	}
-	uchar convert_color(uint16 color) {
-		return (255*color)/65535;
-	}
 
 	GLib.Queue<ScreenLayer> screen_layer_stack;
 }

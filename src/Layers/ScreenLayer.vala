@@ -13,7 +13,14 @@ namespace Layers
 		public void flip() {
 			@interface.screen_flip();
 		}
-				
+		
+		public void set_color(SDL.Color color) {
+			set_rgb_color(@interface.map_rgb(color));
+		}
+		public void set_rgb_color(uint32 rgb_color) {
+			background_color_rgb = rgb_color;
+		}
+		
 		protected override void clear() { 
 			@interface.screen_fill(null, background_color_rgb);
 		}

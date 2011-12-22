@@ -17,6 +17,13 @@ namespace Layers
 			this(id, width, height, xpos, ypos, @interface.map_rgb(color));			
 		}		
 	
+		public void set_color(SDL.Color color) {
+			set_rgb_color(@interface.map_rgb(color));
+		}
+		public void set_rgb_color(uint32 rgb_color) {
+			background_color_rgb = rgb_color;
+		}
+	
 		protected override void blit() {
 			if (parent != null)
 				parent.blit_surface(surface, null, dest_rect);

@@ -31,13 +31,15 @@ public class GameBrowser : Layers.ScreenLayer
 		base("gamebrowser", @interface.background_color_rgb);
 		current_platform_index = -1;
 		header = add_layer(new HeaderLayer("header")) as HeaderLayer;
-		status_message = add_layer(new StatusMessageLayer("status-message")) as StatusMessageLayer;
+		status_message = add_layer(new StatusMessageLayer("status-message")) as StatusMessageLayer;		
 	}
 
 	public void run() {
 		platforms = Data.platforms();
 		initialize_from_browser_state();
 		@interface.push_screen_layer(this, false);
+		@interface.colors_updated.connect(update_colors);
+		@interface.font_updated.connect(update_font);
 		flip();
 		Key.enable_unicode(1);
         while(event_loop_done == false) {
@@ -52,7 +54,14 @@ public class GameBrowser : Layers.ScreenLayer
 		}
 		@interface.pop_screen_layer();
 	}
-
+	
+	void update_colors() {
+		header.set_rgb_color(@interface.background_color_rgb);
+		status_message.set_rgb_color(@interface.background_color_rgb);
+		this.set_rgb_color(@interface.background_color_rgb);
+	}
+	void update_font() {
+	}
 	//
 	// browser state
 	void initialize_from_browser_state() {
@@ -346,7 +355,8 @@ public class GameBrowser : Layers.ScreenLayer
     void do_configuration() {
 		status_message.push("running main configuration...");
 		ConfigGui.run();
-		@interface.update_from_preferences();
+		@interface.update_fonts_from_preferences();
+		@interface.update_colors_from_preferences();
 		this.update();
 	}
 	void edit_current_platform() {
@@ -575,62 +585,7 @@ public class GameBrowser : Layers.ScreenLayer
 	}
 
 	void show_test_menu() {
-		new MenuBrowser(GetTestMenu(), 40, 40).run();
-	}
-
-	Menu GetTestMenu() {
-		var menu = new Menu("test");
-		menu.add_item(GetTestSubMenu("Configuration"));
-		menu.add_item(GetTestSubMenu("Edit Current Platform"));
-		menu.add_item(GetTestSubMenu("Edit Current Program"));
-		menu.add_item(new BooleanField("flag", "Flag"));
-		menu.add_item(new EnumField("node_type", "NodeType", null, Catapult.Yaml.NodeType.SCALAR));
-		menu.add_item(new IntegerField("integer", "Integer", null, 5, 1, 10, 2));
-		menu.add_item(new ColorField("color", "Color", null, new Data.Color(0, 0, 0)));
-		menu.add_item(new MenuItem.cancel_item("Return"));
-		menu.add_item(new MenuItem.quit_item());
-
-		return menu;
-	}
-	Menu GetTestSubMenu(string name) {
-		var menu = new Menu(name);
-		menu.add_item(new BooleanField("flag", "Flag"));
-		menu.add_item(new EnumField("node_type", "NodeType", null, Catapult.Yaml.NodeType.SCALAR));
-//~ 		menu.add_item(new IntegerField("integer", "Integer", null, 5, 1, 10, 2));
-//~ 		menu.add_item(new IntegerField("integer", "Integer", null, 5, 1, 10, 2));
-//~ 		menu.add_item(new IntegerField("integer", "Integer", null, 5, 1, 10, 2));
-//~ 		menu.add_item(new IntegerField("integer", "Integer", null, 5, 1, 10, 2));
-		menu.add_item(new IntegerField("integer", "Integer", null, 5, 1, 10, 2));
-		menu.add_item(new StringField("string", "String", null, "(string)"));
-		
-		var ssf = new StringSelectionField("stringselection", "StringS");
-		ssf.add_item("Kupo!");
-		ssf.add_item("One");
-		ssf.add_item("Two");
-		ssf.add_item("Three");
-		ssf.add_item("4");
-		ssf.add_item("5");
-		ssf.add_item("6");
-		ssf.add_item("7");
-		ssf.add_item("8");
-		ssf.add_item("9");
-		ssf.add_item("10");
-		ssf.add_item("11");
-		ssf.add_item("12");
-		ssf.add_item("13");
-		ssf.add_item("14");
-		ssf.add_item("15");
-		ssf.add_item("16");
-		ssf.add_item("17");
-		ssf.add_item("18");
-		ssf.add_item("19");
-		ssf.add_item("20");
-		ssf.value = "Two";
-		menu.add_item(ssf);
-		
-		menu.add_item(new MenuItem.save_item());
-		menu.add_item(new MenuItem.cancel_item());
-		return menu;
-	}
+		Menus.Concrete.MainConfiguration.run();
+	}	
 	
 }

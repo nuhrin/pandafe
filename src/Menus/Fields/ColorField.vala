@@ -10,9 +10,11 @@ namespace Menus.Fields
 	{
 		Data.Color _color;
 		
-		public ColorField(string id, string name, string? help=null, Data.Color color) {
+		public ColorField(string id, string name, string? help=null, Data.Color? color=null) {
 			base(id, name, help);
-			_color = color;
+			_color = new Data.Color();
+			if (color != null)
+				_color.copy_from(color);
 		}
 
 		public new Data.Color value {
@@ -45,8 +47,10 @@ namespace Menus.Fields
 		}
 
 		void change_value(Data.Color color) {
-			_color = color;
-			changed();
+			if (_color.spec != color.spec) {
+				_color.copy_from(color);
+				changed();
+			}
 		}
 		
 		void show_menu(Data.Color color, owned Predicate<Menu> on_save) {

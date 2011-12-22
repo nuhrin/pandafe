@@ -6,16 +6,21 @@ namespace Menus
 	public class Menu : MenuItem
 	{
 		Menu? _parent;
+		ArrayList<MenuItem> _items;
 		Predicate<Menu>? on_save;
 		Predicate<Menu>? on_cancel; 
 		public Menu(string name, string? help=null, Menu? parent=null, owned Predicate? on_save=null, owned Predicate<Menu>? on_cancel=null ) {
 			base(name, help);
 			this.on_save = (owned)on_save;
-			this.on_cancel = (owned)on_cancel;
-			items = new ArrayList<MenuItem>();
+			this.on_cancel = (owned)on_cancel;			
 		}
 		public Menu? parent { get { return _parent; } }
-		public Gee.List<MenuItem> items { get; private set; }
+		public Gee.List<MenuItem> items { 
+			get {
+				ensure_items();
+				return _items;
+			}
+		}
 
 		public void add_item(MenuItem item) {
 			items.add(item);
@@ -34,6 +39,14 @@ namespace Menus
 			return true;
 		}
 
+		protected virtual void populate_items(Gee.List<MenuItem> items) { }
+		protected void ensure_items() {
+			if (_items != null)
+				return;
+				
+			_items = new ArrayList<MenuItem>();
+			populate_items(_items);
+		}
 
 	}
 }

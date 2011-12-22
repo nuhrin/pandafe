@@ -137,7 +137,13 @@ namespace Data
 		public SDL.Color get_sdl_color() { return {_red, _green, _blue}; }
 		public void set_sdl_color(SDL.Color color) { set_rgb(color.r, color.g, color.b); }
 		
-		void set_gdk_color(Gdk.Color color) {
+		public Gdk.Color get_gdk_color() {
+			Gdk.Color color;
+			if (Gdk.Color.parse(spec, out color) == false)
+				GLib.error("Internal error: unable to parse color spec '%s'", spec);
+			return color;
+		}		
+		public void set_gdk_color(Gdk.Color color) {
 			_red = (uchar)scale_round((double)color.red / (double)uint16.MAX, 255);
 			_green = (uchar)scale_round((double)color.green / (double)uint16.MAX, 255);
 			_blue = (uchar)scale_round((double)color.blue / (double)uint16.MAX, 255);

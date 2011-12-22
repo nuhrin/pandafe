@@ -187,7 +187,7 @@ namespace Menus
 			int value_area_width = @interface.get_monospaced_font_width(max_value_length);
 			x_pos_value = @interface.get_monospaced_font_width(max_name_length_real + 3); // +3 for " : " before value
 			_width = (has_field == false)
-				? @interface.get_monospaced_font_width(max_name_length_real)
+				? @interface.get_monospaced_font_width(max_name_length_real + 2) // +2 for submenu " >"
 				: x_pos_value + value_area_width;
 
 			blank_name_area = @interface.get_blank_surface(name_area_width, font_height);
