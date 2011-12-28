@@ -52,8 +52,10 @@ pandafe_VALASOURCES = \
 	Fields/PlatformListField.vala \
 	Fields/ProgramListField.vala \
 	Fields/SourceEditField.vala \
+	Layers/Controls/Chooser/FileSelector.vala \
 	Layers/Controls/Chooser/FolderSelector.vala \
 	Layers/Controls/Chooser/ChooserHeader.vala \
+	Layers/Controls/FileChooser.vala \
 	Layers/Controls/FolderChooser.vala \
 	Layers/Controls/IntegerEntry.vala \
 	Layers/Controls/StringSelector.vala \
@@ -74,6 +76,7 @@ pandafe_VALASOURCES = \
 	Menus/Fields/BooleanField.vala \
 	Menus/Fields/ColorField.vala \
 	Menus/Fields/EnumField.vala \
+	Menus/Fields/FileField.vala \
 	Menus/Fields/FolderField.vala \
 	Menus/Fields/IntegerField.vala \
 	Menus/Fields/MenuItemField.vala \

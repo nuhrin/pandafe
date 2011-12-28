@@ -6,10 +6,9 @@ using Layers.MenuBrowser;
 
 namespace Layers.Controls.Chooser
 {
-	public class FolderSelector : Layer
+	public class FileSelector : Layer
 	{
 		const uint8 MAX_ITEM_LENGTH = 50;
-		const string CURRENT_FOLDER_ITEM_NAME = "(Choose this folder)";
 		int16 xpos;
 		int16 ypos;
 		Surface surface;
@@ -21,17 +20,18 @@ namespace Layers.Controls.Chooser
 		Surface blank_item_area;
 		Surface select_item_area;
 
-		ArrayList<string> items;		
+		ArrayList<Item> items;
+		Regex? regex_file_filter;
 
 		int visible_items;
 		int item_spacing;
 		int index_before_select_first;
 		int index_before_select_last;
 		
-		public FolderSelector(string id, int16 xpos, int16 ypos, string path, bool is_root=false) {
-			if (FileUtils.test(path, FileTest.IS_DIR) == false)
+		public FileSelector(string id, int16 xpos, int16 ypos, string path, Regex? regex_file_filter=null, bool is_root=false) {
+			if (FileUtils.test(path, FileTest.EXISTS) == false)
 				GLib.error("Path '%s' does not exist.", path);
-			
+									
 			base(id);
 			this.xpos = xpos;
 			this.ypos = ypos;
@@ -40,13 +40,22 @@ namespace Layers.Controls.Chooser
 			font = @interface.get_monospaced_font();
 			font_height = @interface.get_monospaced_font_height();
 			
-			this.path = path;
+			bool path_is_dir = FileUtils.test(path, FileTest.IS_DIR);
+			this.path = (path_is_dir == false || path.has_suffix(Path.DIR_SEPARATOR_S) == true) 
+				? Path.get_dirname(path)
+				: path;
+			this.regex_file_filter = regex_file_filter;
 			this.is_root = is_root;
 			
 			populate_items();
 			ensure_surface();
 			index_before_select_first = -1;
-			index_before_select_last = -1;			
+			index_before_select_last = -1;
+			if (path_is_dir == false) {
+				int index = get_index_of_item_named(Path.get_basename(path));
+				if (index > 0)
+					selected_index = (uint)index;
+			}
 		}
 		
 		public int height { get { return _height; } }
@@ -56,17 +65,15 @@ namespace Layers.Controls.Chooser
 		public string path { get; private set; }
 		public bool is_root { get; private set; }
 		
-		public bool is_choose_item_selected {  get { return is_choose_item((int)selected_index); } }
 		public bool is_go_back_item_selected { get { return is_go_back_item((int)selected_index); } }
+		public bool is_folder_selected { get { return items[(int)selected_index].is_folder; } }
 		public uint selected_index { get; private set; }
-		public string selected_folder() { return items[(int)selected_index]; }
+		public string selected_item() { return items[(int)selected_index].name; }
 		public string selected_path() { 
-			if (is_choose_item_selected)
-				return path;
 			if (is_go_back_item_selected)
 				return Path.get_dirname(path);
 				
-			return Path.build_filename(path, selected_folder());
+			return Path.build_filename(path, selected_item());
 		}
 
 		protected override void draw() {
@@ -91,10 +98,10 @@ namespace Layers.Controls.Chooser
 		}
 		public bool select_previous_page() {
 			if (selected_index == 0)
-				return false;
-			if (selected_index < visible_items) 
-				return select_item(0);
-		
+				return false;				
+			if (selected_index < visible_items)
+				return select_item(0);				
+			
 			return select_item(selected_index - visible_items);
 		}
 		public bool select_next() {
@@ -108,8 +115,8 @@ namespace Layers.Controls.Chooser
 			if (selected_index == items.size - 1)
 				return false;
 			if (selected_index + visible_items >= items.size)
-				return select_item(items.size -1);
-							
+				return select_item(items.size - 1);
+			
 			return select_item(selected_index + visible_items);			
 		}		
 		public bool select_first() {
@@ -142,7 +149,7 @@ namespace Layers.Controls.Chooser
 			int found_count=0;
 			int item_index;
 			for(item_index=1; item_index<items.size; item_index++) {
-				if (items[item_index].has_prefix(str) == true) {
+				if (items[item_index].name.has_prefix(str) == true) {
 					found_count++;					
 					if (found_count == index+1)
 						break;
@@ -153,18 +160,17 @@ namespace Layers.Controls.Chooser
 			if (found_count > 0)
 				return select_item((uint)item_index);
 				
-			return false;
-		}		
+			return false;			
+		}
 		public bool select_item_named(string name) {
-			for(int index=0; index<items.size; index++) {
-				if (items[index] == name)
-					return select_item((uint)index);
-			}
+			int index = get_index_of_item_named(name);
+			if (index > 0)
+				return select_item((uint)index);
 			return false;
 		}		
 		public bool select_item(uint index) {
 			if (index >= item_count)
-				return false;			
+				return false;
 
 			update_item((int)selected_index, false);
 			update_item((int)index, true);
@@ -174,9 +180,18 @@ namespace Layers.Controls.Chooser
 			update();
 			return true;
 		}
-		
+		int get_index_of_item_named(string name) {
+			for(int index=0; index<items.size; index++) {
+				if (items[index].name == name)
+					return index;
+			}
+			return -1;
+		}
+					
+
 		void populate_items() {
-			items = new ArrayList<string>();
+			items = new ArrayList<Item>();
+			var files = new ArrayList<string>();
 			try {
 				var directory = File.new_for_path(path);
 				var enumerator = directory.enumerate_children("standard::*", FileQueryInfoFlags.NONE);
@@ -187,18 +202,60 @@ namespace Layers.Controls.Chooser
 					if (name.has_prefix(".") == true)
 						continue;
 					if (type == FileType.DIRECTORY)
-						items.add(name);
-				}
-				items.sort();				
+						items.add(new Item.folder(name));
+					else
+						files.add(name);
+				}				
+				items.sort();
+				if (regex_file_filter != null)
+					files = get_matching_files(files);
+				files.sort();
+				foreach(var file in files)
+					items.add(new Item.file(file));
 			}
 			catch(GLib.Error e)
 			{
 				debug("Error while getting children of '%s': %s", path, e.message);
 			}
-			items.insert(0, "");
 			if (is_root == false)
-				items.insert(0, "..");			
+				items.insert(0, new Item.folder(".."));
 		}
+		ArrayList<string> get_matching_files(ArrayList<string> file_names) {
+			var sb = new StringBuilder();
+			var item_positions = new int[file_names.size];
+			for(int index=0; index<file_names.size; index++) {
+				item_positions[index] = (int)sb.len;
+				sb.append("%s\n".printf(file_names[index]));
+			}
+			var items_str = sb.str;
+			var matched_names = new ArrayList<string>();
+
+			int matched_item_index = 0;
+			int last_item_index = file_names.size - 1;
+			MatchInfo match_info;
+			regex_file_filter.match(items_str, 0, out match_info);
+			while((matched_item_index < file_names.size) && match_info.matches()) {
+				int match_position;
+				if (match_info.fetch_pos(0, out match_position, null) == true) {
+					if (match_position >= item_positions[matched_item_index]) {
+						while(match_position >= item_positions[matched_item_index + 1] && (matched_item_index < last_item_index))
+							matched_item_index++;
+
+						matched_names.add(file_names[matched_item_index]);
+						matched_item_index++;
+					}
+				}
+				try {
+					match_info.next();
+				} catch(RegexError e) {
+					debug("Error during file extension matching: %s", e.message);
+					break;
+				}
+			}
+
+			return matched_names;
+		}
+		
 		void ensure_surface() {
 			if (surface != null)
 				return;
@@ -215,10 +272,10 @@ namespace Layers.Controls.Chooser
 			int surface_items = items.size;
 			_height = (font_height * surface_items) + (item_spacing * surface_items) + (item_spacing * 2);
 
-			int max_chars = CURRENT_FOLDER_ITEM_NAME.length;
+			int max_chars = 0;
 			foreach(var item in items) {
-				if (item.length > max_chars)
-					max_chars = item.length;
+				if (item.name.length > max_chars)
+					max_chars = item.name.length;
 			}
 			if (max_chars > uint8.MAX)
 				max_chars = uint8.MAX;
@@ -231,21 +288,19 @@ namespace Layers.Controls.Chooser
 			select_item_area.fill(null, @interface.white_color_rgb);			
 		}
 
-		bool is_choose_item(int index) { return (index == ((is_root) ? 0 : 1)); }
 		bool is_go_back_item(int index) { return (is_root == false && index == 0); }
 		
 		Surface render_item(int index) {			
-			return font.render_shaded(is_choose_item(index) ? CURRENT_FOLDER_ITEM_NAME : items[index], @interface.white_color, @interface.black_color);
+			return font.render_shaded(items[index].name, @interface.white_color, @interface.black_color);
 		}
 		void update_item(int index, bool selected=false) {
 			Rect rect = {0, get_offset(index)};
-			var item = is_choose_item(index) ? CURRENT_FOLDER_ITEM_NAME : items[index];
 			if (selected == true) {
 				select_item_area.blit(null, surface, rect);
-				font.render_shaded(item, @interface.black_color, @interface.white_color).blit(null, surface, rect);
+				font.render_shaded(items[index].name, @interface.black_color, @interface.white_color).blit(null, surface, rect);
 			} else {
 				blank_item_area.blit(null, surface, rect);
-				font.render_shaded(item, @interface.white_color, @interface.black_color).blit(null, surface, rect);
+				font.render_shaded(items[index].name, @interface.white_color, @interface.black_color).blit(null, surface, rect);
 			}
 		}
 		
@@ -265,6 +320,29 @@ namespace Layers.Controls.Chooser
 				top = 0;			
 			top_index = (uint)top;
 			bottom_index = (uint)bottom;			
+		}
+		
+		class Item : Comparable<Item>, Object
+		{
+			string _name;
+			public Item.file(string name) {
+				_name = name;
+				this.is_folder = false;
+			}
+			public Item.folder(string name) {
+				_name = name + "/";
+				this.is_folder = true;
+			}
+			
+			public bool is_folder { get; private set; }
+			public unowned string name { get { return _name; } }
+			
+			public int compare_to(Item other) {
+				if (is_folder == other.is_folder)
+					return strcmp(name, other.name);
+					
+				return (is_folder) ? -1 : 1;
+			}
 		}
 	}
 }
