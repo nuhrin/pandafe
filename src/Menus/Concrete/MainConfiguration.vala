@@ -2,6 +2,7 @@ using Gee;
 using Catapult;
 
 using Menus.Fields;
+using Layers.Preview;
 
 namespace Menus.Concrete
 {
@@ -12,49 +13,59 @@ namespace Menus.Concrete
 			if (instance == null)
 				instance = new MainConfiguration();
 			else
-				instance.RefreshFromPreferences();
+				instance.refresh_from_preferences();
 			
-			var browser = new MenuBrowser(instance, 40, 40);			
-			browser.menu_changed.connect((menu) => {
+			instance.browser = new MenuBrowser(instance, 40, 40);			
+			instance.browser.menu_changed.connect((menu) => {
 				if (menu is AppearanceMenu) {
-					browser.push_layer(instance.demo_selector);
+					instance.browser.push_layer(instance.preview);
 				} else {
-					browser.remove_layer(instance.demo_selector.id);
+					instance.browser.remove_layer(instance.preview.id);
 				}
-				browser.update();
+				instance.browser.update();
 			});
-			browser.run();
+			instance.browser.run();
 		}
 		
 		MainConfiguration() { 
-			base("Pandafe Configuration"); 
-			demo_selector = new DemoSelector(100, 300);
-			demo_selector.select_item(1);
+			base("Pandafe Configuration");
+			game_browser_ui = new GameBrowserUI.from_preferences();
+			preview = new BrowserPreview(250, game_browser_ui);
 			ensure_items();
 		}
 		
-		public void RefreshFromPreferences() {
-			appearance.RefreshFromPreferences();
+		public void refresh_from_preferences() {
+			appearance.refresh_from_preferences();
 		}
 		
 		protected override void populate_items(Gee.List<MenuItem> items) { 
-			appearance = new AppearanceMenu();
+			appearance = new AppearanceMenu(game_browser_ui);			
 			items.add(appearance);
 			items.add(GetTestMenu());
 			items.add(new MenuItem.cancel_item("Return"));
 		}
 		
+		MenuBrowser browser;
 		AppearanceMenu appearance;
-		DemoSelector demo_selector;
+		BrowserPreview preview;
+		GameBrowserUI game_browser_ui;
 		
 		class AppearanceMenu : Menu  
 		{
-			public AppearanceMenu() {
-				base("Appearance");				
+			GameBrowserUI ui;
+		
+			public AppearanceMenu(GameBrowserUI ui) {
+				base("Appearance");
+				this.ui = ui;
 			}
 			
-			public void RefreshFromPreferences() {
+			public void refresh_from_preferences() {
 				initialize_from_preferences();
+			}
+			
+			public override bool cancel() {
+				refresh_from_preferences();
+				return true;
 			}
 			
 			public override bool save() {
@@ -74,6 +85,10 @@ namespace Menus.Concrete
 				}
 				
 				bool has_font_change = false;
+				if (font.has_changes()) {
+					prefs.font = font.value;
+					has_font_change = true;
+				}
 				
 				if (has_color_change == false && has_font_change == false)
 					return true;
@@ -82,33 +97,49 @@ namespace Menus.Concrete
 				// TODO: display error if there was a problem saving prefs?
 				if (success) {
 					if (has_color_change == true)
-						@interface.update_colors_from_preferences();
+						@interface.game_browser_ui.update_colors_from_preferences();
 					if (has_font_change == true)
-						@interface.update_fonts_from_preferences();					
+						@interface.game_browser_ui.update_font_from_preferences();					
 				}
 				
 				return true;
 			}
 			
 			protected override void populate_items(Gee.List<MenuItem> items) { 
+				font = new FileField("font", "Font", null, "", "ttf", "/usr/share/fonts/truetype");
 				item_color = new ColorField("item_color", "Item Color");
 				selected_item_color = new ColorField("selected_item_color", "Selected Item Color");
 				background_color = new ColorField("background_color", "Background Color");
+				items.add(font);
 				items.add(item_color);
 				items.add(selected_item_color);
 				items.add(background_color);
 				items.add(new MenuItem.cancel_item());
 				items.add(new MenuItem.save_item());
 				initialize_from_preferences();
+				font.changed.connect(on_font_change);
+				item_color.changed.connect(on_color_change);
+				selected_item_color.changed.connect(on_color_change);
+				background_color.changed.connect(on_color_change);
 			}
 			void initialize_from_preferences() {
 				ensure_items();
 				var prefs = Data.preferences();
+				font.value = prefs.font;
 				item_color.value = prefs.item_color;
 				selected_item_color.value = prefs.selected_item_color;
 				background_color.value = prefs.background_color;
 			}
+			void on_font_change() {
+				ui.set_font(font.value);
+			}
+			void on_color_change() {
+				ui.set_colors(item_color.value.get_sdl_color(), 
+							  selected_item_color.value.get_sdl_color(),
+							  background_color.value.get_sdl_color());
+			}
 			
+			FileField font;
 			ColorField item_color;
 			ColorField selected_item_color;
 			ColorField background_color;
@@ -171,29 +202,5 @@ namespace Menus.Concrete
 			return menu;
 		}
 	
-		class DemoSelector : Selector 
-		{
-			string[] items;
-
-			public DemoSelector(int16 xpos, int16 ypos) {
-				base("demo_selector", xpos, ypos);
-				items = new string[] {
-					"Item 1",
-					"Selected Item",
-					"Item 3",
-					"Item 4",
-					"Item 5"
-//~ 					"Item 6",
-//~ 					"Item 7",
-//~ 					"Item 8",
-//~ 					"Item 9",
-//~ 					"Item 10"
-				};
-			}
-
-			protected override int get_itemcount() { return items.length; }
-			protected override string get_item_name(int index) { return items[index]; }
-			protected override string get_item_full_name(int index) { return get_item_name(index); }
-		}
 	}
 }

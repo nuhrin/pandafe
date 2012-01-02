@@ -8,6 +8,7 @@ public class SelectorItemSet : Object
 	const RegexCompileFlags REGEX_COMPILE_FLAGS = RegexCompileFlags.CASELESS | RegexCompileFlags.MULTILINE | RegexCompileFlags.NEWLINE_LF;
 	const RegexMatchFlags REGEX_MATCH_FLAGS = RegexMatchFlags.NEWLINE_LF;
 
+	GameBrowserUI ui;
 	Selector selector;
 	Surface[] item_renderings;
 	int items_rendered_count;
@@ -16,9 +17,9 @@ public class SelectorItemSet : Object
 	string items_str;
 	int first_rendered_item;
 	int last_rendered_item;
-	public class SelectorItemSet(Selector selector) {
-		@interface.font_updated.connect(flush_renderings);
-		@interface.colors_updated.connect(flush_renderings);
+		
+	public SelectorItemSet(Selector selector, GameBrowserUI? ui=null) {
+		this.ui = ui ?? @interface.game_browser_ui;
 		this.selector = selector;
 
 		flush_renderings();
@@ -44,6 +45,8 @@ public class SelectorItemSet : Object
 		first_rendered_item = item_count / 2;
 		last_rendered_item = first_rendered_item;
 		@interface.connect_idle_function("selector_item_set", rendering_iteration);
+		ui.font_updated.connect(flush_renderings);
+		ui.colors_updated.connect(flush_renderings);
 	}
 
 	public Gee.List<int> get_folder_indexes() { return folder_item_indexes; }
@@ -97,16 +100,17 @@ public class SelectorItemSet : Object
 			GLib.error("Index out of range.");
 
 		if (item_renderings[index] == null)
-			item_renderings[index] = @interface.render_text(selector.get_item_name(index));
+			item_renderings[index] = ui.render_text(selector.get_item_name(index));
 
 		return item_renderings[index];
 	}
 	public Surface get_item_selected_rendering(int index) {
 		if (index < 0 || index >= item_renderings.length)
 			GLib.error("Index out of range.");
-		return @interface.render_text_selected(selector.get_item_full_name(index));
+		
+		return ui.render_text_selected(selector.get_item_full_name(index));
 	}
-	void flush_renderings() {
+	public void flush_renderings() {
 		item_renderings = new Surface[selector.item_count];
 		items_rendered_count = 0;
 	}

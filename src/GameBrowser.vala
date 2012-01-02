@@ -15,6 +15,8 @@ public class GameBrowser : Layers.ScreenLayer
 	
 	bool event_loop_done;
 
+	GameBrowserUI ui;
+
 	HeaderLayer header;
 	StatusMessageLayer status_message;
     Selector selector;
@@ -28,7 +30,8 @@ public class GameBrowser : Layers.ScreenLayer
 	GameFolder current_folder;
 
     public GameBrowser() {
-		base("gamebrowser", @interface.background_color_rgb);
+		base("gamebrowser", @interface.game_browser_ui.background_color_rgb);
+		ui = @interface.game_browser_ui;
 		current_platform_index = -1;
 		header = add_layer(new HeaderLayer("header")) as HeaderLayer;
 		status_message = add_layer(new StatusMessageLayer("status-message")) as StatusMessageLayer;		
@@ -38,8 +41,8 @@ public class GameBrowser : Layers.ScreenLayer
 		platforms = Data.platforms();
 		initialize_from_browser_state();
 		@interface.push_screen_layer(this, false);
-		@interface.colors_updated.connect(update_colors);
-		@interface.font_updated.connect(update_font);
+		ui.colors_updated.connect(update_colors);
+		ui.font_updated.connect(update_font);
 		flip();
 		Key.enable_unicode(1);
         while(event_loop_done == false) {
@@ -56,9 +59,9 @@ public class GameBrowser : Layers.ScreenLayer
 	}
 	
 	void update_colors() {
-		header.set_rgb_color(@interface.background_color_rgb);
-		status_message.set_rgb_color(@interface.background_color_rgb);
-		this.set_rgb_color(@interface.background_color_rgb);
+		header.set_rgb_color(ui.background_color_rgb);
+		status_message.set_rgb_color(ui.background_color_rgb);
+		this.set_rgb_color(ui.background_color_rgb);
 	}
 	void update_font() {
 	}
@@ -355,8 +358,8 @@ public class GameBrowser : Layers.ScreenLayer
     void do_configuration() {
 		status_message.push("running main configuration...");
 		ConfigGui.run();
-		@interface.update_fonts_from_preferences();
-		@interface.update_colors_from_preferences();
+		ui.update_font_from_preferences();
+		ui.update_colors_from_preferences();
 		this.update();
 	}
 	void edit_current_platform() {

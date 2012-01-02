@@ -12,7 +12,6 @@ public class InterfaceHelper : Object
 {
 	const string FONT_MONO = "/usr/share/fonts/truetype/DejaVuSansMono.ttf";
 	const int IDLE_DELAY = 10;
-	public const int16 SELECTOR_WITDH = 440;
 	public const int SELECTOR_VISIBLE_ITEMS = 15;
 	public const int16 SELECTOR_ITEM_SPACING = 5;
 
@@ -23,18 +22,12 @@ public class InterfaceHelper : Object
 	Data.Preferences preferences;
 	unowned SDL.Screen screen;
 
-	Font font;
+	GameBrowserUI _game_browser_ui;
 	Font font_mono;
 	Font font_mono_small;
 	int16 font_mono_char_width;
-	int16 _font_height;
 	int16 font_mono_height;
 	int16 font_mono_small_height;
-	Surface _blank_item_surface;
-	Color _background_color;
-	uint32 _background_color_rgb;
-	Color _item_color;
-	Color _selected_item_color;
 	Color _black_color;
 	Color _white_color;
 	uint32 _white_color_rgb;
@@ -59,9 +52,6 @@ public class InterfaceHelper : Object
 
 		font_mono_small = new Font(FONT_MONO, FONT_SMALL_SIZE);
 		font_mono_small_height = (int16)font_mono_small.height();
-
-		update_fonts_from_preferences();
-		update_colors_from_preferences();
 		
 		screen_layer_stack = new GLib.Queue<ScreenLayer>();
 		screen_layer_stack.push_head(new ScreenLayer("root_screen"));
@@ -104,66 +94,37 @@ public class InterfaceHelper : Object
 	public Layer? peek_layer() {
 		return peek_screen_layer().peek_layer();
 	}
-		
-	public void update_fonts_from_preferences() {
-		font = new Font(preferences.font, FONT_SIZE);
-		if (font == null) {
-			GLib.error("Error loading font: %s", SDL.get_error());
-		}
-		_font_height = (int16)font.height();
-		font_updated();		
-	}
-	public void update_colors_from_preferences() {
-		_background_color = preferences.background_color.get_sdl_color();
-		_background_color_rgb = this.screen.format.map_rgb(background_color.r, background_color.g, background_color.b);
-		_item_color = preferences.item_color.get_sdl_color();
-		_selected_item_color = preferences.selected_item_color.get_sdl_color();
-		_blank_item_surface = get_blank_background_surface(SELECTOR_WITDH, _font_height);
-		colors_updated();
-	}
-	public signal void font_updated();
-	public signal void colors_updated();
 
-	public unowned SDL.Color background_color { get { return _background_color; } }
-	public uint32 background_color_rgb { get { return _background_color_rgb; } }
-	public unowned SDL.Color item_color { get { return _item_color; } }
-	public unowned SDL.Color selected_item_color { get { return _selected_item_color; } }
+	public GameBrowserUI game_browser_ui {
+		get {
+			if (_game_browser_ui == null) {
+				_game_browser_ui = new GameBrowserUI(preferences.font, 
+					preferences.item_color.get_sdl_color(),
+					preferences.selected_item_color.get_sdl_color(),
+					preferences.background_color.get_sdl_color());
+			}
+			return _game_browser_ui;
+		}
+	}
 	public unowned SDL.Color black_color { get { return _black_color; } }
 	public unowned SDL.Color white_color { get{ return _white_color; } }
 	public uint32 white_color_rgb { get { return _white_color_rgb; } }
+	public unowned SDL.Color highlight_color { get { return game_browser_ui.background_color; } }
+	public uint32 highlight_color_rgb { get { return game_browser_ui.background_color_rgb; } }
 
 	public uint32 map_rgb(SDL.Color color) { return this.screen.format.map_rgb(color.r, color.g, color.b); }
 
-	public Surface render_text(string text) {
-		return font.render_shaded(text, _item_color, _background_color);
-	}
-	public Surface render_text_selected(string text) {
-		return font.render_shaded(text, _selected_item_color, _background_color);
-	}
-	public Surface render_text_with_color(string text, SDL.Color color, SDL.Color background_color) {
-		return font.render_shaded(text, color, background_color);
-	}
-	public Surface render_text_selected_fast(string text) {
-		return font.render(text, _selected_item_color);
-	}
-
-	public int16 font_height { get { return _font_height; } }
 	public unowned Font get_monospaced_font() { return font_mono; }
 	public int16 get_monospaced_font_width(uint chars=1) { return (int16)(font_mono_char_width * chars); }
 	public int16 get_monospaced_font_height() { return font_mono_height; }
 	public unowned Font get_monospaced_small_font() { return font_mono_small; }
 	public int16 get_monospaced_small_font_height() { return font_mono_small_height; }
 
-	public unowned Surface get_blank_item_surface() { return _blank_item_surface; }
-
 	public Surface get_blank_surface(int width, int height, uint32 rgb_color=0) {
 		var surface = new Surface.RGB(SurfaceFlag.SWSURFACE, width, height, DEPTH, 0, 0, 0, 0);
 		if (rgb_color > 0)
 			surface.fill(null, rgb_color);
 		return surface;
-	}
-	public Surface get_blank_background_surface(int width, int height) {
-		return get_blank_surface(width, height, _background_color_rgb);
 	}
 	public Surface get_blank_surface_color(int width, int height, SDL.Color color) {
 		return get_blank_surface(width, height, map_rgb(color));

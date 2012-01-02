@@ -254,7 +254,7 @@ namespace Layers.Controls
 
 			// render cursor
 			int16 cursor_x = (int16)(relative_cursor_pos*char_width) + 4;
-			@interface.draw_rectangle_fill(cursor_x, cursor_y, char_width, cursor_height, @interface.background_color, 200, surface);
+			@interface.draw_rectangle_fill(cursor_x, cursor_y, char_width, cursor_height, @interface.highlight_color, 200, surface);
 
 			surface.flip();
 		}

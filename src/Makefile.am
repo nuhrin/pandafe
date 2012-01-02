@@ -19,6 +19,7 @@ pandafe_VALASOURCES = \
 	ConfigGui.vala \
 	libpndtest.vala \
 	GameBrowser.vala \
+	GameBrowserUI.vala \
 	InterfaceHelper.vala \
 	Options.vala \
 	Data/Color.vala \
@@ -67,6 +68,8 @@ pandafe_VALASOURCES = \
 	Layers/GameBrowser/StatusMessageLayer.vala \
 	Layers/MenuBrowser/ColorDisplayLayer.vala \
 	Layers/MenuBrowser/MenuHeaderLayer.vala \
+	Layers/Preview/BrowserPreview.vala \
+	Layers/Preview/PreviewSelector.vala \
 	Layers/Layer.vala \
 	Layers/LayerBase.vala \
 	Layers/ScreenAlphaLayer.vala \

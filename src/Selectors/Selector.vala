@@ -5,6 +5,8 @@ using Gee;
 public abstract class Selector : Layers.Layer
 {
 	const int ITEMS_PER_SURFACE = 50;
+
+	GameBrowserUI ui;
 	SelectorSurfaceSet surfaces;
 	int16 xpos;
 	int16 ypos;
@@ -14,20 +16,22 @@ public abstract class Selector : Layers.Layer
 	Gee.List<int> _filter_match_indexes;
 	HashMap<int,int> _filter_index_position_hash;
 
-	protected Selector(string id, int16 xpos=0, int16 ypos=0) {
+	protected Selector(string id, int16 xpos=0, int16 ypos=0, GameBrowserUI? ui=null) {
 		base(id);
+		this.ui = ui ?? @interface.game_browser_ui;
 		this.xpos = xpos;
 		this.ypos = ypos;
-		@interface.font_updated.connect(update_font);
-		@interface.colors_updated.connect(reset_surface);
 		selected_index = -1;
 		index_before_select_first = -1;
 		index_before_select_last = -1;
+		this.ui.font_updated.connect(update_font);
+		this.ui.colors_updated.connect(reset_surface);		
 	}
+	
 	SelectorItemSet items {
 		get {
 			if (_items == null)
-				_items = new SelectorItemSet(this);
+				_items = new SelectorItemSet(this, ui);			
 
 			return _items;
 		}
@@ -45,15 +49,21 @@ public abstract class Selector : Layers.Layer
 	public int display_item_count {
 		get { return (_filter_match_indexes != null) ? _filter_match_indexes.size : item_count; }
 	}
-	public int selected_index { get; private set; }
+	public int selected_index { get; protected set; }
 	public int selected_display_index() { return get_display_index_from_index(selected_index); }
 
 	protected override void draw() {
+		Rect dest = {xpos, ypos};
+		if (item_count == 0) {
+			blit_surface(ui.render_text("(no items)"), null, dest);
+			return;
+		}
 		var s_display_index = selected_display_index();
+		if (s_display_index < 0)
+			s_display_index = 0;
 		if (surfaces == null)
 			ensure_surfaces(s_display_index);
 		var window = surfaces.get_window(s_display_index);
-		Rect dest = {xpos, ypos};
 		blit_surface(window.surface_one.get_surface(), window.rect_one, dest);		
 		if (window.surface_two != null) {
 			dest.y += (int16)window.rect_one.h;
@@ -190,13 +200,13 @@ public abstract class Selector : Layers.Layer
 	void reset_surface() {
 		surfaces = null;
 	}
-	void update_font() {
+	void update_font() {		
 		reset_surface();
 	}
 
 	void ensure_surfaces(int display_index) {
 		if (surfaces == null)
-			surfaces = new SelectorSurfaceSet(display_item_count, ITEMS_PER_SURFACE, @interface, items, get_index_from_display_index);
+			surfaces = new SelectorSurfaceSet(display_item_count, ITEMS_PER_SURFACE, this, get_index_from_display_index);
 		surfaces.ensure_surfaces(display_index);
 	}
 
@@ -235,7 +245,7 @@ public abstract class Selector : Layers.Layer
 		}
 		return closest_item_index;
 	}
-
+	
 	class SelectorWindow : Object {
 		public SelectorWindow(int16 width) {
 			rect_one = {0,0,width,0};
@@ -248,8 +258,10 @@ public abstract class Selector : Layers.Layer
 	}
 	delegate int TransformIndex(int index);
 	class SelectorSurfaceSet : Object {
-		InterfaceHelper @interface;
 		SelectorItemSet items;
+		Selector selector;
+		int16 font_height;
+		
 		TransformIndex get_index_from_display_index;
 		int item_count;
 		int items_per_surface;
@@ -264,11 +276,12 @@ public abstract class Selector : Layers.Layer
 		int16 item_spacing;
 		SelectorWindow window;
 
-		public SelectorSurfaceSet(int item_count, int items_per_surface, InterfaceHelper @interface, SelectorItemSet items, owned TransformIndex get_index_from_display_index) {
+		public SelectorSurfaceSet(int item_count, int items_per_surface, Selector selector, owned TransformIndex get_index_from_display_index) {
 			this.item_count = item_count;
 			this.items_per_surface = items_per_surface;
-			this.@interface = @interface;
-			this.items = items;
+			this.selector = selector;
+			this.items = selector.items;
+			font_height = selector.ui.font_height;
 			this.get_index_from_display_index = (owned)get_index_from_display_index;
 
 			surface_count = (item_count + items_per_surface - 1) / items_per_surface;
@@ -479,7 +492,7 @@ public abstract class Selector : Layers.Layer
 		}
 		public SelectorWindow get_window(int display_index) {
 			if (window == null)
-				window = new SelectorWindow(@interface.SELECTOR_WITDH);
+				window = new SelectorWindow(GameBrowserUI.SELECTOR_WITDH);
 
 			int top_index;
 			int bottom_index;
@@ -553,12 +566,12 @@ public abstract class Selector : Layers.Layer
 //~ 				debug("creating new surface @index: %d", surface_index);
 			int first_index = surface_index * items_per_surface;
 			return new SelectorSurface(first_index, (is_last) ? item_count - 1 : first_index + items_per_surface - 1,
-				@interface, items, (owned)get_index_from_display_index);
+				selector, (owned)get_index_from_display_index);
 		}
 
 		int16 get_surface_window_height(int first, int last) {
 			int items = (last - first) + 1;
-			return (int16)((@interface.font_height * items) + (item_spacing * items));// + item_spacing);
+			return (int16)((font_height * items) + (item_spacing * items));// + item_spacing);
 		}
 		void get_display_range(int center_index, out int top_index, out int bottom_index) {
 			top_index = center_index - (visible_items / 2);
@@ -575,8 +588,9 @@ public abstract class Selector : Layers.Layer
 		}
 	}
 	class SelectorSurface : Object {
-		InterfaceHelper @interface;
+		Selector selector;
 		SelectorItemSet items;
+		int16 font_height;
 		TransformIndex get_index_from_display_index;
 		Surface surface;
 		int visible_items;
@@ -588,19 +602,20 @@ public abstract class Selector : Layers.Layer
 		bool all_items_rendered;
 		string idle_function_name;
 
-		public SelectorSurface(int first_index, int last_index, InterfaceHelper @interface, SelectorItemSet items, owned TransformIndex get_index_from_display_index) {
+		public SelectorSurface(int first_index, int last_index, Selector selector, owned TransformIndex get_index_from_display_index) {
 			this.first_index = first_index;
 			this.last_index = last_index;
-			this.@interface = @interface;
-			this.items = items;
+			this.selector = selector;
+			this.items = selector.items;
+			font_height = selector.ui.font_height;
 			this.get_index_from_display_index = (owned)get_index_from_display_index;
 			first_rendered_index = -1;
 			last_rendered_index = -1;
 			visible_items = @interface.SELECTOR_VISIBLE_ITEMS;
 			item_spacing = @interface.SELECTOR_ITEM_SPACING;
 			int surface_items = last_index - first_index + 1;
-			int height = (@interface.font_height * surface_items) + (item_spacing * surface_items) + (item_spacing * 2);
-			surface = @interface.get_blank_background_surface(@interface.SELECTOR_WITDH, height);
+			int height = (font_height * surface_items) + (item_spacing * surface_items) + (item_spacing * 2);
+			surface = selector.ui.get_blank_background_surface(GameBrowserUI.SELECTOR_WITDH, height);
 			idle_function_name = "selector-" + Random.next_int().to_string();
 			@interface.connect_idle_function(idle_function_name, rendering_iteration);
 		}
@@ -631,7 +646,7 @@ public abstract class Selector : Layers.Layer
 			if (display_index < first_rendered_index || display_index > last_rendered_index)
 				return;
 			Rect rect = {0, get_offset(display_index)};
-			@interface.get_blank_item_surface().blit(null, surface, rect);
+			selector.ui.get_blank_item_surface().blit(null, surface, rect);
 			items.get_item_rendering(get_index_from_display_index(display_index)).blit(null, surface, rect);
 			surface.flip();
 		}
@@ -676,7 +691,7 @@ public abstract class Selector : Layers.Layer
 			if (display_index < this.first_index || display_index > this.last_index)
 				return -1;
 			var index = display_index - first_index;
-			return (int16)((@interface.font_height * index) + (item_spacing * index) + item_spacing);
+			return (int16)((font_height * index) + (item_spacing * index) + item_spacing);
 		}
 
 		void get_display_range(int center_index, out int top_index, out int bottom_index) {
@@ -696,10 +711,14 @@ public abstract class Selector : Layers.Layer
 			int16 offset = get_offset(top_index);
 			if (offset == -1)
 				return;
-			Rect rect = {0, offset};
+			Rect rect = {0, offset};			
 			for(int display_index=top_index; display_index <= bottom_index; display_index++) {
-				items.get_item_rendering(get_index_from_display_index(display_index)).blit(null, surface, rect);
-				rect.y = (int16)(rect.y + @interface.font_height + item_spacing);
+				int index = get_index_from_display_index(display_index);
+				if (index == selector.selected_index)
+					items.get_item_selected_rendering(index).blit(null, surface, rect);
+				else
+					items.get_item_rendering(index).blit(null, surface, rect);
+				rect.y = (int16)(rect.y + font_height + item_spacing);
 			}
 		}
 		void rendering_iteration() {
@@ -718,7 +737,8 @@ public abstract class Selector : Layers.Layer
 				surface.flip();
 			} else {
 				all_items_rendered = true;
-				@interface.disconnect_idle_function(idle_function_name);
+				if (idle_function_name != null)
+					@interface.disconnect_idle_function(idle_function_name);
 			}
 		}
 	}
