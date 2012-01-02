@@ -15,7 +15,10 @@ namespace Layers
 		}
 		protected SurfaceLayer.of_color(string id, int width, int height, int16 xpos=0, int16 ypos=0, SDL.Color color) {
 			this(id, width, height, xpos, ypos, @interface.map_rgb(color));			
-		}		
+		}
+		
+		public int width { get { return surface.w; } }
+		public int height { get { return surface.h; } }
 	
 		public void set_color(SDL.Color color) {
 			set_rgb_color(@interface.map_rgb(color));

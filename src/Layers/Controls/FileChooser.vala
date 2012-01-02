@@ -14,7 +14,7 @@ namespace Layers.Controls
 		const RegexMatchFlags REGEX_MATCH_FLAGS = RegexMatchFlags.NEWLINE_LF;
 		const int16 SELECTOR_XPOS = 100;
 		const int16 SELECTOR_YPOS = 70;
-		const string SELECTOR_ID = "folder_selector";
+		const string SELECTOR_ID = "file_selector";
 		
 		bool event_loop_done;
 		ChooserHeader header;

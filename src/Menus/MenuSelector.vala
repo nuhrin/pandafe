@@ -43,8 +43,6 @@ namespace Menus
 			font = @interface.get_monospaced_font();
 			font_height = @interface.get_monospaced_font_height();
 			ensure_surface();
-			@interface.font_updated.connect(update_font);
-			@interface.colors_updated.connect(reset_surface);
 			index_before_select_first = -1;
 			index_before_select_last = -1;
 			
@@ -151,12 +149,6 @@ namespace Menus
 			draw();
 		}
 
-		void reset_surface() {
-			surface = null;
-		}
-		void update_font() {
-			reset_surface();
-		}
 		void ensure_surface() {
 			if (surface != null)
 				return;

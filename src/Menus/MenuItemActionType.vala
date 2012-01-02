@@ -6,8 +6,8 @@ namespace Menus
 		NONE,
 		CANCEL,
 		SAVE,
-		SAVE_AND_QUIT,
-		QUIT;
+		QUIT,
+		SAVE_AND_QUIT;	
 		
 		public unowned string name() {
 			ensure_menu_item_action_names();
@@ -32,7 +32,8 @@ namespace Menus
 			"",
 			"Cancel",
 			"Save",
-			"Quit"
+			"Quit",
+			""
 		};	
 	}
 }
