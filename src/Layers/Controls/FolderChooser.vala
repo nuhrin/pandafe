@@ -41,7 +41,10 @@ namespace Layers.Controls
 			add_layer(selector);
 			@interface.push_screen_layer(this);
 			update_chooser();
-			selector.select_first();
+			if (selector.is_root)
+				selector.select_first();
+			else
+				selector.select_item(1);
 			while(event_loop_done == false) {
 				process_events();
 				@interface.execute_idle_loop_work();
@@ -55,7 +58,7 @@ namespace Layers.Controls
 			if (selector_hash.has_key(path) == true)
 				return selector_hash[path];
 				
-			var new_selector = new FolderSelector(SELECTOR_ID, SELECTOR_XPOS, SELECTOR_YPOS, path, (path == root_path));
+			var new_selector = new FolderSelector(SELECTOR_ID, SELECTOR_XPOS, SELECTOR_YPOS, path, (path == root_path));			
 			new_selector.changed.connect(() => on_selector_changed());
 			selector_hash[path] = new_selector;
 			return new_selector;
