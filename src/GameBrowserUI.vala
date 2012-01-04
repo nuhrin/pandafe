@@ -8,6 +8,7 @@ public class GameBrowserUI
 
 	Data.Preferences preferences;
 	Font _font;
+	string _font_path;
 	int16 _font_height;
 	SDL.Color _item_color;
 	SDL.Color _selected_item_color;
@@ -18,7 +19,6 @@ public class GameBrowserUI
 	public GameBrowserUI(string font_path, SDL.Color item_color, SDL.Color selected_item_color, SDL.Color background_color) {
 		preferences = Data.preferences();
 		set_font(font_path);
-		_font_height = (int16)font.height();
 		_item_color = item_color;
 		_selected_item_color = selected_item_color;
 		_background_color = background_color;
@@ -32,20 +32,26 @@ public class GameBrowserUI
 	}
 	
 	public unowned Font font { get { return _font; } }
+	public unowned string font_path { get { return _font_path; } }
 	public int16 font_height { get { return _font_height; } }
 	public unowned SDL.Color item_color { get { return _item_color; } }
-	public unowned SDL.Color selected_color { get { return _selected_item_color; } }
+	public unowned SDL.Color selected_item_color { get { return _selected_item_color; } }
 	public unowned SDL.Color background_color { get { return _background_color; } }
 	public uint32 background_color_rgb { get { return _background_color_rgb; } }
 	
 	public signal void font_updated();
 	public signal void colors_updated();
 	
+	public GameBrowserUI clone() {
+		return new GameBrowserUI(_font_path, _item_color, _selected_item_color, _background_color);
+	}
+	
 	public void set_font(string font_path) {
 		_font = new Font(font_path, FONT_SIZE);
 		if (_font == null) {
 			GLib.error("Error loading font: %s", SDL.get_error());
 		}
+		_font_path = font_path;
 		_font_height = (int16)font.height();
 		_blank_item_surface = null;
 		font_updated();

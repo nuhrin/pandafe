@@ -18,6 +18,7 @@ namespace Menus
 		GLib.Queue<MenuSelector> menu_stack;
 		MenuSelector selector;
 		MenuHeaderLayer header;
+		Layer? additional_layer;
 		//int16 pos_y_status_message;
 		//Surface blank_message_area;
 
@@ -36,7 +37,8 @@ namespace Menus
 
 		public void run() {
 			@interface.push_screen_layer(this);
-			set_header();
+			set_header();			
+			add_additional_layer(selector.menu);
 			selector.select_first();
 			while(event_loop_done == false) {
 				process_events();
@@ -60,11 +62,13 @@ namespace Menus
 		//
 		// screen updates
 		void push_menu(Menu menu) {
+			remove_additional_layer();
 			menu_stack.push_head(selector);
 			selector = get_selector(menu);
 			replace_layer(SELECTOR_ID, selector);
 			clear();
 			set_header();
+			add_additional_layer(menu);
 			selector.select_first();
 			menu_changed(menu);
 		}
@@ -73,12 +77,25 @@ namespace Menus
 				event_loop_done = true;
 				return;
 			}
+			remove_additional_layer();
 			selector = menu_stack.pop_head();
 			replace_layer(SELECTOR_ID, selector);
 			clear();
 			set_header();
+			add_additional_layer(selector.menu);
 			selector.update();
 			menu_changed(selector.menu);
+		}
+		void add_additional_layer(Menu menu) {			
+			additional_layer = menu.additional_menu_browser_layer;
+			if (additional_layer != null) {
+				push_layer(additional_layer);
+				additional_layer.update(false);
+			}
+		}
+		void remove_additional_layer() {
+			if (additional_layer != null)
+				remove_layer(additional_layer.id);			
 		}
 		void set_header() {
 			header.set_text(null, selector.menu_name, null, false);

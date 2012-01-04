@@ -25,11 +25,11 @@ namespace Menus.Fields
 		public Data.Color? get_edited_color() { return _menu_color; }
 
 		public override string get_value_text() { return _color.spec; }
-		public override Surface? get_value_rendering(SDLTTF.Font* font) {
-			unowned SDLTTF.Font f = font; 
-			var color = _color.get_sdl_color();
-			return f.render_shaded(get_value_text(), @interface.white_color, color);
-		}
+//~ 		public override Surface? get_value_rendering(SDLTTF.Font* font) {
+//~ 			unowned SDLTTF.Font f = font; 
+//~ 			var color = _color.get_sdl_color();
+//~ 			return f.render_shaded(get_value_text(), @interface.white_color, color);
+//~ 		}
 		
 		protected override Value get_field_value() { return _color; }
 		protected override void set_field_value(Value value) { change_value((Data.Color)value); }

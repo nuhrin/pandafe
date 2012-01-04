@@ -22,6 +22,16 @@ namespace Menus
 			}
 		}
 
+		public Layers.Layer? additional_menu_browser_layer { 
+			get {
+				if (_additional_menu_browser_layer == null)
+					_additional_menu_browser_layer = build_additional_menu_browser_layer();
+				return _additional_menu_browser_layer;
+			}
+		}
+		Layers.Layer? _additional_menu_browser_layer;
+		
+
 		public void add_item(MenuItem item) {
 			items.add(item);
 		}
@@ -39,6 +49,7 @@ namespace Menus
 			return true;
 		}
 
+
 		protected virtual void populate_items(Gee.List<MenuItem> items) { }
 		protected void ensure_items() {
 			if (_items != null)
@@ -47,6 +58,8 @@ namespace Menus
 			_items = new ArrayList<MenuItem>();
 			populate_items(_items);
 		}
+		
+		protected virtual Layers.Layer? build_additional_menu_browser_layer() { return null; }
 
 	}
 }

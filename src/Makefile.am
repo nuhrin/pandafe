@@ -75,6 +75,7 @@ pandafe_VALASOURCES = \
 	Layers/ScreenAlphaLayer.vala \
 	Layers/ScreenLayer.vala \
 	Layers/SurfaceLayer.vala \
+	Menus/Concrete/GameBrowserAppearanceMenu.vala \
 	Menus/Concrete/MainConfiguration.vala \
 	Menus/Fields/BooleanField.vala \
 	Menus/Fields/ColorField.vala \
