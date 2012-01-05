@@ -83,15 +83,19 @@ pandafe_VALASOURCES = \
 	Menus/Fields/FileField.vala \
 	Menus/Fields/FolderField.vala \
 	Menus/Fields/IntegerField.vala \
+	Menus/Fields/ObjectField.vala \
 	Menus/Fields/MenuItemField.vala \
 	Menus/Fields/StringField.vala \
 	Menus/Fields/StringSelectionField.vala \
 	Menus/Fields/UIntField.vala \
 	Menus/Menu.vala \
+	Menus/MenuBuilder.vala \
 	Menus/MenuItem.vala \
 	Menus/MenuItemActionType.vala \
+	Menus/MenuObject.vala \
 	Menus/MenuSelector.vala \
 	Menus/MenuBrowser.vala \
+	Menus/ObjectMenu.vala \
 	Selectors/EverythingSelector.vala \
 	Selectors/GameFolderSelector.vala \
 	Selectors/PlatformSelector.vala \

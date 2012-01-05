@@ -6,13 +6,15 @@ using Catapult.Gui.Fieldsets;
 using Fields;
 using Data;
 using Data.GameList;
+using Menus;
+using Menus.Fields;
 
 public enum PlatformType {
 	ROM,
 	CUSTOM,
 	NATIVE
 }
-public class Platform : NamedEntity, GuiEntity
+public class Platform : NamedEntity, GuiEntity, MenuObject
 {
 	construct {
 		programs = new ArrayList<Program>();
@@ -112,7 +114,7 @@ public class Platform : NamedEntity, GuiEntity
 		var platform_frame = new FrameFieldset("PlatformFrame", "Platform");
 		platform_frame.add_string("name", "_Name", this.name);
 		platform_frame.add_enum("platform_type", "_Type", this.platform_type);
-		rom_folder_root_field = new FolderField("rom_folder_root", "_Rom Folder Root", this.rom_folder_root);
+		rom_folder_root_field = new Gui.Fields.FolderField("rom_folder_root", "_Rom Folder Root", this.rom_folder_root);
 		platform_frame.add_field(rom_folder_root_field);
 		rom_filespec_field = platform_frame.add_string("rom_file_extensions", "Rom _File Extensions", this.rom_file_extensions);
 
@@ -137,7 +139,21 @@ public class Platform : NamedEntity, GuiEntity
 	}
 
 	ProgramListField programs_field;
-	FolderField rom_folder_root_field;
-	StringField rom_filespec_field;
+	Gui.Fields.FolderField rom_folder_root_field;
+	Gui.Fields.StringField rom_filespec_field;
 	DefaultProgramField default_program_field;
+	
+	// menu
+	protected void build_menu(MenuBuilder builder) {
+		builder.add_string("name", "Name", null, this.name);
+		builder.add_enum("platform_type", "Type", null, this.platform_type);
+		rom_folder_root_menu_item = builder.add_folder("rom_folder_root", "Rom Folder Root", null, this.rom_folder_root);
+		builder.add_string("rom_file_extensions", "Rom File Extensions", null, this.rom_file_extensions);
+	}
+	protected bool apply_menu(Menu menu) {
+		return false;
+	}
+	
+	Menus.Fields.FolderField rom_folder_root_menu_item;
+	
 }

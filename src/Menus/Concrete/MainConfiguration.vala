@@ -33,6 +33,8 @@ namespace Menus.Concrete
 			menu.add_item(new ColorField("color", "Color", null, new Data.Color(0, 0, 0)));
 			menu.add_item(new FolderField("folder", "Folder", null, "/home/nuhrin/Desktop"));
 			menu.add_item(new FileField("font", "Item Font", null, "/usr/share/fonts/truetype/DejaVuSansMono.ttf", "ttf"));
+			menu.add_item(new ObjectField("prefs", "Preferences", null, Data.preferences()));
+			menu.add_item(new ObjectField("platform", "Platform", null, Data.platforms()[1]));
 			menu.add_item(new MenuItem.cancel_item("Return"));
 			menu.add_item(new MenuItem.quit_item());
 
