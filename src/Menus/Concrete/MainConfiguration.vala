@@ -35,6 +35,13 @@ namespace Menus.Concrete
 			menu.add_item(new FileField("font", "Item Font", null, "/usr/share/fonts/truetype/DejaVuSansMono.ttf", "ttf"));
 			menu.add_item(new ObjectField("prefs", "Preferences", null, Data.preferences()));
 			menu.add_item(new ObjectField("platform", "Platform", null, Data.platforms()[1]));
+			
+			var strlist = new ArrayList<string>();
+			strlist.add("one");
+			strlist.add("two");
+			strlist.add("three");
+			menu.add_item(new StringListField("strlist", "Strings", null, strlist));
+			
 			menu.add_item(new MenuItem.cancel_item("Return"));
 			menu.add_item(new MenuItem.quit_item());
 

@@ -26,8 +26,27 @@ namespace Layers.Controls
 		ArrayList<G> items;
 		uint _selected_index;
 		uint original_index;
+		bool canceled;
 
 		protected ValueSelectorBase(string id, int16 xpos, int16 ypos, int16 max_width, Iterable<G>? items=null, uint selected_index=0) {
+			this.internal(id, xpos, ypos, max_width);			
+			if (items != null)
+				set_items(items);
+			if (selected_index < this.items.size) {
+				_selected_index = selected_index;
+				original_index = selected_index;
+			}
+		}
+		protected ValueSelectorBase.from_array(string id, int16 xpos, int16 ypos, int16 max_width, G[]? items=null, uint selected_index=0) {
+			this.internal(id, xpos, ypos, max_width);
+			if (items != null)
+				set_items_array(items);
+			if (selected_index < this.items.size) {
+				_selected_index = selected_index;
+				original_index = selected_index;
+			}
+		}
+		ValueSelectorBase.internal(string id, int16 xpos, int16 ypos, int16 max_width) {
 			base(id);
 			this.xpos = xpos;
 			this.ypos = ypos;
@@ -36,14 +55,7 @@ namespace Layers.Controls
 			font_height = @interface.get_monospaced_font_height();
 			max_text_width = max_width - 8;
 			max_characters = max_text_width / @interface.get_monospaced_font_width(1);
-			
-			this.items = new ArrayList<G>();
-			if (items != null)
-				set_items(items);
-			if (selected_index < this.items.size) {
-				_selected_index = selected_index;
-				original_index = selected_index;
-			}
+			items = new ArrayList<G>();
 		}
 		
 		public uint selected_index {
@@ -69,6 +81,7 @@ namespace Layers.Controls
 				
 			return get_item_name((int)_selected_index);
 		}
+		public bool was_canceled { get { return canceled; } }
 		
 		public void add_item(G item) {
 			items.add(item);
@@ -148,11 +161,14 @@ namespace Layers.Controls
 				switch(event.keysym.sym) {
 					case KeySymbol.RETURN:
 					case KeySymbol.KP_ENTER:
+					case KeySymbol.END:
 						event_loop_done = true;
 						break;
 					case KeySymbol.ESCAPE:
+					case KeySymbol.HOME:
 						this.event_loop_done = true;
 						_selected_index = original_index;
+						canceled = true;
 						break;
 					case KeySymbol.UP:
 						select_previous();
@@ -166,10 +182,10 @@ namespace Layers.Controls
 					case KeySymbol.RIGHT:
 						select_next_page();
 						break;
-					case KeySymbol.HOME:
+					case KeySymbol.PAGEUP:
 						select_first();
 						break;
-					case KeySymbol.END:
+					case KeySymbol.PAGEDOWN:
 						select_last();
 						break;
 					default:

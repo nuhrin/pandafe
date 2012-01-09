@@ -56,9 +56,18 @@ pandafe_VALASOURCES = \
 	Layers/Controls/Chooser/FileSelector.vala \
 	Layers/Controls/Chooser/FolderSelector.vala \
 	Layers/Controls/Chooser/ChooserHeader.vala \
+	Layers/Controls/List/GenericListItem.vala \
+	Layers/Controls/List/ListEditorBase.vala \
+	Layers/Controls/List/ListItem.vala \
+	Layers/Controls/List/ListItemActionSelector.vala \
+	Layers/Controls/List/ListItemActionType.vala \
+	Layers/Controls/List/ListItemSelector.vala \
+	Layers/Controls/List/StringListItem.vala \
 	Layers/Controls/FileChooser.vala \
 	Layers/Controls/FolderChooser.vala \
 	Layers/Controls/IntegerEntry.vala \
+	Layers/Controls/ListEditor.vala \
+	Layers/Controls/StringListEditor.vala \
 	Layers/Controls/StringSelector.vala \
 	Layers/Controls/TextEntry.vala \
 	Layers/Controls/UIntEntry.vala \
@@ -83,9 +92,11 @@ pandafe_VALASOURCES = \
 	Menus/Fields/FileField.vala \
 	Menus/Fields/FolderField.vala \
 	Menus/Fields/IntegerField.vala \
+	Menus/Fields/ListField.vala \
 	Menus/Fields/ObjectField.vala \
 	Menus/Fields/MenuItemField.vala \
 	Menus/Fields/StringField.vala \
+	Menus/Fields/StringListField.vala \
 	Menus/Fields/StringSelectionField.vala \
 	Menus/Fields/UIntField.vala \
 	Menus/Menu.vala \
