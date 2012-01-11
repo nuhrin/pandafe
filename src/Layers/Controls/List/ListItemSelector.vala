@@ -7,6 +7,7 @@ namespace Layers.Controls.List
 	public class ListItemSelector : Layer
 	{
 		const uint8 MAX_ITEM_LENGTH = 50;
+		const int VISIBLE_ITEMS = 11;
 		int16 xpos;
 		int16 ypos;
 		Surface surface;
@@ -32,7 +33,7 @@ namespace Layers.Controls.List
 			base(id);
 			this.xpos = xpos;
 			this.ypos = ypos;
-			visible_items = @interface.SELECTOR_VISIBLE_ITEMS;
+			visible_items = VISIBLE_ITEMS;
 			item_spacing = @interface.SELECTOR_ITEM_SPACING;
 			font = @interface.get_monospaced_font();
 			font_height = @interface.get_monospaced_font_height();
@@ -53,8 +54,15 @@ namespace Layers.Controls.List
 		public uint selected_index { get; private set; }
 		public ListItem selected_item() { return _items[(int)selected_index]; }		
 
-		public Rect? get_selected_item_rect() {
-			Rect rect = {xpos, ypos + get_offset((int)selected_index) - 5, (int16)_width};
+		public Rect? get_selected_item_rect() {			
+			uint top_index;
+			uint bottom_index;
+			get_display_range(selected_index, out top_index, out bottom_index);			
+			int16 offset = get_offset(selected_index);
+			if ((int)bottom_index > visible_items - 1)
+				offset = offset - get_offset(top_index);
+			
+			Rect rect = {xpos, ypos + offset - 5, (int16)_width};
 			return rect;
 		}
 		
@@ -129,6 +137,14 @@ namespace Layers.Controls.List
 			blit_surface(surface, source_r, dest_r);
 		}		
 
+		public void hide_selection(bool flip=true) {
+			update_item((int)selected_index, false);
+			update(flip);
+		}
+		public void show_selection(bool flip=true) {
+			update_item((int)selected_index, true);
+			update(flip);
+		}
 		public bool select_previous() {
 			if (selected_index == 0) {
 				if (move_active == true)

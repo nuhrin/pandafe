@@ -53,6 +53,8 @@ namespace Menus
 					field.changed.connect(()=>update_item_value(field_index));
 				}
 			}
+			
+			wrap_selector = true;
 		}
 		public unowned string menu_name { get { return _menu.name; } }
 		public Menu menu { get { return _menu; } }
@@ -61,6 +63,7 @@ namespace Menus
 		public int width { get { return _width; } }
 		public uint item_count { get { return menu.items.size; } }
 
+		public bool wrap_selector { get; set; }
 		public uint selected_index { get; private set; }
 		public MenuItem selected_item() { return menu.items[(int)selected_index]; }
 
@@ -68,7 +71,14 @@ namespace Menus
 			var field = selected_item() as MenuItemField;
 			if (field == null)
 				return null;
-			Rect rect = {xpos + x_pos_value - 4, ypos + get_offset((int)selected_index) - 5};
+			uint top_index;
+			uint bottom_index;
+			get_display_range(selected_index, out top_index, out bottom_index);			
+			int16 offset = get_offset(selected_index);
+			if ((int)bottom_index > visible_items - 1)
+				offset = offset - get_offset(top_index);
+			
+			Rect rect = {xpos + x_pos_value - 4, ypos + offset - 5};
 			rect.w = (int16)blank_value_area.w;
 			rect.h = (int16)blank_value_area.h;
 			return rect;
@@ -87,18 +97,29 @@ namespace Menus
 			blit_surface(surface, source_r, dest_r);
 		}
 
+		public void hide_selection(bool flip=true) {
+			update_item_name((int)selected_index, false);
+			update(flip);
+		}
+		public void show_selection(bool flip=true) {
+			update_item_name((int)selected_index, true);
+			update(flip);
+		}
 		public bool select_previous() {
-			if (selected_index == 0)
-				return select_item(item_count - 1); // wrap around
-				//return false;
+			if (selected_index == 0) {
+				if (wrap_selector)
+					return select_item(item_count - 1);
+				return false;
+			}
 
 			return select_item(selected_index - 1);
 		}
 		public bool select_next() {
-			if (selected_index == item_count - 1)
-				return select_item(0); // wrap around
-				//return false;
-				
+			if (selected_index == item_count - 1) {
+				if (wrap_selector)
+					return select_item(0);
+				return false;
+			}
 
 			return select_item(selected_index + 1);
 		}

@@ -1,5 +1,6 @@
 using SDL;
 using Gee;
+using Menus;
 using Layers.MenuBrowser;
 
 namespace Layers.Controls.List
@@ -8,13 +9,16 @@ namespace Layers.Controls.List
 	{
 		const int16 SELECTOR_XPOS = 100;
 		const int16 SELECTOR_YPOS = 70;
-		const string SELECTOR_ID = "list_item_selector";		
+		const int16 MENU_SELECTOR_XPOS = 80;
+		const int16 MENU_SELECTOR_YPOS = 350;
 		
 		bool event_loop_done;
 		bool move_active;
+		bool menu_active;
 		bool save_requested;
 		MenuHeaderLayer header;
 		ListItemSelector selector;
+		MenuSelector menu_selector;
 		Gee.List<G> _list;
 		ArrayList<ListItem<G>> _items;
 		
@@ -22,14 +26,19 @@ namespace Layers.Controls.List
 			base(id);
 			_list = list;
 			header = add_layer(new MenuHeaderLayer("header")) as MenuHeaderLayer;
-			header.set_text(null, "Edit List: " + name, null, false);		
+			header.set_text(null, "Edit List: " + name, null, false);
+			var menu = new Menu("");
+			menu.add_item(new MenuItem.cancel_item());
+			menu.add_item(new MenuItem.save_item());
+			menu_selector = add_layer(new MenuSelector("list_menu_selector", MENU_SELECTOR_XPOS, MENU_SELECTOR_YPOS, menu, 100, 0)) as MenuSelector;
+			menu_selector.wrap_selector = false;
 		}
 		
 		public Gee.List<G> list { get { return _list; } }
 		
 		public bool run() {
 			ensure_items();
-			selector = add_layer(new ListItemSelector(SELECTOR_ID, SELECTOR_XPOS, SELECTOR_YPOS, _items)) as ListItemSelector;
+			selector = add_layer(new ListItemSelector("list_item_selector", SELECTOR_XPOS, SELECTOR_YPOS, _items)) as ListItemSelector;
 			@interface.push_screen_layer(this);
 			selector.select_first();
 			while(event_loop_done == false) {
@@ -103,10 +112,14 @@ namespace Layers.Controls.List
 						select_next_page();
 						break;
 					case KeySymbol.PAGEUP: // pandora Y
-						select_first();
+						focus_list();
 						break;
 					case KeySymbol.PAGEDOWN: // pandora X
-						select_last();
+						focus_menu();
+						break;
+					case KeySymbol.SPACE:
+					case KeySymbol.TAB:
+						toggle_focus();
 						break;
 					case KeySymbol.RETURN:
 					case KeySymbol.KP_ENTER:
@@ -135,7 +148,7 @@ namespace Layers.Controls.List
 			}
 		}
 		bool process_unicode(uint16 unicode) {
-			if (process_unicode_disabled)
+			if (menu_active || process_unicode_disabled)
 				return true;
 
 			if (unicode <= uint8.MAX) {
@@ -153,22 +166,24 @@ namespace Layers.Controls.List
 		//
 		// commands: selection
 		void select_previous() {
-			selector.select_previous();
+			if (menu_active)
+				menu_selector.select_previous();
+			else
+				selector.select_previous();
 		}
 		void select_previous_page() {
-			selector.select_previous_page();
+			if (menu_active == false)
+				selector.select_previous_page();
 		}
 		void select_next() {
-			selector.select_next();
+			if (menu_active)
+				menu_selector.select_next();
+			else
+				selector.select_next();
 		}
 		void select_next_page() {
-			selector.select_next_page();
-		}
-		void select_first() {
-			selector.select_first();
-		}
-		void select_last() {
-			selector.select_last();
+			if (menu_active == false)
+				selector.select_next_page();
 		}
 		void select_next_starting_with(char c) {
 			if (last_pressed_alphanumeric == c) {
@@ -189,7 +204,43 @@ namespace Layers.Controls.List
 
 		//
 		// commands: misc
+		void focus_list() {
+			if (menu_active == false)
+				return;
+			menu_active = false;
+			menu_selector.hide_selection(false);
+			selector.show_selection();
+		}
+		void focus_menu() {
+			if (menu_active == true)
+				return;
+			menu_active = true;
+			selector.hide_selection(false);
+			menu_selector.show_selection();
+		}
+		void toggle_focus() {
+			if (menu_active)
+				focus_list();
+			else
+				focus_menu();
+		}
 		void activate_selected() {
+			if (menu_active) {
+				// menu_item selected
+				MenuItemActionType action = menu_selector.selected_item().action;
+				switch(action) {
+					case MenuItemActionType.CANCEL:
+						event_loop_done = true;
+						break;
+					case MenuItemActionType.SAVE:
+						save_requested = true;
+						event_loop_done = true;
+						break;
+					default:
+						break;										
+				}
+				return;
+			}
 			// item selected
 			Rect rect = selector.get_selected_item_rect();
 			ListItemActionType action = new ListItemActionSelector("item_action_selector", rect.x + (int16)rect.w, rect.y).run();

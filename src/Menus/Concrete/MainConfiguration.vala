@@ -40,6 +40,8 @@ namespace Menus.Concrete
 			strlist.add("one");
 			strlist.add("two");
 			strlist.add("three");
+			for(int i=4;i<=15;i++)
+				strlist.add(i.to_string());
 			menu.add_item(new StringListField("strlist", "Strings", null, strlist));
 			
 			menu.add_item(new MenuItem.cancel_item("Return"));
