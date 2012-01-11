@@ -195,8 +195,10 @@ namespace Layers.Controls
 		}
 
 		void select_previous() {
-			if (_selected_index == 0)
+			if (_selected_index == 0) {
+				select_item(items.size - 1); // wrap around
 				return;
+			}
 			select_item(_selected_index - 1);
 		}
 		void select_previous_page() {
@@ -207,6 +209,11 @@ namespace Layers.Controls
 			select_item(_selected_index - visible_items);
 		}
 		void select_next() {
+			if (selected_index == items.size - 1) {
+				select_item(0); // wrap around
+				return;
+			}
+			
 			select_item(_selected_index + 1);
 		}
 		void select_next_page() {

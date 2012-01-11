@@ -11,6 +11,7 @@ namespace Layers.Controls.List
 		const string SELECTOR_ID = "list_item_selector";		
 		
 		bool event_loop_done;
+		bool move_active;
 		bool save_requested;
 		MenuHeaderLayer header;
 		ListItemSelector selector;
@@ -48,6 +49,13 @@ namespace Layers.Controls.List
 		}
 		
 		protected abstract ListItem<G> get_list_item(G item);
+		protected abstract G create_item();
+		protected abstract bool edit_list_item(ListItem<G> item, uint index);
+		protected virtual bool on_delete(ListItem<G> item) { return true; }
+		
+		protected Rect get_selected_item_rect() {
+			return selector.get_selected_item_rect();
+		}
 		
 		void ensure_items() {
 			if (_items != null)
@@ -103,14 +111,21 @@ namespace Layers.Controls.List
 					case KeySymbol.RETURN:
 					case KeySymbol.KP_ENTER:
 					case KeySymbol.END: // pandora B
+						if (move_active == true) {
+							selector.move_finish();
+							move_active = false;
+							break;
+						}
 						activate_selected();
 						drain_events();
 						break;
 					case KeySymbol.HOME: // pandora A
-						go_back();
-						drain_events();
-						break;
 					case KeySymbol.ESCAPE:
+						if (move_active == true) {
+							selector.move_cancel();
+							move_active = false;
+							break;
+						}
 						this.event_loop_done = true;
 						break;
 					default:
@@ -176,33 +191,56 @@ namespace Layers.Controls.List
 		// commands: misc
 		void activate_selected() {
 			// item selected
-			Rect rect = selector.get_selected_item_menu_rect();
-			ListItemActionType action = new ListItemActionSelector("item_action_selector", rect.x + (int16)selector.width, rect.y).run();
+			Rect rect = selector.get_selected_item_rect();
+			ListItemActionType action = new ListItemActionSelector("item_action_selector", rect.x + (int16)rect.w, rect.y).run();
 			switch(action) {
 				case ListItemActionType.EDIT:
-					debug("edit");
-					break;
-				case ListItemActionType.MOVE:
-					debug("move");
+					if (edit_list_item((ListItem<G>)selector.selected_item(), selector.selected_index) == true) {
+						selector.reset();
+						update();						
+					}
 					break;
 				case ListItemActionType.INSERT_ABOVE:
-					debug("insert above");
+					var index = selector.selected_index;
+					var item = get_list_item(create_item());
+					selector.insert_item_before_selected(item);
+					update();
+					if (edit_list_item(item, index) == true) {
+						selector.reset();						
+					} else {
+						selector.remove_selected_item();
+					}
+					update();					
 					break;
 				case ListItemActionType.INSERT_BELOW:
-					debug("insert below");
+					var index = selector.selected_index;
+					var item = get_list_item(create_item());
+					selector.insert_item_after_selected(item);
+					update();
+					if (edit_list_item(item, index) == true) {
+						selector.reset();
+						update();
+					} else {
+						selector.remove_selected_item();
+						selector.select_item(index, false);
+						update();
+					}
 					break;
+				case ListItemActionType.MOVE:
+					selector.move_start();
+					move_active = true;
+					break;				
 				case ListItemActionType.DELETE:
-					debug("delete");
+					// todo: confirmation "dialog"
+					if (on_delete(selector.selected_item()) == true) {
+						selector.remove_selected_item();
+						update();
+					}					
 					break;
 				default:
 					break;
 			}
 
 		}
-
-		void go_back() {
-
-		}		
-
 	}
 }

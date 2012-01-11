@@ -5,10 +5,10 @@ namespace Layers.Controls.List
 	{
 		NONE,
 		EDIT,
-		MOVE,
 		INSERT_ABOVE,
 		INSERT_BELOW,
-		DELETE;
+		DELETE,
+		MOVE;
 		
 		public static string[] names() {
 			ensure_list_item_action_names();			
@@ -22,10 +22,10 @@ namespace Layers.Controls.List
 			return;
 		list_item_action_names = {
 			"Edit",
-			"Move",
 			"Insert Above",
 			"Insert Below",
-			"Delete"
+			"Delete",
+			"Move"
 		};	
 	}
 }
