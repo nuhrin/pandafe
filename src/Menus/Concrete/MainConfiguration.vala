@@ -46,6 +46,7 @@ namespace Menus.Concrete
 			
 			menu.add_item(new PndCategoryField("category", "Category"));
 			menu.add_item(new PndAppField("app_id", "App"));
+			menu.add_item(new PlatformListField("platforms", "Platforms", null, Data.platforms(), Data.data_interface()));
 			
 			menu.add_item(new MenuItem.cancel_item("Return"));
 			menu.add_item(new MenuItem.quit_item());

@@ -45,6 +45,7 @@ pandafe_VALASOURCES = \
 	GameList/PndList.vala \
 	Fields/ColorField.vala \
 	Fields/ClockSpeedField.vala \
+	Fields/PlatformListField.vala \
 	Fields/PndAppField.vala \
 	Fields/PndCategoryField.vala \
 	Fields/PndSelectionField.vala \
