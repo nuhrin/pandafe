@@ -58,7 +58,7 @@ namespace Layers.Controls.List
 		}
 		
 		protected abstract ListItem<G> get_list_item(G item);
-		protected abstract G create_item();
+		protected abstract bool create_item(out G item);
 		protected abstract bool edit_list_item(ListItem<G> item, uint index);
 		protected virtual bool on_delete(ListItem<G> item) { return true; }
 		
@@ -252,23 +252,31 @@ namespace Layers.Controls.List
 					}
 					break;
 				case ListItemActionType.INSERT_ABOVE:
-					var index = selector.selected_index;
-					var item = get_list_item(create_item());
-					selector.insert_item_before_selected(item);
+					G item;
+					if (create_item(out item) == false)
+						break;
+					var list_item = get_list_item(item);
+					selector.insert_item_before_selected(list_item);
 					update();
-					if (edit_list_item(item, index) == true) {
-						selector.reset();						
+
+					var index = selector.selected_index;										
+					if (edit_list_item(list_item, index) == true) {
+						selector.reset();
 					} else {
 						selector.remove_selected_item();
 					}
-					update();					
+					update();
 					break;
 				case ListItemActionType.INSERT_BELOW:
-					var index = selector.selected_index;
-					var item = get_list_item(create_item());
-					selector.insert_item_after_selected(item);
+					G item;
+					if (create_item(out item) == false)
+						break;
+					var list_item = get_list_item(item);
+					selector.insert_item_before_selected(list_item);
 					update();
-					if (edit_list_item(item, index) == true) {
+
+					var index = selector.selected_index;
+					if (edit_list_item(list_item, index) == true) {
 						selector.reset();
 						update();
 					} else {
@@ -293,5 +301,6 @@ namespace Layers.Controls.List
 			}
 
 		}
+		
 	}
 }

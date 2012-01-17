@@ -18,7 +18,10 @@ namespace Layers.Controls
 		protected override ListItem<string> get_list_item(string item) {
 			return new StringListItem(item);
 		}
-		protected override string create_item() { return ""; }
+		protected override bool create_item(out string item) { 
+			item = ""; 
+			return true;
+		}
 		protected override bool edit_list_item(ListItem<string> item, uint index) {
 			Rect rect = get_selected_item_rect();
 			var entry = new TextEntry("%s_item_%u".printf(id, index), rect.x - 4, rect.y, 300, item.value, character_mask_regex, value_mask_regex);			

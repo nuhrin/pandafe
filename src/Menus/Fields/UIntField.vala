@@ -4,7 +4,7 @@ namespace Menus.Fields
 {
 	public class UIntField : MenuItemField
 	{
-		uint _value;
+		protected uint _value;
 		uint min_value;
 		uint max_value;
 		uint step;
@@ -60,11 +60,12 @@ namespace Menus.Fields
 				entry.validation_error.connect(() => {
 					debug("%s must be an unsigned integer between %u and %u (%u).", name, min_value, max_value, entry.value);
 				});
-				change_value(entry.run());
-				selector.update_selected_item_value();
-				selector.update();
+				if (change_value(entry.run())) {
+					selector.update_selected_item_value();
+					selector.update();
+				}
 			}
-		}
+		}		
 		
 		bool change_value(uint new_value) {
 			if (new_value < min_value)

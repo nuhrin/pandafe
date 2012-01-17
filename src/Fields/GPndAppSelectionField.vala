@@ -15,17 +15,23 @@ namespace Fields
 			make_clean();
 		}
 
-		public new string? value {
-			owned get { return (string)get_active_value(); }
-			set { set_active_value(value); }
+		public new AppItem? value {
+			owned get { return (AppItem)get_active_value(); }
+			set {
+				clear_items();
+				if (value == null)
+					populate_items(null, null);
+				else
+					populate_items(value.package_id, value.id);
+			}
 		}
-
-		public AppItem? get_selected_app() {
-			return data.get_app(value ?? "");
-		}
+		public string app_id { get { return (value != null) ? value.id : ""; } }
+		public string pnd_id { get { return (value != null) ? value.package_id : ""; } }
 
 		public void reload(string? pnd_id) {
-			string? selected_id = value;
+			string? selected_id = null;
+			if (value != null)
+				selected_id = value.id;
 			clear_items();
 			populate_items(pnd_id, selected_id);
 			make_clean();
@@ -43,6 +49,7 @@ namespace Fields
 			foreach(var app in pnd.apps) {
 				add_item(app.title, app.id);
 				if (selected_app_id != null && app.id == selected_app_id) {
+					value = app;
 					found_given_value = true;
 					combo_box.active = index;
 				}

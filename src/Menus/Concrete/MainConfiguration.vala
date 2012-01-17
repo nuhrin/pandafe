@@ -44,6 +44,9 @@ namespace Menus.Concrete
 				strlist.add(i.to_string());
 			menu.add_item(new StringListField("strlist", "Strings", null, strlist));
 			
+			menu.add_item(new PndCategoryField("category", "Category"));
+			menu.add_item(new PndAppField("app_id", "App"));
+			
 			menu.add_item(new MenuItem.cancel_item("Return"));
 			menu.add_item(new MenuItem.quit_item());
 

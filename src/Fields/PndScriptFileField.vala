@@ -50,14 +50,14 @@ namespace Fields
 				return;
 
 			// try to mount the pnd
-			if (mountset.is_mounted(unique_id) == false) {
-				if (mountset.mount(unique_id) == false) {
+			if (mountset.is_mounted(pnd_id) == false) {
+				if (mountset.mount(unique_id, pnd_id) == false) {
 					hbox.parent.sensitive = true;
 					return;
 				}
-				mounted_id_set.add(unique_id);
+				mounted_id_set.add(pnd_id);
 			}
-			var path = mountset.get_mounted_path(unique_id);
+			var path = mountset.get_mounted_path(pnd_id);
 			if (path == null) {
 				hbox.parent.sensitive = true;
 				return;

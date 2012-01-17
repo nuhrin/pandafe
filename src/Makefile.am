@@ -47,15 +47,19 @@ pandafe_VALASOURCES = \
 	Fields/ClockspeedField.vala \
 	Fields/CustomCommandField.vala \
 	Fields/DefaultProgramField.vala \
-	Fields/PndAppSelectionField.vala \
-	Fields/PndSelectionField.vala \
+	Fields/GPndAppSelectionField.vala \
+	Fields/GPndSelectionField.vala \
 	Fields/PndScriptFileField.vala \
 	Fields/PlatformListField.vala \
-	Fields/ProgramListField.vala \
+	Fields/GProgramListField.vala \
 	Fields/SourceEditField.vala \
-	Layers/Controls/Chooser/FileSelector.vala \
-	Layers/Controls/Chooser/FolderSelector.vala \
 	Layers/Controls/Chooser/ChooserHeader.vala \
+	Layers/Controls/Chooser/ChooserBase.vala \
+	Layers/Controls/Chooser/ChooserSelector.vala \
+	Layers/Controls/Chooser/FileSelector.vala \
+	Layers/Controls/Chooser/FolderSelector.vala \	
+	Layers/Controls/Chooser/PndAppSelector.vala \
+	Layers/Controls/Chooser/PndCategorySelector.vala \
 	Layers/Controls/List/GenericListItem.vala \
 	Layers/Controls/List/ListEditorBase.vala \
 	Layers/Controls/List/ListItem.vala \
@@ -67,6 +71,8 @@ pandafe_VALASOURCES = \
 	Layers/Controls/FolderChooser.vala \
 	Layers/Controls/IntegerEntry.vala \
 	Layers/Controls/ListEditor.vala \
+	Layers/Controls/PndAppChooser.vala \
+	Layers/Controls/PndCategoryChooser.vala \
 	Layers/Controls/StringListEditor.vala \
 	Layers/Controls/StringSelector.vala \
 	Layers/Controls/TextEntry.vala \
@@ -88,6 +94,7 @@ pandafe_VALASOURCES = \
 	Menus/Concrete/MainConfiguration.vala \
 	Menus/Fields/BooleanField.vala \
 	Menus/Fields/ColorField.vala \
+	Menus/Fields/ClockSpeedField.vala \
 	Menus/Fields/EnumField.vala \
 	Menus/Fields/FileField.vala \
 	Menus/Fields/FolderField.vala \
@@ -95,6 +102,10 @@ pandafe_VALASOURCES = \
 	Menus/Fields/ListField.vala \
 	Menus/Fields/ObjectField.vala \
 	Menus/Fields/MenuItemField.vala \
+	Menus/Fields/PndAppField.vala \
+	Menus/Fields/PndCategoryField.vala \
+	Menus/Fields/PndSelectionField.vala \
+	Menus/Fields/ProgramListField.vala \
 	Menus/Fields/StringField.vala \
 	Menus/Fields/StringListField.vala \
 	Menus/Fields/StringSelectionField.vala \
