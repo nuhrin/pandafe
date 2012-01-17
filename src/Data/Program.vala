@@ -2,6 +2,7 @@ using Catapult;
 using Catapult.Gui;
 using Catapult.Gui.Fields;
 using Catapult.Gui.Fieldsets;
+using GtkFields;
 using Fields;
 using Menus;
 using Menus.Fields;
@@ -26,13 +27,13 @@ namespace Data
 			program_frame.add_string("name", "_Name", this.name);
 
 			var pndData = Data.pnd_data();
-			pnd_id_field = new Fields.PndSelectionField(pndData, "pnd_id", "_Pnd", pnd_id);
+			pnd_id_field = new GtkPndSelectionField(pndData, "pnd_id", "_Pnd", pnd_id);
 			program_frame.add_field(pnd_id_field);
-			app_id_field = new Fields.PndAppSelectionField(pndData, "pnd_app_id", "Pnd _App", pnd_id, pnd_app_id);
+			app_id_field = new GtkPndAppSelectionField(pndData, "pnd_app_id", "Pnd _App", pnd_id, pnd_app_id);
 			program_frame.add_field(app_id_field);
 
 			command_field = program_frame.add_string("command", "_Command", command ?? "");
-			custom_command_field = new CustomCommandField("custom_command", "C_ustom Command", name, custom_command, pnd_id, pnd_app_id);
+			custom_command_field = new GtkCustomCommandField("custom_command", "C_ustom Command", name, custom_command, pnd_id, pnd_app_id);
 			program_frame.add_field(custom_command_field);
 
 			container.add_field(program_frame);
@@ -41,7 +42,7 @@ namespace Data
 			var options_frame = new FrameFieldset("OptionsFrame", "Options");
 
 			arguments_field = options_frame.add_string("arguments", "_Arguments", arguments ?? "");
-			clockspeed_field = new ClockspeedField("clockspeed", "_Clockspeed", clockspeed);
+			clockspeed_field = new GtkClockspeedField("clockspeed", "_Clockspeed", clockspeed);
 			options_frame.add_field(clockspeed_field);
 
 			container.add_field(options_frame);
@@ -86,25 +87,25 @@ namespace Data
 				command_field.sensitive = true;
 			}
 		}
-		Fields.PndSelectionField pnd_id_field;
-		Fields.PndAppSelectionField app_id_field;
+		GtkPndSelectionField pnd_id_field;
+		GtkPndAppSelectionField app_id_field;
 		Gui.Fields.StringField command_field;
-		CustomCommandField custom_command_field;
+		GtkCustomCommandField custom_command_field;
 		Gui.Fields.StringField arguments_field;
-		ClockspeedField clockspeed_field;
+		GtkClockspeedField clockspeed_field;
 		
 		// menu
 		protected void build_menu(MenuBuilder builder) {
 			name_menu_item = builder.add_string("name", "Name", null, this.name);
 			
-			app_menu_item = new Menus.Fields.PndAppField("pnd_app", "Pnd App", null, pnd_app_id, pnd_id);
+			app_menu_item = new PndAppField("pnd_app", "Pnd App", null, pnd_app_id, pnd_id);
 			builder.add_item(app_menu_item);
 			
 			command_menu_item = builder.add_string("command", "Command", null, command ?? "");
 			// custom command field
 			
 			arguments_menu_item = builder.add_string("arguments", "Arguments", arguments ?? "");
-			clockspeed_menu_item = new Menus.Fields.ClockSpeedField("clockspeed", "Clockspeed", null, clockspeed, 150, 1000, 5);
+			clockspeed_menu_item = new ClockSpeedField("clockspeed", "Clockspeed", null, clockspeed, 150, 1000, 5);
 			builder.add_item(clockspeed_menu_item);
 			
 			initialize_menu_items();
@@ -135,10 +136,10 @@ namespace Data
 		}
 		
 		Menus.Fields.StringField name_menu_item;
-		Menus.Fields.PndAppField app_menu_item;
+		PndAppField app_menu_item;
 		Menus.Fields.StringField command_menu_item;
 		Menus.Fields.StringField arguments_menu_item;
-		Menus.Fields.ClockSpeedField clockspeed_menu_item;
+		ClockSpeedField clockspeed_menu_item;
 		Menus.Fields.FolderField rom_folder_root_menu_item;
 
 	}

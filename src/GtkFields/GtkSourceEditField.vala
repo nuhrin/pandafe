@@ -2,12 +2,12 @@ using Gtk;
 using Catapult;
 using Catapult.Gui.Fields;
 
-namespace Fields
+namespace GtkFields
 {
-	public class SourceEditField : LabeledField
+	public class GtkSourceEditField : LabeledField
 	{
 		string contents;
-		public SourceEditField(string id, string? label=null, string mimetype, string title, string? contents=null) {
+		public GtkSourceEditField(string id, string? label=null, string mimetype, string title, string? contents=null) {
 			base(id, label);
 			this.contents = contents;
 			create_edit_dialog(title, mimetype);

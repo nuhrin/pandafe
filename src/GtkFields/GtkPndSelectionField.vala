@@ -3,12 +3,12 @@ using Gee;
 using Catapult.Gui.Fields;
 using Data.Pnd;
 
-namespace Fields
+namespace GtkFields
 {
-	public class PndSelectionField : ValueSelectionField
+	public class GtkPndSelectionField : ValueSelectionField
 	{
 		PndData data;
-		public PndSelectionField(PndData data, string id, string? label=null, string? pnd_id) {
+		public GtkPndSelectionField(PndData data, string id, string? label=null, string? pnd_id) {
 			base(id, label, typeof(string));
 			this.data = data;
 			populate_items(pnd_id);

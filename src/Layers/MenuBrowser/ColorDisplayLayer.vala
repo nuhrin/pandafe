@@ -7,11 +7,11 @@ namespace Layers.MenuBrowser
 	{
 		const uint MIN_CHAR_WIDTH = 8;
 		
-		Menus.Fields.ColorField field;
+		Fields.ColorField field;
 		unowned Font font;
 		int16 font_height;		
 		
-		public ColorDisplayLayer(string id, int16 xpos, int16 ypos, Menus.Fields.ColorField color_field) {
+		public ColorDisplayLayer(string id, int16 xpos, int16 ypos, Fields.ColorField color_field) {
 			
 			int width = (int)@interface.get_monospaced_font_width(MIN_CHAR_WIDTH) + 2;
 			int height = width + (int)@interface.get_monospaced_font_height() - 10;

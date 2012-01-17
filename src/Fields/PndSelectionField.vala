@@ -1,8 +1,9 @@
 using Gee;
 using Data.Pnd;
 using Layers.Controls;
+using Menus.Fields;
 
-namespace Menus.Fields
+namespace Fields
 {
 	public class PndSelectionField : MenuItemField
 	{
@@ -66,7 +67,7 @@ namespace Menus.Fields
 		protected override Value get_field_value() { return this.value; }
 		protected override void set_field_value(Value value) { change_value((string)value); }
 
-		protected override void activate(MenuSelector selector) {
+		protected override void activate(Menus.MenuSelector selector) {
 			var rect = selector.get_selected_item_value_entry_rect();
 			if (rect != null) {
 				var control = new StringSelector(id + "_selector", rect.x, rect.y, (int16)rect.w, items, _selected_index);

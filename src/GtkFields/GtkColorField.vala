@@ -2,12 +2,12 @@ using Gtk;
 using Catapult;
 using Catapult.Gui.Fields;
 
-namespace Fields
+namespace GtkFields
 {
-	public class GColorField : LabeledField
+	public class GtkColorField : LabeledField
 	{
 		ColorButton chooser;
-		public GColorField(string id, string? label=null, Gdk.Color? value=null, string? title=null) {
+		public GtkColorField(string id, string? label=null, Gdk.Color? value=null, string? title=null) {
 			base(id, label);
 			chooser = new ColorButton();
 			chooser.title = (title != null) ? title : "Choose a color";

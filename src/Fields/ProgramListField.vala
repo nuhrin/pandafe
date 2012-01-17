@@ -4,8 +4,10 @@ using Catapult;
 using Data;
 using Layers.Controls;
 using Layers.Controls.List;
+using Menus;
+using Menus.Fields;
 
-namespace Menus.Fields
+namespace Fields
 {
 	public class ProgramListField : ListField<Program>
 	{

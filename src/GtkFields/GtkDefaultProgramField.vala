@@ -4,12 +4,12 @@ using Catapult;
 using Catapult.Gui.Fields;
 using Data;
 
-namespace Fields
+namespace GtkFields
 {
-	public class DefaultProgramField : StringSelectionField
+	public class GtkDefaultProgramField : StringSelectionField
 	{
 		Iterable<Program>? programs;
-		public DefaultProgramField(string id, string? label=null, Iterable<Program>? programs=null, Program? value) {
+		public GtkDefaultProgramField(string id, string? label=null, Iterable<Program>? programs=null, Program? value) {
 			base(id, label);
 			if (programs != null)
 				set_programs(programs);

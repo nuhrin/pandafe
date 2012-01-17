@@ -1,5 +1,5 @@
 using Gee;
-using Fields;
+using GtkFields;
 using Catapult;
 using Catapult.Gui;
 using Catapult.Gui.Fields;
@@ -73,11 +73,11 @@ namespace Data
 				font_field.current_folder = DEFAULT_FONT_PATH;
 			font_field.add_pattern("*.ttf");
 			frame.add_field(font_field);
-			var item_color_field = new GColorField("item-color", "Item _Color", item_color.get_gdk_color());
+			var item_color_field = new GtkColorField("item-color", "Item _Color", item_color.get_gdk_color());
 			frame.add_field(item_color_field);
-			var selected_item_color_field = new GColorField("selected-item-color", "_Selected Item Color", selected_item_color.get_gdk_color());
+			var selected_item_color_field = new GtkColorField("selected-item-color", "_Selected Item Color", selected_item_color.get_gdk_color());
 			frame.add_field(selected_item_color_field);
-			var background_color_field = new GColorField("background-color", "_Background Color", background_color.get_gdk_color());
+			var background_color_field = new GtkColorField("background-color", "_Background Color", background_color.get_gdk_color());
 			frame.add_field(background_color_field);
 
 			box.add_field(notebook);

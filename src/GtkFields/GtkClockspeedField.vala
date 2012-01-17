@@ -3,9 +3,9 @@ using Gee;
 using Catapult.Gui.Fields;
 using Data.Pnd;
 
-namespace Fields
+namespace GtkFields
 {
-	public class ClockspeedField : CompositeField
+	public class GtkClockspeedField : CompositeField
 	{
 		const uint CLOCKSPEED_DEFAULT = 600;
 		const uint CLOCKSPEED_MIN = 150;
@@ -13,7 +13,7 @@ namespace Fields
 
 		BooleanField flag_field;
 		UIntField value_field;
-		public ClockspeedField(string id, string label, uint clockspeed=0) {
+		public GtkClockspeedField(string id, string label, uint clockspeed=0) {
 			base(id);
 
 			flag_field = box.add_bool(id +"_flag", label);

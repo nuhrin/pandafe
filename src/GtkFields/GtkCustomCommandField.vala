@@ -3,14 +3,14 @@ using Gee;
 using Catapult;
 using Catapult.Gui.Fields;
 
-namespace Fields
+namespace GtkFields
 {
-	public class CustomCommandField : SourceEditField
+	public class GtkCustomCommandField : GtkSourceEditField
 	{
 		public const string MIME_TYPE="application/x-shellscript";
 		const string DEFAULT_VALUE = "#/bin/sh\n";
 		string? original_contents;
-		public CustomCommandField(string id, string? label=null, string? name=null, string? contents=null, string? pnd_id=null, string? pnd_app_id=null) {
+		public GtkCustomCommandField(string id, string? label=null, string? name=null, string? contents=null, string? pnd_id=null, string? pnd_app_id=null) {
 			string title = "Custom command " + ((name != null && name != "") ? "for " + name : null);
 			base(id, label, MIME_TYPE, title, contents ?? DEFAULT_VALUE);
 			original_contents = contents;
@@ -32,7 +32,7 @@ namespace Fields
 		}
 
 		void extend_edit_dialog(string pnd_id, string? pnd_app_id=null) {
-			file_field = new PndScriptFileField(this.id + "_file", "Load Pnd Script", pnd_id, pnd_app_id);
+			file_field = new GtkPndScriptFileField(this.id + "_file", "Load Pnd Script", pnd_id, pnd_app_id);
 			file_field.content_requested.connect((content) => {
 				source_buffer.set_text(content);
 			});
@@ -47,7 +47,7 @@ namespace Fields
 			buttonbox.pack_start(btnRevert, false, false, 0);
 			buttonbox.set_child_secondary(btnRevert, true);
 		}
-		PndScriptFileField file_field;
+		GtkPndScriptFileField file_field;
 
 
 	}

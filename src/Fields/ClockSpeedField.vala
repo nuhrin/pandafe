@@ -1,6 +1,7 @@
 using Layers.Controls;
+using Menus.Fields;
 
-namespace Menus.Fields
+namespace Fields
 {
 	public class ClockSpeedField : UIntField
 	{
@@ -63,7 +64,7 @@ namespace Menus.Fields
 		}
 
 
-		protected override void activate(MenuSelector selector) {
+		protected override void activate(Menus.MenuSelector selector) {
 			var rect = selector.get_selected_item_value_entry_rect();
  			var choice_selector = new StringSelector("clockspeed_choice", rect.x, rect.y, 200);			
  			choice_selector.add_item("Default");

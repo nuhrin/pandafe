@@ -43,16 +43,22 @@ pandafe_VALASOURCES = \
 	GameList/IGameListNode.vala \
 	GameList/RomList.vala \
 	GameList/PndList.vala \
-	Fields/GColorField.vala \
-	Fields/ClockspeedField.vala \
-	Fields/CustomCommandField.vala \
-	Fields/DefaultProgramField.vala \
-	Fields/GPndAppSelectionField.vala \
-	Fields/GPndSelectionField.vala \
-	Fields/PndScriptFileField.vala \
-	Fields/PlatformListField.vala \
-	Fields/GProgramListField.vala \
-	Fields/SourceEditField.vala \
+	Fields/ColorField.vala \
+	Fields/ClockSpeedField.vala \
+	Fields/PndAppField.vala \
+	Fields/PndCategoryField.vala \
+	Fields/PndSelectionField.vala \
+	Fields/ProgramListField.vala \
+	GtkFields/GtkColorField.vala \
+	GtkFields/GtkClockspeedField.vala \
+	GtkFields/GtkCustomCommandField.vala \
+	GtkFields/GtkDefaultProgramField.vala \
+	GtkFields/GtkPndAppSelectionField.vala \
+	GtkFields/GtkPndSelectionField.vala \
+	GtkFields/GtkPndScriptFileField.vala \
+	GtkFields/GtkPlatformListField.vala \
+	GtkFields/GtkProgramListField.vala \
+	GtkFields/GtkSourceEditField.vala \
 	Layers/Controls/Chooser/ChooserHeader.vala \
 	Layers/Controls/Chooser/ChooserBase.vala \
 	Layers/Controls/Chooser/ChooserSelector.vala \
@@ -93,8 +99,6 @@ pandafe_VALASOURCES = \
 	Menus/Concrete/GameBrowserAppearanceMenu.vala \
 	Menus/Concrete/MainConfiguration.vala \
 	Menus/Fields/BooleanField.vala \
-	Menus/Fields/ColorField.vala \
-	Menus/Fields/ClockSpeedField.vala \
 	Menus/Fields/EnumField.vala \
 	Menus/Fields/FileField.vala \
 	Menus/Fields/FolderField.vala \
@@ -102,10 +106,6 @@ pandafe_VALASOURCES = \
 	Menus/Fields/ListField.vala \
 	Menus/Fields/ObjectField.vala \
 	Menus/Fields/MenuItemField.vala \
-	Menus/Fields/PndAppField.vala \
-	Menus/Fields/PndCategoryField.vala \
-	Menus/Fields/PndSelectionField.vala \
-	Menus/Fields/ProgramListField.vala \
 	Menus/Fields/StringField.vala \
 	Menus/Fields/StringListField.vala \
 	Menus/Fields/StringSelectionField.vala \

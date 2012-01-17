@@ -3,13 +3,13 @@ using Gee;
 using Catapult.Gui.Fields;
 using Data.Pnd;
 
-namespace Fields
+namespace GtkFields
 {
-	public class PndScriptFileField : StringSelectionField
+	public class GtkPndScriptFileField : StringSelectionField
 	{
 		MountSet mountset;
 		HashSet<string> mounted_id_set;
-		public PndScriptFileField(string id, string? label=null, string? pnd_id=null, string? pnd_app_id=null) {
+		public GtkPndScriptFileField(string id, string? label=null, string? pnd_id=null, string? pnd_app_id=null) {
 			base(id, label);
 			mountset = Data.pnd_mountset(); //new MountSet("pandafe/configtmp/");
 			mounted_id_set = new HashSet<string>();
@@ -100,7 +100,7 @@ namespace Fields
 				}
 				else if (type == FileType.REGULAR) {
 					var content_type = file_info.get_content_type();
-					if (content_type == CustomCommandField.MIME_TYPE) {
+					if (content_type == GtkCustomCommandField.MIME_TYPE) {
 						add_item(path);
 					}
 				}

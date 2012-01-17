@@ -3,9 +3,10 @@ using Catapult;
 using Catapult.Gui;
 using Catapult.Gui.Fields;
 using Catapult.Gui.Fieldsets;
-using Fields;
+using GtkFields;
 using Data;
 using Data.GameList;
+using Fields;
 using Menus;
 using Menus.Fields;
 
@@ -124,10 +125,10 @@ public class Platform : NamedEntity, GuiEntity, MenuObject
 		var programs_frame = new FrameFieldset("ProgramsFrame", "Programs");
 		programs_frame.data_interface = container.data_interface;
 
-		programs_field = new Fields.ProgramListField(container.data_interface, "programs", null, programs);
+		programs_field = new GtkProgramListField(container.data_interface, "programs", null, programs);
 		programs_frame.add_field(programs_field);
 
-		default_program_field = new DefaultProgramField("default_program", "_Default Program", programs, default_program);
+		default_program_field = new GtkDefaultProgramField("default_program", "_Default Program", programs, default_program);
 		programs_frame.add_field(default_program_field);
 
 		container.add_field(programs_frame);
@@ -138,10 +139,10 @@ public class Platform : NamedEntity, GuiEntity, MenuObject
 		programs_field.changed.connect(() => default_program_field.set_programs(programs_field.get_items()));
 	}
 
-	Fields.ProgramListField programs_field;
+	GtkProgramListField programs_field;
 	Gui.Fields.FolderField rom_folder_root_field;
 	Gui.Fields.StringField rom_filespec_field;
-	DefaultProgramField default_program_field;
+	GtkDefaultProgramField default_program_field;
 	
 	// menu
 	protected void build_menu(MenuBuilder builder) {
@@ -150,7 +151,7 @@ public class Platform : NamedEntity, GuiEntity, MenuObject
 		rom_folder_root_menu_item = builder.add_folder("rom_folder_root", "Rom Folder Root", null, this.rom_folder_root);
 		builder.add_string("rom_file_extensions", "Rom File Extensions", null, this.rom_file_extensions);
 		
-		programs_menu_item = new Menus.Fields.ProgramListField("programs", "Programs", null, programs, Data.data_interface());
+		programs_menu_item = new ProgramListField("programs", "Programs", null, programs, Data.data_interface());
 		builder.add_item(programs_menu_item);
 	}
 	protected bool apply_menu(Menu menu) {
@@ -158,6 +159,6 @@ public class Platform : NamedEntity, GuiEntity, MenuObject
 	}
 	
 	Menus.Fields.FolderField rom_folder_root_menu_item;
-	Menus.Fields.ProgramListField programs_menu_item;
+	ProgramListField programs_menu_item;
 	
 }

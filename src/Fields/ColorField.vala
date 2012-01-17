@@ -3,8 +3,10 @@ using SDL;
 using Catapult;
 using Layers.Controls;
 using Layers.MenuBrowser;
+using Menus;	
+using Menus.Fields;
 
-namespace Menus.Fields
+namespace Fields
 {
 	public class ColorField : MenuItemField
 	{
@@ -34,7 +36,7 @@ namespace Menus.Fields
 		protected override Value get_field_value() { return _color; }
 		protected override void set_field_value(Value value) { change_value((Data.Color)value); }
 
-		protected override void activate(MenuSelector selector) {
+		protected override void activate(Menus.MenuSelector selector) {
 			var copy = _color.copy();
 			show_menu(copy, menu => {
 				if (_color.spec != copy.spec) {

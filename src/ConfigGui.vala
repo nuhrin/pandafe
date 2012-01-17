@@ -3,7 +3,7 @@ using Catapult;
 using Catapult.Gui;
 using Catapult.Gui.Fields;
 using Catapult.Gui.Fieldsets;
-using Fields;
+using GtkFields;
 
 public class ConfigGui : Window
 {
@@ -60,7 +60,7 @@ public class ConfigGui : Window
 	NotebookFieldset platforms_notebook;
 	NotebookPageFieldset preferences_page;
 	Data.Preferences preferences;
-	PlatformListField platform_list_field;
+	GtkPlatformListField platform_list_field;
 
 	public ConfigGui() {
 		var alignment = new Alignment(0, 0, 1, 1);
@@ -83,7 +83,7 @@ public class ConfigGui : Window
 
 		var platform_list_page = platforms_notebook.add_page("list", "List");
 		var frame = new FrameFieldset("frame", "Platforms");
-		platform_list_field = new PlatformListField("platform_list", null, Data.platforms());
+		platform_list_field = new GtkPlatformListField("platform_list", null, Data.platforms());
 		frame.add_field(platform_list_field);
 		platform_list_page.add_field(frame);
 

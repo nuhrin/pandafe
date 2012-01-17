@@ -5,12 +5,12 @@ using Catapult.Gui;
 using Catapult.Gui.Fields;
 using Data;
 
-namespace Fields
+namespace GtkFields
 {
-	public class ProgramListField : ListValueField<Program>
+	public class GtkProgramListField : ListValueField<Program>
 	{
 		DataInterface data_interface;
-		public ProgramListField(DataInterface data_interface, string id, string? label=null, Gee.List<Program>? list=null) {
+		public GtkProgramListField(DataInterface data_interface, string id, string? label=null, Gee.List<Program>? list=null) {
 			base(id, label);
 			this.data_interface = data_interface;
 			if (list != null) {

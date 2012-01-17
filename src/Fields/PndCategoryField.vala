@@ -1,6 +1,7 @@
 using Layers.Controls;
+using Menus.Fields;
 
-namespace Menus.Fields
+namespace Fields
 {
 	public class PndCategoryField : MenuItemField
 	{
@@ -21,7 +22,7 @@ namespace Menus.Fields
 		protected override Value get_field_value() { return _value; }
 		protected override void set_field_value(Value value) { change_value((string?)value); }
 
-		protected override void activate(MenuSelector selector) {
+		protected override void activate(Menus.MenuSelector selector) {
 			var chooser = new PndCategoryChooser("category_chooser", "Choose Category: " + name);
 			var new_path = chooser.run(_value ?? "");
 			if (new_path != null && change_value(new_path)) {			

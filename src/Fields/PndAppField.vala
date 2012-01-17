@@ -1,8 +1,8 @@
 using Layers.Controls;
-
 using Data.Pnd;
+using Menus.Fields;
 
-namespace Menus.Fields
+namespace Fields
 {
 	public class PndAppField : MenuItemField
 	{
@@ -29,7 +29,7 @@ namespace Menus.Fields
 		protected override Value get_field_value() { return _value; }
 		protected override void set_field_value(Value value) { change_value((AppItem?)value); }
 
-		protected override void activate(MenuSelector selector) {
+		protected override void activate(Menus.MenuSelector selector) {
 			var chooser = new PndAppChooser("app_chooser", "Choose App: " + name);
 			AppItem? new_app = chooser.run(_value);
 			if (new_app != null && change_value(new_app)) {			
