@@ -24,25 +24,23 @@ namespace Data.Pnd
 
 		public bool has_mounted { get { return (mounted_pnd_name_hash.size > 0); } }
 
-		public bool is_mounted(string unique_id) {
-			return is_pnd_mounted(get_pnd_id(unique_id));
+		public bool is_mounted(string pnd_id) {
+			return is_pnd_mounted(pnd_id);
 		}
-		public string? get_mount_id(string unique_id) {
-			unowned string pnd_id = get_pnd_id(unique_id);
+		public string? get_mount_id(string pnd_id) {
 			if (is_pnd_mounted(pnd_id) == false)
 				return null;
 
 			return mounted_pnd_name_hash[pnd_id];
 		}
-		public string? get_mounted_path(string unique_id) {
-			unowned string pnd_id = get_pnd_id(unique_id);
+		public string? get_mounted_path(string pnd_id) {
 			if (is_pnd_mounted(pnd_id) == false)
 				return null;
 
 			return UNION_MOUNT_PATH + mounted_pnd_name_hash[pnd_id];
 		}
-		public string? get_appdata_path(string unique_id) {
-			var pnd = data.get_pnd(unique_id);
+		public string? get_appdata_path(string pnd_id) {
+			var pnd = data.get_pnd(pnd_id);
 			if (pnd == null || is_pnd_mounted(pnd.pnd_id) == false)
 				return null;
 
@@ -58,15 +56,15 @@ namespace Data.Pnd
 			return null;
 		}
 
-		public bool mount(string unique_id) {
-			var pnd = data.get_pnd(unique_id);
+		public bool mount(string unique_id, string pnd_id) {
+			var pnd = data.get_pnd(pnd_id);
 			if (pnd == null)
 				return false;
 			if(is_pnd_mounted(pnd.pnd_id) == true)
 				return true;
 
 			var name =  unique_id;
-			var app = data.get_app(unique_id);
+			var app = data.get_app(unique_id, pnd_id);
 			if (app != null && app.appdata_dirname != null)
 				name = app.appdata_dirname;
 			if (mount_prefix != null)
@@ -79,8 +77,8 @@ namespace Data.Pnd
 			return true;
 		}
 
-		public bool unmount(string unique_id) {
-			var pnd = data.get_pnd(unique_id);
+		public bool unmount(string pnd_id) {
+			var pnd = data.get_pnd(pnd_id);
 			if (pnd == null)
 				return false;
 			if(is_pnd_mounted(pnd.pnd_id) == false)
@@ -107,12 +105,5 @@ namespace Data.Pnd
 				return false;
 			return mounted_pnd_name_hash.has_key(pnd_id);
 		}
-		unowned string? get_pnd_id(string unique_id) {
-			var pnd = data.get_pnd(unique_id);
-			if (pnd != null)
-				return pnd.pnd_id;
-			return null;
-		}
-
 	}
 }

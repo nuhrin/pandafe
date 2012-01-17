@@ -65,7 +65,7 @@ namespace Data.GameList
 
 			Data.Pnd.AppItem app = null;
 			if (program.pnd_app_id != null)
-				app = data.get_app(program.pnd_app_id);
+				app = data.get_app(program.pnd_app_id, pnd.pnd_id);
 
 			string unique_id = (app != null) ? app.id : pnd.pnd_id;
 			string appdata_dirname = (app != null) ? app.appdata_dirname : null;
@@ -101,17 +101,17 @@ namespace Data.GameList
 
 			// mount the pnd
 			var mountset = Data.pnd_mountset();
-			bool already_mounted = mountset.is_mounted(unique_id);
-			if (already_mounted == false && mountset.mount(unique_id) == false) {
+			bool already_mounted = mountset.is_mounted(pnd.pnd_id);
+			if (already_mounted == false && mountset.mount(unique_id, pnd.pnd_id) == false) {
 				debug("Unable to mount pnd for id '%s'.", unique_id);
 				return -1;
 			}
-			string mount_id = mountset.get_mount_id(unique_id);
+			string mount_id = mountset.get_mount_id(pnd.pnd_id);
 
 			// ensure custom_command script, if specified
 			if (has_custom_command == true) {
 				command = CUSTOM_COMMAND_SCRIPT_PATH;
-				string appdata_path = mountset.get_appdata_path(unique_id);
+				string appdata_path = mountset.get_appdata_path(pnd.pnd_id);
 				if (appdata_path == null) {
 					debug("appdata path not found for '%s'", mount_id);
 					return -1;

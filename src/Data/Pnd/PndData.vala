@@ -12,9 +12,9 @@ namespace Data.Pnd
 		ArrayList<PndItem> pnd_list;
 		HashMap<string, PndItem> pnd_id_hash;
 		HashMap<string, AppItem> app_id_hash;
-		HashMap<string, PndItem> app_id_pnd_hash;
 		ArrayList<string> main_category_name_list;
 		HashMap<string, Category> category_name_hash;
+		ArrayList<AppItem> categoryless_app_list;
 
 		public PndData(DataInterface data_interface, PndCache? cache=null) {
 			this.data_interface = data_interface;
@@ -38,16 +38,15 @@ namespace Data.Pnd
 			pnd_list = new ArrayList<PndItem>();
 			pnd_id_hash = new HashMap<string, PndItem>();
 			app_id_hash = new HashMap<string, AppItem>();
-			app_id_pnd_hash = new HashMap<string, PndItem>();
 			main_category_name_list = null;
 			category_name_hash = null;
+			categoryless_app_list = null;
 
 			foreach(var pnd in cache.pnd_list) {
 				pnd_list.add(pnd);
 				pnd_id_hash[pnd.pnd_id] = pnd;
 				foreach(var app in pnd.apps) {
 					app_id_hash[app.id] = app;
-					app_id_pnd_hash[app.id] = pnd;
 				}
 			}
 		}
@@ -56,8 +55,6 @@ namespace Data.Pnd
 			return new Enumerable<PndItem>(pnd_list);
 		}
 		public PndItem? get_pnd(string id) {
-			if (app_id_pnd_hash.has_key(id) == true)
-				return app_id_pnd_hash[id];
 			if (pnd_id_hash.has_key(id) == true)
 				return pnd_id_hash[id];
 
@@ -66,13 +63,15 @@ namespace Data.Pnd
 		public Enumerable<AppItem> get_pnd_apps(string pnd_id) {
 			var pnd = get_pnd(pnd_id);
 			if (pnd != null)
-				return new Enumerable<AppItem>(pnd.apps);
+				return pnd.apps;
 			return Enumerable.empty<AppItem>();
 		}
-		public AppItem? get_app(string id) {
-			if (app_id_hash.has_key(id) == true)
-				return app_id_hash[id];
-			return null;
+		public AppItem? get_app(string id, string pnd_id) {
+			var pnd = get_pnd(pnd_id);
+			if (pnd == null)
+				return null;
+				
+			return pnd.get_app(id);
 		}
 
 		public Enumerable<string> get_main_category_names() {
@@ -88,6 +87,38 @@ namespace Data.Pnd
 				return category_name_hash[main_category_name];
 			return null;
 		}
+		public CategoryBase? get_category_from_path(string path) {
+			string[] parts = path.split("/");
+			if (parts.length > 0) {
+				var main = get_category(parts[0]);
+				if (main != null) {
+					if (parts.length == 1)
+						return main;
+					else if (parts.length == 2)
+						return main.get_subcategory(parts[1]);
+				}					
+			}
+			return null;
+		}
+		
+		public CategoryBase? get_app_category(AppItem app) {				
+			var maincat = get_category(app.main_category);
+			if (maincat == null)
+				return null;
+				
+			if (app.subcategory1 != "") {
+				var sub1 = maincat.get_subcategory(app.subcategory1);
+				if (sub1 != null)
+					return sub1;
+			}
+			if (app.subcategory1 != "") {
+				var sub2 = maincat.get_subcategory(app.subcategory2);
+				if (sub2 == null)
+					return sub2;
+			}
+			
+			return maincat;
+		}
 
 		void ensure_category_data() {
 			if (main_category_name_list != null)
@@ -95,10 +126,15 @@ namespace Data.Pnd
 
 			main_category_name_list = new ArrayList<string>();
 			category_name_hash = new HashMap<string, Category>();
-
+			categoryless_app_list = new ArrayList<AppItem>();
+			
 			foreach(var pnd in pnd_list) {
 				foreach(var app in pnd.apps) {
 					string main_category = app.main_category;
+					if (main_category == "") {
+						categoryless_app_list.add(app);
+						continue;
+					}
 					Category category = null;
 					if (category_name_hash.has_key(main_category) == false) {
 						main_category_name_list.add(main_category);

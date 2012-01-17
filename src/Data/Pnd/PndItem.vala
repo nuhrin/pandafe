@@ -27,6 +27,13 @@ namespace Data.Pnd
 		public string get_fullpath() { return path + filename; }
 
 		public Enumerable<AppItem> apps { get; private set; }
+		public AppItem? get_app(string id) {
+			foreach(var app in apps) {
+				if (app.id == id)
+					return app;
+			}
+			return null;
+		}
 
 		public int compare_to(PndItem other) { return strcmp(pnd_id, other.pnd_id); }
 

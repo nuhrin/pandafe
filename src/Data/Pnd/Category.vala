@@ -26,7 +26,7 @@ namespace Data.Pnd
 			SubCategory sub = get_subcategory(subcategory_name);
 			if (sub != null)
 				return sub;
-			sub = new SubCategory(subcategory_name);
+			sub = new SubCategory(subcategory_name, this);
 			_subcategories.add(sub);
 			return sub;
 		}
@@ -34,7 +34,10 @@ namespace Data.Pnd
 
 	public class SubCategory : CategoryBase
 	{
-		public SubCategory(string name) { base(name); }
+		public SubCategory(string name, Category parent) { 
+			base(name); 
+			this.parent = parent;
+		}
 	}
 	public abstract class CategoryBase : Object
 	{
@@ -46,10 +49,16 @@ namespace Data.Pnd
 			_apps = new ArrayList<AppItem>();
 			_apps_view = _apps.read_only_view;
 		}
+		
+		public Category? parent { get; protected set; }
 
 		public unowned string name { get { return _name; } }
 
 		public Gee.List<AppItem> apps { get { return _apps_view; } }
+
+		public string get_path() {
+			return (parent == null) ? name : Path.build_filename(parent.name, name);
+		}
 
 		internal void add_app(AppItem app) {
 			_apps.add(app);
