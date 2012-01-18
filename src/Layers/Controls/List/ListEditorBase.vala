@@ -61,6 +61,8 @@ namespace Layers.Controls.List
 		protected abstract bool create_item(out G item);
 		protected abstract bool edit_list_item(ListItem<G> item, uint index);
 		protected virtual bool on_delete(ListItem<G> item) { return true; }
+		protected virtual bool can_edit(ListItem<G> item) { return true; }
+		protected virtual bool can_delete(ListItem<G> item) { return true; }
 		
 		protected Rect get_selected_item_rect() {
 			return selector.get_selected_item_rect();
@@ -243,7 +245,10 @@ namespace Layers.Controls.List
 			}
 			// item selected
 			Rect rect = selector.get_selected_item_rect();
-			ListItemActionType action = new ListItemActionSelector("item_action_selector", rect.x + (int16)rect.w, rect.y).run();
+			var selected_item = selector.selected_item();
+			ListItemActionType action = new ListItemActionSelector("item_action_selector", rect.x + (int16)rect.w, rect.y, 
+					can_edit(selected_item), can_delete(selected_item))
+				.run();
 			switch(action) {
 				case ListItemActionType.EDIT:
 					if (edit_list_item((ListItem<G>)selector.selected_item(), selector.selected_index) == true) {

@@ -37,6 +37,8 @@ namespace Fields
 				new MenuBrowser(new ObjectMenu("Edit Platform", null, item.value), 40, 40).run();
 				return false;
 			}
+			protected override bool can_edit(ListItem<Platform> item) { return !(item.value is NativePlatform); }
+			protected override bool can_delete(ListItem<Platform> item) { return !(item.value is NativePlatform); }
 		}
 	}
 }
