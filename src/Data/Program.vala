@@ -97,15 +97,20 @@ namespace Data
 		// menu
 		protected void build_menu(MenuBuilder builder) {
 			name_menu_item = builder.add_string("name", "Name", null, this.name);
-			
-			app_menu_item = new PndAppField("pnd_app", "Pnd App", null, pnd_app_id, pnd_id);
+			name_menu_item.add_validator(value=> {
+				string? str = (string?)value;
+				if (str == null || str == "")
+					return false;
+				return true;
+			}, "Name is required.");
+			app_menu_item = new PndAppField("pnd_app", "Pnd App", "Choose the app...", pnd_app_id, pnd_id);
 			builder.add_item(app_menu_item);
 			
 			command_menu_item = builder.add_string("command", "Command", null, command ?? "");
 			// custom command field
 			
 			arguments_menu_item = builder.add_string("arguments", "Arguments", arguments ?? "");
-			clockspeed_menu_item = new ClockSpeedField("clockspeed", "Clockspeed", null, clockspeed, 150, 1000, 5);
+			clockspeed_menu_item = new ClockSpeedField("clockspeed", "Clockspeed", "How fast?", clockspeed, 150, 1000, 5);
 			builder.add_item(clockspeed_menu_item);
 			
 			initialize_menu_items();

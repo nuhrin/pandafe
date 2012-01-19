@@ -1,3 +1,4 @@
+using Gee;
 using SDL;
 using SDLTTF;
 
@@ -20,6 +21,24 @@ namespace Menus.Fields
 		public virtual bool has_changes() { return is_dirty; }
 		public virtual void make_clean() { is_dirty = false; }
 
+		public signal void error(string error);
+		public void add_validator(owned Predicate<Value?> is_valid, string error_if_invalid) {
+			if (_validators == null)
+				_validators = new ArrayList<Validator>();
+			_validators.add(new Validator((owned)is_valid, error_if_invalid));
+		}
+		public bool validate() {
+			if (_validators != null) {
+				foreach(var validator in _validators) {
+					if (validator.is_valid(value) == false) {
+						this.error(validator.error);
+						return false;
+					}
+				}
+			}
+			return do_validation();
+		}
+
 		public abstract string get_value_text();
 		public virtual Surface? get_value_rendering(Font* font) { return null; }
 
@@ -40,9 +59,23 @@ namespace Menus.Fields
 
 		protected abstract Value get_field_value();
 		protected abstract void set_field_value(Value value);
-
+		
+		protected virtual bool do_validation() { return true; }
+		
 		protected virtual void on_changed() { is_dirty = true; }
 		protected virtual bool select_previous() { return false; }
 		protected virtual bool select_next() { return false; }
+		
+		class Validator {
+			Predicate<Value?> predicate;
+			string _error;
+			public Validator(owned Predicate<Value?> is_valid, string error_if_invalid) {
+				predicate = (owned)is_valid;
+				_error = error_if_invalid;
+			}
+			public bool is_valid(Value value) { return predicate(value); }
+			public unowned string error { get { return _error; } }
+		}
+		ArrayList<Validator> _validators;
 	}
 }

@@ -14,11 +14,11 @@ namespace Menus
 			this.obj = obj;
 			mo = obj as MenuObject;
 		}
-		public override bool cancel() {
+		public override bool do_cancel() {
 			// revert...?
 			return true;
 		}
-		public override bool save() {
+		public override bool do_save() {
 			// validate...
 			if (mo != null)
 				return mo.i_apply_menu(this);

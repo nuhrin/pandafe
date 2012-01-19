@@ -90,6 +90,7 @@ pandafe_VALASOURCES = \
 	Layers/GameBrowser/StatusMessageLayer.vala \
 	Layers/MenuBrowser/ColorDisplayLayer.vala \
 	Layers/MenuBrowser/MenuHeaderLayer.vala \
+	Layers/MenuBrowser/MenuMessageLayer.vala \
 	Layers/Preview/BrowserPreview.vala \
 	Layers/Preview/PreviewSelector.vala \
 	Layers/Layer.vala \

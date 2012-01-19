@@ -16,14 +16,14 @@ namespace Menus.Concrete
 			ensure_items();		
 		}
 		
-		public override bool cancel() {
+		public override bool do_cancel() {
 			ui.set_font(original_ui.font_path);
 			ui.set_colors(original_ui.item_color, original_ui.selected_item_color, original_ui.background_color);
 			initialize(ui);
 			return true;
 		}
 	
-		public override bool save() {
+		public override bool do_save() {
 			var prefs = Data.preferences();
 			bool has_color_change = false;
 			if (item_color.has_changes()) {
@@ -49,15 +49,16 @@ namespace Menus.Concrete
 				return true;
 		
 			bool success = Data.save_preferences();
-			// TODO: display error if there was a problem saving prefs?
 			if (success) {
 				if (has_color_change == true)
 					@interface.game_browser_ui.update_colors_from_preferences();
 				if (has_font_change == true)
 					@interface.game_browser_ui.update_font_from_preferences();					
+			} else {
+				this.error("Error saving preferences.");
 			}
 			
-			return true;
+			return success;
 		}
 		
 		protected override Layers.Layer? build_additional_menu_browser_layer() { 

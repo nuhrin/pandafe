@@ -28,7 +28,7 @@ namespace Layers
 		//
 		// drawing
 		public void update(bool flip_screen=true) {
-			print("updating '%s' (%d)\n", id, (int)unique_id);
+			//print("updating '%s' (%d)\n", id, (int)unique_id);
 			clear();
 			draw();
 			if (children != null) {

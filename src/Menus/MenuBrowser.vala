@@ -18,6 +18,7 @@ namespace Menus
 		GLib.Queue<MenuSelector> menu_stack;
 		MenuSelector selector;
 		MenuHeaderLayer header;
+		MenuMessageLayer message;
 		Layer? additional_layer;
 		//int16 pos_y_status_message;
 		//Surface blank_message_area;
@@ -32,6 +33,7 @@ namespace Menus
 			//blank_message_area = @interface.get_blank_surface(780, font_height * 2);
 			menu_stack = new GLib.Queue<MenuSelector>();
 			header = add_layer(new MenuHeaderLayer("header")) as MenuHeaderLayer;
+			message = add_layer(new MenuMessageLayer("status")) as MenuMessageLayer;			
 			selector = add_layer(get_selector(menu)) as MenuSelector;
 		}
 
@@ -56,6 +58,8 @@ namespace Menus
 		MenuSelector get_selector(Menu menu) {
 			var new_selector = new MenuSelector(SELECTOR_ID, SELECTOR_XPOS, SELECTOR_YPOS, menu, max_name_length, max_value_length);
 			new_selector.changed.connect(() => on_selector_changed());
+			menu.error.connect((error) => on_error(error));
+			menu.field_error.connect((field, index, error) => on_field_error(field, index, error));
 			return new_selector;
 		}
 		
@@ -68,6 +72,7 @@ namespace Menus
 			replace_layer(SELECTOR_ID, selector);
 			clear();
 			set_header();
+			message.reset();
 			add_additional_layer(menu);
 			selector.select_first();
 			menu_changed(menu);
@@ -82,6 +87,7 @@ namespace Menus
 			replace_layer(SELECTOR_ID, selector);
 			clear();
 			set_header();
+			message.reset();
 			add_additional_layer(selector.menu);
 			selector.update();
 			menu_changed(selector.menu);
@@ -101,6 +107,13 @@ namespace Menus
 			header.set_text(null, selector.menu_name, null, false);
 		}
 		void on_selector_changed() {
+			message.help = selector.selected_item().help;
+		}
+		void on_error(string error) {
+			message.error = error;
+		}
+		void on_field_error(Fields.MenuItemField field, int index, string error) {
+			message.error = error;
 		}
 		void redraw_item() {
 			selector.update_selected_item_value();
@@ -255,6 +268,7 @@ namespace Menus
 					break;
 				default:
 					selected_item.activate(selector);
+					message.error = null;
 					break;					
 			}
 

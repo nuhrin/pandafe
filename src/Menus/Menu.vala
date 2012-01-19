@@ -10,6 +10,7 @@ namespace Menus
 		Menu? _parent;
 		ArrayList<MenuItem> _items;
 		HashMap<string, MenuItemField> _field_id_hash;
+		HashMap<string, int> _field_index_hash;
 		Predicate<Menu>? on_save;
 		Predicate<Menu>? on_cancel; 
 		public Menu(string name, string? help=null, Menu? parent=null, owned Predicate? on_save=null, owned Predicate<Menu>? on_cancel=null ) {
@@ -19,9 +20,9 @@ namespace Menus
 		}
 		public Menu? parent { get { return _parent; } }
 		public Gee.List<MenuItem> items { 
-			get {
+			owned get {
 				ensure_items();
-				return _items;
+				return _items.read_only_view;
 			}
 		}
 		public Enumerable<MenuItemField> fields() {
@@ -39,12 +40,15 @@ namespace Menus
 		
 
 		public void add_item(MenuItem item) {
-			items.add(item);
+			ensure_items();
 			var field = item as MenuItemField;
 			if (field != null) {
 				ensure_field_hash();
 				_field_id_hash[field.id] = field;
+				_field_index_hash[field.id] = _items.size;
+				field.error.connect((error) => throw_field_error(field, error));
 			}
+			_items.add(item);
 		}
 		
 		public T? get_field<T>(string id) {
@@ -53,19 +57,45 @@ namespace Menus
 			return (T)_field_id_hash[id];
 		}
 		
-		public virtual bool cancel() {
-			debug("Menu '%s': cancel", name);
-			if (on_cancel != null)
-				return on_cancel(this);
-			return true;
+		public signal void error(string error);
+		public signal void field_error(MenuItemField field, int index, string error);
+		
+		public bool validate() {
+			bool success = true;
+			foreach(var field in fields()) {
+				if (field.validate() == false)
+					success = false;
+			}
+			return success;
 		}
-		public virtual bool save() { 
-			debug("Menu '%s': save", name);
-			if (on_save != null)
-				return on_save(this);
-			return true;
+		
+		public bool cancel() {
+			if (on_cancel != null) {
+				if (on_cancel(this) == false)
+					return false;
+			}
+			return do_cancel();
 		}
+		public bool save() { 
+			if (on_save != null) {
+				if (on_save(this) == false)
+					return false;
+			}
+			if (validate() == false)
+				return false;
+				
+			return do_save();
+		}
+		
+		protected virtual bool do_validation() { return true; }
+		protected virtual bool do_cancel() { return true; }
+		protected virtual bool do_save() { return true; }
 
+		protected void throw_field_error(MenuItemField field, string error) {
+			ensure_items();
+			if (_field_index_hash != null && _field_index_hash.has_key(field.id))
+				field_error(field, _field_index_hash[field.id], error);			
+		}
 
 		protected virtual void populate_items(Gee.List<MenuItem> items) { }
 		protected void ensure_items() {
@@ -74,14 +104,25 @@ namespace Menus
 				
 			_items = new ArrayList<MenuItem>();
 			populate_items(_items);
-			foreach(var field in fields()) {
-				ensure_field_hash();
+			bool has_field = false;
+			for(int index=0; index<_items.size; index++) {
+				var field = _items[index] as MenuItemField;
+				if (field == null)
+					continue;
+				if (has_field == false) {
+					ensure_field_hash();
+					has_field = true;
+				}
 				_field_id_hash[field.id] = field;
+				_field_index_hash[field.id] = index;
+				field.error.connect((error) => throw_field_error(field, error));
 			}
 		}
 		void ensure_field_hash() {
 			if (_field_id_hash == null)
 				_field_id_hash = new HashMap<string, MenuItemField>();
+			if (_field_index_hash == null)
+				_field_index_hash = new HashMap<string, int>();
 		}
 		
 		protected virtual Layers.Layer? build_additional_menu_browser_layer() { return null; }
