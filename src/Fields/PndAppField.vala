@@ -16,7 +16,7 @@ namespace Fields
 			get { return _value; }
 			set { change_value(value); }
 		}		
-		public string app_id { get { return (value != null) ? value.id : ""; } }
+		public string pnd_app_id { get { return (value != null) ? value.id : ""; } }
 		public string pnd_id { get { return (value != null) ? value.package_id : ""; } }
 
 		public override string get_value_text() { 
@@ -40,7 +40,7 @@ namespace Fields
 		
 		bool change_value(AppItem? new_value) {
 			if (new_value == _value) {
-				if (new_value.id == app_id && new_value.package_id == pnd_id)
+				if (new_value.id == pnd_app_id && new_value.package_id == pnd_id)
 					return false;
 			}
 			_value = new_value;

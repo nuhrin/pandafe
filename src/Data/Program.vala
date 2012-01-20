@@ -108,6 +108,9 @@ namespace Data
 			
 			command_menu_item = builder.add_string("command", "Command", null, command ?? "");
 			// custom command field
+			custom_command_menu_item = new CustomCommandField("custom_command", "Custom Command", null, name, custom_command, pnd_app_id, pnd_id);
+			builder.add_item(custom_command_menu_item);
+			
 			
 			arguments_menu_item = builder.add_string("arguments", "Arguments", arguments ?? "");
 			clockspeed_menu_item = new ClockSpeedField("clockspeed", "Clockspeed", "How fast?", clockspeed, 150, 1000, 5);
@@ -118,6 +121,7 @@ namespace Data
 		void initialize_menu_items() {
 			app_menu_item.changed.connect(() => {
 				update_menu_items_from_app(true);
+				custom_command_menu_item.set_app(app_menu_item.pnd_app_id, app_menu_item.pnd_id);
 			});
 			update_menu_items_from_app(false);
 		}
@@ -143,6 +147,7 @@ namespace Data
 		Menus.Fields.StringField name_menu_item;
 		PndAppField app_menu_item;
 		Menus.Fields.StringField command_menu_item;
+		CustomCommandField custom_command_menu_item;
 		Menus.Fields.StringField arguments_menu_item;
 		ClockSpeedField clockspeed_menu_item;
 		Menus.Fields.FolderField rom_folder_root_menu_item;

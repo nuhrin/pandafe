@@ -217,9 +217,7 @@ namespace Layers.Controls.Chooser
 				return;
 			
 			var parent_key = get_parent_key(selector);
-			debug("parent_key: %s", parent_key);
 			var parent_child_name = get_parent_child_name(selector);
-			debug("parent_child_name: %s", parent_child_name);
 			
 			selector = get_selector(parent_key);
 			replace_layer(selector.id, selector);

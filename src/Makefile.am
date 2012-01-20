@@ -45,6 +45,7 @@ pandafe_VALASOURCES = \
 	GameList/PndList.vala \
 	Fields/ColorField.vala \
 	Fields/ClockSpeedField.vala \
+	Fields/CustomCommandField.vala \
 	Fields/PlatformListField.vala \
 	Fields/PndAppField.vala \
 	Fields/PndCategoryField.vala \
@@ -64,7 +65,7 @@ pandafe_VALASOURCES = \
 	Layers/Controls/Chooser/ChooserBase.vala \
 	Layers/Controls/Chooser/ChooserSelector.vala \
 	Layers/Controls/Chooser/FileSelector.vala \
-	Layers/Controls/Chooser/FolderSelector.vala \	
+	Layers/Controls/Chooser/FolderSelector.vala \
 	Layers/Controls/Chooser/PndAppSelector.vala \
 	Layers/Controls/Chooser/PndCategorySelector.vala \
 	Layers/Controls/List/GenericListItem.vala \

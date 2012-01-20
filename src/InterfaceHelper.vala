@@ -174,4 +174,13 @@ public class InterfaceHelper : Object
 	signal void idle_worker();
 
 	GLib.Queue<ScreenLayer> screen_layer_stack;
+	
+	public void ensure_gtk_init() {
+		if (gtk_is_initialized == true)
+			return;
+		unowned string[] args = NULL_ARGS;
+		Gtk.init(ref args);
+	}
+	static bool gtk_is_initialized;	
+	static string[] NULL_ARGS = null;
 }
