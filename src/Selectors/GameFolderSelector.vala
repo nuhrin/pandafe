@@ -5,13 +5,21 @@ using Data.GameList;
 
 public class GameFolderSelector : Selector
 {
-	GameFolder folder;
+	GameFolder _folder;
 	Gee.List<IGameListNode> items;
 
 	public GameFolderSelector(GameFolder folder, string id, int16 xpos, int16 ypos) {
 		base(id, xpos, ypos);
-		this.folder = folder;
-		items = folder.children().to_list();
+		_folder = folder;
+		rebuild_items();
+	}
+
+	public GameFolder folder { 
+		get { return _folder; } 
+		set {
+			_folder = value;
+			rebuild();
+		}
 	}
 
 	public IGameListNode? selected_item()
@@ -19,6 +27,10 @@ public class GameFolderSelector : Selector
 		if (selected_index == -1)
 			return null;
 		return items[selected_index];
+	}
+	
+	protected override void rebuild_items() {
+		items = _folder.children().to_list();
 	}
 
 	protected override int get_itemcount() { return items.size; }

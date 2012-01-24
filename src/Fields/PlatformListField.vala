@@ -11,10 +11,8 @@ namespace Fields
 {
 	public class PlatformListField : ListField<Platform>
 	{
-		DataInterface data_interface;
-		public PlatformListField(string id, string name, string? help=null, Gee.List<Platform> value, DataInterface data_interface) {
+		public PlatformListField(string id, string name, string? help=null, Gee.List<Platform> value) {
 			base(id, name, help, value);
-			this.data_interface = data_interface;			
 		}
 
 		protected override ListEditor<Platform> get_list_editor() {
@@ -25,6 +23,7 @@ namespace Fields
 		{
 			public PlatformListEditor(string id, string name, Gee.List<Platform> list, owned MapFunc<string?, Platform> get_name_string) {
 				base(id, name, list, (owned)get_name_string);
+				save_on_return = true;
 			}
 			protected override bool create_item(out Platform item) {
 				item = new Platform() {
@@ -34,11 +33,12 @@ namespace Fields
 				return true;
 			}
 			protected override bool edit_list_item(ListItem<Platform> item, uint index) {
-				new MenuBrowser(new ObjectMenu("Edit Platform", null, item.value), 40, 40).run();
-				return false;
+				return ObjectMenu.edit("Edit Platform", item.value);
 			}
 			protected override bool can_edit(ListItem<Platform> item) { return !(item.value is NativePlatform); }
 			protected override bool can_delete(ListItem<Platform> item) { return !(item.value is NativePlatform); }
+			protected override string? get_cancel_item_text() { return null; }
+			protected override string? get_save_item_text() { return "Return"; }
 		}
 	}
 }

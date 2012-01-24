@@ -46,6 +46,7 @@ pandafe_VALASOURCES = \
 	Fields/ColorField.vala \
 	Fields/ClockSpeedField.vala \
 	Fields/CustomCommandField.vala \
+	Fields/DefaultProgramField.vala \
 	Fields/PlatformListField.vala \
 	Fields/PndAppField.vala \
 	Fields/PndCategoryField.vala \

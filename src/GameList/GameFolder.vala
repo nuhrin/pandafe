@@ -67,6 +67,13 @@ namespace Data.GameList
 
 			return all;
 		}
+		public GameFolder? get_descendant_folder(string unique_id) {
+			foreach(var folder in all_subfolders()) {
+				if (folder.unique_id() == unique_id)
+					return folder;
+			}
+			return null;
+		}
 
 		public Enumerable<GameItem> all_games() {
 			var all = Enumerable.empty<GameItem>();

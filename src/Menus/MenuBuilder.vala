@@ -7,44 +7,62 @@ namespace Menus
 {
 	public class MenuBuilder 
 	{
+		Gee.List<MenuItemField> _fields;
+		Gee.List<MenuItem> _actions;
 		public MenuBuilder() {
-			items = new ArrayList<MenuItem>();
+			_fields = new ArrayList<MenuItemField>();			
 		}
-		public Gee.List<MenuItem> items { get; private set; }
+		public Enumerable<MenuItemField> fields() { return new Enumerable<MenuItemField>(_fields); }
+		public Enumerable<MenuItem> actions() { 
+			return (_actions == null)
+				? Enumerable.empty<MenuItem>()
+				: new Enumerable<MenuItem>(_actions);
+		}
+		public bool has_action { get { return (_actions != null); } }
+
+		public void add_cancel_item(string? name=null, string? help=null) { add_action(new MenuItem.cancel_item(name, help)); }			
+		public void add_save_item(string? name=null, string? help=null) { add_action(new MenuItem.save_item(name, help)); }
+		public void add_save_and_quit_item(string? name=null, string? help=null) { add_action(new MenuItem.save_and_quit_item(name, help)); }
+		public void add_quit_item(string? name=null, string? help=null) { add_action(new MenuItem.quit_item(name, help)); }
+		void add_action(MenuItem action) { 
+			if (_actions == null)
+				_actions = new ArrayList<MenuItem>();
+			_actions.add(action); 
+		}
 		
-		public MenuItem add_item(MenuItem item) {
-			items.add(item);
-			return item;
+		public MenuItemField add_field(MenuItemField field) {
+			_fields.add(field);
+			return field;
 		}
 		public BooleanField add_bool(string id, string name, string? help=null, bool value=false, string true_value="true", string false_value="false") {
-			return (BooleanField)add_item(new BooleanField(id, name, help, value, true_value, false_value));
+			return (BooleanField)add_field(new BooleanField(id, name, help, value, true_value, false_value));
 		}
 		public ColorField add_color(string id, string name, string? help=null, Data.Color? color=null) {
-			return (ColorField)add_item(new ColorField(id, name, help, color));
+			return (ColorField)add_field(new ColorField(id, name, help, color));
 		}
 		public EnumField add_enum(string id, string name, string? help=null, Value enum_value) {
-			return (EnumField)add_item(new EnumField(id, name, help, enum_value));
+			return (EnumField)add_field(new EnumField(id, name, help, enum_value));
 		}
 		public FileField add_file(string id, string name, string? help=null, string? path=null, string? file_extensions=null, string? root_path=null) {
-			return (FileField)add_item(new FileField(id, name, help, path, file_extensions, root_path));
+			return (FileField)add_field(new FileField(id, name, help, path, file_extensions, root_path));
 		}
 		public FolderField add_folder(string id, string name, string? help=null, string? path=null, string? root_path=null) {
-			return (FolderField)add_item(new FolderField(id, name, help, path, root_path));
+			return (FolderField)add_field(new FolderField(id, name, help, path, root_path));
 		}
 		public IntegerField add_int(string id, string name, string? help=null, int value, int min_value, int max_value, uint step=1) {
-			return (IntegerField)add_item(new IntegerField(id, name, help, value, min_value, max_value, step));
+			return (IntegerField)add_field(new IntegerField(id, name, help, value, min_value, max_value, step));
 		}
 		public ObjectField add_object(string id, string name, string? help=null, Object obj) {
-			return (ObjectField)add_item(new ObjectField(id, name, help, obj));
+			return (ObjectField)add_field(new ObjectField(id, name, help, obj));
 		}
 		public StringField add_string(string id, string name, string? help=null, string? value=null, string? character_mask_regex=null, string? value_mask_regex=null) {
-			return (StringField)add_item(new StringField(id, name, help, value, character_mask_regex, value_mask_regex));
+			return (StringField)add_field(new StringField(id, name, help, value, character_mask_regex, value_mask_regex));
 		}
 		public StringSelectionField add_string_selection(string id, string name, string? help=null, Iterable<string>? items=null, string? value=null) {
-			return (StringSelectionField)add_item(new StringSelectionField(id, name, help, items, value));
+			return (StringSelectionField)add_field(new StringSelectionField(id, name, help, items, value));
 		}
 		public UIntField add_uint(string id, string name, string? help=null, uint value, uint min_value, uint max_value, uint step=1) {
-			return (UIntField)add_item(new UIntField(id, name, help, value, min_value, max_value, step));
+			return (UIntField)add_field(new UIntField(id, name, help, value, min_value, max_value, step));
 		}
 		
 		public void add_object_properties(Object obj) {			

@@ -30,6 +30,10 @@ public class EverythingSelector : Selector {
 			return null;
 		return items[selected_index];
 	}
+	
+	protected override void rebuild_items() {
+		_items = null;
+	}
 
 	protected override int get_itemcount() { return items.size; }
 	protected override string get_item_name(int index) {

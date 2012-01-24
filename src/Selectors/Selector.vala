@@ -70,6 +70,11 @@ public abstract class Selector : Layers.Layer
 			blit_surface(window.surface_two.get_surface(), window.rect_two, dest);
 		}
 	}
+	public void rebuild() {
+		reset_surface();
+		rebuild_items();
+	}
+	protected abstract void	rebuild_items();
 
 	public bool has_previous { get { return selected_display_index() > 0; } }
 	public bool has_next { get { return selected_display_index() < display_item_count - 1; } }

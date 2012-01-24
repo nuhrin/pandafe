@@ -28,8 +28,12 @@ namespace Layers.Controls.List
 			header = add_layer(new MenuHeaderLayer("header")) as MenuHeaderLayer;
 			header.set_text(null, "Edit List: " + name, null, false);
 			var menu = new Menu("");
-			menu.add_item(new MenuItem.cancel_item());
-			menu.add_item(new MenuItem.save_item());
+			var cancel_text = get_cancel_item_text();
+			if (cancel_text != null)
+				menu.add_item(new MenuItem.cancel_item(cancel_text));
+			var save_text = get_save_item_text();
+			if (save_text != null)
+				menu.add_item(new MenuItem.save_item(save_text));
 			menu_selector = add_layer(new MenuSelector("list_menu_selector", MENU_SELECTOR_XPOS, MENU_SELECTOR_YPOS, menu, 100, 0)) as MenuSelector;
 			menu_selector.wrap_selector = false;
 		}
@@ -63,6 +67,9 @@ namespace Layers.Controls.List
 		protected virtual bool on_delete(ListItem<G> item) { return true; }
 		protected virtual bool can_edit(ListItem<G> item) { return true; }
 		protected virtual bool can_delete(ListItem<G> item) { return true; }
+		protected virtual string? get_cancel_item_text() { return MenuItemActionType.CANCEL.name(); }
+		protected virtual string? get_save_item_text() { return MenuItemActionType.SAVE.name(); }
+		protected bool save_on_return { get; set; }
 		
 		protected Rect get_selected_item_rect() {
 			return selector.get_selected_item_rect();
@@ -141,6 +148,8 @@ namespace Layers.Controls.List
 							move_active = false;
 							break;
 						}
+						if (save_on_return == true)
+							save_requested = true;
 						this.event_loop_done = true;
 						break;
 					default:

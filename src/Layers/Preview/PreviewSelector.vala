@@ -26,6 +26,7 @@ namespace Layers.Preview
 			selected_index = 1;
 		}
 
+		protected override void rebuild_items() { }
 		protected override int get_itemcount() { return items.length; }
 		protected override string get_item_name(int index) { return items[index]; }
 		protected override string get_item_full_name(int index) { return get_item_name(index); }

@@ -16,7 +16,7 @@ namespace Menus.Fields
 			set { change_value(value); }
 		}
 
-		public override string get_value_text() { return "..."; }
+		public override string get_value_text() { return ""; }
 
 		protected override Value get_field_value() { return _value; }
 		protected override void set_field_value(Value value) { change_value((Gee.List<G>)value); }

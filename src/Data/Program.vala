@@ -104,17 +104,17 @@ namespace Data
 				return true;
 			}, "Name is required.");
 			app_menu_item = new PndAppField("pnd_app", "Pnd App", "Choose the app...", pnd_app_id, pnd_id);
-			builder.add_item(app_menu_item);
+			builder.add_field(app_menu_item);
 			
 			command_menu_item = builder.add_string("command", "Command", null, command ?? "");
 			// custom command field
 			custom_command_menu_item = new CustomCommandField("custom_command", "Custom Command", null, name, custom_command, pnd_app_id, pnd_id);
-			builder.add_item(custom_command_menu_item);
+			builder.add_field(custom_command_menu_item);
 			
 			
 			arguments_menu_item = builder.add_string("arguments", "Arguments", arguments ?? "");
 			clockspeed_menu_item = new ClockSpeedField("clockspeed", "Clockspeed", "How fast?", clockspeed, 150, 1000, 5);
-			builder.add_item(clockspeed_menu_item);
+			builder.add_field(clockspeed_menu_item);
 			
 			initialize_menu_items();
 		}
@@ -141,7 +141,20 @@ namespace Data
 		protected bool apply_menu(Menu menu) {
 			if (name_menu_item.has_changes())
 				name = name_menu_item.value;
-			return false;
+			if (app_menu_item.has_changes()) {
+				pnd_id = app_menu_item.pnd_id;
+				pnd_app_id = app_menu_item.pnd_app_id;
+			}
+			if (command_menu_item.has_changes())
+				command = command_menu_item.value;
+			if (custom_command_menu_item.has_changes())
+				custom_command = custom_command_menu_item.value;
+			if (arguments_menu_item.has_changes())
+				arguments = arguments_menu_item.value;
+			if (clockspeed_menu_item.has_changes())
+				clockspeed = clockspeed_menu_item.value;
+				
+			return true;
 		}
 		
 		Menus.Fields.StringField name_menu_item;

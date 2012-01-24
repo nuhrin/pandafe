@@ -58,6 +58,7 @@ namespace Menus
 		MenuSelector get_selector(Menu menu) {
 			var new_selector = new MenuSelector(SELECTOR_ID, SELECTOR_XPOS, SELECTOR_YPOS, menu, max_name_length, max_value_length);
 			new_selector.changed.connect(() => on_selector_changed());
+			menu.message.connect((message) => on_message(message));
 			menu.error.connect((error) => on_error(error));
 			menu.field_error.connect((field, index, error) => on_field_error(field, index, error));
 			return new_selector;
@@ -108,6 +109,9 @@ namespace Menus
 		}
 		void on_selector_changed() {
 			message.help = selector.selected_item().help;
+		}
+		void on_message(string message) {
+			this.message.message = message;
 		}
 		void on_error(string error) {
 			message.error = error;
@@ -249,6 +253,7 @@ namespace Menus
 				push_menu(selected_menu);
 				return;
 			}
+			message.error = null;
 			switch(selected_item.action) {				
 				case MenuItemActionType.CANCEL:
 					if (selector.menu.cancel() == true)
@@ -268,7 +273,6 @@ namespace Menus
 					break;
 				default:
 					selected_item.activate(selector);
-					message.error = null;
 					break;					
 			}
 

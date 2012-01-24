@@ -24,8 +24,8 @@ namespace Menus.Fields
 			}
 		}
 
-		public new string value {
-			owned get { return (_selected_index != -1) ? items[_selected_index] : ""; }
+		public new string? value {
+			owned get { return (_selected_index != -1) ? items[_selected_index] : null; }
 			set { change_value(value); }
 		}
 
@@ -33,19 +33,37 @@ namespace Menus.Fields
 			items.add(item);
 		}
 		public void set_items(Iterable<string> items) {
+			var selected = value;
+			_selected_index = -1;
 			this.items.clear();
-			foreach(string item in items)
-				add_item(item);			
+			int index=0;
+			foreach(string item in items) {
+				if (_selected_index == -1 && item == selected)
+					_selected_index = index;
+				add_item(item);
+				index++;
+			}
+			changed();
 		}
 		public void set_items_array(string[] items) {
+			var selected = value;
+			_selected_index = -1;
 			this.items.clear();
-			foreach(string item in items)
+			int index=0;
+			foreach(string item in items) {
+				if (_selected_index == -1 && item == selected)
+					_selected_index = index;
 				add_item(item);
-		}
+				index++;
+			}
+			changed();
+		}		
 
-		public override string get_value_text() { return this.value; }
+		public override string get_value_text() { return this.value ?? ""; }
 
 		protected override bool select_previous() { 
+			if (items.size == 0)
+				return false;
 			if (_selected_index < 0)
 				return change_value_index(0);				
 			
@@ -54,6 +72,8 @@ namespace Menus.Fields
 			return change_value_index(_selected_index - 1);
 		}
 		protected override bool select_next() { 
+			if (items.size == 0)
+				return false;
 			if (_selected_index < 0)
 				return change_value_index(0);
 			if (_selected_index >= items.size - 1)
@@ -61,9 +81,18 @@ namespace Menus.Fields
 				
 			return change_value_index(_selected_index + 1);
 		}
-
+		
 		protected override Value get_field_value() { return this.value; }
-		protected override void set_field_value(Value value) { change_value((string)value); }
+		protected override void set_field_value(Value value) { change_value((string?)value); }
+		
+		protected override bool do_validation() {
+			if (_selected_index == -1 && items.size > 0) {
+				error("%s not selected.".printf(name));
+				return false;
+			}
+			
+			return true;
+		}
 
 		protected override void activate(MenuSelector selector) {
 			var rect = selector.get_selected_item_value_entry_rect();
@@ -82,7 +111,10 @@ namespace Menus.Fields
 			changed();
 			return true;
 		}
-		bool change_value(string new_value) {
+		bool change_value(string? new_value) {
+			if (new_value == null)
+				return change_value_index(-1);
+				
 			for(int index=0;index<items.size;index++) {
 				if (items[index] == new_value)
 					return change_value_index(index);					

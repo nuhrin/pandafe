@@ -165,7 +165,9 @@ namespace Data
 		}
 		public void flush_platforms() {
 			_platforms = null;
+			platforms_changed();
 		}
+		public signal void platforms_changed();
 
 		public PndData get_pnd_data() {
 			if (_pnd_data == null) {

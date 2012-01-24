@@ -43,8 +43,7 @@ namespace Fields
 				return false;
 			}
 			protected override bool edit_list_item(ListItem<Program> item, uint index) {
-				new MenuBrowser(new ObjectMenu("Edit Program", null, item.value), 40, 40).run();
-				return false;
+				return ObjectMenu.edit("Edit Program", item.value);
 			}
 		}
 	}

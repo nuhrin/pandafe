@@ -1,47 +1,46 @@
-using Gtk;
 using Gee;
 using Catapult;
-using Catapult.Gui.Fields;
 using Data;
+using Menus.Fields;
 
-namespace GtkFields
+namespace Fields
 {
-	public class GtkDefaultProgramField : StringSelectionField
+	public class DefaultProgramField : StringSelectionField
 	{
 		Iterable<Program>? programs;
-		public GtkDefaultProgramField(string id, string? label=null, Iterable<Program>? programs=null, Program? value) {
-			base(id, label);
+		public DefaultProgramField(string id, string name, string? help=null, Iterable<Program>? programs=null, Program? value) {
+			base(id, name, help);
 			if (programs != null)
 				set_programs(programs);
 			if (value != null)
-				base.set_active_value(value.name);
+				base.set_field_value(value.name);			
 		}
 
 		public void set_programs(Iterable<Program> programs) {
 			this.programs = programs;
 			var names = new Enumerable<Program>(programs).select<string>(p=>p.name);
 			base.set_items(names);
-			make_clean();
 		}
 
-		public Program? active_program {
+		public Program? selected_program {
 			owned get { return get_program(); }
 		}
 		protected Program? get_program() {
-			if (active_index > -1) {
-				string? active = base.get_active_value();
-				foreach(var program in programs) {
-					if (program.name == active)
-						return program;
-				}
+			var selected = (string?)base.get_field_value();
+			if (selected == null)
+				return null;
+				
+			foreach(var program in programs) {
+				if (program.name == selected)
+					return program;				
 			}
 			return null;
 		}
 		protected void set_program(Program? program) {
 			if (program == null)
-				base.set_active_value(null);
+				base.set_field_value((string?)null);
 			else
-				base.set_active_value(program.name);
+				base.set_field_value(program.name);
 		}
 
 		protected override Value get_field_value() { return get_program(); }

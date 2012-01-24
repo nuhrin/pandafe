@@ -2,8 +2,10 @@ using Gtk;
 using Gee;
 using Data.Pnd;
 using Layers.Controls;
+using Menus;
+using Menus.Fields;
 
-namespace Menus.Fields
+namespace Fields
 {
 	public class CustomCommandField : MenuItemField
 	{

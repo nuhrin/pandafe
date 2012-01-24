@@ -6,7 +6,9 @@ namespace Menus
 	{
 		public MenuItem.cancel_item(string? name=null, string? help=null) { this.with_action(MenuItemActionType.CANCEL, name, help); }
 		public MenuItem.save_item(string? name=null, string? help=null) { this.with_action(MenuItemActionType.SAVE, name, help); }
-		public MenuItem.save_and_quit_item(string? name=null, string? help=null) { this.with_action(MenuItemActionType.SAVE, name, help); }
+		public MenuItem.save_and_quit_item(string? name=null, string? help=null) { 
+			this.with_action(MenuItemActionType.SAVE_AND_QUIT, name ?? MenuItemActionType.SAVE.name(), help); 
+		}
 		public MenuItem.quit_item(string? name=null, string? help=null) { this.with_action(MenuItemActionType.QUIT, name, help); }
 		protected MenuItem.with_action(MenuItemActionType action, string? name=null, string? help=null) {
 			this(name ?? action.name(), help);

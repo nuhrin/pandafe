@@ -43,6 +43,7 @@ public class GameBrowser : Layers.ScreenLayer
 		@interface.push_screen_layer(this, false);
 		ui.colors_updated.connect(update_colors);
 		ui.font_updated.connect(update_font);
+		Data.Provider.instance().platforms_changed.connect(update_platforms);
 		flip();
 		Key.enable_unicode(1);
         while(event_loop_done == false) {
@@ -64,6 +65,48 @@ public class GameBrowser : Layers.ScreenLayer
 		this.set_rgb_color(ui.background_color_rgb);
 	}
 	void update_font() {
+	}
+	void update_platforms() {
+		string? current_id = (current_platform != null) ? current_platform.id : null;
+		platforms = Data.platforms();
+		current_platform = null;
+		current_platform_index = -1;
+		if (current_id != null) {
+			for(int index=0; index<platforms.size; index++) {
+				var platform = platforms[index];
+				if (platform.id == current_id) {
+					current_platform = platform;
+					current_platform_index = index;
+					break;
+				}
+			}
+		}
+		if (current_platform != null && current_folder != null) {
+			var unique_id = current_folder.unique_id();
+			var new_folder = current_platform.get_folder(unique_id);
+			if (new_folder == null)
+				new_folder = current_platform.get_root_folder();
+			current_folder = new_folder;
+		} else {
+			current_folder = null;
+		}
+		
+		if (everything_selector != null)
+			everything_selector.rebuild();
+		if (everything_active && existing_selector != null) {
+			var gfs = existing_selector as GameFolderSelector;
+			if (gfs != null) {
+				if (current_folder != null)
+					gfs.folder = current_folder;
+				else
+					existing_selector = null;
+			} else {
+				existing_selector.rebuild();
+			}			
+		}
+		change_selector();
+		selector.update();
+		debug("update_platforms() finish");
 	}
 	//
 	// browser state
@@ -356,11 +399,12 @@ public class GameBrowser : Layers.ScreenLayer
 	//
 	// commands: configuration
     void do_configuration() {
-		status_message.push("running main configuration...");
-		ConfigGui.run();
-		ui.update_font_from_preferences();
-		ui.update_colors_from_preferences();
-		this.update();
+//~ 		status_message.push("running main configuration...");
+//~ 		ConfigGui.run();
+//~ 		ui.update_font_from_preferences();
+//~ 		ui.update_colors_from_preferences();
+//~ 		this.update();
+		Menus.Concrete.MainConfiguration.run();
 	}
 	void edit_current_platform() {
 		Platform platform = null;
@@ -372,9 +416,11 @@ public class GameBrowser : Layers.ScreenLayer
 			platform = current_platform;
 		}
 		if (platform != null) {
-			status_message.push("editing platform %s...".printf(platform.name));
-			ConfigGui.edit_platform(platform);
-			status_message.pop();
+			//status_message.push("editing platform %s...".printf(platform.name));
+			if (ObjectMenu.edit("Platform: " + platform.name, platform) == true)
+				update_platforms();
+			//ConfigGui.edit_platform(platform);
+			//status_message.pop();
 		}
 	}
 	void edit_current_program() {
@@ -389,9 +435,16 @@ public class GameBrowser : Layers.ScreenLayer
 		if (platform != null) {
 			var program = current_platform.default_program;
 			if (program != null) {
-				status_message.push("editing program %s...".printf(program.name));
-				ConfigGui.edit_program(current_platform, program);
-				status_message.pop();
+				//status_message.push("editing program %s...".printf(program.name));
+				//ConfigGui.edit_program(current_platform, program);
+				if (ObjectMenu.edit("Program: " + program.name, program) == true) {
+					try {
+						Data.data_interface().save(platform);
+					} catch(GLib.Error e) {
+						debug("Error saving platform '%s': %s", platform.name, e.message);
+					}
+				}
+				//status_message.pop();
 			}
 		}
 	}

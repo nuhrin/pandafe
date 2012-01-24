@@ -18,7 +18,14 @@ namespace Menus.Concrete
 				
 		protected override void populate_items(Gee.List<MenuItem> items) { 
 			items.add(new GameBrowserAppearanceMenu("Appearance", new GameBrowserUI.from_preferences()));
-			items.add(GetTestMenu());
+			var platforms = new PlatformListField("platforms", "Platforms", null, Data.platforms());
+			platforms.changed.connect(() => {
+				Data.preferences().update_platform_order(platforms.value);				
+				Data.save_preferences();
+				Data.flush_platforms();
+			});
+			items.add(platforms);
+			//items.add(GetTestMenu());
 			items.add(new MenuItem.cancel_item("Return"));
 		}		
 
@@ -45,11 +52,7 @@ namespace Menus.Concrete
 			menu.add_item(new StringListField("strlist", "Strings", null, strlist));
 			
 			menu.add_item(new PndCategoryField("category", "Category"));
-			menu.add_item(new PndAppField("app_id", "App"));
-			menu.add_item(new PlatformListField("platforms", "Platforms", null, Data.platforms(), Data.data_interface()));
-			
-			menu.add_item(new CustomCommandField("command", "Custom Command", null));
-			
+
 			menu.add_item(new MenuItem.cancel_item("Return"));
 			menu.add_item(new MenuItem.quit_item());
 

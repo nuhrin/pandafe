@@ -6,22 +6,44 @@ using Menus.Fields;
 namespace Menus
 {
 	public class ObjectMenu : Menu
-	{
+	{		
 		Object obj;
 		MenuObject mo;
+		
+		public static bool edit(string title, Object obj) {
+			var menu = new ObjectMenu(title, null, obj);
+			new MenuBrowser(menu, 40, 40).run();
+			return menu.saved;
+		}
+		
 		public ObjectMenu(string name, string? help=null, Object obj) {
 			base(name, help);
 			this.obj = obj;
-			mo = obj as MenuObject;
+			mo = this.obj as MenuObject;
 		}
+		public bool saved { get; private set; }
+		
 		public override bool do_cancel() {
-			// revert...?
+			// revert...
+			saved = false;
 			return true;
 		}
 		public override bool do_save() {
-			// validate...
-			if (mo != null)
-				return mo.i_apply_menu(this);
+			if (mo != null) {
+				if (mo.i_apply_menu(this) == true) {
+					if (mo.i_save_object(this) == true) {
+						saved = true;
+						return true;
+					}
+				}
+				return false;
+			}
+				
+			foreach(var field in fields()) {
+				if (field.has_changes())
+					obj.set_property(field.id, field.value);
+			}
+			saved = true;
 			return true;
 		}
 	
@@ -32,11 +54,28 @@ namespace Menus
 			} else {
 				builder.add_object_properties(obj);
 			}
-			foreach(var item in builder.items) {
-				items.add(item);
+			foreach(var field in builder.fields()) {
+				items.add(field);
 			}
-			items.add(new MenuItem.cancel_item());
-			items.add(new MenuItem.save_item());
+			if (builder.has_action) {
+				foreach(var action in builder.actions())
+					items.add(action);
+			} else {
+				items.add(new MenuItem.cancel_item());
+				items.add(new MenuItem.save_item());
+			}
+		}
+		void copy_object_properties(Object from, Object to) {
+			unowned ObjectClass klass = from.get_class();
+	    	var properties = klass.list_properties();
+	    	foreach(var prop in properties) {
+				if (((prop.flags & ParamFlags.READWRITE) == ParamFlags.READWRITE) == false)
+					continue;
+				Type type = prop.value_type;
+				Value value = Value(type);
+				from.get_property(prop.name, ref value);
+				to.set_property(prop.name, value);
+			}
 		}
 	}
 }

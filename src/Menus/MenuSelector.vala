@@ -214,13 +214,12 @@ namespace Menus
 
 		Surface render_item(int index) {
 			var item = menu.items[index];
+			if (item is Menu || item is ListField || item is StringListField)
+				return font.render_shaded(menu_item_format.printf(item.name), @interface.white_color, @interface.black_color);
 			var field = item as MenuItemField;
 			if (field != null)
 				return font.render_shaded(field_item_format.printf(field.name, field.get_value_text()), @interface.white_color, @interface.black_color);
-			var menu = item as Menu;
-			if (menu != null)
-				return font.render_shaded(menu_item_format.printf(menu.name), @interface.white_color, @interface.black_color);
-
+			
 			return font.render_shaded(item.name, @interface.white_color, @interface.black_color);
 		}
 		void update_item_name(int index, bool selected=false) {

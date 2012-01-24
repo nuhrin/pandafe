@@ -9,7 +9,7 @@ public class PlatformSelector : Selector
 
 	public PlatformSelector(string id, int16 xpos, int16 ypos) {
 		base(id, xpos, ypos);
-		items = new Catapult.Enumerable<Platform>(Data.platforms()).to_list();
+		rebuild();
 	}
 
 	public Platform? selected_platform()
@@ -17,6 +17,10 @@ public class PlatformSelector : Selector
 		if (selected_index == -1)
 			return null;
 		return items[selected_index];
+	}
+	
+	protected override void rebuild_items() {
+		items = new Catapult.Enumerable<Platform>(Data.platforms()).to_list();
 	}
 
 	protected override int get_itemcount() { return items.size; }

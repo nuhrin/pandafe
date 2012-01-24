@@ -50,12 +50,7 @@ public class Platform : NamedEntity, GuiEntity, MenuObject
 		if (unique_id == null || unique_id == "")
 			return null;
 
-		var root = get_root_folder();
-		foreach(var subfolder in root.all_subfolders()) {
-			if (subfolder.unique_id() == unique_id)
-				return subfolder;
-		}
-		return null;
+		return get_root_folder().get_descendant_folder(unique_id);
 	}
 
 	void ensure_provider() {
@@ -146,19 +141,60 @@ public class Platform : NamedEntity, GuiEntity, MenuObject
 	
 	// menu
 	protected void build_menu(MenuBuilder builder) {
-		builder.add_string("name", "Name", null, this.name);
+		name_menu_item = builder.add_string("name", "Name", null, this.name);
 		builder.add_enum("platform_type", "Type", null, this.platform_type);
 		rom_folder_root_menu_item = builder.add_folder("rom_folder_root", "Rom Folder Root", null, this.rom_folder_root);
 		builder.add_string("rom_file_extensions", "Rom File Extensions", null, this.rom_file_extensions);
 		
 		programs_menu_item = new ProgramListField("programs", "Programs", null, programs, Data.data_interface());
-		builder.add_item(programs_menu_item);
+		builder.add_field(programs_menu_item);
+		
+		default_program_menu_item = new DefaultProgramField("default_program", "Default Program", null, programs, default_program);
+		builder.add_field(default_program_menu_item);
+		
+		initialize_menu_items();
 	}
-	protected bool apply_menu(Menu menu) {
-		return false;
+	void initialize_menu_items() {
+		programs_menu_item.changed.connect(() => default_program_menu_item.set_programs(programs_menu_item.value));
+	}
+	protected bool save_object(Menu menu) {
+		DataInterface di = Data.data_interface();		
+		if (name_menu_item.has_changes()) {
+			string id = this.id ?? generate_id();			
+			try {
+				Platform? existing = di.load<Platform>(id);
+				if (existing != null) {
+					menu.error("Id '%s' conflicts with Platform '%s'.".printf(id, existing.name));
+					return false;
+				}
+			} catch {
+			}
+		}
+		try {
+			menu.message("Saving platform '%s'...".printf(name));
+			di.save(this);
+			ensure_folders_on_update(menu);
+			return true;
+		}		
+		catch(Error e) {
+			menu.error(e.message);
+			return false;
+		}		
+	}
+	void ensure_folders_on_update(Menu menu) {
+//~ 		var existing_id = get_root_folder().unique_id();
+		_provider = null;
+		menu.message("Scanning platform folders...");
+		var new_root = get_root_folder();
+		new_root.rescan_children(true);
+//~ 		if (new_root.unique_id() != existing_id) {
+//~ 			
+//~ 		}
 	}
 	
+	Menus.Fields.StringField name_menu_item;
 	Menus.Fields.FolderField rom_folder_root_menu_item;
 	ProgramListField programs_menu_item;
+	DefaultProgramField default_program_menu_item;
 	
 }

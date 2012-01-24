@@ -57,6 +57,7 @@ namespace Menus
 			return (T)_field_id_hash[id];
 		}
 		
+		public signal void message(string message);
 		public signal void error(string error);
 		public signal void field_error(MenuItemField field, int index, string error);
 		
