@@ -275,7 +275,7 @@ public class GameBrowser : Layers.ScreenLayer
 
 		if (event.keysym.mod == KeyModifier.NONE) {
 			switch(event.keysym.sym) {
-				case KeySymbol.SPACE:
+				case KeySymbol.PERIOD:
 					process_unicode_disabled = true;
 					return;
 				case KeySymbol.UP:
@@ -320,8 +320,8 @@ public class GameBrowser : Layers.ScreenLayer
 					edit_current_platform();
 					drain_events();
 					break;
-				case KeySymbol.PERIOD:
-					show_test_menu();
+				case KeySymbol.SPACE:
+					show_context_menu();
 					drain_events();
 					break;
 				case KeySymbol.ESCAPE:
@@ -343,7 +343,7 @@ public class GameBrowser : Layers.ScreenLayer
 		}
     }
     void on_keyup_event (KeyboardEvent event) {
-		if (event.keysym.sym != KeySymbol.SPACE)
+		if (event.keysym.sym != KeySymbol.PERIOD)
 			process_unicode_disabled = false;
 
 		if (event.keysym.sym == KeySymbol.RSHIFT) {
@@ -640,7 +640,7 @@ public class GameBrowser : Layers.ScreenLayer
 		}
 	}
 
-	void show_test_menu() {
+	void show_context_menu() {
 		//Menus.Concrete.MainConfiguration.run();
 		if (selector.selected_index == -1)
 			return;
