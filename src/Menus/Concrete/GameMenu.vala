@@ -11,35 +11,17 @@ namespace Menus.Concrete
 			base("Game: " + game.full_name);
 			this.game = game;
 			ensure_items();		
-		}
-		
-		public override bool do_cancel() {
-			return true;
-		}
-	
-		public override bool do_save() {
-			return true;
-		}
-				
+		}		
 		protected override void populate_items(Gee.List<MenuItem> items) { 
-			items.add(new RunGameItem(game));
-			if (game.parent != null)
-				items.add(new GameFolderMenu(game.parent));
-			items.add(new MenuItem.cancel_item("Return"));			
-		}
-		
-		class RunGameItem : MenuItem {
-			GameItem game;
-			public RunGameItem(GameItem game) {
-				base("Run");				
-				this.game = game;
-			}
-			public override void activate(MenuSelector selector) {
-				selector.menu.message("Running...");
+			items.add(new MenuItem.custom("Run", null, "Running...", () => {
 				game.run();
-				selector.menu.message("");
+			}));
+			if (game.parent != null) {
+				var menu = new GameFolderMenu(game.parent);
+				menu.add_item(new MenuItem.cancel_item("Return"));
+				items.add(menu);
 			}
-		}
+		}		
 	}
 
 }
