@@ -135,6 +135,7 @@ public class Platform : NamedEntity, MenuObject
 			menu.message("Saving platform '%s'...".printf(name));
 			di.save(this);
 			ensure_folders_on_update(menu);
+			Data.flush_platforms();
 			return true;
 		}		
 		catch(Error e) {

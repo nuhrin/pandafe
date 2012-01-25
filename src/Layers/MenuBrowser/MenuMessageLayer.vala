@@ -12,7 +12,7 @@ namespace Layers.MenuBrowser
 		
 		public MenuMessageLayer(string id, int16 layer_height=480) {
 			int16 font_height = @interface.get_monospaced_font_height();
-			base(id, 780, font_height, 10, layer_height - font_height - 10);
+			base(id, 770, font_height, 10, layer_height - font_height - 10);
 			font = @interface.get_monospaced_font();
 		}
 

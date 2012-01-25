@@ -7,8 +7,6 @@ namespace Menus
 {
 	public class MenuSelector : Layers.Layer
 	{
-		int16 xpos;
-		int16 ypos;
 		Menu _menu;
 		uint8 max_name_length;
 		uint8 max_value_length;
@@ -59,6 +57,8 @@ namespace Menus
 		public unowned string menu_name { get { return _menu.name; } }
 		public Menu menu { get { return _menu; } }
 		
+		public int16 xpos { get; set; }
+		public int16 ypos { get; set; }
 		public int height { get { return _height; } }
 		public int width { get { return _width; } }
 		public uint item_count { get { return menu.items.size; } }

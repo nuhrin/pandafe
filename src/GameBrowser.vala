@@ -641,7 +641,53 @@ public class GameBrowser : Layers.ScreenLayer
 	}
 
 	void show_test_menu() {
-		Menus.Concrete.MainConfiguration.run();
-	}	
+		//Menus.Concrete.MainConfiguration.run();
+		if (selector.selected_index == -1)
+			return;
+		
+		var platform_selector = selector as PlatformSelector;
+		if (platform_selector != null) {			
+			show_platform_menu(platform_selector.selected_platform());
+			return;
+		}
+		
+		if (everything_active == true) {
+			show_game_menu(everything_selector.selected_game());
+			return;
+		}
+		
+		var game_selector = selector as GameFolderSelector;
+		if (game_selector != null) {
+			var item = game_selector.selected_item();
+			var folder = item as GameFolder;
+			if (folder != null) {
+				show_folder_menu(folder);
+				return;
+			}
+			var game = item as GameItem;
+			if (game != null) {
+				show_game_menu(game);
+				return;
+			}
+		}
+				
+	}
+	void show_game_menu(GameItem? game) {
+		if (game != null)
+			show_menu_overlay(new Menus.Concrete.GameMenu(game));
+	}
+	void show_folder_menu(GameFolder folder) {
+		show_menu_overlay(new Menus.Concrete.GameFolderMenu(folder));
+	}
+	void show_program_menu(Program program) {
+	}
+	void show_platform_menu(Platform? platform) {
+		if (platform != null)
+			show_menu_overlay(new Menus.Concrete.PlatformMenu(platform));
+		
+	}
+	void show_menu_overlay(Menu menu) {
+		new Layers.GameBrowser.MenuOverlay(menu, 100, 100).run();
+	}
 	
 }

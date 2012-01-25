@@ -77,6 +77,7 @@ pandafe_VALASOURCES = \
 	Layers/Controls/ValueSelector.vala \
 	Layers/Controls/ValueSelectorBase.vala \
 	Layers/GameBrowser/HeaderLayer.vala \
+	Layers/GameBrowser/MenuOverlay.vala \
 	Layers/GameBrowser/StatusMessageLayer.vala \
 	Layers/MenuBrowser/ColorDisplayLayer.vala \
 	Layers/MenuBrowser/MenuHeaderLayer.vala \
@@ -89,7 +90,10 @@ pandafe_VALASOURCES = \
 	Layers/ScreenLayer.vala \
 	Layers/SurfaceLayer.vala \
 	Menus/Concrete/GameBrowserAppearanceMenu.vala \
+	Menus/Concrete/GameFolderMenu.vala \
+	Menus/Concrete/GameMenu.vala \
 	Menus/Concrete/MainConfiguration.vala \
+	Menus/Concrete/PlatformMenu.vala \
 	Menus/Fields/BooleanField.vala \
 	Menus/Fields/EnumField.vala \
 	Menus/Fields/FileField.vala \
