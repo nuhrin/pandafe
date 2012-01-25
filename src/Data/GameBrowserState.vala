@@ -1,8 +1,5 @@
 using Gee;
 using Catapult;
-using Catapult.Gui;
-using Catapult.Gui.Fields;
-using Catapult.Gui.Fieldsets;
 
 namespace Data
 {

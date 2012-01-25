@@ -1,7 +1,7 @@
 NULL =
 
 AM_CPPFLAGS = \
-	$(CATAPULT_GUI_CFLAGS) \
+	$(CATAPULT_CFLAGS) \
 	$(GTK_SOURCEVIEW_CFLAGS) \
 	$(PANDORA_GLIB_CFLAGS) \
 	$(SDL_CFLAGS) \
@@ -16,8 +16,6 @@ bin_PROGRAMS = \
 
 pandafe_VALASOURCES = \
 	main.vala \
-	ConfigGui.vala \
-	libpndtest.vala \
 	GameBrowser.vala \
 	GameBrowserUI.vala \
 	InterfaceHelper.vala \
@@ -52,16 +50,6 @@ pandafe_VALASOURCES = \
 	Fields/PndCategoryField.vala \
 	Fields/PndSelectionField.vala \
 	Fields/ProgramListField.vala \
-	GtkFields/GtkColorField.vala \
-	GtkFields/GtkClockspeedField.vala \
-	GtkFields/GtkCustomCommandField.vala \
-	GtkFields/GtkDefaultProgramField.vala \
-	GtkFields/GtkPndAppSelectionField.vala \
-	GtkFields/GtkPndSelectionField.vala \
-	GtkFields/GtkPndScriptFileField.vala \
-	GtkFields/GtkPlatformListField.vala \
-	GtkFields/GtkProgramListField.vala \
-	GtkFields/GtkSourceEditField.vala \
 	Layers/Controls/Chooser/ChooserHeader.vala \
 	Layers/Controls/Chooser/ChooserBase.vala \
 	Layers/Controls/Chooser/ChooserSelector.vala \
@@ -135,11 +123,11 @@ pandafe_SOURCES = \
 	$(NULL)
 
 pandafe.vala.stamp: $(pandafe_VALASOURCES)
-	$(VALA_V)$(VALAC) $(VALAFLAGS) -C --vapidir $(srcdir)/../vapi --pkg catapult-gui --pkg catapult --pkg gtksourceview-2.0 --pkg pandora-glib --pkg gee-0.8 --pkg gtk+-2.0 --pkg sdl --pkg sdl-ttf --pkg sdl-gfx --pkg config --pkg GdkKeySyms --pkg sdl-keyboard $^
+	$(VALA_V)$(VALAC) $(VALAFLAGS) -C --vapidir $(srcdir)/../vapi --pkg catapult --pkg gtksourceview-2.0 --pkg pandora-glib --pkg gee-0.8 --pkg gtk+-2.0 --pkg sdl --pkg sdl-ttf --pkg sdl-gfx --pkg config --pkg GdkKeySyms --pkg sdl-keyboard $^
 	@touch $@
 
 pandafe_LDADD = \
-	$(CATAPULT_GUI_LIBS) \
+	$(CATAPULT_LIBS) \
 	$(GTK_SOURCEVIEW_LIBS) \
 	$(PANDORA_GLIB_LIBS) \
 	$(SDL_LIBS) \

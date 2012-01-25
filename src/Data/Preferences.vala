@@ -1,13 +1,8 @@
 using Gee;
-using GtkFields;
 using Catapult;
-using Catapult.Gui;
-using Catapult.Gui.Fields;
-using Catapult.Gui.Fieldsets;
-
 namespace Data
 {
-	public class Preferences : Entity, GuiEntity
+	public class Preferences : Entity
 	{
 		const string DEFAULT_FONT_PATH  = "/usr/share/fonts/truetype/";
 		const string DEFAULT_FONT = "/usr/share/fonts/truetype/DejaVuSansMono.ttf";
@@ -59,30 +54,5 @@ namespace Data
 //~ 			}
 //~ 			return false;
 //~ 		}
-		protected void populate_field_box(FieldBox box) {
-			// add notebook
-			var notebook = new NotebookFieldset("preferences_notebook");
-			notebook.show_tabs = false;
-			// add single page
-			var first_page = notebook.add_page("first_page", "Page");
-			var frame = new FrameFieldset("frame", "Preferences");
-			first_page.add_field(frame);
-			//frame.add_string("test", "_Test", this.test);
-			var font_field = new FileField("font", "_Font", font);
-			if (font == null || font == "")
-				font_field.current_folder = DEFAULT_FONT_PATH;
-			font_field.add_pattern("*.ttf");
-			frame.add_field(font_field);
-			var item_color_field = new GtkColorField("item-color", "Item _Color", item_color.get_gdk_color());
-			frame.add_field(item_color_field);
-			var selected_item_color_field = new GtkColorField("selected-item-color", "_Selected Item Color", selected_item_color.get_gdk_color());
-			frame.add_field(selected_item_color_field);
-			var background_color_field = new GtkColorField("background-color", "_Background Color", background_color.get_gdk_color());
-			frame.add_field(background_color_field);
-
-			box.add_field(notebook);
-			box.set_field_packing(notebook, true, true, 0, Gtk.PackType.START);
-		}
-
 	}
 }

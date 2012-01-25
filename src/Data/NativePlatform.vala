@@ -1,6 +1,5 @@
 using Gee;
 using Catapult;
-using Catapult.Gui;
 using Data;
 using Data.GameList;
 
@@ -33,10 +32,4 @@ public class NativePlatform : Platform
 		}
 		return false;
 	}
-
-	// gui
-	protected override void populate_field_container(FieldContainer container) {
-
-	}
-
 }
