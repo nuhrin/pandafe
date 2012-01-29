@@ -1,5 +1,5 @@
-using Gtk;
 using Gee;
+using SDL;
 using Catapult;
 using Data;
 using Layers.Controls;
@@ -11,12 +11,10 @@ namespace Fields
 {
 	public class ProgramListField : ListField<Program>
 	{
-		DataInterface data_interface;
-		public ProgramListField(string id, string name, string? help=null, Gee.List<Program> value, DataInterface data_interface) {
+		public ProgramListField(string id, string name, string? help=null, Gee.List<Program> value) {
 			base(id, name, help, value);
-			this.data_interface = data_interface;			
 		}
-
+		
 		protected override ListEditor<Program> get_list_editor() {
 			return new ProgramListEditor(id, name, value, p=>p.name);
 		}
@@ -26,7 +24,7 @@ namespace Fields
 			public ProgramListEditor(string id, string name, Gee.List<Program> list, owned MapFunc<string?, Program> get_name_string) {
 				base(id, name, list, (owned)get_name_string);
 			}
-			protected override bool create_item(out Program item) {
+			protected override bool create_item(Rect selected_item_rect, out Program item) {
 				item = null;
 				var chooser = new PndAppChooser("new_program_app_chooser", "Select app for new program...");
 				var app = chooser.run();

@@ -13,14 +13,10 @@ namespace Layers.Controls.List
 		
 		public override unowned string name {
 			get {
-				if (_name == null)
-					_name = get_name_string(get_unowned_value()) ?? "";
+				_name = get_name_string(get_unowned_value()) ?? "";
 				return _name;
 			}
 		}
 		string _name;
-		protected override void on_value_set() {
-			_name = null;
-		}
 	}
 }

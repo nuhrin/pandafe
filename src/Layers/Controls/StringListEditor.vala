@@ -18,7 +18,7 @@ namespace Layers.Controls
 		protected override ListItem<string> get_list_item(string item) {
 			return new StringListItem(item);
 		}
-		protected override bool create_item(out string item) { 
+		protected override bool create_item(Rect selected_item_rect, out string item) { 
 			item = ""; 
 			return true;
 		}

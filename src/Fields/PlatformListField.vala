@@ -1,5 +1,5 @@
-using Gtk;
 using Gee;
+using SDL;
 using Catapult;
 using Data;
 using Layers.Controls;
@@ -25,7 +25,7 @@ namespace Fields
 				base(id, name, list, (owned)get_name_string);
 				save_on_return = true;
 			}
-			protected override bool create_item(out Platform item) {
+			protected override bool create_item(Rect selected_item_rect, out Platform item) {
 				item = new Platform() {
 					name = "",
 					platform_type = PlatformType.ROM

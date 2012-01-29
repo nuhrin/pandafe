@@ -62,7 +62,7 @@ namespace Layers.Controls.List
 		}
 		
 		protected abstract ListItem<G> get_list_item(G item);
-		protected abstract bool create_item(out G item);
+		protected abstract bool create_item(Rect selected_item_rect, out G item);
 		protected abstract bool edit_list_item(ListItem<G> item, uint index);
 		protected virtual bool on_delete(ListItem<G> item) { return true; }
 		protected virtual bool can_edit(ListItem<G> item) { return true; }
@@ -165,7 +165,6 @@ namespace Layers.Controls.List
 			if (unicode <= uint8.MAX) {
 				char c = (char)unicode;
 				if (c.isalnum() == true) {
-					//debug("'%c' pressed", c);
 					select_next_starting_with(c);
 					return false;
 				}
@@ -253,11 +252,14 @@ namespace Layers.Controls.List
 				return;
 			}
 			// item selected
-			Rect rect = selector.get_selected_item_rect();
-			var selected_item = selector.selected_item();
-			ListItemActionType action = new ListItemActionSelector("item_action_selector", rect.x + (int16)rect.w, rect.y, 
-					can_edit(selected_item), can_delete(selected_item))
-				.run();
+			ListItemActionType action = ListItemActionType.INSERT_BELOW;
+			Rect rect = selector.get_selected_item_rect();			
+			if (selector.item_count > 0) {
+				var selected_item = selector.selected_item();
+				bool move_ok = (selector.item_count > 1);
+				action = new ListItemActionSelector("item_action_selector", rect.x + (int16)rect.w, rect.y, 
+					can_edit(selected_item), can_delete(selected_item), move_ok).run();
+			}
 			switch(action) {
 				case ListItemActionType.EDIT:
 					if (edit_list_item((ListItem<G>)selector.selected_item(), selector.selected_index) == true) {
@@ -267,7 +269,7 @@ namespace Layers.Controls.List
 					break;
 				case ListItemActionType.INSERT_ABOVE:
 					G item;
-					if (create_item(out item) == false)
+					if (create_item(rect, out item) == false)
 						break;
 					var list_item = get_list_item(item);
 					selector.insert_item_before_selected(list_item);
@@ -283,12 +285,11 @@ namespace Layers.Controls.List
 					break;
 				case ListItemActionType.INSERT_BELOW:
 					G item;
-					if (create_item(out item) == false)
+					if (create_item(rect, out item) == false)
 						break;
 					var list_item = get_list_item(item);
-					selector.insert_item_before_selected(list_item);
+					selector.insert_item_after_selected(list_item);
 					update();
-
 					var index = selector.selected_index;
 					if (edit_list_item(list_item, index) == true) {
 						selector.reset();
