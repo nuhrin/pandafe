@@ -5,8 +5,8 @@ namespace Menus.Fields
 {
 	public class StringSelectionField : MenuItemField
 	{
-		int _selected_index;
-		ArrayList<string> items;
+		protected int _selected_index;
+		protected ArrayList<string> items;
 		
 		public StringSelectionField(string id, string name, string? help=null, Iterable<string>? items=null, string? value=null) {
 			base(id, name, help);

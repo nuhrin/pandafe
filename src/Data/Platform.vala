@@ -107,7 +107,7 @@ public class Platform : NamedEntity, MenuObject
 		builder.add_folder("rom_folder_root", "Rom Folder Root", null, this.rom_folder_root);
 		builder.add_string("rom_file_extensions", "Rom File Extensions", null, this.rom_file_extensions);
 		
-		programs_field = new ProgramListField("programs", "Programs", null, programs, Data.data_interface());
+		programs_field = new ProgramListField("programs", "Programs", null, programs);
 		builder.add_field(programs_field);
 		
 		default_program_field = new DefaultProgramField("default_program", "Default Program", null, programs, default_program);

@@ -25,6 +25,11 @@ pandafe_VALASOURCES = \
 	Data/NativePlatform.vala \
 	Data/NativePlatformCategory.vala \
 	Data/Platform.vala \
+	Data/Options/FlagOption.vala \
+	Data/Options/Option.vala \
+	Data/Options/OptionSet.vala \
+	Data/Options/OptionType.vala \
+	Data/Options/StringSelectionOption.vala \
 	Data/Pnd/AppItem.vala \
 	Data/Pnd/Category.vala \
 	Data/Pnd/MountSet.vala \
@@ -33,6 +38,7 @@ pandafe_VALASOURCES = \
 	Data/Pnd/PndItem.vala \
 	Data/Preferences.vala \
 	Data/Program.vala \
+	Data/ProgramSettings.vala \
 	Data/Provider.vala \
 	GameList/GameFolder.vala \
 	GameList/GameFolderCache.vala \
@@ -50,6 +56,8 @@ pandafe_VALASOURCES = \
 	Fields/PndCategoryField.vala \
 	Fields/PndSelectionField.vala \
 	Fields/ProgramListField.vala \
+	Fields/ProgramOptionsListField.vala \
+	Fields/ProgramSettingsField.vala \
 	Layers/Controls/Chooser/ChooserHeader.vala \
 	Layers/Controls/Chooser/ChooserBase.vala \
 	Layers/Controls/Chooser/ChooserSelector.vala \
@@ -94,6 +102,7 @@ pandafe_VALASOURCES = \
 	Menus/Concrete/GameMenu.vala \
 	Menus/Concrete/MainConfiguration.vala \
 	Menus/Concrete/PlatformMenu.vala \
+	Menus/Concrete/ProgramSettingsMenu.vala \
 	Menus/Fields/BooleanField.vala \
 	Menus/Fields/EnumField.vala \
 	Menus/Fields/FileField.vala \

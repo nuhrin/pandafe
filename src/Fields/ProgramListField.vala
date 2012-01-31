@@ -33,8 +33,8 @@ namespace Fields
 						name = app.title,
 						pnd_id = app.package_id,
 						pnd_app_id = app.id,
-						command = app.exec_command,
-						arguments = app.exec_arguments
+						command = app.exec_command
+						//arguments = app.exec_arguments
 					};
 					return true;
 				}

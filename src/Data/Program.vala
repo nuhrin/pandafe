@@ -2,20 +2,37 @@ using Catapult;
 using Fields;
 using Menus;
 using Menus.Fields;
+using Data.Options;
 
 namespace Data
 {
 	public class Program : Object, MenuObject
 	{
+		construct {
+			options = new OptionSet();
+			default_settings = new ProgramDefaultSettings();
+		}
 		public string name { get; set; }
 		public string pnd_id { get; set; }
 		public string pnd_app_id { get; set; }
 		public string command { get; set; }
 		public string custom_command { get; set; }
 
-		public string arguments { get; set; }
+		//public string arguments { get; set; }
+		public OptionSet options { get; set; }
+		public ProgramDefaultSettings default_settings { get; set; }
 		public uint clockspeed { get; set; }
 
+		
+		public string get_arguments(ProgramSettings? settings=null) {
+			var effective = new ProgramSettings();
+			effective.merge_override(default_settings);
+			if (settings != null)
+				effective.merge_override(settings);
+			
+			return options.get_option_string_from_settings(effective, default_settings.extra_arguments);
+		}
+		
 		// menu
 		protected void build_menu(MenuBuilder builder) {
 			name_field = builder.add_string("name", "Name", null, this.name);
@@ -34,7 +51,14 @@ namespace Data
 			builder.add_field(custom_command_field);
 			
 			
-			arguments_field = builder.add_string("arguments", "Arguments", arguments ?? "");
+			//arguments_field = builder.add_string("arguments", "Arguments", arguments ?? "");
+			
+			options_field = new ProgramOptionsListField("options", "Options", null, options);
+			builder.add_field(options_field);
+			
+			default_setting_field = new ProgramSettingsField("default_settings", "Default Settings", null, this, default_settings);
+			builder.add_field(default_setting_field);
+			
 			clockspeed_field = new ClockSpeedField("clockspeed", "Clockspeed", "How fast?", clockspeed, 150, 1000, 5);
 			builder.add_field(clockspeed_field);
 			
@@ -53,8 +77,8 @@ namespace Data
 			if (app != null) {
 				if (replace == true || command_field.value == "")
 					command_field.value = app.exec_command ?? "";
-				if (replace == true || arguments_field.value == "")
-					arguments_field.value = app.exec_arguments ?? "";
+				//if (replace == true || arguments_field.value == "")
+					//arguments_field.value = app.exec_arguments ?? "";
 				clockspeed_field.default_value = app.clockspeed;
 			} else {
 				clockspeed_field.default_value = 0;
@@ -71,8 +95,10 @@ namespace Data
 				command = command_field.value;
 			if (custom_command_field.has_changes())
 				custom_command = custom_command_field.value;
-			if (arguments_field.has_changes())
-				arguments = arguments_field.value;
+			//if (arguments_field.has_changes())
+				//arguments = arguments_field.value;
+			if (options_field.has_changes())
+				options = options_field.options();
 			if (clockspeed_field.has_changes())
 				clockspeed = clockspeed_field.value;
 				
@@ -83,7 +109,8 @@ namespace Data
 		PndAppField app_field;
 		Menus.Fields.StringField command_field;
 		CustomCommandField custom_command_field;
-		Menus.Fields.StringField arguments_field;
+		ProgramOptionsListField options_field;
+		ProgramSettingsField default_setting_field;
 		ClockSpeedField clockspeed_field;
 
 	}

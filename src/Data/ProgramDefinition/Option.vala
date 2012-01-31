@@ -1,7 +1,6 @@
 using Catapult;
-using pandafe.Data.ProgramDefinition.OptionType;
 
-namespace pandafe.Data.ProgramDefinition
+namespace Data.ProgramDefinition
 {
 	public class Option : Object
 	{

@@ -74,7 +74,7 @@ namespace Data.GameList
 			uint clockspeed = program.clockspeed;
 			if (clockspeed == 0 && app != null)
 				clockspeed = app.clockspeed;
-			string args = game_args ?? program.arguments;
+			string args = game_args;// ?? program.arguments;
 			if ((args == null || args == "") && app != null)
 				args = app.exec_arguments;
 
