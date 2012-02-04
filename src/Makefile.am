@@ -26,10 +26,10 @@ pandafe_VALASOURCES = \
 	Data/NativePlatformCategory.vala \
 	Data/Platform.vala \
 	Data/Options/FlagOption.vala \
+	Data/Options/MultipleChoiceOption.vala \
 	Data/Options/Option.vala \
 	Data/Options/OptionSet.vala \
 	Data/Options/OptionType.vala \
-	Data/Options/StringSelectionOption.vala \
 	Data/Pnd/AppItem.vala \
 	Data/Pnd/Category.vala \
 	Data/Pnd/MountSet.vala \

@@ -8,13 +8,13 @@ using Layers.Controls.List;
 
 namespace Data.Options
 {
-	public class StringSelectionOption : Option
+	public class MultipleChoiceOption : Option
 	{
 		construct {
 			choices = new ArrayList<Choice>();
 			default_choice_index = -1;
 		}
-		public override OptionType option_type { get { return OptionType.STRING_SELECTION; } }
+		public override OptionType option_type { get { return OptionType.MULTIPLE_CHOICE; } }
 		public Gee.List<Choice> choices { get; set; }
 		public int default_choice_index { get; set; }
 		
@@ -100,7 +100,7 @@ namespace Data.Options
 					return true;
 				}
 				protected override bool edit_list_item(ListItem<Choice> item, uint index) {
-					return ObjectMenu.edit("Edit Selection Choice", item.value);
+					return ObjectMenu.edit("Edit Choice", item.value);
 				}
 			}
 		}

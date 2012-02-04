@@ -44,7 +44,9 @@ namespace Fields
 				return false;
 			}
 			protected override bool edit_list_item(ListItem<Option> item, uint index) {
-				return ObjectMenu.edit("Edit Option", item.value);				
+				var name = item.value.option_type.name();
+				string title = (name != "") ? "Edit %s Option".printf(name) : "Edit Option";
+				return ObjectMenu.edit(title, item.value);				
 			}
 		}
 	}
