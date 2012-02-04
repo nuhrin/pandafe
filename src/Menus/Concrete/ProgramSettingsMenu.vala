@@ -20,6 +20,7 @@ namespace Menus.Concrete
 		ProgramDefaultSettings? default_settings;
 		ProgramSettings settings;
 		StringField extra_arguments_field;
+		ClockSpeedField clockspeed_field;
 		
 		public ProgramSettingsMenu(Program program, ProgramSettings settings) {
 			var default_settings = settings as ProgramDefaultSettings;
@@ -49,7 +50,8 @@ namespace Menus.Concrete
 				original_settings[option.name] = option.get_setting_value_from_field(field);
 			}
 			if (default_settings != null)
-				default_settings.extra_arguments = extra_arguments_field.value;			
+				default_settings.extra_arguments = extra_arguments_field.value;							
+			default_settings.clockspeed = clockspeed_field.value;
 			saved = true;
 			return true;
 		}
@@ -67,6 +69,8 @@ namespace Menus.Concrete
 				extra_arguments_field = new StringField("extra_arguments", name, null, default_settings.extra_arguments ?? "");
 				items.add(extra_arguments_field);
 			}
+			clockspeed_field = new ClockSpeedField("clockspeed", "Clockspeed", null, default_settings.clockspeed, 150, 1000, 5);
+			items.add(clockspeed_field);
 			items.add(new MenuItem.cancel_item());
 			items.add(new MenuItem.save_item());
 		}		
