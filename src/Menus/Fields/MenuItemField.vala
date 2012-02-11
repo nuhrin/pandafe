@@ -40,6 +40,8 @@ namespace Menus.Fields
 		}
 
 		public abstract string get_value_text();
+		public abstract int get_minimum_menu_value_text_length();
+		
 		public virtual Surface? get_value_rendering(Font* font) { return null; }
 
 		public override bool process_keydown_event(KeyboardEvent event) {

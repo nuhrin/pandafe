@@ -20,6 +20,7 @@ namespace Fields
 		}		
 		
 		public override string get_value_text() { return "..."; }
+		public override int get_minimum_menu_value_text_length() { return 3; }
 
 		protected override Value get_field_value() { return settings; }
 		protected override void set_field_value(Value value) { change_value((ProgramSettings)value); }

@@ -25,6 +25,7 @@ namespace Fields
 			
 			return _value.title;
 		}
+		public override int get_minimum_menu_value_text_length() { return -1; }
 
 		protected override Value get_field_value() { return _value; }
 		protected override void set_field_value(Value value) { change_value((AppItem?)value); }

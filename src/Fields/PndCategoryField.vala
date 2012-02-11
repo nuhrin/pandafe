@@ -18,6 +18,7 @@ namespace Fields
 		public Data.Pnd.CategoryBase? category() { return Data.pnd_data().get_category_from_path(_value ?? ""); }
 
 		public override string get_value_text() { return (_value == null) ? "" : Path.get_basename(_value); }
+		public override int get_minimum_menu_value_text_length() { return -1; }
 
 		protected override Value get_field_value() { return _value; }
 		protected override void set_field_value(Value value) { change_value((string?)value); }

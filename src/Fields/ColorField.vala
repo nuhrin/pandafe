@@ -27,6 +27,7 @@ namespace Fields
 		public Data.Color? get_edited_color() { return _menu_color; }
 
 		public override string get_value_text() { return _color.spec; }
+		public override int get_minimum_menu_value_text_length() { return 7; } // "#000000"
 //~ 		public override Surface? get_value_rendering(SDLTTF.Font* font) {
 //~ 			unowned SDLTTF.Font f = font; 
 //~ 			var color = _color.get_sdl_color();

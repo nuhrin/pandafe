@@ -16,6 +16,7 @@ namespace Menus
 		int _height;
 		int _width;
 		uint8 max_name_length_real;
+		uint8 max_value_length_real;
 		int16 x_pos_value;
 		string field_item_format;
 		string menu_item_format;
@@ -187,17 +188,32 @@ namespace Menus
 			_height = (font_height * surface_items) + (item_spacing * surface_items) + (item_spacing * 2);
 
 			int max_name_chars = 0;
+			int max_value_chars = 0;			
 			foreach(var item in menu.items) {
 				if (item.name.length > max_name_chars)
 					max_name_chars = item.name.length;
-				if (has_field == false && item is MenuItemField)
+				var field = item as MenuItemField;
+				if (field != null) {
 					has_field = true;
+					if (max_value_chars == -1)
+						continue;
+					int field_value_max = field.get_minimum_menu_value_text_length();
+					if (field_value_max == -1)
+						max_value_chars = -1;
+					else if (field_value_max > max_value_chars)
+						max_value_chars = field_value_max;
+				}				
 			}
+			if (max_value_chars > 0)
+				max_value_chars++; // for line padding
 			if (max_name_chars > uint8.MAX)
 				max_name_chars = uint8.MAX;
+			if (max_value_chars > uint8.MAX)
+				max_value_chars = uint8.MAX;			
 			max_name_length_real = (max_name_chars < max_name_length) ? (uint8)max_name_chars : max_name_length;
+			max_value_length_real = (max_value_chars > 0 && max_value_chars < max_name_length) ? (uint8)max_value_chars : max_value_length;
 			int name_area_width = @interface.get_monospaced_font_width(max_name_length_real);
-			int value_area_width = @interface.get_monospaced_font_width(max_value_length);
+			int value_area_width = @interface.get_monospaced_font_width(max_value_length_real);
 			x_pos_value = @interface.get_monospaced_font_width(max_name_length_real + 3); // +3 for " : " before value
 			_width = (has_field == false)
 				? @interface.get_monospaced_font_width(max_name_length_real + 2) // +2 for submenu " >"

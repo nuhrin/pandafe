@@ -6,14 +6,20 @@ namespace Fields
 	public class ClockSpeedField : UIntField
 	{
 		const uint DEFAULT_VALUE = 600;
-		const string DEFAULT_VALUE_TEXT = "default";		
+		const string DEFAULT_VALUE_TEXT = "default";
+		const string DEFAULT_CHOICE_TEXT = "default";
+		const string CUSTOM_CHOICE_TEXT = "custom";
 		
 		bool is_default;
 		uint _default_value;
+		int max_value_length;
 		public ClockSpeedField(string id, string name, string? help=null, uint value, uint min_value, uint max_value, uint step=1) {
 			base(id, name, help, (value == 0) ? DEFAULT_VALUE : value, min_value, max_value, step);
 			is_default = (value == 0);
 			_default_value = DEFAULT_VALUE;
+			max_value_length = max_value.to_string().length;
+			if (DEFAULT_VALUE_TEXT.length > max_value_length)
+				max_value_length = DEFAULT_VALUE_TEXT.length;
 		}
 
 		public new uint value {
@@ -42,6 +48,7 @@ namespace Fields
 		}
 
 		public override string get_value_text() { return (is_default) ? DEFAULT_VALUE_TEXT : base.get_value_text(); }
+		public override int get_minimum_menu_value_text_length() { return max_value_length; }
 
 		protected override Value get_field_value() { return this.value; }
 		protected override void set_field_value(Value value) { this.value = (uint)value; }
@@ -67,8 +74,8 @@ namespace Fields
 		protected override void activate(Menus.MenuSelector selector) {
 			var rect = selector.get_selected_item_value_entry_rect();
  			var choice_selector = new StringSelector("clockspeed_choice", rect.x, rect.y, 200);			
- 			choice_selector.add_item("Default");
-			choice_selector.add_item("Custom...");
+ 			choice_selector.add_item(DEFAULT_CHOICE_TEXT);
+			choice_selector.add_item(CUSTOM_CHOICE_TEXT);
 			if (is_default == false)
 				choice_selector.selected_index = 1;
  			if (choice_selector.run() == 0) {

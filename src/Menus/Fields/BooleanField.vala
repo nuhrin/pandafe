@@ -21,7 +21,8 @@ namespace Menus.Fields
 		}
 
 		public override string get_value_text() { return (_value == true) ? true_value : false_value; }
-
+		public override int get_minimum_menu_value_text_length() { return 5; } // "false""
+		
 		protected override Value get_field_value() { return _value; }
 		protected override void set_field_value(Value value) { change_value((bool)value); }
 

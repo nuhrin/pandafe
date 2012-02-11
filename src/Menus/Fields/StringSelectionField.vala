@@ -7,15 +7,19 @@ namespace Menus.Fields
 	{
 		protected int _selected_index;
 		protected ArrayList<string> items;
+		int max_value_length;
 		
 		public StringSelectionField(string id, string name, string? help=null, Iterable<string>? items=null, string? value=null) {
 			base(id, name, help);
 
 			_selected_index = -1;
 			this.items = new ArrayList<string>();
+			max_value_length = 0;
 			if (items != null) {
 				int index=0;
 				foreach(string item in items) {
+					if (item.length > max_value_length)
+						max_value_length = item.length;
 					if (item == value && _selected_index == -1)
 						_selected_index = index;
 					this.items.add(item);
@@ -37,7 +41,10 @@ namespace Menus.Fields
 			_selected_index = -1;
 			this.items.clear();
 			int index=0;
+			max_value_length = 0;
 			foreach(string item in items) {
+				if (item.length > max_value_length)
+						max_value_length = item.length;
 				if (_selected_index == -1 && item == selected)
 					_selected_index = index;
 				add_item(item);
@@ -50,7 +57,10 @@ namespace Menus.Fields
 			_selected_index = -1;
 			this.items.clear();
 			int index=0;
+			max_value_length = 0;
 			foreach(string item in items) {
+				if (item.length > max_value_length)
+						max_value_length = item.length;
 				if (_selected_index == -1 && item == selected)
 					_selected_index = index;
 				add_item(item);
@@ -60,6 +70,7 @@ namespace Menus.Fields
 		}		
 
 		public override string get_value_text() { return this.value ?? ""; }
+		public override int get_minimum_menu_value_text_length() { return max_value_length; }
 
 		protected override bool select_previous() { 
 			if (items.size == 0)

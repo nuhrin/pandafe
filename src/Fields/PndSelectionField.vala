@@ -46,6 +46,7 @@ namespace Fields
 		}
 
 		public override string get_value_text() { return this.value; }
+		public override int get_minimum_menu_value_text_length() { return -1; }
 
 		protected override bool select_previous() { 
 			if (_selected_index < 0)

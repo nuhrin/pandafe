@@ -10,6 +10,7 @@ namespace Menus.Fields
 		int _value_index;
 		ArrayList<string> _nicks;
 		ArrayList<int> _values;
+		int max_value_length;
 
 		public EnumField(string id, string name, string? help=null, Value enum_value)
 			requires(enum_value.type().is_enum())
@@ -20,8 +21,12 @@ namespace Menus.Fields
 			_nicks = new ArrayList<string>();
 			_values = new ArrayList<int>();
 			int index=0;
+			max_value_length=0;
 			int value = enum_value.get_enum();
 			foreach(var ev in enum_class.values) {
+				int nick_length = ev.value_nick.length;
+				if (nick_length > max_value_length)
+					max_value_length = nick_length;
 				_nicks.add(ev.value_nick);
 				_values.add(ev.value);
 				if (value == ev.value)
@@ -50,6 +55,7 @@ namespace Menus.Fields
 		}
 
 		public override string get_value_text() { return _nicks[_value_index]; }
+		public override int get_minimum_menu_value_text_length() { return max_value_length; }
 
 		protected override Value get_field_value() { return this.value; }
 		protected override void set_field_value(Value value) { this.value = value.get_enum(); }
