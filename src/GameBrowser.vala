@@ -158,6 +158,8 @@ public class GameBrowser : Layers.ScreenLayer
 		if (filter != null)
 			selector.filter(filter);
 		int item_index = state.get_current_platform_item_index();
+		if (item_index >= selector.item_count)
+			item_index = selector.item_count - 1;
 		if (item_index < 0)
 			item_index = 0;
 		if (selector.select_item(item_index) == false)
