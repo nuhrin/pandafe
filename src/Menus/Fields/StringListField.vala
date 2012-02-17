@@ -37,5 +37,7 @@ namespace Menus.Fields
 			_value = new_value;
 			changed();
 		}
+		
+		public override bool is_menu_item() { return true; }
 	}
 }

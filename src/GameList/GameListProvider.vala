@@ -1,5 +1,6 @@
 using Gee;
 using Catapult;
+using Data.Programs;
 
 namespace Data.GameList
 {
@@ -43,39 +44,27 @@ namespace Data.GameList
 		protected abstract bool get_children(GameFolder folder, out ArrayList<GameFolder> child_folders, out ArrayList<GameItem> child_games);
 		protected abstract GameFolder create_root_folder();
 
-		protected uint run_program(Program program, string? game_args=null, string? game_path=null) {
-			return run_program_internal(program, false, game_args, game_path);
+		protected uint run_program(Program program, ProgramSettings? program_settings=null, string? game_path=null) {
+			return run_program_internal(program, false, program_settings, game_path);
 		}
-		protected uint run_program_with_premount(Program program, string? game_args=null, string? game_path=null) {
-			return run_program_internal(program, true, game_args, game_path);
+		protected uint run_program_with_premount(Program program, ProgramSettings? program_settings=null, string? game_path=null) {
+			return run_program_internal(program, true, program_settings, game_path);
 		}
 
-		uint run_program_internal(Program program, bool premount, string? game_args=null, string? game_path=null) {
-			if (program.pnd_id == null || program.pnd_id == "") {
-				debug("No pnd specified for '%s' program '%s'.", platform.name, program.name);
+		uint run_program_internal(Program program, bool premount, ProgramSettings? program_settings=null, string? game_path=null) {			
+			Data.Pnd.AppItem app = program.get_app();
+			if (app == null) {
+				debug("No pnd app specified for '%s' program '%s'.", platform.name, program.name);
 				return -1;
 			}
-
-			var data = Data.pnd_data();
-			var pnd = data.get_pnd(program.pnd_id);
-			if (pnd == null) {
-				debug("Pnd '%s' not found.", program.pnd_id);
-				return -1;
-			}
-
-			Data.Pnd.AppItem app = null;
-			if (program.pnd_app_id != null)
-				app = data.get_app(program.pnd_app_id, pnd.pnd_id);
-
-			string unique_id = (app != null) ? app.id : pnd.pnd_id;
-			string appdata_dirname = (app != null) ? app.appdata_dirname : null;
-			string command = (app != null) ? app.exec_command : program.command;
-			string startdir = (app != null) ? app.startdir : null;
-			uint clockspeed = program.clockspeed;
-			if (clockspeed == 0 && app != null)
-				clockspeed = app.clockspeed;
-			string args = game_args;// ?? program.arguments;
-			if ((args == null || args == "") && app != null)
+			
+			string unique_id = app.id;
+			string appdata_dirname = app.appdata_dirname;
+			string command = app.exec_command;
+			string startdir = app.startdir;
+			uint clockspeed = program.get_clockspeed(program_settings);			
+			string args = program.get_arguments(program_settings); //game_args;// ?? program.arguments;
+			if (args == null || args == "")
 				args = app.exec_arguments;
 
 			string game_path_link = null;
@@ -97,21 +86,21 @@ namespace Data.GameList
 			}
 
 			if (has_custom_command == false && premount == false) // run the pnd without premount
-				return Pandora.Apps.execute_app(pnd.get_fullpath(), appdata_dirname ?? unique_id, command, startdir, args, clockspeed, Pandora.Apps.ExecOption.BLOCK);
+				return Pandora.Apps.execute_app(app.get_fullpath(), appdata_dirname ?? unique_id, command, startdir, args, clockspeed, Pandora.Apps.ExecOption.BLOCK);
 
 			// mount the pnd
 			var mountset = Data.pnd_mountset();
-			bool already_mounted = mountset.is_mounted(pnd.pnd_id);
-			if (already_mounted == false && mountset.mount(unique_id, pnd.pnd_id) == false) {
+			bool already_mounted = mountset.is_mounted(app.package_id);
+			if (already_mounted == false && mountset.mount(unique_id, app.package_id) == false) {
 				debug("Unable to mount pnd for id '%s'.", unique_id);
 				return -1;
 			}
-			string mount_id = mountset.get_mount_id(pnd.pnd_id);
+			string mount_id = mountset.get_mount_id(app.package_id);
 
 			// ensure custom_command script, if specified
 			if (has_custom_command == true) {
 				command = CUSTOM_COMMAND_SCRIPT_PATH;
-				string appdata_path = mountset.get_appdata_path(pnd.pnd_id);
+				string appdata_path = mountset.get_appdata_path(app.package_id);
 				if (appdata_path == null) {
 					debug("appdata path not found for '%s'", mount_id);
 					return -1;
@@ -141,7 +130,7 @@ namespace Data.GameList
 			if (FileUtils.test(runpath, FileTest.EXISTS) == false)
 				runpath = CUSTOM_PNDRUN_PATH;
 			Pandora.Apps.set_pndrun_path(runpath);
-			var result = Pandora.Apps.execute_app(pnd.get_fullpath(), mount_id, command, startdir, args, clockspeed, Pandora.Apps.ExecOption.BLOCK);
+			var result = Pandora.Apps.execute_app(app.get_fullpath(), mount_id, command, startdir, args, clockspeed, Pandora.Apps.ExecOption.BLOCK);
 			Pandora.Apps.unset_pndrun_path();
 			if (game_path_link != null) {
 				delete_game_symlink(game_path_link);

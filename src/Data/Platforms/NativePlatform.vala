@@ -1,7 +1,7 @@
 using Gee;
 using Catapult;
-using Data;
 using Data.GameList;
+using Data.Platforms;
 
 public class NativePlatform : Platform
 {
@@ -21,7 +21,7 @@ public class NativePlatform : Platform
 	protected override string generate_id() { return ENTITY_ID; }
 	protected override Yaml.Node build_yaml_node(Yaml.NodeBuilder builder) {
 		var mapping = new Yaml.MappingNode();
-		builder.add_mapping(mapping, "categories", categories);
+		builder.add_mapping_values(mapping, "categories", categories);
 		return mapping;
 	}
 	protected override bool apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {

@@ -61,6 +61,7 @@ namespace Menus
 			menu.message.connect((message) => on_message(message));
 			menu.error.connect((error) => on_error(error));
 			menu.field_error.connect((field, index, error) => on_field_error(field, index, error));
+			menu.refreshed.connect(() => refresh_menu(menu));
 			return new_selector;
 		}
 		
@@ -93,6 +94,11 @@ namespace Menus
 			selector.update();
 			menu_changed(selector.menu);
 		}
+		void refresh_menu(Menu menu) {
+			if (menu == selector.menu) {
+				selector.update();
+			}
+		}
 		void add_additional_layer(Menu menu) {			
 			additional_layer = menu.additional_menu_browser_layer;
 			if (additional_layer != null) {
@@ -105,7 +111,7 @@ namespace Menus
 				remove_layer(additional_layer.id);			
 		}
 		void set_header() {
-			header.set_text(null, selector.menu_name, null, false);
+			header.set_text(null, selector.menu_title, null, false);
 		}
 		void on_selector_changed() {
 			message.help = selector.selected_item().help;

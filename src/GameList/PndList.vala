@@ -1,5 +1,6 @@
 using Gee;
 using Data.Pnd;
+using Data.Platforms;
 
 namespace Data.GameList
 {

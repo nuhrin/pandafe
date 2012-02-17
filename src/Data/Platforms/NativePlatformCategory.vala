@@ -1,7 +1,7 @@
 using Gee;
 using Catapult;
 
-namespace Data
+namespace Data.Platforms
 {
 	public class NativePlatformCategory : Object
 	{

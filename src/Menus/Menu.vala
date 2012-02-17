@@ -7,6 +7,7 @@ namespace Menus
 {
 	public class Menu : MenuItem
 	{
+		string? _title;
 		Menu? _parent;
 		ArrayList<MenuItem> _items;
 		HashMap<string, MenuItemField> _field_id_hash;
@@ -19,6 +20,14 @@ namespace Menus
 			this.on_cancel = (owned)on_cancel;
 		}
 		public Menu? parent { get { return _parent; } }
+		public unowned string title {
+			get {
+				if (_title != null)
+					return _title;
+				return name; 
+			}
+			set { _title = value; }
+		}
 		public Gee.List<MenuItem> items { 
 			owned get {
 				ensure_items();
@@ -60,6 +69,10 @@ namespace Menus
 		public signal void message(string message);
 		public signal void error(string error);
 		public signal void field_error(MenuItemField field, int index, string error);
+		public signal void cancelled();
+		public signal void saved();
+		public signal void refreshed(uint selected_index);
+		public signal void finished();
 		
 		public bool validate() {
 			bool success = true;
@@ -75,7 +88,12 @@ namespace Menus
 				if (on_cancel(this) == false)
 					return false;
 			}
-			return do_cancel();
+			if (do_cancel() == false)
+				return false;
+				
+			cancelled();
+			finished();
+			return true;
 		}
 		public bool save() { 
 			if (on_save != null) {
@@ -85,12 +103,22 @@ namespace Menus
 			if (validate() == false)
 				return false;
 				
-			return do_save();
+			if (do_save() == false)
+				return false;
+				
+			saved();
+			finished();
+			return true;
+		}
+		public void refresh(uint select_index) {
+			do_refresh(select_index);
+			refreshed(select_index);
 		}
 		
 		protected virtual bool do_validation() { return true; }
 		protected virtual bool do_cancel() { return true; }
 		protected virtual bool do_save() { return true; }
+		protected virtual void do_refresh(uint select_index) {  }
 
 		protected void throw_field_error(MenuItemField field, string error) {
 			ensure_items();
@@ -99,6 +127,10 @@ namespace Menus
 		}
 
 		protected virtual void populate_items(Gee.List<MenuItem> items) { }
+		protected void clear_items() {
+			if (_items != null)
+				_items = null;
+		}
 		protected void ensure_items() {
 			if (_items != null)
 				return;
@@ -127,6 +159,7 @@ namespace Menus
 		}
 		
 		protected virtual Layers.Layer? build_additional_menu_browser_layer() { return null; }
-
+		
+		public override bool is_menu_item() { return true; }
 	}
 }

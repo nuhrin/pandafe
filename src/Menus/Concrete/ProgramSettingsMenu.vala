@@ -1,6 +1,7 @@
 using Gee;
 using Data;
 using Data.Options;
+using Data.Programs;
 using Fields;
 using Menus.Fields;
 
@@ -8,10 +9,15 @@ namespace Menus.Concrete
 {
 	public class ProgramSettingsMenu : Menu  
 	{	
-		public static bool edit(Program program, ProgramSettings settings) {
-			var menu = new ProgramSettingsMenu(program, settings);
+		public static bool edit(Program program, ProgramSettings settings, int clockspeed=-1) {
+			var menu = new ProgramSettingsMenu(program, settings, clockspeed);
 			new MenuBrowser(menu, 40, 40).run();
-			return menu.saved;
+			return menu.was_saved;
+		}
+		public static bool edit_default(Program program, ProgramDefaultSettings settings, int clockspeed=-1, string? extra_arguments=null) {
+			var menu = new ProgramSettingsMenu.default(program, settings, clockspeed, extra_arguments);
+			new MenuBrowser(menu, 40, 40).run();
+			return menu.was_saved;
 		}
 		
 		OptionSet options;
@@ -22,8 +28,19 @@ namespace Menus.Concrete
 		StringField extra_arguments_field;
 		ClockSpeedField clockspeed_field;
 		
-		public ProgramSettingsMenu(Program program, ProgramSettings settings) {
-			var default_settings = settings as ProgramDefaultSettings;
+		public ProgramSettingsMenu(Program program, ProgramSettings settings, int clockspeed=-1) {
+			this.internal(program, settings, null);
+			if (clockspeed >= 0)
+				set_clockspeed(clockspeed);			
+		}
+		public ProgramSettingsMenu.default(Program program, ProgramDefaultSettings settings, int clockspeed=-1, string? extra_arguments=null) {
+			this.internal(program, settings, settings);
+			if (clockspeed >= 0)
+				set_clockspeed(clockspeed);
+			if (extra_arguments != null)
+				set_extra_arguments(extra_arguments);
+		}
+		ProgramSettingsMenu.internal(Program program, ProgramSettings settings, ProgramDefaultSettings? default_settings=null) {
 			var name_prefix = (default_settings != null) ? "Default Settings: " : "Settings: ";
 			base(name_prefix + program.name);
 			this.options = program.options;			
@@ -37,10 +54,19 @@ namespace Menus.Concrete
 			ensure_items();		
 		}
 		
-		public bool saved { get; private set; }
+		
+		public bool was_saved { get; private set; }
+		
+		void set_clockspeed(uint clockspeed) {
+			clockspeed_field.value = clockspeed;
+		}
+		void set_extra_arguments(string extra_arguments) {
+			if (extra_arguments_field != null)
+				extra_arguments_field.value = extra_arguments;
+		}
 		
 		public override bool do_cancel() {
-			saved = false;
+			was_saved = false;
 			return true;
 		}
 		public override bool do_save() {
@@ -51,8 +77,8 @@ namespace Menus.Concrete
 			}
 			if (default_settings != null)
 				default_settings.extra_arguments = extra_arguments_field.value;							
-			default_settings.clockspeed = clockspeed_field.value;
-			saved = true;
+			original_settings.clockspeed = clockspeed_field.value;
+			was_saved = true;
 			return true;
 		}
 		protected override void populate_items(Gee.List<MenuItem> items) {
@@ -69,7 +95,7 @@ namespace Menus.Concrete
 				extra_arguments_field = new StringField("extra_arguments", name, null, default_settings.extra_arguments ?? "");
 				items.add(extra_arguments_field);
 			}
-			clockspeed_field = new ClockSpeedField("clockspeed", "Clockspeed", null, default_settings.clockspeed, 150, 1000, 5);
+			clockspeed_field = new ClockSpeedField("clockspeed", "Clockspeed", null, settings.clockspeed, 150, 1000, 5);
 			items.add(clockspeed_field);
 			items.add(new MenuItem.cancel_item());
 			items.add(new MenuItem.save_item());

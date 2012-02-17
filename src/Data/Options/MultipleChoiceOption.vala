@@ -29,6 +29,10 @@ namespace Data.Options
 				default_choice_field.set_choices(choices_field.value);
 			});
 		}
+		protected void release_fields() {
+			choices_field = null;
+			default_choice_field = null;
+		}
 		ChoiceListField choices_field;
 		DefaultChoiceField default_choice_field;
 		
@@ -36,10 +40,17 @@ namespace Data.Options
 		public override MenuItemField get_setting_field(string? setting) {
 			var names = new Enumerable<Choice>(choices).select<string>(c=>c.name);
 			var choice = get_setting_choice(setting);						
+			if (choice == null && default_choice_index >= 0 && default_choice_index < choices.size)
+				choice = choices[default_choice_index];
 			return new StringSelectionField(name, name, help, names, (choice != null) ? choice.name : null);			
 		}
 		public override string get_setting_value_from_field(MenuItemField field) {
-			return (field as StringSelectionField).value;
+			string name = (field as StringSelectionField).value;
+			foreach(var choice in choices) {
+				if (choice.name == name)
+					return choice.get_setting_value();
+			}
+			return "";
 		}
 		public override string get_option_from_setting_value(string? setting) {
 			if (setting == null) {

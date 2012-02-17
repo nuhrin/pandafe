@@ -5,10 +5,10 @@ using Menus.Fields;
 
 namespace Fields
 {
-	public class DefaultProgramField : StringSelectionField
+	public class ProgramSelectionField : StringSelectionField
 	{
 		Iterable<Program>? programs;
-		public DefaultProgramField(string id, string name, string? help=null, Iterable<Program>? programs=null, Program? value) {
+		public ProgramSelectionField(string id, string name, string? help=null, Iterable<Program>? programs=null, Program? value) {
 			base(id, name, help);
 			if (programs != null)
 				set_programs(programs);

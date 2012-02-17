@@ -26,16 +26,10 @@ namespace Fields
 			}
 			protected override bool create_item(Rect selected_item_rect, out Program item) {
 				item = null;
-				var chooser = new PndAppChooser("new_program_app_chooser", "Select app for new program...");
+				var chooser = new PndAppChooser("new_program_app_chooser", "Select app for program...");
 				var app = chooser.run();
 				if (app != null) {
-					item = new Program() {
-						name = app.title,
-						pnd_id = app.package_id,
-						pnd_app_id = app.id,
-						command = app.exec_command
-						//arguments = app.exec_arguments
-					};
+					item = Data.programs().get_program_for_app(app.id);
 					return true;
 				}
 				return false;

@@ -39,9 +39,9 @@ namespace Data.Pnd
 
 		protected override Yaml.Node build_yaml_node(Yaml.NodeBuilder builder) {
 			var map = new Yaml.MappingNode();
-			builder.add_mapping(map, "pnd_id", pnd_id);
-			builder.add_mapping(map, "filename", filename);
-			builder.add_mapping(map, "path", path);
+			builder.add_mapping_values(map, "pnd_id", pnd_id);
+			builder.add_mapping_values(map, "filename", filename);
+			builder.add_mapping_values(map, "path", path);
 			var apps_node = new Yaml.SequenceNode();
 			foreach(var app in apps) {
 				var app_node = builder.build_yaml_object(app);

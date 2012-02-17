@@ -1,4 +1,5 @@
 using Gee;
+using Data.Programs;
 
 namespace Data.GameList
 {
@@ -7,7 +8,6 @@ namespace Data.GameList
 		const RegexCompileFlags REGEX_COMPILE_FLAGS = RegexCompileFlags.OPTIMIZE | RegexCompileFlags.CASELESS |
 													  RegexCompileFlags.MULTILINE | RegexCompileFlags.NEWLINE_LF;
 		const RegexMatchFlags REGEX_MATCH_FLAGS = RegexMatchFlags.NEWLINE_LF;
-		//PatternSpecSet patterns;
 		string root_folder_name;
 		string root_folder_path;
 		Regex regex_file_extensions;
@@ -16,19 +16,19 @@ namespace Data.GameList
 			base(platform);
 			root_folder_name = name;
 			this.root_folder_path = root_folder_path;
-			//patterns = new PatternSpecSet(filespec);
-
 			regex_file_extensions = get_file_extensions_regex(file_extensions);
 		}
 
-		public override uint run_game(GameItem game) {
-			var program = platform.default_program;
+		public override uint run_game(GameItem game) {			
+			ProgramSettings? settings = null;
+			var program = game.get_program(out settings);			
+
 			if (program == null) {
 				debug("No program found to run '%s'.", game.name);
 				return -1;
 			}
 
-			return run_program_with_premount(program, null, get_full_path(game));
+			return run_program_with_premount(program, settings, get_full_path(game));
 		}
 
 		public override string get_unique_id(IGameListNode node) {
@@ -215,32 +215,5 @@ namespace Data.GameList
 			}
 			return null;
 		}
-
-//~ 		class PatternSpecSet
-//~ 		{
-//~ 			PatternSpec[] patterns;
-//~ 			public PatternSpecSet(string spec) {
-//~ 				var spec_set = spec.split_set(";, ");
-//~ 				patterns = new PatternSpec[spec_set.length];
-//~ 				for(int index=0;index<spec_set.length;index++) {
-//~ 					patterns[index] = new PatternSpec(spec_set[index]);
-//~ 				}
-//~ 			}
-//~ 			public bool match (uint string_length, string str, string? str_reversed)
-//~ 			{
-//~ 				for(int index=0;index<patterns.length;index++) {
-//~ 					if (patterns[index].match(string_length, str, str_reversed) == true)
-//~ 						return true;
-//~ 				}
-//~ 				return false;
-//~ 			}
-//~ 			public bool match_string (string str) {
-//~ 				for(int index=0;index<patterns.length;index++) {
-//~ 					if (patterns[index].match_string(str) == true)
-//~ 						return true;
-//~ 				}
-//~ 				return false;
-//~ 			}
-//~ 		}
 	}
 }

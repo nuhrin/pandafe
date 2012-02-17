@@ -14,7 +14,8 @@ namespace Menus.Concrete
 		
 		protected override void populate_items(Gee.List<MenuItem> items) { 
 			items.add(new MenuItem.custom("Edit", null, null, () => {
-				ObjectMenu.edit("Platform: " + platform.name, platform);
+				if (ObjectMenu.edit("Platform: " + platform.name, platform) == true)
+					saved();
 			}));
 			items.add(new MenuItem.custom("Rescan", null, "Scanning platform folders...", () => {
 				platform.get_root_folder().rescan_children(true);

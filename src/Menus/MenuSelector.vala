@@ -53,10 +53,13 @@ namespace Menus
 				}
 			}
 			
+			menu.refreshed.connect((index) => refresh(index));
+			
 			wrap_selector = true;
 		}
-		public unowned string menu_name { get { return _menu.name; } }
+		public unowned string menu_title { get { return _menu.title; } }
 		public Menu menu { get { return _menu; } }
+		public signal void refreshed();
 		
 		public int16 xpos { get; set; }
 		public int16 ypos { get; set; }
@@ -106,54 +109,60 @@ namespace Menus
 			update_item_name((int)selected_index, true);
 			update(flip);
 		}
-		public bool select_previous() {
+		public bool select_previous(bool flip=true) {
 			if (selected_index == 0) {
 				if (wrap_selector)
-					return select_item(item_count - 1);
+					return select_item(item_count - 1, flip);
 				return false;
 			}
 
-			return select_item(selected_index - 1);
+			return select_item(selected_index - 1, flip);
 		}
-		public bool select_next() {
+		public bool select_next(bool flip=true) {
 			if (selected_index == item_count - 1) {
 				if (wrap_selector)
-					return select_item(0);
+					return select_item(0, flip);
 				return false;
 			}
 
-			return select_item(selected_index + 1);
+			return select_item(selected_index + 1, flip);
 		}
-		public bool select_first() {
+		public bool select_first(bool flip=true) {
 			if (index_before_select_first != -1)
-				return select_item(index_before_select_first);
+				return select_item(index_before_select_first, flip);
 
 			int index = (int)selected_index;
-			if (select_item(0) == false)
+			if (select_item(0, flip) == false)
 				return false;
 
 			index_before_select_first = index;
 			return true;
 		}
-		public bool select_last() {
+		public bool select_last(bool flip=true) {
 			if (index_before_select_last != -1)
-				return select_item(index_before_select_last);
+				return select_item(index_before_select_last, flip);
 
 			int last_index = (int)item_count - 1;
 			if (last_index < 0)
 				return false;
 
 			int index = (int)selected_index;
-			if (select_item(last_index) == false)
+			if (select_item(last_index, flip) == false)
 				return false;
 
 			index_before_select_last = index;
 			return true;
 		}
-		public bool select_item_starting_with(string str, uint index=0) {
+		public bool select_item_starting_with(string str, uint index=0, bool flip=true) {
 			return false;
 		}
-		public bool select_item(uint index) {
+		public bool select_item(uint index, bool flip=true) {
+			if (select_item_no_update(index) == false)
+				return false;
+			update(flip);
+			return true;
+		}
+		protected bool select_item_no_update(uint index) {
 			if (index >= item_count)
 				return false;
 
@@ -162,13 +171,18 @@ namespace Menus
 			selected_index = index;
 			index_before_select_first = -1;
 			index_before_select_last = -1;
-			update();
 			return true;
 		}
 
 		public void update_selected_item_value() {
 			update_item_value((int)selected_index);
 			draw();
+		}
+		public void refresh(uint select_index=0) {
+			surface = null;
+			ensure_surface();
+			select_item_no_update(select_index);
+			refreshed();
 		}
 
 		void ensure_surface() {
@@ -230,7 +244,7 @@ namespace Menus
 
 		Surface render_item(int index) {
 			var item = menu.items[index];
-			if (item is Menu || item is ListField || item is StringListField)
+			if (item.is_menu_item())
 				return font.render_shaded(menu_item_format.printf(item.name), @interface.white_color, @interface.black_color);
 			var field = item as MenuItemField;
 			if (field != null)

@@ -34,7 +34,7 @@ namespace Layers.GameBrowser
 		}
 
 		public void run() {
-			@interface.push_layer(this, 150);
+			@interface.push_layer(this);//, 150);
 			set_header();			
 			selector.select_first();
 			while(event_loop_done == false) {
@@ -57,14 +57,19 @@ namespace Layers.GameBrowser
 		}
 
 		MenuSelector get_selector(Menu menu) {
-			var new_selector = new MenuSelector(SELECTOR_ID, 0, 0, menu, max_name_length, max_value_length);			
-			new_selector.xpos = (int16)(@interface.screen_width - 20 - ((new_selector.width < SELECTOR_MIN_WIDTH) ? SELECTOR_MIN_WIDTH : new_selector.width));
-			new_selector.ypos = SELECTOR_YPOS;
+			var new_selector = new MenuSelector(SELECTOR_ID, 0, 0, menu, max_name_length, max_value_length);	
+			update_selector_pos(new_selector);		
 			new_selector.changed.connect(() => on_selector_changed());
+			new_selector.refreshed.connect(() => update_selector_pos(new_selector));
 			menu.message.connect((message) => on_message(message));
 			menu.error.connect((error) => on_error(error));
 			menu.field_error.connect((field, index, error) => on_field_error(field, index, error));
+			menu.refreshed.connect(() => refresh_menu(menu));
 			return new_selector;
+		}
+		void update_selector_pos(MenuSelector selector) {
+			selector.xpos = (int16)(@interface.screen_width - 20 - ((selector.width < SELECTOR_MIN_WIDTH) ? SELECTOR_MIN_WIDTH : selector.width));
+			selector.ypos = SELECTOR_YPOS;			
 		}
 		
 		//
@@ -94,9 +99,17 @@ namespace Layers.GameBrowser
 			screen.update(false);
 			update();
 			menu_changed(selector.menu);
+		}		
+		void refresh_menu(Menu menu) {
+			if (menu == selector.menu) {			
+				clear();
+				set_header();
+				screen.update(false);
+				update();
+			}
 		}
 		void set_header() {
-			header.set_text(null, selector.menu_name, null, false);
+			header.set_text(null, selector.menu_title, null, false);
 		}
 		void on_selector_changed() {
 			message.help = selector.selected_item().help;
@@ -112,7 +125,7 @@ namespace Layers.GameBrowser
 		}
 		void redraw_item() {
 			selector.update_selected_item_value();
-			//flip();
+			screen.flip();
 		}
 
 		//
@@ -174,6 +187,10 @@ namespace Layers.GameBrowser
 					case KeySymbol.ESCAPE:
 						go_back();
 						drain_events();
+						break;
+					case KeySymbol.SPACE:
+						if (selector.menu.cancel() == true)
+							event_loop_done = true;
 						break;
 					default:
 						break;
@@ -244,6 +261,12 @@ namespace Layers.GameBrowser
 				push_menu(selected_menu);
 				return;
 			}
+			var menu_browser_item = selected_item as MenuBrowserItem;
+			if (menu_browser_item != null) {
+				push_menu(menu_browser_item.menu);
+				return;
+			}
+			
 			message.error = null;
 			switch(selected_item.action) {				
 				case MenuItemActionType.CANCEL:

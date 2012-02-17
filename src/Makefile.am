@@ -1,5 +1,7 @@
 NULL =
 
+AUTOMAKE_OPTIONS = subdir-objects
+
 AM_CPPFLAGS = \
 	$(CATAPULT_CFLAGS) \
 	$(GTK_SOURCEVIEW_CFLAGS) \
@@ -19,17 +21,18 @@ pandafe_VALASOURCES = \
 	GameBrowser.vala \
 	GameBrowserUI.vala \
 	InterfaceHelper.vala \
-	Options.vala \
 	Data/Color.vala \
 	Data/GameBrowserState.vala \
-	Data/NativePlatform.vala \
-	Data/NativePlatformCategory.vala \
-	Data/Platform.vala \
+	Data/GameSettings.vala \
 	Data/Options/FlagOption.vala \
 	Data/Options/MultipleChoiceOption.vala \
 	Data/Options/Option.vala \
 	Data/Options/OptionSet.vala \
 	Data/Options/OptionType.vala \
+	Data/Platforms/NativePlatform.vala \
+	Data/Platforms/NativePlatformCategory.vala \
+	Data/Platforms/Platform.vala \
+	Data/Pnd/AppIdType.vala \
 	Data/Pnd/AppItem.vala \
 	Data/Pnd/Category.vala \
 	Data/Pnd/MountSet.vala \
@@ -37,8 +40,9 @@ pandafe_VALASOURCES = \
 	Data/Pnd/PndData.vala \
 	Data/Pnd/PndItem.vala \
 	Data/Preferences.vala \
-	Data/Program.vala \
-	Data/ProgramSettings.vala \
+	Data/Programs/Program.vala \
+	Data/Programs/ProgramProvider.vala \
+	Data/Programs/ProgramSettings.vala \
 	Data/Provider.vala \
 	GameList/GameFolder.vala \
 	GameList/GameFolderCache.vala \
@@ -50,13 +54,14 @@ pandafe_VALASOURCES = \
 	Fields/ColorField.vala \
 	Fields/ClockSpeedField.vala \
 	Fields/CustomCommandField.vala \
-	Fields/DefaultProgramField.vala \
 	Fields/PlatformListField.vala \
 	Fields/PndAppField.vala \
 	Fields/PndCategoryField.vala \
 	Fields/PndSelectionField.vala \
+	Fields/ProgramAppIdField.vala \
 	Fields/ProgramListField.vala \
 	Fields/ProgramOptionsListField.vala \
+	Fields/ProgramSelectionField.vala \
 	Fields/ProgramSettingsField.vala \
 	Layers/Controls/Chooser/ChooserHeader.vala \
 	Layers/Controls/Chooser/ChooserBase.vala \
@@ -100,6 +105,7 @@ pandafe_VALASOURCES = \
 	Menus/Concrete/GameBrowserAppearanceMenu.vala \
 	Menus/Concrete/GameFolderMenu.vala \
 	Menus/Concrete/GameMenu.vala \
+	Menus/Concrete/GameSettingsMenu.vala \
 	Menus/Concrete/MainConfiguration.vala \
 	Menus/Concrete/PlatformMenu.vala \
 	Menus/Concrete/ProgramSettingsMenu.vala \
@@ -116,12 +122,14 @@ pandafe_VALASOURCES = \
 	Menus/Fields/StringSelectionField.vala \
 	Menus/Fields/UIntField.vala \
 	Menus/Menu.vala \
+	Menus/MenuBrowser.vala \
+	Menus/MenuBrowserItem.vala \
 	Menus/MenuBuilder.vala \
 	Menus/MenuItem.vala \
 	Menus/MenuItemActionType.vala \
 	Menus/MenuObject.vala \
 	Menus/MenuSelector.vala \
-	Menus/MenuBrowser.vala \
+	Menus/ObjectBrowserItem.vala \
 	Menus/ObjectMenu.vala \
 	Selectors/EverythingSelector.vala \
 	Selectors/GameFolderSelector.vala \

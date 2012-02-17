@@ -1,6 +1,8 @@
 using Gee;
 using Catapult;
 using Data.Pnd;
+using Data.Platforms;
+using Data.GameList;
 
 namespace Data
 {
@@ -10,6 +12,7 @@ namespace Data
 	public NativePlatform native_platform() { return Provider.instance().get_native_platform(); }
 	public bool save_native_platform() { return Provider.instance().save_native_platform(); }
 	public void flush_platforms() { Provider.instance().flush_platforms(); }
+	public Data.Programs.ProgramProvider programs() { return Provider.instance().program_provider; }
 
 	public Preferences preferences() { return Provider.instance().get_preferences(); }
 	public bool save_preferences() { return Provider.instance().save_preferences(); }
@@ -22,6 +25,9 @@ namespace Data
 
 	public MountSet pnd_mountset() { return Provider.instance().get_mountset(); }
 
+	public GameSettings? get_game_settings(GameItem item) { return Provider.instance().get_game_settings(item); }
+	public bool save_game_settings(GameSettings settings, GameItem item) { return Provider.instance().save_game_settings(settings, item); }
+
 	public class Provider
 	{
 		static Provider _instance;
@@ -31,13 +37,20 @@ namespace Data
 			return _instance;
 		}
 
-		public DataInterface data_interface { get; private set; }
+		public DataInterface data_interface { get; private set; }		
+		public Data.Programs.ProgramProvider program_provider { get; private set; }
 		public Provider() {
 			try {
 				data_interface = new DataInterface(Config.LOCAL_CONFIG_DIR);
 			} catch (Error e) {
 				error("Unable to create DataInterface instance: %s", e.message);
 				//assert_not_reached();
+			}
+			try {
+				program_provider = new Data.Programs.ProgramProvider(data_interface.root_folder);
+				data_interface.register_entity_provider<Program>(program_provider);
+			} catch(Error e) {
+				error("Unable to create ProgramProvider instance: %s", e.message);
 			}
 		}
 
@@ -47,9 +60,10 @@ namespace Data
 					_preferences = data_interface.load<Preferences>(Preferences.ENTITY_ID, "");
 				}
 				catch (Error e) {
-					debug("Error while retrieving preferences: %s", e.message);
+					if ((e is RuntimeError.FILE) == false)
+						debug("Error while retrieving preferences: %s", e.message);
 					_preferences = new Preferences();
-				}
+				}				
 			}
 			return _preferences;
 		}
@@ -72,7 +86,8 @@ namespace Data
 					_browser_state = data_interface.load<GameBrowserState>(GameBrowserState.ENTITY_ID, "");
 				}
 				catch (Error e) {
-					debug("Error while retrieving game browser state: %s", e.message);
+					if ((e is RuntimeError.FILE) == false)
+						debug("Error while retrieving game browser state: %s", e.message);
 					_browser_state = new GameBrowserState();
 				}
 			}
@@ -140,7 +155,8 @@ namespace Data
 					_native_platform = data_interface.load<NativePlatform>(NativePlatform.ENTITY_ID, "");
 				}
 				catch (Error e) {
-					debug("Error while retrieving native platform: %s", e.message);
+					if ((e is RuntimeError.FILE) == false)
+						debug("Error while retrieving native platform: %s", e.message);
 					_native_platform = null;
 				}
 				if (_native_platform == null) {
@@ -176,7 +192,8 @@ namespace Data
 					_pnd_data = new PndData(data_interface, cache);
 				}
 				catch (Error e) {
-					debug("Error while retrieving pnd data: %s", e.message);
+					if ((e is RuntimeError.FILE) == false)
+						debug("Error while retrieving pnd data: %s", e.message);
 					return rescan_pnd_data();
 				}
 			}
@@ -196,5 +213,24 @@ namespace Data
 		}
 		MountSet _mountset_config;
 
+		public GameSettings? get_game_settings(GameItem item) {
+			try {
+				return data_interface.load<GameSettings>(item.id);
+			} catch(Error e) {
+				if ((e is RuntimeError.FILE) == false)
+					debug("Error while retrieving game settings for '%s': %s", item.id, e.message);
+			}
+			return null;
+		}
+		public bool save_game_settings(GameSettings settings, GameItem item) {
+			try {
+				data_interface.save(settings, item.id);
+				return true;
+			}
+			catch (Error e) {
+				debug("Error while saving game settings for '%s': %s", item.id, e.message);
+			}			
+			return false;
+		}
 	}
 }

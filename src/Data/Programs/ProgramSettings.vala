@@ -1,25 +1,34 @@
 using Gee;
 using Catapult;
 
-namespace Data
+namespace Data.Programs
 {
 	public class ProgramSettings : HashMap<string, string>, IYamlObject
-	{		
+	{
 		public uint clockspeed { get; set; }
 		
+		public void print(string header) {
+			GLib.print("%s\n", header);
+			foreach(var entry in this.entries)
+				GLib.print("  %s: %s\n", entry.key, entry.value);
+			GLib.print("\n");
+		}
+		
 		public void merge_override(ProgramSettings settings) {
-			foreach(var key in settings.keys)
-				this[key] = settings[key];
+			foreach(var entry in settings.entries)
+				this[entry.key] = settings[entry.key];
+			merge_override_additional(settings);
+		}
+		protected virtual void merge_override_additional(ProgramSettings settings) {
 			if (settings.clockspeed != 0)
 				clockspeed = settings.clockspeed;
 		}
 		
 		// yaml
-		protected Yaml.Node build_yaml_node(Yaml.NodeBuilder builder) {			
+		protected Yaml.Node build_yaml_node(Yaml.NodeBuilder builder) {
 			var mapping = new Yaml.MappingNode();
 			build_additional_properties(mapping, builder);
-			foreach(var key in this.keys)
-				mapping.set_scalar(key, builder.build_value(this[key]));
+			builder.populate_mapping<string,string>(mapping, this);
 			return mapping;
 		}
 		protected virtual void build_additional_properties(Yaml.MappingNode mapping, Yaml.NodeBuilder builder) {
@@ -33,15 +42,16 @@ namespace Data
 				var scalar_value = mapping[scalar_key] as Yaml.ScalarNode;
 				if (scalar_value == null)
 					continue;
-				if (apply_property_value(scalar_key.value, scalar_value, parser) == true)
+				if (apply_property_value(scalar_key.value, scalar_value.value) == true)
 					continue;
 				this[scalar_key.value] = scalar_value.value;
 			}
 			return true;
 		}
-		protected virtual bool apply_property_value(string key, Yaml.ScalarNode node, Yaml.NodeParser parser) {
+
+		protected virtual bool apply_property_value(string key, string value) {
 			if (key == "clockspeed") {
-				clockspeed = parser.parse<uint>(node, 0);
+				clockspeed = int.parse(value);
 				return true;
 			}
 			return false;
@@ -56,17 +66,24 @@ namespace Data
 	{
 		public string extra_arguments { get; set; }
 		
+		protected override void merge_override_additional(ProgramSettings settings) {
+			var default_settings = settings as ProgramDefaultSettings;
+			if (default_settings != null || default_settings.extra_arguments != null)
+				extra_arguments = default_settings.extra_arguments;
+			base.merge_override_additional(settings);
+		}
+		
 		protected override void build_additional_properties(Yaml.MappingNode mapping, Yaml.NodeBuilder builder) {
 			if (extra_arguments != null)
 				mapping.set_scalar("extra-arguments", builder.build_value(extra_arguments));
 			base.build_additional_properties(mapping, builder);
 		}
-		protected override bool apply_property_value(string key, Yaml.ScalarNode node, Yaml.NodeParser parser) {
+		protected override bool apply_property_value(string key, string value) {
 			if (key == "extra-arguments") {
-				extra_arguments = node.value;
+				extra_arguments = value;
 				return true;
 			}
-			return base.apply_property_value(key, node, parser);
+			return base.apply_property_value(key, value);
 		}
 	}
 }

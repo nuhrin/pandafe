@@ -13,26 +13,32 @@ namespace Menus
 		public static bool edit(string title, Object obj) {
 			var menu = new ObjectMenu(title, null, obj);
 			new MenuBrowser(menu, 40, 40).run();
-			return menu.saved;
+			if (menu.mo != null)
+				menu.mo.i_release_fields();
+			return menu.was_saved;
 		}
 		
-		public ObjectMenu(string name, string? help=null, Object obj) {
+		ObjectMenu(string name, string? help=null, Object obj) {
 			base(name, help);
 			this.obj = obj;
 			mo = this.obj as MenuObject;
 		}
-		public bool saved { get; private set; }
+		~ObjectMenu() {
+			if (mo != null)
+				mo.i_release_fields();
+		}
+		public bool was_saved { get; private set; }
 		
 		public override bool do_cancel() {
 			// revert...
-			saved = false;
+			was_saved = false;
 			return true;
 		}
 		public override bool do_save() {
 			if (mo != null) {
 				if (mo.i_apply_menu(this) == true) {
 					if (mo.i_save_object(this) == true) {
-						saved = true;
+						was_saved = true;
 						return true;
 					}
 				}
@@ -43,7 +49,7 @@ namespace Menus
 				if (field.has_changes())
 					obj.set_property(field.id, field.value);
 			}
-			saved = true;
+			was_saved = true;
 			return true;
 		}
 	
@@ -65,17 +71,17 @@ namespace Menus
 				items.add(new MenuItem.save_item());
 			}
 		}
-		void copy_object_properties(Object from, Object to) {
-			unowned ObjectClass klass = from.get_class();
-	    	var properties = klass.list_properties();
-	    	foreach(var prop in properties) {
-				if (((prop.flags & ParamFlags.READWRITE) == ParamFlags.READWRITE) == false)
-					continue;
-				Type type = prop.value_type;
-				Value value = Value(type);
-				from.get_property(prop.name, ref value);
-				to.set_property(prop.name, value);
-			}
-		}
+//~ 		void copy_object_properties(Object from, Object to) {
+//~ 			unowned ObjectClass klass = from.get_class();
+//~ 	    	var properties = klass.list_properties();
+//~ 	    	foreach(var prop in properties) {
+//~ 				if (((prop.flags & ParamFlags.READWRITE) == ParamFlags.READWRITE) == false)
+//~ 					continue;
+//~ 				Type type = prop.value_type;
+//~ 				Value value = Value(type);
+//~ 				from.get_property(prop.name, ref value);
+//~ 				to.set_property(prop.name, value);
+//~ 			}
+//~ 		}
 	}
 }

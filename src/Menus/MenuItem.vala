@@ -50,6 +50,6 @@ namespace Menus
 		public virtual bool process_keydown_event(KeyboardEvent event) { return false; }
 		public virtual bool process_keyup_event(KeyboardEvent event) { return false; }
 
-		public virtual void connect_to_selector(MenuSelector selector) { }
+		public virtual bool is_menu_item() { return false; }
 	}
 }

@@ -12,6 +12,7 @@ namespace Data.Pnd
 		ArrayList<PndItem> pnd_list;
 		HashMap<string, PndItem> pnd_id_hash;
 		HashMap<string, AppItem> app_id_hash;
+		HashMap<string, ArrayList<PndItem>> app_id_pnd_list_hash;
 		ArrayList<string> main_category_name_list;
 		HashMap<string, Category> category_name_hash;
 		ArrayList<AppItem> categoryless_app_list;
@@ -38,6 +39,7 @@ namespace Data.Pnd
 			pnd_list = new ArrayList<PndItem>();
 			pnd_id_hash = new HashMap<string, PndItem>();
 			app_id_hash = new HashMap<string, AppItem>();
+			app_id_pnd_list_hash = new HashMap<string, ArrayList<PndItem>>();
 			main_category_name_list = null;
 			category_name_hash = null;
 			categoryless_app_list = null;
@@ -46,9 +48,13 @@ namespace Data.Pnd
 				pnd_list.add(pnd);
 				pnd_id_hash[pnd.pnd_id] = pnd;
 				foreach(var app in pnd.apps) {
-					app_id_hash[app.id] = app;
+					if (app_id_pnd_list_hash.has_key(app.id) == false)
+						app_id_pnd_list_hash[app.id] = new ArrayList<PndItem>();
+					app_id_pnd_list_hash[app.id].add(pnd);
 				}
 			}
+			foreach(var app_id in app_id_pnd_list_hash.keys)
+				app_id_hash[app_id] = app_id_pnd_list_hash[app_id].get(0).get_app(app_id);			
 		}
 
 		public Enumerable<PndItem> get_all_pnds() {
@@ -66,12 +72,100 @@ namespace Data.Pnd
 				return pnd.apps;
 			return Enumerable.empty<AppItem>();
 		}
-		public AppItem? get_app(string id, string pnd_id) {
-			var pnd = get_pnd(pnd_id);
-			if (pnd == null)
+		public AppItem? get_app(string id, string? pnd_id=null, AppIdType id_type=AppIdType.EXACT) {
+			if (id == "")
 				return null;
+			PndItem? pnd = null;
+			if (pnd_id != null)
+				pnd = get_pnd(pnd_id);
 				
-			return pnd.get_app(id);
+			if (id_type == AppIdType.EXACT) {
+				if (pnd != null)
+					return pnd.get_app(id);
+				if (app_id_hash.has_key(id) == true)
+					return app_id_hash[id];
+				return null;
+			}
+						
+			Regex regex = null;
+			if (id_type == AppIdType.REGEX) {
+				try {
+					regex = new Regex(id);
+				} catch(RegexError e) {
+					return null;
+				}
+			}
+			
+			Enumerable<AppItem> apps = (pnd != null)
+				? pnd.apps
+				: new Enumerable<AppItem>(app_id_hash.values);
+									
+			foreach(var app in apps) {
+				if (regex != null) {
+					if (regex.match(app.id) == true)
+						return app;
+				} else if (id_type == AppIdType.PREFIX) {
+					if (app.id.has_prefix(id) == true)
+						return app;
+				} else if (id_type == AppIdType.SUFFIX) {
+					if (app.id.has_suffix(id) == true)
+						return app;
+				}
+			}
+			
+			return null;
+		}
+		public Enumerable<AppItem> get_matching_apps(string id, AppIdType id_type=AppIdType.EXACT) {
+			if (id == "")
+				return Enumerable.empty<AppItem>();
+			
+			var list = new ArrayList<AppItem>();
+			
+			if (id_type == AppIdType.EXACT) {
+				if (app_id_hash.has_key(id) == true) {
+					list.add(app_id_hash[id]);
+					return new Enumerable<AppItem>(list);
+				}
+				return Enumerable.empty<AppItem>();
+			}
+			
+			Regex regex = null;
+			if (id_type == AppIdType.REGEX) {
+				try {
+					regex = new Regex(id);
+				} catch(RegexError e) {
+					return Enumerable.empty<AppItem>();
+				}
+			}
+			
+			var apps = new Enumerable<AppItem>(app_id_hash.values)
+				.sort((a,b) => {
+					int retval = strcmp(a.title, b.title);
+					if (retval == 0)
+						retval = b.id.length - a.id.length;
+					return retval;
+				});
+									
+			foreach(var app in apps) {
+				if (regex != null) {
+					if (regex.match(app.id) == true)
+						list.add(app);
+				} else if (id_type == AppIdType.PREFIX) {
+					if (app.id.has_prefix(id) == true)
+						list.add(app);
+				} else if (id_type == AppIdType.SUFFIX) {
+					if (app.id.has_suffix(id) == true)
+						list.add(app);
+				}
+			}
+			
+			return new Enumerable<AppItem>(list);			
+		}
+		
+		public Enumerable<PndItem> get_app_pnds(string app_id) {
+			if (app_id_pnd_list_hash.has_key(app_id) == true)
+				return new Enumerable<PndItem>(app_id_pnd_list_hash[app_id]);
+			return Enumerable.empty<PndItem>();
 		}
 
 		public Enumerable<string> get_main_category_names() {

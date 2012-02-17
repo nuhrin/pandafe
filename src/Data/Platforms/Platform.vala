@@ -37,6 +37,18 @@ public class Platform : NamedEntity, MenuObject
 	public Gee.List<Program> programs { get; set; }
 	public Program default_program { get; set; }
 
+	public Program? get_program(string program_id) {
+		if (default_program != null && default_program.app_id == program_id)
+			return default_program;
+			
+		foreach(var program in programs) {
+			if (program.app_id == program_id)
+				return program;
+		}
+		
+		return null;
+	}
+
 	public GameFolder get_root_folder() {
 		ensure_provider();
 		return _provider.root_folder;
@@ -110,7 +122,7 @@ public class Platform : NamedEntity, MenuObject
 		programs_field = new ProgramListField("programs", "Programs", null, programs);
 		builder.add_field(programs_field);
 		
-		default_program_field = new DefaultProgramField("default_program", "Default Program", null, programs, default_program);
+		default_program_field = new ProgramSelectionField("default_program", "Default Program", null, programs, default_program);
 		builder.add_field(default_program_field);
 		
 		initialize_fields();
@@ -154,8 +166,14 @@ public class Platform : NamedEntity, MenuObject
 //~ 		}
 	}
 	
+	protected void release_fields() {
+		name_field = null;
+		programs_field = null;
+		default_program_field = null;
+	}
+	
 	Menus.Fields.StringField name_field;
 	ProgramListField programs_field;
-	DefaultProgramField default_program_field;
+	ProgramSelectionField default_program_field;
 	
 }

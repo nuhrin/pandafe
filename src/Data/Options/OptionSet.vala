@@ -1,5 +1,6 @@
 using Gee;
 using Catapult;
+using Data.Programs;
 
 namespace Data.Options
 {
@@ -46,7 +47,7 @@ namespace Data.Options
 		
 		Yaml.Node build_option_yaml_node(Yaml.NodeBuilder builder, Option option) {
 			var mapping = new Yaml.MappingNode();			
-			builder.add_mapping(mapping, "option-type", option.option_type);
+			builder.add_mapping_values(mapping, "option-type", option.option_type);
 			builder.populate_object_mapping(mapping, option);
 			return mapping;
 		}

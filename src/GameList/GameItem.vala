@@ -1,4 +1,5 @@
 using Catapult;
+using Data.Programs;
 
 namespace Data.GameList
 {
@@ -32,14 +33,32 @@ namespace Data.GameList
 
 		public uint run() { return provider.run_game(this); }
 
+		public Program? get_program(out ProgramSettings? settings=null) {			
+			Program program = null;
+			var game_settings = Data.get_game_settings(this);
+			
+			if (game_settings != null && game_settings.selected_program_id != null) {
+				program = platform().get_program(game_settings.selected_program_id) ?? platform().default_program;
+			} else {
+				program = platform().default_program;
+			}
+			
+			if (game_settings != null && game_settings.program_settings.has_key(program.app_id) == true)
+				settings = game_settings.program_settings[program.app_id];
+			else
+				settings = null;
+				
+			return program;
+		}
+
 		// yaml
 		protected override Yaml.Node build_yaml_node(Yaml.NodeBuilder builder) {
 			var mapping = new Yaml.MappingNode();
 			if (_id != null)
-				builder.add_mapping(mapping, "id", _id);
-			builder.add_mapping(mapping, "name", _name);
+				builder.add_mapping_values(mapping, "id", _id);
+			builder.add_mapping_values(mapping, "name", _name);
 			if (_full_name != null)
-				builder.add_mapping(mapping, "full-name", _full_name);
+				builder.add_mapping_values(mapping, "full-name", _full_name);
 
 			return mapping;
 		}

@@ -314,12 +314,12 @@ public class GameBrowser : Layers.ScreenLayer
 				case KeySymbol.SLASH:
 					filter_selector();
 					break;
-				case KeySymbol.c:
-					do_configuration();
-					drain_events();
-					break;
 				case KeySymbol.p:
 					edit_current_platform();
+					drain_events();
+					break;
+				case KeySymbol.LCTRL: // pandora Select
+					do_configuration();
 					drain_events();
 					break;
 				case KeySymbol.SPACE:
@@ -681,15 +681,13 @@ public class GameBrowser : Layers.ScreenLayer
 	void show_folder_menu(GameFolder folder) {
 		show_menu_overlay(new Menus.Concrete.GameFolderMenu(folder));
 	}
-	void show_program_menu(Program program) {
-	}
 	void show_platform_menu(Platform? platform) {
 		if (platform != null)
 			show_menu_overlay(new Menus.Concrete.PlatformMenu(platform));
 		
 	}
 	void show_menu_overlay(Menu menu) {
-		new Layers.GameBrowser.MenuOverlay(menu, 100, 100).run();
+		new Layers.GameBrowser.MenuOverlay(menu, 40, 40).run();
 	}
 	
 }
