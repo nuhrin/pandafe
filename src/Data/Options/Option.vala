@@ -6,6 +6,7 @@ namespace Data.Options
 {
 	public abstract class Option : Object, MenuObject
 	{
+		const string NAME_CHARACTER_REGEX = "[[:alnum:] ]";
 		public string name { get; set; }
 		public string? help { get; set; }
 		public string option { get; set; }
@@ -13,11 +14,12 @@ namespace Data.Options
 		public abstract OptionType option_type { get; }
 		
 		// menu
-		protected void build_menu(MenuBuilder builder) {
-			builder.add_string("name", "Name", null, name);
-			builder.add_string("option", "Option", "-o, --option, etc", option);
+		protected virtual void build_menu(MenuBuilder builder) {
+			var name_field = builder.add_string("name", "Name", null, name ?? "", NAME_CHARACTER_REGEX);
+			name_field.required = true;
+			builder.add_string("option", "Option", "-o, --option, etc", option ?? "");
 			build_edit_fields(builder);
-			builder.add_string("help", "Help", "Help text to display during option selection", help);
+			builder.add_string("help", "Help", "Help text to display during option selection", help ?? "");
 		}
 		protected abstract void build_edit_fields(MenuBuilder builder);
 //~ 		protected bool apply_menu(Menu menu) {
