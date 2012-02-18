@@ -22,6 +22,7 @@ namespace Fields
 
 		protected override Value get_field_value() { return _value; }
 		protected override void set_field_value(Value value) { change_value((string?)value); }
+		protected override bool has_value() { return (_value != null && _value.strip() != ""); }
 
 		protected override void activate(Menus.MenuSelector selector) {
 			var chooser = new PndCategoryChooser("category_chooser", "Choose Category: " + name);

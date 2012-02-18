@@ -95,6 +95,7 @@ namespace Menus.Fields
 		
 		protected override Value get_field_value() { return this.value; }
 		protected override void set_field_value(Value value) { change_value((string?)value); }
+		protected override bool has_value() { return (_selected_index >= 0); }
 		
 		protected override bool do_validation() {
 			if (_selected_index == -1 && items.size > 0) {

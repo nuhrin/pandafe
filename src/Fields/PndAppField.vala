@@ -29,6 +29,7 @@ namespace Fields
 
 		protected override Value get_field_value() { return _value; }
 		protected override void set_field_value(Value value) { change_value((AppItem?)value); }
+		protected override bool has_value() { return (_value != null); }
 
 		protected override void activate(Menus.MenuSelector selector) {
 			var chooser = new PndAppChooser("app_chooser", "Choose App: " + name);

@@ -25,6 +25,7 @@ namespace Menus.Fields
 
 		protected override Value get_field_value() { return _value; }
 		protected override void set_field_value(Value value) { change_value((string?)value); }
+		protected override bool has_value() { return (_value != null && _value.strip() != ""); }
 
 		protected override void activate(MenuSelector selector) {
 			var chooser = new FileChooser("file_chooser", "Choose file: " + name, file_extensions, root_path);

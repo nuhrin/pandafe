@@ -45,6 +45,7 @@ namespace Fields
 
 		protected override Value get_field_value() { return get_program(); }
 		protected override void set_field_value(Value value) { set_program((Program?)value); }
+		protected override bool has_value() { return (selected_program != null); }
 
 	}
 }

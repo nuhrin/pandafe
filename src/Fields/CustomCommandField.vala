@@ -49,24 +49,24 @@ namespace Fields
 			_title = "Command for " + name;
 		}
 		
-		public override string get_value_text() { return (has_value || app == null) ? "(custom)" : app.exec_command; }
+		public override string get_value_text() { return (has_value() || app == null) ? "(custom)" : app.exec_command; }
 		public override int get_minimum_menu_value_text_length() { return 0; }
 
 		protected override Value get_field_value() { return _value; }
-		protected override void set_field_value(Value value) { change_value((string)value); }
+		protected override void set_field_value(Value value) { change_value((string)value); }		
+		protected override bool has_value() { return (_value != null && _value.strip() != ""); }
 
 		protected override void activate(MenuSelector selector) {
 			string? contents;
-			bool had_value = has_value;
+			bool had_value = has_value();
 			if (run_dialog(out contents) == true) {
 				change_value(contents);
-				if (has_value != had_value) {
+				if (has_value() != had_value) {
 					selector.update_selected_item_value();
 					selector.update();
 				}
 			}	
 		}
-		protected bool has_value { get { return (_value != null && _value != ""); } }
 		
 		bool change_value(string? new_value) {
 			_value = new_value;
@@ -110,7 +110,7 @@ namespace Fields
 			var btnRevert = new Button.with_mnemonic("_Revert");
 			var btnStock = new ToggleButton.with_mnemonic("_Stock");
 			btnRevert.clicked.connect(() => {
-				if (stock_supported == true && has_value == false) {
+				if (stock_supported == true && has_value() == false) {
 					btnStock.active = true;
 				} else {
 					btnStock.active = false;
@@ -176,7 +176,7 @@ namespace Fields
 				buttonbox.set_child_secondary(btnStock, true);
 			}
 			
-			if (stock_supported == false || has_value == true) {
+			if (stock_supported == false || has_value() == true) {
 				source_buffer.set_text(_value ?? DEFAULT_VALUE);
 			} else {
 				btnStock.active = true;

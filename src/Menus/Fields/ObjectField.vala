@@ -28,6 +28,7 @@ namespace Menus.Fields
 		
 		protected override Value get_field_value() { return obj; }
 		protected override void set_field_value(Value value) { change_value(value.get_object()); }
+		protected override bool has_value() { return true; }
 
 		protected override void activate(MenuSelector selector) {
 			ObjectMenu.edit(name, obj);			

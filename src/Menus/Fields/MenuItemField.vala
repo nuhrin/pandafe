@@ -36,8 +36,14 @@ namespace Menus.Fields
 					}
 				}
 			}
+			if (required == true && has_value() == false) {
+				this.error("%s is required.".printf(name));
+				return false;
+			}
+			
 			return do_validation();
 		}
+		public bool required { get; set; }
 
 		public abstract string get_value_text();
 		public abstract int get_minimum_menu_value_text_length();
@@ -61,6 +67,7 @@ namespace Menus.Fields
 
 		protected abstract Value get_field_value();
 		protected abstract void set_field_value(Value value);
+		protected abstract bool has_value();
 		
 		protected virtual bool do_validation() { return true; }
 		

@@ -25,6 +25,7 @@ namespace Fields
 
 		protected override Value get_field_value() { return _app_id; }
 		protected override void set_field_value(Value value) { change_value((string)value); }
+		protected override bool has_value() { return (_app_id != null && _app_id.strip() != ""); }
 
 		protected override void activate(Menus.MenuSelector selector) {
 			string? new_value = null;

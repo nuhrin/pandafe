@@ -34,6 +34,7 @@ namespace Menus.Fields
 
 		protected override Value get_field_value() { return _value; }
 		protected override void set_field_value(Value value) { change_value((uint)value); }
+		protected override bool has_value() { return true; }
 
 		protected override bool select_previous() {
 			if (_value < step)

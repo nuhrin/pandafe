@@ -59,6 +59,7 @@ namespace Menus.Fields
 
 		protected override Value get_field_value() { return this.value; }
 		protected override void set_field_value(Value value) { this.value = value.get_enum(); }
+		protected override bool has_value() { return true; }
 
 		protected override void activate(MenuSelector selector) {
 			var rect = selector.get_selected_item_value_entry_rect();

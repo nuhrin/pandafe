@@ -25,6 +25,7 @@ namespace Menus.Fields
 
 		protected override Value get_field_value() { return _value; }
 		protected override void set_field_value(Value value) { change_value((Gee.List<string>)value); }
+		protected override bool has_value() { return (_value.size > 0); }
 
 		protected override void activate(MenuSelector selector) {
 			var editor = new StringListEditor(id + "_editor", name, _value);

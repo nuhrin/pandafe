@@ -67,6 +67,7 @@ namespace Fields
 
 		protected override Value get_field_value() { return this.value; }
 		protected override void set_field_value(Value value) { change_value((string)value); }
+		protected override bool has_value() { return (_selected_index > 0); }
 
 		protected override void activate(Menus.MenuSelector selector) {
 			var rect = selector.get_selected_item_value_entry_rect();

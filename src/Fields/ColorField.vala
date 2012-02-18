@@ -36,6 +36,7 @@ namespace Fields
 		
 		protected override Value get_field_value() { return _color; }
 		protected override void set_field_value(Value value) { change_value((Data.Color)value); }
+		protected override bool has_value() { return true; }
 
 		protected override void activate(Menus.MenuSelector selector) {
 			var copy = _color.copy();
