@@ -53,6 +53,12 @@ namespace Data.Options
 			return "";
 		}
 		public override string get_option_from_setting_value(string? setting) {
+			string choice_option = get_choice_option_from_setting_value(setting);
+			if (choice_option != "")
+				return option + choice_option;
+			return "";
+		}
+		string get_choice_option_from_setting_value(string? setting) {
 			if (setting == null) {
 				if (choices.size > 0 && default_choice_index >= 0 && default_choice_index < choices.size)
 					return choices[default_choice_index].option;
