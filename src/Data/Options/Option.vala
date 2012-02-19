@@ -26,13 +26,13 @@ namespace Data.Options
 		
 		// menu
 		protected virtual void build_menu(MenuBuilder builder) {
-			add_name_field(builder);
+			add_name_field(name, builder);
 			builder.add_string("option", "Option", "-o, --option, etc", option ?? "");
 			build_edit_fields(builder);
 			builder.add_string("help", "Help", "Help text to display during option selection", help ?? "");
 		}
 		protected abstract void build_edit_fields(MenuBuilder builder);
-		protected void add_name_field(MenuBuilder builder) {
+		protected static void add_name_field(string? name, MenuBuilder builder) {
 			var name_field = builder.add_string("name", "Name", null, name ?? "", NAME_CHARACTER_REGEX);
 			name_field.required = true;
 		}

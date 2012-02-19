@@ -16,7 +16,7 @@ namespace Data.Options
 		
 		// menu
 		protected override void build_menu(MenuBuilder builder) {
-			add_name_field(builder);
+			add_name_field(name, builder);
 			var options_field = new ProgramOptionsListField("options", "Options", null, options);
 			options_field.required = true;
 			builder.add_field(options_field);

@@ -19,9 +19,10 @@ namespace Data.Options
 		public int default_choice_index { get; set; }
 		
 		// menu
-		protected override void build_edit_fields(MenuBuilder builder) {
+		protected override void build_edit_fields(MenuBuilder builder) {			
 			choices_field = new ChoiceListField("choices", "Choices", null, choices);
-			builder.add_field(choices_field);
+			choices_field.add_validator(value => ((Gee.List<Choice>)value).size > 1, "Choices must have at least two items.");
+			builder.add_field(choices_field);			
 			default_choice_field = new DefaultChoiceField("default_choice_index", "Default Choice", null, choices, default_choice_index);
 			builder.add_field(default_choice_field);
 			
@@ -81,7 +82,7 @@ namespace Data.Options
 			return null;
 		}
 		
-		public class Choice : Object
+		public class Choice : Object, MenuObject
 		{
 			public string name { get; set; }
 			public string option { get; set; }
@@ -91,6 +92,13 @@ namespace Data.Options
 				if (value != null && value != "")
 					return value;
 				return name;
+			}
+			
+			// menu
+			protected virtual void build_menu(MenuBuilder builder) {
+				Option.add_name_field(name, builder);
+				builder.add_string("option", "Option", "-o, --option, etc (or option value for parent option)", option ?? "");
+				builder.add_string("value", "Value", "Value to use in settings dictionary (optional)", value ?? "");				
 			}
 		}
 		class ChoiceListField : ListField<Choice>
@@ -127,8 +135,8 @@ namespace Data.Options
 				string? selected_name = null;
 				if (choices.size > 0 && default_choice_index >= 0 && default_choice_index < choices.size)
 					selected_name = choices[default_choice_index].name;
-				var names = new Enumerable<Choice>(choices).select<string>(c=>c.name).to_list();
-				names.insert(0, "(None)");
+					
+				var names = get_names(choices);
 				base(id, name, help, names, selected_name);
 			}
 			
@@ -140,10 +148,12 @@ namespace Data.Options
 				base.set_items(get_names(choices));
 			}
 			
-			Iterable<string> get_names(Gee.List<Choice> choices) {
-				var names = new Enumerable<Choice>(choices).select<string>(c=>c.name).to_list();
-				names.insert(0, "(None)");
-				return names;
+			static Iterable<string> get_names(Gee.List<Choice> choices) {
+				var list = new ArrayList<string>();
+				list.add("(None)");
+				foreach(var choice in choices)
+					list.add(choice.name);
+				return list;
 			}
 			
 			protected override Value get_field_value() { return this.value; }
