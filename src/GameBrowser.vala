@@ -644,8 +644,11 @@ public class GameBrowser : Layers.ScreenLayer
 
 	void show_context_menu() {
 		//Menus.Concrete.MainConfiguration.run();
-		if (selector.selected_index == -1)
+		if (selector.selected_index == -1) {
+			if (current_platform != null)
+				show_platform_menu(current_platform);			
 			return;
+		}
 		
 		var platform_selector = selector as PlatformSelector;
 		if (platform_selector != null) {			
@@ -661,6 +664,10 @@ public class GameBrowser : Layers.ScreenLayer
 		var game_selector = selector as GameFolderSelector;
 		if (game_selector != null) {
 			var item = game_selector.selected_item();
+			if (item == null && current_platform != null) {
+				show_platform_menu(current_platform);
+				return;
+			}
 			var folder = item as GameFolder;
 			if (folder != null) {
 				show_folder_menu(folder);
