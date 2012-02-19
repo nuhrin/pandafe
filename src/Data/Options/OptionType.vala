@@ -5,12 +5,18 @@ namespace Data.Options
 	{
 		NONE,
 		FLAG,
+		GROUPING,
+		INTEGER,
 		MULTIPLE_CHOICE;
 		
 		public Option? create_option() {
 			switch(this) {
 				case OptionType.FLAG:
 					return new FlagOption();
+				case OptionType.GROUPING:
+					return new OptionGrouping();
+				case OptionType.INTEGER:
+					return new IntegerOption();
 				case OptionType.MULTIPLE_CHOICE:
 					return new MultipleChoiceOption();
 				default:
@@ -48,6 +54,8 @@ namespace Data.Options
 			return;
 		option_type_names = {
 			"Flag",
+			"Grouping",
+			"Integer",
 			"Multiple Choice"
 		};	
 	}

@@ -15,7 +15,7 @@ namespace Menus.Concrete
 			return menu.was_saved;
 		}
 		
-		OptionSet options;
+		Program program;
 		HashMap<Option,MenuItemField> field_hash;
 		ProgramDefaultSettings original_settings;
 		ProgramDefaultSettings settings;
@@ -24,7 +24,7 @@ namespace Menus.Concrete
 		
 		public ProgramDefaultSettingsMenu(Program program, int clockspeed=-1, string? extra_arguments=null) {
 			base("Default Settings: " + program.name);
-			this.options = program.options;			
+			this.program = program;			
 			this.original_settings = program.default_settings;
 			var effective = new ProgramDefaultSettings();
 			effective.merge_override(program.default_settings);
@@ -46,15 +46,19 @@ namespace Menus.Concrete
 			extra_arguments_field.value = extra_arguments;
 		}
 		
-		public override bool do_cancel() {
+		protected override bool do_cancel() {
 			was_saved = false;
 			return true;
 		}
-		public override bool do_save() {
+		protected override bool do_save() {
 			original_settings.clear();			
-			foreach(var option in options) {
+			foreach(var option in program.options) {
 				var field = field_hash[option];
-				original_settings[option.name] = option.get_setting_value_from_field(field);
+				var grouping_field = field as OptionGroupingField;
+				if (grouping_field != null)
+					grouping_field.populate_settings_from_fields(original_settings);
+				else
+					original_settings[option.setting_name] = option.get_setting_value_from_field(field);
 			}
 			original_settings.extra_arguments = extra_arguments_field.value;							
 			original_settings.clockspeed = clockspeed_field.value;
@@ -62,15 +66,22 @@ namespace Menus.Concrete
 			return true;
 		}
 		protected override void populate_items(Gee.List<MenuItem> items) {
-			foreach(var option in options) {
+			foreach(var option in program.options) {
+				var grouping = option as OptionGrouping;
+				if (grouping != null) {
+					var field = grouping.get_grouping_field(program.name, settings);
+					field_hash[option] = field;
+					items.add(field);
+					continue;
+				}
 				string? setting = null;
-				if (settings.has_key(option.name) == true)
-					setting = settings[option.name];
+				if (settings.has_key(option.setting_name) == true)
+					setting = settings[option.setting_name];
 				var field = option.get_setting_field(setting);
 				field_hash[option] = field;
 				items.add(field);
 			}
-			string name = (options.size > 0) ? "Extra Arguments" : "Arguments";
+			string name = (program.options.size > 0) ? "Extra Arguments" : "Arguments";
 			extra_arguments_field = new StringField("extra_arguments", name, null, settings.extra_arguments ?? "");
 			items.add(extra_arguments_field);
 			

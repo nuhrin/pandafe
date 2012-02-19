@@ -25,8 +25,10 @@ pandafe_VALASOURCES = \
 	Data/GameBrowserState.vala \
 	Data/GameSettings.vala \
 	Data/Options/FlagOption.vala \
+	Data/Options/IntegerOption.vala \
 	Data/Options/MultipleChoiceOption.vala \
 	Data/Options/Option.vala \
+	Data/Options/OptionGrouping.vala \
 	Data/Options/OptionSet.vala \
 	Data/Options/OptionType.vala \
 	Data/Platforms/NativePlatform.vala \
@@ -54,6 +56,7 @@ pandafe_VALASOURCES = \
 	Fields/ColorField.vala \
 	Fields/ClockSpeedField.vala \
 	Fields/CustomCommandField.vala \
+	Fields/OptionGroupingField.vala \
 	Fields/PlatformListField.vala \
 	Fields/PndAppField.vala \
 	Fields/PndCategoryField.vala \
@@ -107,6 +110,7 @@ pandafe_VALASOURCES = \
 	Menus/Concrete/GameMenu.vala \
 	Menus/Concrete/GameSettingsMenu.vala \
 	Menus/Concrete/MainConfiguration.vala \
+	Menus/Concrete/OptionGroupingMenu.vala \
 	Menus/Concrete/PlatformMenu.vala \
 	Menus/Concrete/ProgramDefaultSettingsMenu.vala \
 	Menus/Fields/BooleanField.vala \

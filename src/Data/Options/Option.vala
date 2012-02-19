@@ -13,28 +13,41 @@ namespace Data.Options
 		
 		public abstract OptionType option_type { get; }
 		
+		public unowned string setting_name { 
+			get  {
+				if (_setting_name != null)
+					return _setting_name;
+				return name;
+			}
+		}
+		public void set_setting_prefix(string prefix) { _setting_name = prefix + name; }
+		string? _setting_name;
+		
+		
 		// menu
 		protected virtual void build_menu(MenuBuilder builder) {
-			var name_field = builder.add_string("name", "Name", null, name ?? "", NAME_CHARACTER_REGEX);
-			name_field.required = true;
+			add_name_field(builder);
 			builder.add_string("option", "Option", "-o, --option, etc", option ?? "");
 			build_edit_fields(builder);
 			builder.add_string("help", "Help", "Help text to display during option selection", help ?? "");
 		}
 		protected abstract void build_edit_fields(MenuBuilder builder);
-//~ 		protected bool apply_menu(Menu menu) {
-//~ 			name = menu.get_field<StringField>("name").value;
-//~ 			option = menu.get_field<StringField>("option").value;
-//~ 			help = menu.get_field<StringField>("help").value;
-//~ 			return apply_edit_fields(menu);
-//~ 		}
-//~ 		protected abstract bool apply_edit_fields(Menu menu);
-		
+		protected void add_name_field(MenuBuilder builder) {
+			var name_field = builder.add_string("name", "Name", null, name ?? "", NAME_CHARACTER_REGEX);
+			name_field.required = true;
+		}
+
 		// field
 		public abstract MenuItemField get_setting_field(string? setting);
 		public abstract string get_setting_value_from_field(MenuItemField field);
 		
 		// 
-		public abstract string get_option_from_setting_value(string? setting);		
+		public abstract string get_option_from_setting_value(string? setting);
+		
+		// yaml
+		internal virtual void populate_yaml_mapping(Yaml.NodeBuilder builder, Yaml.MappingNode mapping) {
+			builder.populate_object_mapping(mapping, this);
+		}
+		internal virtual void post_yaml_load() { }
 	}
 }

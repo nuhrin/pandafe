@@ -224,16 +224,16 @@ namespace Layers.Controls
 			if (resolved_text.length > max_characters) {
 				if (cursor_pos <= half) {
 					// beginning of string
-					debug("in the beginning...");
+					//debug("in the beginning...");
 					resolved_text = resolved_text.substring(0, max_characters);
 				} else if (cursor_pos > text.length - half) {
 					// end of string
-					debug("at the end...");
+					//debug("at the end...");
 					resolved_text = resolved_text.substring(resolved_text.length - max_characters);
 					relative_cursor_pos = (cursor_pos == text.length) ? max_characters - 1 : cursor_pos - (text.length - max_characters) - 1;
 				} else {
 					// middle of string
-					debug("(in the middle)");
+					//debug("(in the middle)");
 					relative_cursor_pos = half + (max_characters % 2) - 1;
 					resolved_text = resolved_text.substring(cursor_pos - relative_cursor_pos, max_characters);
 				}

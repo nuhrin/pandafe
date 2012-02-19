@@ -14,7 +14,7 @@ namespace Menus
 				_menu = menu;
 				_menu.cancelled.connect(() => cancelled());
 				_menu.saved.connect(() => saved());
-				_menu.finished.connect(() => finished());			
+				_menu.finished.connect(() => finished());
 		}		
 		
 		public override void activate(MenuSelector selector) { 

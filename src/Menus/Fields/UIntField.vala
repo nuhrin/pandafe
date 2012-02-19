@@ -30,7 +30,7 @@ namespace Menus.Fields
 		}
 
 		public override string get_value_text() { return _value.to_string(); }
-		public override int get_minimum_menu_value_text_length() { return max_value.to_string().length; }
+		public override int get_minimum_menu_value_text_length() { return max_value.to_string().length + 1; }
 
 		protected override Value get_field_value() { return _value; }
 		protected override void set_field_value(Value value) { change_value((uint)value); }

@@ -49,9 +49,16 @@ namespace Menus.Concrete
 					settings.merge_override(game_settings.program_settings[program.app_id]);
 				field_hash = new HashMap<Option,MenuItemField>();
 				foreach(var option in program.options) {
+					var grouping = option as OptionGrouping;
+					if (grouping != null) {
+						var field = grouping.get_grouping_field(program.name, settings);
+						field_hash[option] = field;
+						items.add(field);
+						continue;
+					}
 					string? setting = null;
-					if (settings.has_key(option.name) == true)
-						setting = settings[option.name];
+					if (settings.has_key(option.setting_name) == true)
+						setting = settings[option.setting_name];
 					var field = option.get_setting_field(setting);
 					field_hash[option] = field;
 					items.add(field);
@@ -71,8 +78,11 @@ namespace Menus.Concrete
 				var settings = new ProgramSettings();
 				foreach(var option in program.options) {
 					var field = field_hash[option];
-					var setting = option.get_setting_value_from_field(field);
-					settings[option.name] = setting;
+					var grouping_field = field as OptionGroupingField;
+					if (grouping_field != null)
+						grouping_field.populate_settings_from_fields(settings);
+					else
+						settings[option.setting_name] = option.get_setting_value_from_field(field);
 				}
 				settings.clockspeed = clockspeed_field.value;
 				game_settings.program_settings[program.app_id] = settings;			

@@ -8,10 +8,11 @@ namespace Data.Options
 	{
 		public string get_option_string_from_settings(ProgramSettings settings, string? extra_arguments) {
 			var sb = new StringBuilder();
-			foreach(var option in this) {
+			var options = setting_options();
+			foreach(var option in options) {
 				string? setting = null;
-				if (settings.has_key(option.name) == true)
-					setting = settings[option.name];
+				if (settings.has_key(option.setting_name) == true)
+					setting = settings[option.setting_name];
 				var output = option.get_option_from_setting_value(setting);
 				if (output != "")
 					sb.append(output).append(" ");
@@ -19,6 +20,20 @@ namespace Data.Options
 			if (extra_arguments != null)
 				sb.append(" ").append(extra_arguments);
 			return sb.str.strip();
+		}
+		Gee.List<Option> setting_options() {
+			var list = new ArrayList<Option>();
+			add_options(this, list);
+			return list;			
+		}
+		void add_options(OptionSet options, ArrayList<Option> list) {
+			foreach(var option in options) {
+				var option_grouping = option as OptionGrouping;
+				if (option_grouping != null)
+					add_options(option_grouping.options, list);
+				else
+					list.add(option);
+			}
 		}
 		
 		// yaml
@@ -47,13 +62,13 @@ namespace Data.Options
 		
 		Yaml.Node build_option_yaml_node(Yaml.NodeBuilder builder, Option option) {
 			var mapping = new Yaml.MappingNode();			
-			builder.add_mapping_values(mapping, "option-type", option.option_type);
-			builder.populate_object_mapping(mapping, option);
+			builder.add_mapping_values(mapping, "type", option.option_type);
+			option.populate_yaml_mapping(builder, mapping);
 			return mapping;
 		}
 		
 		OptionType get_option_type_from_mapping(Yaml.NodeParser parser, Yaml.MappingNode mapping) {			
-			var key = mapping.scalar_keys().where(s=>s.value == "option-type").first();
+			var key = mapping.scalar_keys().where(s=>s.value == "type").first();
 			if (key != null)
 				return parser.parse<OptionType>(mapping[key], OptionType.NONE);
 			
@@ -65,10 +80,11 @@ namespace Data.Options
 			if (mapping == null)
 				return;
 			foreach(var key in mapping.scalar_keys()) {
-				if (key.value == "option-type")
+				if (key.value == "type")
 					continue;
 				parser.populate_object_property(mapping, key, option);
 			}
+			option.post_yaml_load();
 		}
 		
 		protected string get_yaml_tag() { return ""; }
