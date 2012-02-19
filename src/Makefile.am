@@ -59,10 +59,10 @@ pandafe_VALASOURCES = \
 	Fields/PndCategoryField.vala \
 	Fields/PndSelectionField.vala \
 	Fields/ProgramAppIdField.vala \
+	Fields/ProgramDefaultSettingsField.vala \
 	Fields/ProgramListField.vala \
 	Fields/ProgramOptionsListField.vala \
 	Fields/ProgramSelectionField.vala \
-	Fields/ProgramSettingsField.vala \
 	Layers/Controls/Chooser/ChooserHeader.vala \
 	Layers/Controls/Chooser/ChooserBase.vala \
 	Layers/Controls/Chooser/ChooserSelector.vala \
@@ -108,7 +108,7 @@ pandafe_VALASOURCES = \
 	Menus/Concrete/GameSettingsMenu.vala \
 	Menus/Concrete/MainConfiguration.vala \
 	Menus/Concrete/PlatformMenu.vala \
-	Menus/Concrete/ProgramSettingsMenu.vala \
+	Menus/Concrete/ProgramDefaultSettingsMenu.vala \
 	Menus/Fields/BooleanField.vala \
 	Menus/Fields/EnumField.vala \
 	Menus/Fields/FileField.vala \

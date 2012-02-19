@@ -101,7 +101,7 @@ public class Program : Entity, MenuObject
 		options_field = new ProgramOptionsListField("options", "Options", null, options);
 		builder.add_field(options_field);
 		
-		default_setting_field = new ProgramDefaultSettingsField("default_settings", "Default Settings", null, this, default_settings);
+		default_setting_field = new ProgramDefaultSettingsField("default_settings", "Default Settings", null, this);
 		builder.add_field(default_setting_field);
 		
 		initialize_fields();
