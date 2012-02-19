@@ -261,9 +261,9 @@ namespace Layers.GameBrowser
 				push_menu(selected_menu);
 				return;
 			}
-			var menu_browser_item = selected_item as MenuBrowserItem;
-			if (menu_browser_item != null) {
-				push_menu(menu_browser_item.menu);
+			var submenu = selected_item as SubMenuItem;
+			if (submenu != null) {
+				push_menu(submenu.menu);
 				return;
 			}
 			

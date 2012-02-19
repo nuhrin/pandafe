@@ -30,7 +30,7 @@ namespace Menus.Concrete
 						refresh(0);
 					} else {
 						settings_menu = new GameSettingsMenu(game);
-						settings_menu_item.menu = settings_menu;
+						settings_menu_item.set_menu(settings_menu);
 					}
 				});
 				items.add(settings_menu_item);

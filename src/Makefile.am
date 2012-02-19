@@ -131,6 +131,7 @@ pandafe_VALASOURCES = \
 	Menus/MenuSelector.vala \
 	Menus/ObjectBrowserItem.vala \
 	Menus/ObjectMenu.vala \
+	Menus/SubMenuItem.vala \
 	Selectors/EverythingSelector.vala \
 	Selectors/GameFolderSelector.vala \
 	Selectors/PlatformSelector.vala \
