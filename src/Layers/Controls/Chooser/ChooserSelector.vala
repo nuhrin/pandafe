@@ -331,7 +331,7 @@ namespace Layers.Controls.Chooser
 				secondary_id_list.add(id);
 			}
 			public void choose_secondary_id(int16 xpos, int16 ypos, uchar screen_alpha=128, uint32 rgb_color=0) {
-				if (secondary_id_list == null)
+				if (secondary_id_list == null || secondary_id_list.size < 2)
 					return;
 					
 				uint id_index = 0;

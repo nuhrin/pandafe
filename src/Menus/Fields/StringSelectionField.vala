@@ -107,6 +107,15 @@ namespace Menus.Fields
 		}
 
 		protected override void activate(MenuSelector selector) {
+			if (items.size == 0)
+				return;
+			if (items.size == 1) {
+				if (has_value() == false && select_next() == true) {
+					selector.update_selected_item_value();
+					selector.update();					
+				}
+				return;
+			}
 			var rect = selector.get_selected_item_value_entry_rect();
 			if (rect != null) {
 				var control = new StringSelector(id + "_selector", rect.x, rect.y, (int16)rect.w, items, _selected_index);

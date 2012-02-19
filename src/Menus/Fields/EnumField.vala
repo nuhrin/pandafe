@@ -67,6 +67,8 @@ namespace Menus.Fields
 				var items = new ArrayList<int>();
 				for(int index=0;index<_nicks.size;index++)
 					items.add(index);
+				if (items.size < 2)
+					return;
 				var control = new ValueSelector<int>(id + "_selector", rect.x, rect.y, (int16)rect.w, index=> _nicks[index], items, _value_index);
 				int new_index = (int)control.run();
 				if (new_index != _value_index) {
