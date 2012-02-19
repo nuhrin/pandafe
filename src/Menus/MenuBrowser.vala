@@ -97,6 +97,7 @@ namespace Menus
 		void refresh_menu(Menu menu) {
 			if (menu == selector.menu) {
 				selector.update();
+				message.reset();
 			}
 		}
 		void add_additional_layer(Menu menu) {			
@@ -123,7 +124,8 @@ namespace Menus
 			message.error = error;
 		}
 		void on_field_error(Fields.MenuItemField field, int index, string error) {
-			message.error = error;
+			if (message.error == null)
+				message.error = error;
 		}
 		void redraw_item() {
 			selector.update_selected_item_value();

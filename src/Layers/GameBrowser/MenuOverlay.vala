@@ -104,6 +104,7 @@ namespace Layers.GameBrowser
 			if (menu == selector.menu) {			
 				clear();
 				set_header();
+				message.reset();
 				screen.update(false);
 				update();
 			}
@@ -121,7 +122,8 @@ namespace Layers.GameBrowser
 			message.error = error;
 		}
 		void on_field_error(MenuItemField field, int index, string error) {
-			message.error = error;
+			if (message.error == null)
+				message.error = error;
 		}
 		void redraw_item() {
 			selector.update_selected_item_value();
