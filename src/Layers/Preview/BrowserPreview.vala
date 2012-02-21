@@ -4,7 +4,6 @@ namespace Layers.Preview
 {
 	public class BrowserPreview : SurfaceLayer 
 	{
-		int16 ypos;
 		GameBrowserUI ui;
 		HeaderLayer header;
 		StatusMessageLayer status_message;
@@ -12,7 +11,6 @@ namespace Layers.Preview
 		
 		public BrowserPreview(int16 ypos, GameBrowserUI ui) {
 			base("browser_preview", @interface.screen_width, @interface.screen_height - ypos, 0, ypos, ui.background_color_rgb);
-			this.ypos = ypos;
 			this.ui = ui;
 			header = add_layer(new HeaderLayer("header", 20, ui)) as HeaderLayer;
 			header.set_text("Platform", "(Game Browser Preview)", "Category", false);

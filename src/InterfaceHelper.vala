@@ -142,6 +142,24 @@ public class InterfaceHelper : Object
 		else
 			Rectangle.fill_rgba(screen, x, y, x+width, y+height, color.r, color.g, color.b, alpha);
 	}
+	public void draw_line(int16 x1, int16 y1, int16 x2, int16 y2, SDL.Color color, uchar alpha=255, Surface? surface=null) {	
+		if (surface != null)
+			Line.rgba(surface, x1, y1, x2, y2, color.r, color.g, color.b, alpha);
+		else
+			Line.rgba(screen, x1, y1, x2, y2, color.r, color.g, color.b, alpha);
+	}
+	public void draw_horizontal_line(int16 x1, int16 x2, int16 y, SDL.Color color, uchar alpha=255, Surface? surface=null) {	
+		if (surface != null)
+			Line.rgba_h(surface, x1, x2, y, color.r, color.g, color.b, alpha);
+		else
+			Line.rgba_h(screen, x1, x2, y, color.r, color.g, color.b, alpha);
+	}
+	public void draw_vertical_line(int16 x, int16 y1, int16 y2, SDL.Color color, uchar alpha=255, Surface? surface=null) {	
+		if (surface != null)
+			Line.rgba_v(surface, x, y1, y2, color.r, color.g, color.b, alpha);
+		else
+			Line.rgba_v(screen, x, y1, y2, color.r, color.g, color.b, alpha);
+	}
 
 	public int screen_fill(Rect? dst, uint32 color) {
 		return screen.fill(dst, color);

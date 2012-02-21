@@ -34,6 +34,13 @@ namespace Layers
 		protected override void draw_rectangle_fill(int16 x, int16 y, int16 width, int16 height, SDL.Color color, uchar alpha=255) {
 			@interface.draw_rectangle_fill(x, y, width, height, color, alpha);
 		}
+		protected override void draw_horizontal_line(int16 x1, int16 x2, int16 y, SDL.Color color, uchar alpha=255) {
+			@interface.draw_horizontal_line(x1, x2, y, color, alpha);
+		}
+		protected override void draw_vertical_line(int16 x, int16 y1, int16 y2, SDL.Color color, uchar alpha=255) {
+			@interface.draw_vertical_line(x, y1, y2, color, alpha);
+		}
+
 
 		
 	}

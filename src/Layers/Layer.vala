@@ -32,6 +32,21 @@ namespace Layers
 			else
 				debug("no parent or screen found for layer: %s", id);
 		}
+		protected override void draw_horizontal_line(int16 x1, int16 x2, int16 y, SDL.Color color, uchar alpha=255) {
+			var target = get_target_layer();
+			if (target != null)
+				target.draw_horizontal_line(x1, x2, y, color, alpha);
+			else
+				debug("no parent or screen found for layer: %s", id);
+		}
+		protected override void draw_vertical_line(int16 x, int16 y1, int16 y2, SDL.Color color, uchar alpha=255) {
+			var target = get_target_layer();
+			if (target != null)
+				target.draw_vertical_line(x, y1, y2, color, alpha);
+			else
+				debug("no parent or screen found for layer: %s", id);
+		}
+
 				
 		LayerBase? get_target_layer() { return (LayerBase?)parent ?? (LayerBase?)screen; }
 	}

@@ -11,7 +11,7 @@ namespace Layers.MenuBrowser
 		string? _right;
 		
 		public MenuHeaderLayer(string id) {
-			base(id, 760, @interface.get_monospaced_font_height(), 20, 20);
+			base(id, 760, @interface.get_monospaced_font_height() + 10, 20, 15);
 			font = @interface.get_monospaced_font();
 		}
 
@@ -36,7 +36,7 @@ namespace Layers.MenuBrowser
 		}
 		
 		protected override void draw() {
-			Rect rect = {0, 0};
+			Rect rect = {0, 5};
 			if (_left != null && _left != "") {
 				blit_surface(font.render(_left, @interface.white_color), null, rect);
 			}

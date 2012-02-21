@@ -12,9 +12,10 @@ namespace Layers.MenuBrowser
 		
 		public MenuMessageLayer(string id, int16 layer_height=480) {
 			int16 font_height = @interface.get_monospaced_font_height();
-			base(id, 770, font_height, 10, layer_height - font_height - 10);
+			base(id, 770, font_height + 10, 10, layer_height - font_height - 20);
 			font = @interface.get_monospaced_font();
 		}
+		public bool centered { get; set; }
 
 		public string? error {
 			get { return _error; }
@@ -37,13 +38,22 @@ namespace Layers.MenuBrowser
 		}
 		
 		protected override void draw() {
-			Rect rect = {0, 0};
+			Rect rect = {0, 5};
+			Surface rendered = null;
+
 			if (_error != null && _error != "")
-				blit_surface(font.render(_error, @interface.white_color), null, rect);
+				rendered = font.render(_error, @interface.white_color);
 			else if (_message != null && _message != "")
-				blit_surface(font.render(_message, @interface.white_color), null, rect);
+				rendered = font.render(_message, @interface.white_color);
 			else if (_help != null && _help != "")
-				blit_surface(font.render(_help, @interface.white_color), null, rect);
+				rendered = font.render(_help, @interface.white_color);
+			
+			if (rendered == null)
+				return;
+			if (centered == true)
+				rect.x = (int16)(surface.w/2 - rendered.w/2);
+			
+			blit_surface(rendered, null, rect);
 		}
 		
 	}

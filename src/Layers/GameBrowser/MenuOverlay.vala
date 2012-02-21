@@ -20,7 +20,12 @@ namespace Layers.GameBrowser
 		MenuSelector selector;
 		MenuHeaderLayer header;
 		MenuMessageLayer message;
-
+		Rect upper_left;
+		Rect upper_right;
+		Rect lower_left;
+		Rect lower_right;
+		int16 header_bottom_y;
+		
 		public MenuOverlay(Menu menu, uint8 max_name_length, uint8 max_value_length) {
 			if (menu.items.size == 0)
 				GLib.error("Menu '%s' has no items.", menu.name);
@@ -30,7 +35,13 @@ namespace Layers.GameBrowser
 			menu_stack = new GLib.Queue<MenuSelector>();
 			header = add_layer(new MenuHeaderLayer("header")) as MenuHeaderLayer;
 			message = add_layer(new MenuMessageLayer("status")) as MenuMessageLayer;			
+			message.centered = true;
 			selector = add_layer(get_selector(menu)) as MenuSelector;
+			upper_left={header.xpos - 1, header.ypos - 1};
+			upper_right={header.xpos + (int16)header.width + 1, upper_left.y};
+			lower_left={message.xpos - 1, message.ypos + (int16)message.height + 1};
+			lower_right={message.xpos + (int16)message.width + 1, lower_left.y};
+			header_bottom_y=header.ypos + (int16)header.height;
 		}
 
 		public void run() {
@@ -51,9 +62,19 @@ namespace Layers.GameBrowser
 		}
 		
 		protected override void draw() {
+			int16 box_left_x = selector.xpos - 20;
 			int16 width = (int16)@interface.screen_width - selector.xpos;
 			int16 height = (int16)(@interface.screen_height - header.height - message.height);
-			draw_rectangle_fill(selector.xpos - 20, 20, width, height, @interface.black_color);
+			draw_rectangle_fill(box_left_x, 20, width, height, @interface.black_color);
+			
+			draw_horizontal_line(upper_left.x, upper_right.x, upper_left.y, @interface.white_color);
+			draw_vertical_line(upper_left.x, upper_left.y, header_bottom_y + 1, @interface.white_color);
+			draw_horizontal_line(upper_left.x, box_left_x, header_bottom_y + 1, @interface.white_color);
+			draw_vertical_line(box_left_x, header_bottom_y + 1, message.ypos - 1, @interface.white_color);
+			draw_vertical_line(upper_right.x, upper_right.y, lower_right.y, @interface.white_color);
+			draw_horizontal_line(lower_left.x, box_left_x, message.ypos - 1, @interface.white_color);
+			draw_vertical_line(lower_left.x, message.ypos - 1, lower_left.y, @interface.white_color);
+			draw_horizontal_line(lower_left.x, lower_right.x, lower_left.y, @interface.white_color);
 		}
 
 		MenuSelector get_selector(Menu menu) {
@@ -68,7 +89,7 @@ namespace Layers.GameBrowser
 			return new_selector;
 		}
 		void update_selector_pos(MenuSelector selector) {
-			selector.xpos = (int16)(@interface.screen_width - 20 - ((selector.width < SELECTOR_MIN_WIDTH) ? SELECTOR_MIN_WIDTH : selector.width));
+			selector.xpos = (int16)(@interface.screen_width - 25 - ((selector.width < SELECTOR_MIN_WIDTH) ? SELECTOR_MIN_WIDTH : selector.width));
 			selector.ypos = SELECTOR_YPOS;			
 		}
 		
