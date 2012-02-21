@@ -35,8 +35,8 @@ namespace Data.Options
 		public override string get_setting_value_from_field(MenuItemField field) {
 			return "";
 		}
-		public OptionGroupingField get_grouping_field(string program_name, ProgramSettings settings) {
-			return new OptionGroupingField(name, name, help, this, program_name, settings);
+		public OptionGroupingField get_grouping_field(ProgramSettings settings, string program_name, string? title_prefix=null) {
+			return new OptionGroupingField(name, name, help, this, settings, program_name, title_prefix);
 		}
 		
 		// setting

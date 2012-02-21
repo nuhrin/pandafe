@@ -51,7 +51,7 @@ namespace Menus.Concrete
 				foreach(var option in program.options) {
 					var grouping = option as OptionGrouping;
 					if (grouping != null) {
-						var field = grouping.get_grouping_field(program.name, settings);
+						var field = grouping.get_grouping_field(settings, game.full_name);
 						field_hash[option] = field;
 						items.add(field);
 						continue;

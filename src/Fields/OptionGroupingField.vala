@@ -13,11 +13,11 @@ namespace Fields
 		ProgramSettings settings;
 		OptionGroupingMenu _menu;
 		
-		public OptionGroupingField(string id, string name, string? help=null, OptionGrouping grouping, string program_name, ProgramSettings settings) {
+		public OptionGroupingField(string id, string name, string? help=null, OptionGrouping grouping, ProgramSettings settings, string program_name, string? title_prefix=null) {
 			base(id, name, help);
 			this.grouping = grouping;
 			this.settings = settings;
-			_menu = new OptionGroupingMenu(program_name, grouping, settings);
+			_menu = new OptionGroupingMenu(grouping, settings, program_name, title_prefix);
 			_menu.cancelled.connect(() => cancelled());
 			_menu.saved.connect(() => saved());
 			_menu.finished.connect(() => finished());

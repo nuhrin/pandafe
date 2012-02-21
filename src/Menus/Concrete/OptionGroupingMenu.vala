@@ -10,15 +10,17 @@ namespace Menus.Concrete
 	public class OptionGroupingMenu : Menu  
 	{	
 		OptionSet options;
-		ProgramSettings settings;
+		ProgramSettings settings;		
 		string program_name;
+		string? title_prefix;
 		HashMap<Option,MenuItemField> field_hash;
 		
-		public OptionGroupingMenu(string program_name, OptionGrouping grouping, ProgramSettings settings) {
-			base("%s Settings: %s".printf(grouping.name, program_name));
+		public OptionGroupingMenu(OptionGrouping grouping, ProgramSettings settings, string program_name, string? title_prefix=null) {
+			base("%s%s Settings: %s".printf(title_prefix ?? "", grouping.name, program_name));
 			this.options = grouping.options;
 			this.settings = settings;
 			this.program_name = program_name;
+			this.title_prefix = title_prefix;
 			field_hash = new HashMap<Option,MenuItemField>();			
 		}
 		
@@ -37,7 +39,7 @@ namespace Menus.Concrete
 			foreach(var option in options) {
 				var grouping = option as OptionGrouping;
 				if (grouping != null) {
-					var field = grouping.get_grouping_field(program_name, settings);
+					var field = grouping.get_grouping_field(settings, program_name, title_prefix);
 					field_hash[option] = field;
 					items.add(field);
 					continue;
