@@ -25,6 +25,7 @@ namespace Layers.Controls
 		Regex character_mask_regex;
 		Regex? value_mask_regex;
 		bool _is_valid_value;
+		bool _error_thrown;
 		
 		public TextEntry(string id, int16 x, int16 y, int16 width, string? value=null, string? character_mask_regex=null, string? value_mask_regex=null) {
 			base(id, width, @interface.get_monospaced_font_height() + 10, x, y);
@@ -46,6 +47,7 @@ namespace Layers.Controls
 			//this.text = value ?? "";
 			@interface.draw_rectangle_outline(0, 0, (int16)surface.w-2, (int16)surface.h-2, {255, 255, 255}, 255, surface);			
 			set_text(value ?? "");
+			_is_valid_value = is_valid_value();
 			original_text = (has_valid_value) ? value : "";
 		}		
 
@@ -70,6 +72,7 @@ namespace Layers.Controls
 		
 		public signal void text_changed(string text);
 		public signal void validation_error();
+		public signal void error_cleared();
 
 		protected unowned string get_current_text_value() { return text; }
 		protected void change_text(string new_text) {
@@ -111,9 +114,10 @@ namespace Layers.Controls
 				switch(event.keysym.sym) {
 					case KeySymbol.RETURN:
 					case KeySymbol.KP_ENTER:
-						if (has_valid_value == false)
+						if (has_valid_value == false) {
 							validation_error();
-						else
+							_error_thrown = true;
+						} else
 							event_loop_done = true;
 						break;
 					case KeySymbol.ESCAPE:
@@ -208,15 +212,20 @@ namespace Layers.Controls
 				on_text_changed();
 				this.text_changed(new_text);
 			}
+			_is_valid_value = is_valid_value();
+			if (_is_valid_value == false) {
+				validation_error();
+				_error_thrown = true;
+			}
+			else if (_error_thrown == true) {
+				_error_thrown = false;
+				error_cleared();
+			}
 			update();
 		}
 		void set_text(string? new_text=null) {
-			if (new_text != null) {
-				this.text = new_text;
-				_is_valid_value = is_valid_value();
-				if (_is_valid_value == false)
-					validation_error();
-			}
+			if (new_text != null)
+				this.text = new_text;			
 
 			var resolved_text = text + " ";
 			int relative_cursor_pos = cursor_pos;

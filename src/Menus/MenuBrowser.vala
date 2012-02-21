@@ -61,6 +61,7 @@ namespace Menus
 			menu.message.connect((message) => on_message(message));
 			menu.error.connect((error) => on_error(error));
 			menu.field_error.connect((field, index, error) => on_field_error(field, index, error));
+			menu.clear_error.connect(() => clear_error());
 			menu.refreshed.connect(() => refresh_menu(menu));
 			return new_selector;
 		}
@@ -126,6 +127,9 @@ namespace Menus
 		void on_field_error(Fields.MenuItemField field, int index, string error) {
 			if (message.error == null)
 				message.error = error;
+		}
+		void clear_error() {
+			message.error = null;
 		}
 		void redraw_item() {
 			selector.update_selected_item_value();

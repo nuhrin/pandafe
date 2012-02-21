@@ -60,8 +60,9 @@ namespace Menus.Fields
 					width = (int16)rect.w;
 				var entry = new UIntEntry(id + "_entry", rect.x, rect.y, width, _value, min_value, max_value, step);
 				entry.validation_error.connect(() => {
-					this.error("%s must be an unsigned integer between %u and %u (%u).".printf(name, min_value, max_value, entry.value));
+					this.error("%s must be an unsigned integer between %u and %u.".printf(name, min_value, max_value));
 				});
+				entry.error_cleared.connect(() => error_cleared());
 				if (change_value(entry.run())) {
 					selector.update_selected_item_value();
 					selector.update();

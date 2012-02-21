@@ -22,6 +22,7 @@ namespace Menus.Fields
 		public virtual void make_clean() { is_dirty = false; }
 
 		public signal void error(string error);
+		public signal void error_cleared();
 		public void add_validator(owned Predicate<Value?> is_valid, string error_if_invalid) {
 			if (_validators == null)
 				_validators = new ArrayList<Validator>();

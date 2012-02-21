@@ -56,6 +56,7 @@ namespace Menus
 				_field_id_hash[field.id] = field;
 				_field_index_hash[field.id] = _items.size;
 				field.error.connect((error) => throw_field_error(field, error));
+				field.error_cleared.connect(() => clear_error());
 			}
 			_items.add(item);
 		}
@@ -69,6 +70,7 @@ namespace Menus
 		public signal void message(string message);
 		public signal void error(string error);
 		public signal void field_error(MenuItemField field, int index, string error);
+		public signal void clear_error();
 		public signal void cancelled();
 		public signal void saved();
 		public signal void refreshed(uint selected_index);
@@ -149,6 +151,7 @@ namespace Menus
 				_field_id_hash[field.id] = field;
 				_field_index_hash[field.id] = index;
 				field.error.connect((error) => throw_field_error(field, error));
+				field.error_cleared.connect(() => clear_error());
 			}
 		}
 		void ensure_field_hash() {
