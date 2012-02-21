@@ -113,9 +113,9 @@ public class Platform : NamedEntity, MenuObject
 	}
 
 	// menu
-	protected void build_menu(MenuBuilder builder) {
+	protected virtual void build_menu(MenuBuilder builder) {
 		name_field = builder.add_string("name", "Name", null, this.name);
-		builder.add_enum("platform_type", "Type", null, this.platform_type);
+		//builder.add_enum("platform_type", "Type", null, this.platform_type);
 		builder.add_folder("rom_folder_root", "Rom Folder Root", null, this.rom_folder_root);
 		builder.add_string("rom_file_extensions", "Rom File Extensions", null, this.rom_file_extensions);
 		
@@ -130,7 +130,7 @@ public class Platform : NamedEntity, MenuObject
 	void initialize_fields() {
 		programs_field.changed.connect(() => default_program_field.set_programs(programs_field.value));
 	}
-	protected bool save_object(Menu menu) {
+	protected virtual bool save_object(Menu menu) {
 		DataInterface di = Data.data_interface();		
 		if (name_field.has_changes()) {
 			string id = this.id ?? generate_id();			

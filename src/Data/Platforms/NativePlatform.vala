@@ -2,6 +2,8 @@ using Gee;
 using Catapult;
 using Data.GameList;
 using Data.Platforms;
+using Menus;
+using Fields;
 
 public class NativePlatform : Platform
 {
@@ -32,4 +34,15 @@ public class NativePlatform : Platform
 		}
 		return false;
 	}
+	
+	// menu
+	protected override void build_menu(MenuBuilder builder) {
+		categories_field = new NativePlatformCategoryListField("categories", "Categories to include", null, categories);
+		builder.add_field(categories_field);
+	}
+	protected override bool save_object(Menu menu) {
+		return Data.save_native_platform();
+	}
+	
+	NativePlatformCategoryListField categories_field;
 }

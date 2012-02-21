@@ -28,10 +28,13 @@ namespace Menus.Fields
 		protected override bool has_value() { return (_value.size > 0); }
 
 		protected override void activate(MenuSelector selector) {
-			var editor = new StringListEditor(id + "_editor", name, _value);
+			var editor = get_list_editor();
 			if (editor.run() == true) {
 				change_value(editor.list);
 			}			
+		}
+		protected virtual StringListEditor get_list_editor() { 
+			return new StringListEditor(id + "_editor", name, _value);
 		}
 		
 		void change_value(Gee.List<string> new_value) {

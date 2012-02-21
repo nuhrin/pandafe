@@ -39,6 +39,7 @@ namespace Layers.Controls.List
 		}
 		
 		public Gee.List<G> list { get { return _list; } }
+		protected Gee.List<ListItem<G>> items { get { return _items; } }
 		
 		public bool run() {
 			ensure_items();
@@ -253,7 +254,7 @@ namespace Layers.Controls.List
 			}
 			// item selected
 			ListItemActionType action = ListItemActionType.INSERT_BELOW;
-			Rect rect = selector.get_selected_item_rect();			
+			Rect rect = selector.get_selected_item_rect();
 			if (selector.item_count > 0) {
 				var selected_item = selector.selected_item();
 				bool move_ok = (selector.item_count > 1);
@@ -274,14 +275,15 @@ namespace Layers.Controls.List
 					var list_item = get_list_item(item);
 					selector.insert_item_before_selected(list_item);
 					update();
-
-					var index = selector.selected_index;										
-					if (edit_list_item(list_item, index) == true) {
-						selector.reset();
-					} else {
-						selector.remove_selected_item();
-					}
-					update();
+					if (can_edit(list_item) == true) {
+						var index = selector.selected_index;										
+						if (edit_list_item(list_item, index) == true) {
+							selector.reset();
+						} else {
+							selector.remove_selected_item();
+						}
+						update();
+					}					
 					break;
 				case ListItemActionType.INSERT_BELOW:
 					G item;
@@ -290,14 +292,16 @@ namespace Layers.Controls.List
 					var list_item = get_list_item(item);
 					selector.insert_item_after_selected(list_item);
 					update();
-					var index = selector.selected_index;
-					if (edit_list_item(list_item, index) == true) {
-						selector.reset();
-						update();
-					} else {
-						selector.remove_selected_item();
-						selector.select_item(index, false);
-						update();
+					if (can_edit(list_item) == true) {
+						var index = selector.selected_index;
+						if (edit_list_item(list_item, index) == true) {
+							selector.reset();
+							update();
+						} else {
+							selector.remove_selected_item();
+							selector.select_item(index, false);
+							update();
+						}
 					}
 					break;
 				case ListItemActionType.MOVE:
