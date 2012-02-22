@@ -61,7 +61,7 @@ namespace Data.GameList
 			}
 			catch(Error e)
 			{
-				debug("Error while getting children of '%s': %s", get_full_path(folder), e.message);
+				//debug("Error while getting children of '%s': %s", get_full_path(folder), e.message);
 			}
 			child_folders = null;
 			child_games = null;

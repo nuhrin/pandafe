@@ -12,6 +12,9 @@ namespace Data.GameList
 		public PndList() {
 			base(Data.native_platform());
 			pnddata = Data.pnd_data();
+			init_categories();
+		}
+		void init_categories() {					
 			main_categories = new ArrayList<string>();
 			platform_category_hash = new HashMap<string, NativePlatformCategory>();
 			var native_platform = platform as NativePlatform;
@@ -24,7 +27,7 @@ namespace Data.GameList
 			if (main_categories.size == 0)
 				main_categories.add_all(pnddata.get_main_category_names().to_list());
 		}
-
+		
 		public override uint run_game(GameItem game) {
 			var ids = game.id.split("|");
 			var pnd = pnddata.get_pnd(ids[0]);
@@ -37,12 +40,18 @@ namespace Data.GameList
 			debug("Unable to run pnd '%s' (%s).", game.name, game.id);
 			return -1;
 		}
-
+		
 		public override string get_unique_id(IGameListNode node) {
 			if (node is GameItem || node.parent == null || node.parent.id == "")
 				return node.id;
 			return "%s/%s".printf(node.parent.id, node.id);
 		}
+
+		protected override void rescan_init() {
+			init_categories();
+			recreate_root_folder();
+		}
+
 
 		protected override bool get_children(GameFolder folder, out ArrayList<GameFolder> child_folders, out ArrayList<GameItem> child_games) {
 			var folder_list = new ArrayList<GameFolder>();

@@ -29,6 +29,7 @@ namespace Data.GameList
 
 
 		public void rescan() {
+			rescan_init();
 			root_folder.rescan_children(true);
 		}
 		public void clear_cache() {
@@ -37,10 +38,13 @@ namespace Data.GameList
 		public bool scan_children(GameFolder folder, out ArrayList<GameFolder> child_folders, out ArrayList<GameItem> child_games) {
 			bool result = get_children(folder, out child_folders, out child_games);
 			// todo: notify some signal of folder scan
-			debug("folder '%s' scanned.", folder.unique_id());
+			//debug("folder '%s' scanned.", folder.unique_id());
 			return result;
 		}
 
+		protected virtual void rescan_init() { }
+		protected void recreate_root_folder() { _root = create_root_folder(); }
+		
 		protected abstract bool get_children(GameFolder folder, out ArrayList<GameFolder> child_folders, out ArrayList<GameItem> child_games);
 		protected abstract GameFolder create_root_folder();
 

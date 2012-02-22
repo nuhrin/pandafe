@@ -29,6 +29,7 @@ public class MainClass: Object {
 
         SDL.quit();
 
+		cleanup_pandafedata_folder();
  		return 0;
 	}
 
@@ -112,4 +113,54 @@ public class MainClass: Object {
 		// create preferences file
 		Data.save_preferences();
 	}
+
+	static void cleanup_pandafedata_folder() {
+		string gamelistcache_path = Path.build_filename(Config.LOCAL_CONFIG_DIR, Data.GameList.GameFolder.YAML_FOLDER_ROOT);
+		if (FileUtils.test(gamelistcache_path, FileTest.EXISTS) == true) {
+			try {
+				var platform_ids = new Catapult.Enumerable<Platform>(Data.platforms()).select<string>(p=>p.id).to_list();
+				var directory = File.new_for_path(gamelistcache_path);
+				var enumerator = directory.enumerate_children("standard::*", FileQueryInfoFlags.NONE);
+				FileInfo file_info;
+				while ((file_info = enumerator.next_file ()) != null) {
+					var type = file_info.get_file_type();
+					var name = file_info.get_name();
+					if (name.has_prefix(".") == true)
+						continue;
+					if (type == FileType.DIRECTORY) {
+						if (platform_ids.contains(name) == false) {
+							var unmatched_directory = File.new_for_path(Path.build_filename(gamelistcache_path, name));
+							remove_directory(unmatched_directory);
+						}
+					}
+				}
+			}
+			catch(GLib.Error e)
+			{
+				debug("Error while cleaning up gamelist cache folder: %s", e.message);
+			}
+		}
+	}
+	static bool remove_directory(File directory) throws GLib.Error
+	{
+		var enumerator = directory.enumerate_children("standard::*", FileQueryInfoFlags.NONE);
+		FileInfo file_info;
+		while ((file_info = enumerator.next_file ()) != null) {
+			var type = file_info.get_file_type();
+			var name = file_info.get_name();
+			if (name.has_prefix(".") == true)
+				continue;
+			File child = File.new_for_path(Path.build_filename(directory.get_path(), name));
+			bool child_delete_result = false;
+			if (type == FileType.DIRECTORY) {
+				child_delete_result = remove_directory(child);					
+			} else {
+				child_delete_result = child.delete();
+			}
+			if (child_delete_result == false)
+				return false;
+		}
+		return directory.delete();
+	}
+		
 }

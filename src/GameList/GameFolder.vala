@@ -5,7 +5,7 @@ namespace Data.GameList
 {
 	public class GameFolder : Object, Gee.Comparable<IGameListNode>, IGameListNode
 	{
-		const string YAML_FOLDER_ROOT = "GameListCache";
+		public const string YAML_FOLDER_ROOT = "GameListCache";
 
 		string? _id;
 		string _name;
@@ -118,7 +118,7 @@ namespace Data.GameList
 			try {
 				cache = Data.data_interface().load<GameFolderCache>(GameFolderCache.YAML_ID, folder_path);
 			} catch(Error e) {
-				debug("Error loading cache for folder '%s': %s", folder_path, e.message);
+				//debug("Error loading cache for folder '%s': %s", folder_path, e.message);
 			}
 			if (cache == null)
 				return false;
@@ -162,7 +162,7 @@ namespace Data.GameList
 		string get_yaml_folder() {
 			if (_yaml_folder == null) {
 				_yaml_folder = (_parent == null)
-					? Path.build_filename(YAML_FOLDER_ROOT, _name)
+					? Path.build_filename(YAML_FOLDER_ROOT, provider.platform.id)
 					: Path.build_filename(_parent.get_yaml_folder(), name);
 			}
 			return _yaml_folder;
