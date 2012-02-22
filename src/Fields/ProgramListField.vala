@@ -16,13 +16,13 @@ namespace Fields
 		}
 		
 		protected override ListEditor<Program> get_list_editor() {
-			return new ProgramListEditor(id, name, value, p=>p.name);
+			return new ProgramListEditor(id, name, null, value, p=>p.name);
 		}
 		
 		class ProgramListEditor : ListEditor<Program>
 		{
-			public ProgramListEditor(string id, string name, Gee.List<Program> list, owned MapFunc<string?, Program> get_name_string) {
-				base(id, name, list, (owned)get_name_string);
+			public ProgramListEditor(string id, string name, string? help=null, Gee.List<Program> list, owned MapFunc<string?, Program> get_name_string) {
+				base(id, name, help, list, (owned)get_name_string);
 			}
 			protected override bool create_item(Rect selected_item_rect, out Program item) {
 				item = null;

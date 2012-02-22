@@ -14,41 +14,46 @@ namespace Fields
 	public class NativePlatformSubCategoryListField : StringListField
 	{
 		NativePlatformCategory category;
+		Category? main_category;
 		public NativePlatformSubCategoryListField(string id, string name, string? help=null, NativePlatformCategory category) {
 			base(id, name, help, category.excluded_subcategories);
 			this.category = category;
+			main_category = Data.pnd_data().get_category(category.name);
 		}
 		
+		protected override void activate(MenuSelector selector) {
+			if (main_category == null || main_category.subcategories.size == 0) {
+				message("No subcategories found for category " + category.name);
+				return;
+			}
+			base.activate(selector);
+		}
 		protected override StringListEditor get_list_editor() {
-			return new NativePlatformSubCategoryListEditor(id, name, category, value);
+			return new NativePlatformSubCategoryListEditor(id, name, help, main_category, value);
 		}
 		
 		class NativePlatformSubCategoryListEditor : StringListEditor
 		{
-			NativePlatformCategory category;
-			public NativePlatformSubCategoryListEditor(string id, string name, NativePlatformCategory category, Gee.List<string> list) {
-				base(id, name, list);
+			Category? category;
+			public NativePlatformSubCategoryListEditor(string id, string name, string? help=null, Category? category, Gee.List<string> list) {
+				base(id, name, help, list);
 				this.category = category;
 			}
 			protected override bool create_item(Rect selected_item_rect, out string item) {
 				item = "";
-				var main_cat = Data.pnd_data().get_category(category.name);
-				if (main_cat == null)
+				if (category == null)
 					return false;
-				var all_subcategory_names = new Enumerable<CategoryBase>(main_cat.subcategories).select<string>(c=>c.name);
+				var all_subcategory_names = new Enumerable<CategoryBase>(category.subcategories).select<string>(c=>c.name);
 				var existing_names = (this.items.size == 0) 
 					? new ArrayList<string>()
 					: new Enumerable<ListItem<string>>(this.items).select<string>(i=>i.value).to_list();
 				var additional_names = all_subcategory_names.where(name=>(existing_names.contains(name) == false)).to_list();
-				if (additional_names.size < 2) {
-					if (additional_names.size == 1) {
-						item = additional_names[0];
-						return true;
-					}
+				if (additional_names.size == 0) {
 					return false;
 				}
 				var selector = new StringSelector("native_subcategory_selector", 
 					selected_item_rect.x + (int16)selected_item_rect.w, selected_item_rect.y, 250, additional_names);
+				selector.can_select_single_item = true;
 				selector.run();
 				if (selector.was_canceled)
 					return false;
@@ -59,7 +64,7 @@ namespace Fields
 				return true;
 			}
 			protected override bool can_edit(ListItem<string> item) { return false; }
-			
+			protected override bool can_insert() { return (category != null && items.size < category.subcategories.size); }			
 		}
 	}
 }

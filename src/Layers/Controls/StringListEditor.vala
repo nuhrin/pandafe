@@ -9,8 +9,8 @@ namespace Layers.Controls
 		string? character_mask_regex;
 		string? value_mask_regex;
 		
-		public StringListEditor(string id, string name, Gee.List<string> list, string? character_mask_regex=null, string? value_mask_regex=null) {
-			base(id, name, list);
+		public StringListEditor(string id, string name, string? help=null, Gee.List<string> list, string? character_mask_regex=null, string? value_mask_regex=null) {
+			base(id, name, help, list);
 			this.character_mask_regex = character_mask_regex;
 			this.value_mask_regex = value_mask_regex;
 		}

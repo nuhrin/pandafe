@@ -56,6 +56,7 @@ pandafe_VALASOURCES = \
 	Fields/ColorField.vala \
 	Fields/ClockSpeedField.vala \
 	Fields/CustomCommandField.vala \
+	Fields/NativePlatformCategoryAppListField.vala \
 	Fields/NativePlatformCategoryListField.vala \
 	Fields/NativePlatformSubCategoryListField.vala \
 	Fields/OptionGroupingField.vala \

@@ -54,9 +54,10 @@ namespace Menus
 			if (field != null) {
 				ensure_field_hash();
 				_field_id_hash[field.id] = field;
-				_field_index_hash[field.id] = _items.size;
+				_field_index_hash[field.id] = _items.size;				
 				field.error.connect((error) => throw_field_error(field, error));
 				field.error_cleared.connect(() => clear_error());
+				field.message.connect((message) => this.message(message));
 			}
 			_items.add(item);
 		}
@@ -152,6 +153,7 @@ namespace Menus
 				_field_index_hash[field.id] = index;
 				field.error.connect((error) => throw_field_error(field, error));
 				field.error_cleared.connect(() => clear_error());
+				field.message.connect((message) => this.message(message));
 			}
 		}
 		void ensure_field_hash() {

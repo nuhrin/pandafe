@@ -21,6 +21,13 @@ namespace Data.Pnd
 			}
 			return null;
 		}
+		
+		public Enumerable<AppItem> get_all_apps() {
+			var e = new Enumerable<AppItem>(apps);
+			foreach(var sub in subcategories)
+				e = e.concat(sub.apps);
+			return e;
+		}
 
 		internal SubCategory ensure_subcategory(string subcategory_name) {
 			SubCategory sub = get_subcategory(subcategory_name);

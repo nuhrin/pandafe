@@ -58,6 +58,9 @@ namespace Layers.Controls
 			items = new ArrayList<G>();
 		}
 		
+		public uint item_count { get { return items.size; } }
+		public bool can_select_single_item { get; set; }
+		
 		public uint selected_index {
 			get { return _selected_index; }
 			set {
@@ -98,8 +101,12 @@ namespace Layers.Controls
 		}
 				
 		public uint run(uchar screen_alpha=128, uint32 rgb_color=0) {
-			if (items.size < 2)
-				GLib.error("ValueSelector '%s' has too few items (%d). At least two are required for selection to make sense.", id, items.size);
+			if (items.size < 2) {
+				if (can_select_single_item == false)
+					GLib.error("ValueSelector '%s' has too few items (%d). At least two are required for selection to make sense.", id, items.size);
+				else if (items.size == 0)
+					GLib.error("Value selector has no values.");
+			}
 				
 			ensure_surface();
 			update_item_name((int)_selected_index, true);

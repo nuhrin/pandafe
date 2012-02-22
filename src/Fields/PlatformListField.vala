@@ -16,13 +16,13 @@ namespace Fields
 		}
 
 		protected override ListEditor<Platform> get_list_editor() {
-			return new PlatformListEditor(id, name, value, p=>p.name);
+			return new PlatformListEditor(id, name, null, value, p=>p.name);
 		}
 		
 		class PlatformListEditor : ListEditor<Platform>
 		{
-			public PlatformListEditor(string id, string name, Gee.List<Platform> list, owned MapFunc<string?, Platform> get_name_string) {
-				base(id, name, list, (owned)get_name_string);
+			public PlatformListEditor(string id, string name, string? help=null, Gee.List<Platform> list, owned MapFunc<string?, Platform> get_name_string) {
+				base(id, name, help, list, (owned)get_name_string);
 				save_on_return = true;
 			}
 			protected override bool create_item(Rect selected_item_rect, out Platform item) {
@@ -35,7 +35,6 @@ namespace Fields
 			protected override bool edit_list_item(ListItem<Platform> item, uint index) {
 				return ObjectMenu.edit("Edit Platform", item.value);
 			}
-			protected override bool can_edit(ListItem<Platform> item) { return !(item.value is NativePlatform); }
 			protected override bool can_delete(ListItem<Platform> item) { return !(item.value is NativePlatform); }
 			protected override string? get_cancel_item_text() { return null; }
 			protected override string? get_save_item_text() { return "Return"; }

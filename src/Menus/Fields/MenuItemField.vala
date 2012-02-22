@@ -21,6 +21,7 @@ namespace Menus.Fields
 		public virtual bool has_changes() { return is_dirty; }
 		public virtual void make_clean() { is_dirty = false; }
 
+		public signal void message(string message);
 		public signal void error(string error);
 		public signal void error_cleared();
 		public void add_validator(owned Predicate<Value?> is_valid, string error_if_invalid) {

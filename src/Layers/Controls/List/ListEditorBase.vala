@@ -17,16 +17,20 @@ namespace Layers.Controls.List
 		bool menu_active;
 		bool save_requested;
 		MenuHeaderLayer header;
+		MenuMessageLayer message;
 		ListItemSelector selector;
 		MenuSelector menu_selector;
 		Gee.List<G> _list;
 		ArrayList<ListItem<G>> _items;
 		
-		protected ListEditorBase(string id, string name, Gee.List<G> list=new ArrayList<G>()) {
+		protected ListEditorBase(string id, string name, string? help=null, Gee.List<G> list=new ArrayList<G>()) {
 			base(id);
 			_list = list;
 			header = add_layer(new MenuHeaderLayer("header")) as MenuHeaderLayer;
 			header.set_text(null, "Edit List: " + name, null, false);
+			message = add_layer(new MenuMessageLayer("status")) as MenuMessageLayer;	
+			if (help != null)
+				message.help = help;
 			var menu = new Menu("");
 			var cancel_text = get_cancel_item_text();
 			if (cancel_text != null)
@@ -36,6 +40,10 @@ namespace Layers.Controls.List
 				menu.add_item(new MenuItem.save_item(save_text));
 			menu_selector = add_layer(new MenuSelector("list_menu_selector", MENU_SELECTOR_XPOS, MENU_SELECTOR_YPOS, menu, 100, 0)) as MenuSelector;
 			menu_selector.wrap_selector = false;
+		}
+		
+		public void set_header(string? left, string? center, string? right) {
+			header.set_text(left, center, right);
 		}
 		
 		public Gee.List<G> list { get { return _list; } }
@@ -68,6 +76,7 @@ namespace Layers.Controls.List
 		protected virtual bool on_delete(ListItem<G> item) { return true; }
 		protected virtual bool can_edit(ListItem<G> item) { return true; }
 		protected virtual bool can_delete(ListItem<G> item) { return true; }
+		protected virtual bool can_insert() { return true; }
 		protected virtual string? get_cancel_item_text() { return MenuItemActionType.CANCEL.name(); }
 		protected virtual string? get_save_item_text() { return MenuItemActionType.SAVE.name(); }
 		protected bool save_on_return { get; set; }
@@ -259,7 +268,8 @@ namespace Layers.Controls.List
 				var selected_item = selector.selected_item();
 				bool move_ok = (selector.item_count > 1);
 				action = new ListItemActionSelector("item_action_selector", rect.x + (int16)rect.w, rect.y, 
-					can_edit(selected_item), can_delete(selected_item), move_ok).run();
+					can_edit(selected_item), can_delete(selected_item), move_ok, can_insert())
+					.run();				
 			}
 			switch(action) {
 				case ListItemActionType.EDIT:

@@ -17,13 +17,13 @@ namespace Fields
 		}
 		
 		protected override ListEditor<NativePlatformCategory> get_list_editor() {
-			return new NativePlatformCategoryListEditor(id, name, value, c=>c.name);
+			return new NativePlatformCategoryListEditor(id, name, help, value, c=>c.name);
 		}
 		
 		class NativePlatformCategoryListEditor : ListEditor<NativePlatformCategory>
 		{
-			public NativePlatformCategoryListEditor(string id, string name, Gee.List<NativePlatformCategory> list, owned MapFunc<string?, NativePlatformCategory> get_name_string) {
-				base(id, name, list, (owned)get_name_string);
+			public NativePlatformCategoryListEditor(string id, string name, string? help=null, Gee.List<NativePlatformCategory> list, owned MapFunc<string?, NativePlatformCategory> get_name_string) {
+				base(id, name, help, list, (owned)get_name_string);
 			}
 			protected override bool create_item(Rect selected_item_rect, out NativePlatformCategory item) {
 				item = null;

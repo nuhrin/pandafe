@@ -37,11 +37,16 @@ public class NativePlatform : Platform
 	
 	// menu
 	protected override void build_menu(MenuBuilder builder) {
-		categories_field = new NativePlatformCategoryListField("categories", "Categories to include", null, categories);
+		categories_field = new NativePlatformCategoryListField("categories", "Included Categories", 
+			"If specified, only apps in these categories will be included." , categories);
 		builder.add_field(categories_field);
 	}
 	protected override bool save_object(Menu menu) {
-		return Data.save_native_platform();
+		if (Data.save_native_platform() == true) {
+			menu.message("Scanning native platform...");
+			get_provider().rescan();
+		}
+		return true;
 	}
 	
 	NativePlatformCategoryListField categories_field;

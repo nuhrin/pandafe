@@ -109,13 +109,13 @@ namespace Data.Options
 			}
 
 			protected override ListEditor<Choice> get_list_editor() {
-				return new ChoiceListEditor(id, name, value, p=>p.name);
+				return new ChoiceListEditor(id, name, null, value, p=>p.name);
 			}
 			
 			class ChoiceListEditor : ListEditor<Choice>
 			{
-				public ChoiceListEditor(string id, string name, Gee.List<Choice> list, owned MapFunc<string?, Choice> get_name_string) {
-					base(id, name, list, (owned)get_name_string);
+				public ChoiceListEditor(string id, string name, string? help=null, Gee.List<Choice> list, owned MapFunc<string?, Choice> get_name_string) {
+					base(id, name, help, list, (owned)get_name_string);
 					save_on_return = true;
 				}
 				protected override bool create_item(Rect selected_item_rect, out Choice item) {

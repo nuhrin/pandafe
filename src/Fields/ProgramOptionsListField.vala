@@ -19,13 +19,13 @@ namespace Fields
 		public OptionSet options() { return (OptionSet)base.get_field_value(); }
 
 		protected override ListEditor<Option> get_list_editor() {
-			return new ProgramOptionsListEditor(id, name, value, o=>o.name);
+			return new ProgramOptionsListEditor(id, name, null, value, o=>o.name);
 		}
 		
 		class ProgramOptionsListEditor : ListEditor<Option>
 		{
-			public ProgramOptionsListEditor(string id, string name, Gee.List<Option> list, owned MapFunc<string?, Option> get_name_string) {
-				base(id, name, list, (owned)get_name_string);
+			public ProgramOptionsListEditor(string id, string name, string? help=null, Gee.List<Option> list, owned MapFunc<string?, Option> get_name_string) {
+				base(id, name, help, list, (owned)get_name_string);
 			}
 			protected override bool create_item(Rect selected_item_rect, out Option item) {
 				item = null;

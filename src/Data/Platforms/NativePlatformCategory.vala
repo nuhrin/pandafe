@@ -18,10 +18,15 @@ namespace Data.Platforms
 		
 		// menu
 		protected void build_menu(MenuBuilder builder) {
-			subcategories_field = new NativePlatformSubCategoryListField("excluded_subcategories", "SubCategories to exclude", null, this);
+			subcategories_field = new NativePlatformSubCategoryListField("excluded_subcategories", "Excluded SubCategories", 
+				"If specified, apps in these subcategories will be excluded.", this);
 			builder.add_field(subcategories_field);
+			apps_field = new NativePlatformCategoryAppListField("excluded_apps", "Excluded Apps",
+				"If specified, these specific apps will be excluded.", this);
+			builder.add_field(apps_field);
 		}
 		
 		NativePlatformSubCategoryListField subcategories_field;
+		NativePlatformCategoryAppListField apps_field;
 	}
 }
