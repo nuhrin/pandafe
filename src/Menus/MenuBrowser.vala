@@ -121,6 +121,9 @@ namespace Menus
 		void on_message(string message) {
 			this.message.message = message;
 		}
+		void clear_message() {
+			message.message = null;
+		}
 		void on_error(string error) {
 			message.error = error;
 		}
@@ -151,7 +154,7 @@ namespace Menus
 					case EventType.KEYUP:
 						this.on_keyup_event(event.key);
 						break;
-				}
+				}				
 			}
 		}
 		void drain_events() {
@@ -229,17 +232,22 @@ namespace Menus
 		// commands: selection
 		void select_previous() {
 			selector.select_previous();
+			clear_message();
 		}
 		void select_next() {
 			selector.select_next();
+			clear_message();
 		}
 		void select_first() {
 			selector.select_first();
+			clear_message();
 		}
 		void select_last() {
 			selector.select_last();
+			clear_message();
 		}
 		void select_next_starting_with(char c) {
+			clear_message();
 			if (last_pressed_alphanumeric == c) {
 				last_pressed_alphanumeric_repeat_count++;
 			} else {
@@ -259,6 +267,7 @@ namespace Menus
 		//
 		// commands: misc
 		void activate_selected() {
+			clear_message();
 			var selected_item = selector.selected_item();
 			var selected_menu = selected_item as Menu;
 			if (selected_menu != null) {

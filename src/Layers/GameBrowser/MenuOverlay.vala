@@ -139,6 +139,9 @@ namespace Layers.GameBrowser
 		}
 		void on_message(string message) {
 			this.message.message = message;
+		}		
+		void clear_message() {
+			message.message = null;
 		}
 		void on_error(string error) {
 			message.error = error;
@@ -252,15 +255,19 @@ namespace Layers.GameBrowser
 		// commands: selection
 		void select_previous() {
 			selector.select_previous();
+			clear_message();
 		}
 		void select_next() {
 			selector.select_next();
+			clear_message();
 		}
 		void select_first() {
 			selector.select_first();
+			clear_message();
 		}
 		void select_last() {
 			selector.select_last();
+			clear_message();
 		}
 		void select_next_starting_with(char c) {
 			if (last_pressed_alphanumeric == c) {
@@ -282,6 +289,7 @@ namespace Layers.GameBrowser
 		//
 		// commands: misc
 		void activate_selected() {
+			clear_message();
 			var selected_item = selector.selected_item();
 			var selected_menu = selected_item as Menu;
 			if (selected_menu != null) {
