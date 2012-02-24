@@ -50,11 +50,21 @@ namespace Layers.MenuBrowser
 			
 			if (rendered == null)
 				return;
+			
+			if (rendered.w > width) {
+				unowned Font small_font = @interface.get_monospaced_small_font();
+				if (_error != null && _error != "")
+					rendered = small_font.render(_error, @interface.white_color);
+				else if (_message != null && _message != "")
+					rendered = small_font.render(_message, @interface.white_color);
+				else if (_help != null && _help != "")
+					rendered = small_font.render(_help, @interface.white_color);				
+			}
+			
 			if (centered == true)
 				rect.x = (int16)(surface.w/2 - rendered.w/2);
 			
 			blit_surface(rendered, null, rect);
-		}
-		
+		}		
 	}
 }

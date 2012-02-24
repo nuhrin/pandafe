@@ -19,14 +19,12 @@ namespace Data.GameList
 			regex_file_extensions = get_file_extensions_regex(file_extensions);
 		}
 
-		public override uint run_game(GameItem game) {			
+		public override SpawningResult run_game(GameItem game) {			
 			ProgramSettings? settings = null;
 			var program = game.get_program(out settings);			
 
-			if (program == null) {
-				debug("No program found to run '%s'.", game.name);
-				return -1;
-			}
+			if (program == null)				
+				return new SpawningResult.error("No program found to run '%s'.".printf(game.name));			
 
 			return run_program_with_premount(program, settings, get_full_path(game));
 		}

@@ -2,24 +2,8 @@ using SDL;
 using SDLTTF;
 
 public class MainClass: Object {
-	//static Options options;
 	public static int main (string[] args)
 	{
-//~ 		try {
-//~ 			options = Options.parse(ref args);
-//~ 		} catch(OptionError e) {
-//~ 			print("%s\n", e.message);
-//~ 			return 1;
-//~ 		}
-//~ //		if (options.Testset != null) {
-//~ //		TestRunner.run_requested_tests(options);
-//~ //		return 0;
-//~ //		}
-//~
-
-		//test_pnd_scan();
-		//return 0;
-
 		ensure_pandafedata_folder();
 
 		unowned SDL.Screen screen = inititialize_sdl();

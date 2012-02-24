@@ -38,10 +38,6 @@ namespace Data.Pnd
 			return pnd.get_fullpath();
 		}
 
-		public uint execute(Pandora.Apps.ExecOption options=Pandora.Apps.ExecOption.BLOCK) {
-			return Pandora.Apps.execute_app(get_fullpath(), appdata_dirname ?? id, exec_command, startdir, exec_arguments, clockspeed, options);
-		}
-
 		internal void set_pnd(PndItem pnd) { this.pnd = pnd; }
 		void ensure_pnd() {
 			if (pnd == null)

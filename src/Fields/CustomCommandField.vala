@@ -209,17 +209,16 @@ namespace Fields
 		bool ensure_mount() {
 			if (app == null)
 				return false;
-			if (mountset.is_mounted(app.package_id) == true)
-				return true;
 			
-			if (mountset.mount(app.id, app.package_id) == true) {
-				mounted_path = mountset.get_mounted_path(app.package_id);
-				if (mounted_path != null) {
-					mounted_id = app.package_id;
-					return true;
-				} else {
-					mountset.unmount(app.package_id);
-				}
+			bool is_new_mount = (mountset.is_mounted(app.package_id) == false && 
+								 mountset.mount(app.id, app.package_id) == true);
+			
+			mounted_path = mountset.get_mounted_path(app.package_id);
+			if (mounted_path != null) {
+				mounted_id = app.package_id;
+				return true;
+			} else if (is_new_mount == true) {
+				mountset.unmount(app.package_id);				
 			}
 			mounted_path = null;
 			mounted_id = null;
@@ -247,7 +246,6 @@ namespace Fields
 				return;
 						
 			var path = mounted_path + "/" + app.exec_command;
-			
 			try {
 				FileUtils.get_contents(path, out _stock);
 			} catch(FileError e) {

@@ -31,9 +31,13 @@ namespace Data.GameList
 		public string name { get { return _name; } }
 		public string full_name { get { return (_full_name != null) ? _full_name : _name; } }
 
-		public uint run() { return provider.run_game(this); }
+		public SpawningResult run() { return provider.run_game(this); }
 
-		public Program? get_program(out ProgramSettings? settings=null) {			
+		public Program? get_program(out ProgramSettings? settings=null) {
+			if (platform().platform_type == PlatformType.NATIVE) {
+				settings = null;
+				return null;
+			}
 			Program program = null;
 			var game_settings = Data.get_game_settings(this);
 			

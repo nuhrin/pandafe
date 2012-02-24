@@ -7,13 +7,6 @@ namespace Data.Programs
 	{
 		public uint clockspeed { get; set; }
 		
-		public void print(string header) {
-			GLib.print("%s\n", header);
-			foreach(var entry in this.entries)
-				GLib.print("  %s: %s\n", entry.key, entry.value);
-			GLib.print("\n");
-		}
-		
 		public void merge_override(ProgramSettings settings) {
 			foreach(var entry in settings.entries)
 				this[entry.key] = settings[entry.key];

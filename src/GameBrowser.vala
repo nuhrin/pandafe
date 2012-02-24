@@ -520,11 +520,8 @@ public class GameBrowser : Layers.ScreenLayer
 
 		if (everything_active == true) {
 			var game = everything_selector.selected_game();
-			if (game != null) {
-				status_message.push("running '%s'...".printf(game.unique_id()));
-				game.run();
-				status_message.pop();
-			}
+			if (game != null)
+				run_game(game);
 			return;
 		}
 
@@ -555,10 +552,26 @@ public class GameBrowser : Layers.ScreenLayer
 				return;
 			}
 			var game = item as GameItem;
-			if (game != null) {
-				status_message.push("running '%s'...".printf(item.unique_id()));
-				game.run();
-				status_message.pop();
+			if (game != null)
+				run_game(game);							
+		}
+	}
+	void run_game(GameItem game) {
+		status_message.push("running '%s'...".printf(game.unique_id()));				
+		var result = game.run();		
+		status_message.pop();
+		if (result.success == false) {
+			if (result.error_message != null && status_message.text_will_fit("Error: " + result.error_message))
+				status_message.push("Error: " + result.error_message);
+			else {
+				var program = game.get_program();
+				if (result.exit_status != 0 && program != null && program.expected_exit_code != result.exit_status) {
+					var primary_message = (program != null)
+						? "Error running " + program.name
+						: "Error running program";
+					result.show_error_dialog(primary_message, 
+						"\t<i>%s</i>".printf(game.unique_id()));
+				}
 			}
 		}
 	}

@@ -31,7 +31,7 @@ namespace Layers.Controls
 					starting_path = category.get_path();
 			}
 			string? new_path = base.run(starting_path);
-			var new_category = pnddata.get_category_from_path(new_path);
+			var new_category = pnddata.get_category_from_path(new_path ?? "");
 			if (new_category != null) {
 				foreach(var app in new_category.apps) {
 					if (app.id == selected_app && app.package_id == selected_pnd)

@@ -28,17 +28,15 @@ namespace Data.GameList
 				main_categories.add_all(pnddata.get_main_category_names().to_list());
 		}
 		
-		public override uint run_game(GameItem game) {
+		public override SpawningResult run_game(GameItem game) {
 			var ids = game.id.split("|");
 			var pnd = pnddata.get_pnd(ids[0]);
 			if (pnd != null) {
 				var app = pnd.apps.where(a=>a.id == ids[1]).first();
-				if (app != null) {
-					return app.execute();
-				}
+				if (app != null)
+					return Spawning.spawn_app(app);				
 			}
-			debug("Unable to run pnd '%s' (%s).", game.name, game.id);
-			return -1;
+			return new SpawningResult.error("Unable to run pnd '%s' (%s).".printf(game.name, game.id));
 		}
 		
 		public override string get_unique_id(IGameListNode node) {

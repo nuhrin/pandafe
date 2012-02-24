@@ -21,6 +21,8 @@ pandafe_VALASOURCES = \
 	GameBrowser.vala \
 	GameBrowserUI.vala \
 	InterfaceHelper.vala \
+	Spawning.vala \
+	SpawningResult.vala \
 	Data/Color.vala \
 	Data/GameBrowserState.vala \
 	Data/GameSettings.vala \

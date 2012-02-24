@@ -24,6 +24,7 @@ public class Program : Entity, MenuObject
 	string? _app_id;
 		
 	public string custom_command { get; set; }
+	public uint expected_exit_code { get; set; }
 	public OptionSet options { get; set; }
 	public ProgramDefaultSettings default_settings { get; set; }
 	
@@ -59,7 +60,6 @@ public class Program : Entity, MenuObject
 	Enumerable<AppItem> _apps;
 	
 	public string get_arguments(ProgramSettings? settings=null) {
-		default_settings.print("Default Settings");
 		var effective = new ProgramSettings();
 		effective.merge_override(default_settings);
 		if (settings != null)
@@ -95,9 +95,13 @@ public class Program : Entity, MenuObject
 		app_id_field = new ProgramAppIdField("app_id", "App Id", null, app_id_type, app_id);
 		builder.add_field(app_id_field);
 		
+		builder.add_uint("expected_exit_code", "Expected Exit Code", 
+			"Some apps return an error code even on success.",
+			expected_exit_code, 0, 9999);
+			
 		custom_command_field = new CustomCommandField("custom_command", "Command", null, this, custom_command);
 		builder.add_field(custom_command_field);
-						
+		
 		options_field = new ProgramOptionsListField("options", "Options", null, options);
 		builder.add_field(options_field);
 		
@@ -127,18 +131,18 @@ public class Program : Entity, MenuObject
 			custom_command_field.set_program_name(name_field.value);
 		});
 	}
-	protected bool apply_menu(Menu menu) {
-		if (name_field.has_changes())
-			name = name_field.value.strip();
-		if (app_id_type_field.has_changes())
-			app_id_type = (AppIdType)app_id_type_field.value;
-		if (app_id_field.has_changes())
-			app_id = app_id_field.value;
-		if (custom_command_field.has_changes())
-			custom_command = custom_command_field.value;
-		if (options_field.has_changes())
-			options = options_field.options();			
-		return true;
+	protected bool apply_changed_field(Menu menu, MenuItemField field) {
+		switch(field.id) {
+			case "name":
+				name = ((string)field.value).strip();
+				return true;
+			case "options":
+				options = (OptionSet)field.value;
+				return true;
+			default:
+				break;			
+		}
+		return false;
 	}
 	protected bool save_object(Menu menu) {
 		string? error;

@@ -30,6 +30,9 @@ namespace Layers.GameBrowser
  			status_message_stack.clear();
  			update(flip_screen);
 		}
+		public bool text_will_fit(string text) {
+			return (ui.render_text_selected_fast(text).w <= width);
+		}
 		
 		protected override void draw() {
 			if (status_message_stack.is_empty() == true)
