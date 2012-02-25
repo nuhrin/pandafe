@@ -24,13 +24,13 @@ namespace Layers.Controls.Chooser
 			header.title = title;
 		}
 
-		public string? run(string starting_key, string? secondary_starting_key=null) {
-			selector = get_selector(get_first_run_key(starting_key));
+		public string? run(string? starting_key, string? secondary_starting_key=null) {
+			selector = get_selector(get_first_run_key(starting_key ?? ""));
 			add_layer(selector);
 			@interface.push_screen_layer(this);
 			update_chooser();
 			
-			uint index = get_first_run_selection_index(starting_key);
+			uint index = get_first_run_selection_index(starting_key ?? "");
 			if (index == 0 || selector.select_item(index) == false)
 				selector.select_first();
 			
