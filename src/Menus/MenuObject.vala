@@ -22,6 +22,8 @@ namespace Menus
 		protected virtual bool apply_changed_field(Menu menu, MenuItemField field) {
 			return false;
 		}
+		internal bool i_validate_menu(Menu menu) { return validate_menu(menu); }
+		protected virtual bool validate_menu(Menu menu) { return true; }
 		
 		protected virtual bool save_object(Menu menu) { return true; }
 		internal bool i_save_object(Menu menu) { return save_object(menu); }

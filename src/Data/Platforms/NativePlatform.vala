@@ -7,7 +7,6 @@ using Fields;
 
 public class NativePlatform : Platform
 {
-	public const string ENTITY_ID = "native_platform";
 	construct {
 		name = "Pandora";
 		categories = new ArrayList<NativePlatformCategory>();
@@ -15,12 +14,12 @@ public class NativePlatform : Platform
 
 	public Gee.List<NativePlatformCategory> categories { get; set; }
 
-	protected override GameListProvider get_provider() {
-		return new PndList();
-	}
+	protected override GameListProvider create_provider() { return new PndList(); }
 
 	// yaml
-	protected override string generate_id() { return ENTITY_ID; }
+	protected override string generate_id() {
+		assert_not_reached();
+	}
 	protected override Yaml.Node build_yaml_node(Yaml.NodeBuilder builder) {
 		var mapping = new Yaml.MappingNode();
 		builder.add_mapping_values(mapping, "categories", categories);
@@ -42,10 +41,13 @@ public class NativePlatform : Platform
 		builder.add_field(categories_field);
 	}
 	protected override bool save_object(Menu menu) {
-		if (Data.save_native_platform() == true) {
-			menu.message("Scanning native platform...");
-			get_provider().rescan();
+		string? error;
+		if (Data.platforms().save_native_platform(out error) == false) {
+			menu.error(error);
+			return false;
 		}
+		menu.message("Scanning native platform...");
+		provider.rescan();
 		return true;
 	}
 	

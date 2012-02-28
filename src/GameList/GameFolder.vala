@@ -39,7 +39,7 @@ namespace Data.GameList
 		}
 
 		public int compare_to(IGameListNode other) {
-			return name.ascii_casecmp(other.name);
+			return Utility.strcasecmp(this.name, other.name);
 		}
 
 		public Enumerable<IGameListNode> children() {

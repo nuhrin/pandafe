@@ -13,7 +13,7 @@ public class EverythingSelector : Selector {
 		get {
 			if (_items == null) {
 				_items = new ArrayList<GameItem>();
-				var platforms = Data.platforms();
+				var platforms = Data.platforms().get_all_platforms();
 				foreach(var platform in platforms) {
 					var platform_games = platform.get_root_folder().all_games().to_list();
 					_items.add_all(platform_games);

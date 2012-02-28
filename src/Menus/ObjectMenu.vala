@@ -29,6 +29,11 @@ namespace Menus
 		}
 		public bool was_saved { get; private set; }
 		
+		public override bool do_validation() {
+			if (mo != null)
+				return mo.i_validate_menu(this);
+			return true;
+		}		
 		public override bool do_cancel() {
 			// revert...
 			was_saved = false;

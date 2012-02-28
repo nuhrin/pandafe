@@ -10,7 +10,7 @@ namespace Data.GameList
 		HashMap<string, NativePlatformCategory> platform_category_hash;
 		PndData pnddata;
 		public PndList() {
-			base(Data.native_platform());
+			base(Data.platforms().get_native_platform());
 			pnddata = Data.pnd_data();
 			init_categories();
 		}

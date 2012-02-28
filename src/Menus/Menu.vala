@@ -83,6 +83,8 @@ namespace Menus
 				if (field.validate() == false)
 					success = false;
 			}
+			if (success == true && do_validation() == false)
+				return false;
 			return success;
 		}
 		

@@ -49,11 +49,7 @@ public class Platform : NamedEntity, MenuObject
 		return null;
 	}
 
-	public GameFolder get_root_folder() {
-		ensure_provider();
-		return _provider.root_folder;
-	}
-
+	public GameFolder get_root_folder() { return provider.root_folder; }
 	public GameFolder? get_folder(string unique_id) {
 		if (unique_id == null || unique_id == "")
 			return null;
@@ -61,12 +57,16 @@ public class Platform : NamedEntity, MenuObject
 		return get_root_folder().get_descendant_folder(unique_id);
 	}
 
-	void ensure_provider() {
-		if (_provider == null)
-			_provider = get_provider();
-	}
-	GameListProvider _provider;
-	protected virtual GameListProvider get_provider() {
+	protected GameListProvider provider {
+		get {
+			if (_provider == null)
+				_provider = create_provider();
+			return _provider;
+		}
+	}	
+	GameListProvider _provider;	
+	protected void reset_provider() { _provider = null; }
+	protected virtual GameListProvider create_provider() {
 		return new RomList(this, name, rom_folder_root, rom_file_extensions);
 	}
 
@@ -115,14 +115,20 @@ public class Platform : NamedEntity, MenuObject
 	// menu
 	protected virtual void build_menu(MenuBuilder builder) {
 		name_field = builder.add_string("name", "Name", null, this.name);
+		name_field.required = true;
 		//builder.add_enum("platform_type", "Type", null, this.platform_type);
-		builder.add_folder("rom_folder_root", "Rom Folder Root", null, this.rom_folder_root);
-		builder.add_string("rom_file_extensions", "Rom File Extensions", null, this.rom_file_extensions);
+		var folder_field = builder.add_folder("rom_folder_root", "Rom Folder Root", null, this.rom_folder_root);
+		folder_field.required = true;
+		
+		var exts_field = builder.add_string("rom_file_extensions", "Rom File Extensions", null, this.rom_file_extensions);
+		exts_field.required = true;
 		
 		programs_field = new ProgramListField("programs", "Programs", null, programs);
+		programs_field.required = true;
 		builder.add_field(programs_field);
 		
 		default_program_field = new ProgramSelectionField("default_program", "Default Program", null, programs, default_program);
+		default_program_field.required = true;
 		builder.add_field(default_program_field);
 		
 		initialize_fields();
@@ -131,39 +137,15 @@ public class Platform : NamedEntity, MenuObject
 		programs_field.changed.connect(() => default_program_field.set_programs(programs_field.value));
 	}
 	protected virtual bool save_object(Menu menu) {
-		DataInterface di = Data.data_interface();		
-		if (name_field.has_changes()) {
-			string id = this.id ?? generate_id();			
-			try {
-				Platform? existing = di.load<Platform>(id);
-				if (existing != null) {
-					menu.error("Id '%s' conflicts with Platform '%s'.".printf(id, existing.name));
-					return false;
-				}
-			} catch {
-			}
-		}
-		try {
-			menu.message("Saving platform '%s'...".printf(name));
-			di.save(this);
-			ensure_folders_on_update(menu);
-			Data.flush_platforms();
-			return true;
-		}		
-		catch(Error e) {
-			menu.error(e.message);
+		string? error;
+		if (Data.platforms().save_platform(this, generate_id(), out error) == false) {
+			menu.error(error);
 			return false;
-		}		
-	}
-	void ensure_folders_on_update(Menu menu) {
-//~ 		var existing_id = get_root_folder().unique_id();
-		_provider = null;
+		}
 		menu.message("Scanning platform folders...");
-		var new_root = get_root_folder();
-		new_root.rescan_children(true);
-//~ 		if (new_root.unique_id() != existing_id) {
-//~ 			
-//~ 		}
+		reset_provider();
+		provider.rescan();
+		return true;		
 	}
 	
 	protected void release_fields() {

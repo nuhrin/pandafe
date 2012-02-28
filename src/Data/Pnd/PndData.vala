@@ -140,7 +140,7 @@ namespace Data.Pnd
 			
 			var apps = new Enumerable<AppItem>(app_id_hash.values)
 				.sort((a,b) => {
-					int retval = strcmp(a.title, b.title);
+					int retval = Utility.strcasecmp(a.title, b.title);
 					if (retval == 0)
 						retval = b.id.length - a.id.length;
 					return retval;

@@ -23,7 +23,7 @@ namespace Fields
 				category_apps = new ArrayList<AppItem>();				
 				var app_id_hashset = new HashSet<string>();
 				var apps = main_category.get_all_apps()
-					.sort((a,b)=>strcmp(a.title, b.title));
+					.sort((a,b)=>Utility.strcasecmp(a.title, b.title));
 				foreach(var app in apps) {
 					if (app_id_hashset.contains(app.id) == true)
 						continue;

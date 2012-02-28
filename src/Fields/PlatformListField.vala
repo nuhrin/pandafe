@@ -29,7 +29,7 @@ namespace Fields
 				item = new Platform() {
 					name = "",
 					platform_type = PlatformType.ROM
-				};				
+				};
 				return true;
 			}
 			protected override bool edit_list_item(ListItem<Platform> item, uint index) {

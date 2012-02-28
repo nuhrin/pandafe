@@ -13,7 +13,9 @@ namespace Data
 			all_games = new AllGamesState();
 		}
 
-		public string current_platform { get; set; }
+		public string? current_platform_folder { get; set; } 
+		public int platform_folder_item_index { get; set; }
+		public string? current_platform { get; set; }
 		protected Map<string, GameBrowserPlatformState> platform_state { get; set; }
 		public AllGamesState all_games { get; set; }
 		public void apply_platform_state(Platform platform, string? folder_id, int item_index, string? filter) {

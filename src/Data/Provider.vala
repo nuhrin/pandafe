@@ -8,10 +8,7 @@ namespace Data
 {
 	public DataInterface data_interface() { return Provider.instance().data_interface; }
 
-	public Gee.List<Platform> platforms() { return Provider.instance().get_platforms(); }
-	public NativePlatform native_platform() { return Provider.instance().get_native_platform(); }
-	public bool save_native_platform() { return Provider.instance().save_native_platform(); }
-	public void flush_platforms() { Provider.instance().flush_platforms(); }
+	public Data.Platforms.PlatformProvider platforms() { return Provider.instance().platform_provider; }
 	public Data.Programs.ProgramProvider programs() { return Provider.instance().program_provider; }
 
 	public Preferences preferences() { return Provider.instance().get_preferences(); }
@@ -37,7 +34,8 @@ namespace Data
 			return _instance;
 		}
 
-		public DataInterface data_interface { get; private set; }		
+		public DataInterface data_interface { get; private set; }
+		public Data.Platforms.PlatformProvider platform_provider { get; private set; }
 		public Data.Programs.ProgramProvider program_provider { get; private set; }
 		public Provider() {
 			try {
@@ -47,7 +45,9 @@ namespace Data
 				//assert_not_reached();
 			}
 			try {
+				platform_provider = new Data.Platforms.PlatformProvider(data_interface.root_folder);
 				program_provider = new Data.Programs.ProgramProvider(data_interface.root_folder);
+				data_interface.register_entity_provider<Platform>(platform_provider);
 				data_interface.register_entity_provider<Program>(program_provider);
 			} catch(Error e) {
 				error("Unable to create ProgramProvider instance: %s", e.message);
@@ -105,85 +105,6 @@ namespace Data
 			}
 			return false;
 		}
-
-		public Gee.List<Platform> get_platforms() {
-			if (_platforms == null) {
-				_platforms = new ArrayList<Platform>();
-				var platform_ids = get_preferences().platform_order;
-				if (platform_ids.size == 0) {
-					try {
-						_platforms = data_interface.load_all<Platform>()
-							.sort((a,b) => strcmp(a.name, b.name))
-							.to_list();
-						_platforms.insert(0, get_native_platform());
-					} catch (Error e) {
-						debug("Error while loading platforms: %s", e.message);
-					}
-					return _platforms;
-				}
-				bool have_native = false;
-				foreach(var id in platform_ids) {
-					try {
-						if (have_native == false && id == NativePlatform.ENTITY_ID) {
-							_platforms.add(get_native_platform());
-							have_native = true;
-							continue;
-						}
-						var platform = data_interface.load<Platform>(id);
-						if (platform.platform_type == PlatformType.ROM) {
-							if (platform.rom_folder_root == null)
-								platform.rom_folder_root = "";
-							if (platform.rom_file_extensions == null)
-								platform.rom_file_extensions = "";
-						}
-						_platforms.add(platform);
-					}
-					catch (Error e) {
-						debug("Error while loading platform '%s': %s", id, e.message);
-					}					
-				}
-				if (have_native == false)
-					_platforms.insert(0, get_native_platform());				
-			}
-			return _platforms;
-		}
-		Gee.List<Platform> _platforms;
-
-		public NativePlatform get_native_platform() {
-			if (_native_platform == null) {
-				try {
-					_native_platform = data_interface.load<NativePlatform>(NativePlatform.ENTITY_ID, "");
-				}
-				catch (Error e) {
-					if ((e is RuntimeError.FILE) == false)
-						debug("Error while retrieving native platform: %s", e.message);
-					_native_platform = null;
-				}
-				if (_native_platform == null) {
-					_native_platform = new NativePlatform();
-					_native_platform.categories.add(new NativePlatformCategory() { name = "Games" });
-					save_native_platform();
-				}
-			}
-			return _native_platform;
-		}
-		NativePlatform _native_platform;
-		public bool save_native_platform() {
-			var platform = get_native_platform();
-			try {
-				data_interface.save(platform, NativePlatform.ENTITY_ID, "");
-				return true;
-			}
-			catch (Error e) {
-				debug("Error while saving native platform: %s", e.message);
-			}
-			return false;
-		}
-		public void flush_platforms() {
-			_platforms = null;
-			platforms_changed();
-		}
-		public signal void platforms_changed();
 
 		public PndData get_pnd_data() {
 			if (_pnd_data == null) {

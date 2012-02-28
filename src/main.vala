@@ -102,7 +102,7 @@ public class MainClass: Object {
 		string gamelistcache_path = Path.build_filename(Config.LOCAL_CONFIG_DIR, Data.GameList.GameFolder.YAML_FOLDER_ROOT);
 		if (FileUtils.test(gamelistcache_path, FileTest.EXISTS) == true) {
 			try {
-				var platform_ids = new Catapult.Enumerable<Platform>(Data.platforms()).select<string>(p=>p.id).to_list();
+				var platform_ids = Data.platforms().get_all_platforms().select<string>(p=>p.id).to_list();
 				var directory = File.new_for_path(gamelistcache_path);
 				var enumerator = directory.enumerate_children("standard::*", FileQueryInfoFlags.NONE);
 				FileInfo file_info;

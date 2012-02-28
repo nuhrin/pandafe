@@ -32,27 +32,5 @@ namespace Data
 			foreach(var platform in platforms)
 				platform_order.add(platform.id);
 		}
-
-//~ 		protected override Yaml.Node? build_unhandled_value_node(Yaml.NodeBuilder builder, Value value) {
-//~ 			if (value.holds(typeof(Gdk.Color))) {
-//~ 				return GColorField.color_to_node((Gdk.Color)value);
-//~ 			}
-//~ 			return null;
-//~ 		}
-//~ 		protected override bool apply_unhandled_value_node(Yaml.Node node, string property_name, Yaml.NodeParser parser) {
-//~ 			if (property_name == "item-color") {
-//~ 				item_color = GColorField.node_to_color(node);
-//~ 				return true;
-//~ 			}
-//~ 			else if (property_name == "selected-item-color") {
-//~ 				selected_item_color = GColorField.node_to_color(node);
-//~ 				return true;
-//~ 			}
-//~ 			else if (property_name == "background-color") {
-//~ 				background_color = GColorField.node_to_color(node);
-//~ 				return true;
-//~ 			}
-//~ 			return false;
-//~ 		}
 	}
 }

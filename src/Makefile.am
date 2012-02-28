@@ -23,6 +23,7 @@ pandafe_VALASOURCES = \
 	InterfaceHelper.vala \
 	Spawning.vala \
 	SpawningResult.vala \
+	Utility.vala \
 	Data/Color.vala \
 	Data/GameBrowserState.vala \
 	Data/GameSettings.vala \
@@ -36,6 +37,11 @@ pandafe_VALASOURCES = \
 	Data/Platforms/NativePlatform.vala \
 	Data/Platforms/NativePlatformCategory.vala \
 	Data/Platforms/Platform.vala \
+	Data/Platforms/PlatformFolder.vala \
+	Data/Platforms/PlatformFolderData.vala \
+	Data/Platforms/PlatformListNode.vala \
+	Data/Platforms/PlatformNode.vala \
+	Data/Platforms/PlatformProvider.vala \
 	Data/Pnd/AppIdType.vala \
 	Data/Pnd/AppItem.vala \
 	Data/Pnd/Category.vala \
@@ -62,7 +68,9 @@ pandafe_VALASOURCES = \
 	Fields/NativePlatformCategoryListField.vala \
 	Fields/NativePlatformSubCategoryListField.vala \
 	Fields/OptionGroupingField.vala \
+	Fields/PlatformFolderListField.vala \
 	Fields/PlatformListField.vala \
+	Fields/PlatformNodeListField.vala \
 	Fields/PndAppField.vala \
 	Fields/PndCategoryField.vala \
 	Fields/PndSelectionField.vala \
@@ -143,6 +151,7 @@ pandafe_VALASOURCES = \
 	Menus/SubMenuItem.vala \
 	Selectors/EverythingSelector.vala \
 	Selectors/GameFolderSelector.vala \
+	Selectors/PlatformFolderSelector.vala \
 	Selectors/PlatformSelector.vala \
 	Selectors/Selector.vala \
 	Selectors/SelectorItemSet.vala \

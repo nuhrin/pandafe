@@ -349,7 +349,7 @@ namespace Layers.Controls.Chooser
 			
 			public int compare_to(Item other) {
 				if (is_folder == other.is_folder)
-					return strcmp(name, other.name);
+					return Utility.strcasecmp(name, other.name);
 					
 				return (is_folder) ? -1 : 1;
 			}

@@ -20,7 +20,7 @@ public class PlatformSelector : Selector
 	}
 	
 	protected override void rebuild_items() {
-		items = new Catapult.Enumerable<Platform>(Data.platforms()).to_list();
+		items = Data.platforms().get_all_platforms().to_list();
 	}
 
 	protected override int get_itemcount() { return items.size; }
