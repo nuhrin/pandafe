@@ -9,6 +9,7 @@ namespace Data.GameList
 		ArrayList<string> main_categories;
 		HashMap<string, NativePlatformCategory> platform_category_hash;
 		PndData pnddata;
+		
 		public PndList() {
 			base(Data.platforms().get_native_platform());
 			pnddata = Data.pnd_data();
@@ -73,10 +74,17 @@ namespace Data.GameList
 				foreach(var category in main_categories)
 					folder_list.add(new GameFolder(category, this, root_folder));
 			} else if (folder.parent == null || folder.parent.id == "") {
+				var native_category = platform_category_hash[folder.name];
+				var excluded_hash = new HashSet<string>();
+				excluded_hash.add_all(native_category.excluded_subcategories);
+				foreach (var item in excluded_hash)
+					debug(item);
 				var category = pnddata.get_category(folder.id);
 				if (category != null) {
-					foreach(var subcategory in category.subcategories)
-						folder_list.add(new GameFolder(subcategory.name, this, folder));
+					foreach(var subcategory in category.subcategories) {
+						if (excluded_hash.contains(subcategory.name) == false)
+							folder_list.add(new GameFolder(subcategory.name, this, folder));
+					}
 				}
 			}
 			folder_list.sort();
@@ -86,18 +94,29 @@ namespace Data.GameList
 				return;
 
 			CategoryBase category = null;
+			NativePlatformCategory native_category = null;
 			if (folder.parent == null || folder.parent.id == "") {
 				category = pnddata.get_category(folder.id);
+				if (category != null)
+					native_category = platform_category_hash[category.name];
 			} else {
 				var main_category = pnddata.get_category(folder.parent.id);
-				if (main_category != null)
+				if (main_category != null) {
+					native_category = platform_category_hash[main_category.name];
 					category = main_category.get_subcategory(folder.id);
+				}
 			}
 
 			if (category != null) {
+				var excluded_hash = new HashSet<string>();
+				excluded_hash.add(Config.PND_APP_ID);
+				if (native_category != null)
+					excluded_hash.add_all(native_category.excluded_apps);				
 				var title_game_hash = new HashMap<string, GameItem?>();
 				var title_packageid_hash = new HashMap<string, string>();
 				foreach(var app in category.apps) {
+					if (excluded_hash.contains(app.id) == true)
+						continue;
 					GameItem game = GameItem.create(app.title, this, folder, "%s|%s".printf(app.package_id, app.id));
 					if (title_game_hash.has_key(app.title) == true) {
 						var old_game_item = title_game_hash[app.title];

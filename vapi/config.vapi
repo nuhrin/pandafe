@@ -26,4 +26,5 @@ namespace Config {
 	public const string BUILD_VERSION;
 	public const string PACKAGE_DATADIR;
 	public const string LOCAL_CONFIG_DIR;
+	public const string PND_APP_ID;
 }

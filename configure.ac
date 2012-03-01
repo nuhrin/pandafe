@@ -9,6 +9,11 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 AM_MAINTAINER_MODE
 
+
+PND_APP_ID=pandafe
+AC_SUBST(PND_APP_ID)
+AC_DEFINE_UNQUOTED([PND_APP_ID], "$PND_APP_ID", [The app id to be used in the pnd])
+
 LOCAL_CONFIG_DIR=./PandafeData
 AC_SUBST(LOCAL_CONFIG_DIR)
 AC_DEFINE_UNQUOTED(LOCAL_CONFIG_DIR, "$LOCAL_CONFIG_DIR", [Local configuration directory])
