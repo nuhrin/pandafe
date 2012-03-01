@@ -44,9 +44,10 @@ namespace Data
 				error("Unable to create DataInterface instance: %s", e.message);
 				//assert_not_reached();
 			}
-			try {
-				platform_provider = new Data.Platforms.PlatformProvider(data_interface.root_folder);
+			try {				
 				program_provider = new Data.Programs.ProgramProvider(data_interface.root_folder);
+				platform_provider = new Data.Platforms.PlatformProvider(data_interface.root_folder);
+				platform_provider.register_entity_provider<Program>(program_provider);
 				data_interface.register_entity_provider<Platform>(platform_provider);
 				data_interface.register_entity_provider<Program>(program_provider);
 			} catch(Error e) {
