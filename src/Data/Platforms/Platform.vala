@@ -80,8 +80,8 @@ public class Platform : NamedEntity, MenuObject
 				builder.add_object_mapping(mapping, this, prop);
 		}
 		if (programs.size > 1) {
-			string default_program_name = (default_program != null) ? default_program.name : null;
-			mapping.set_scalar("default-program", new Yaml.ScalarNode(null, null, default_program_name));
+			string default_program_id = (default_program != null) ? default_program.app_id : null;
+			mapping.set_scalar("default-program", new Yaml.ScalarNode(null, null, default_program_id));
 		}
 		return mapping;
 	}
@@ -99,7 +99,7 @@ public class Platform : NamedEntity, MenuObject
 				var default_program_value_node = mapping[default_program_key_node] as Yaml.ScalarNode;
 				if (default_program_value_node != null) {
 					foreach(var program in programs) {
-						if (program.name == default_program_value_node.value) {
+						if (program.app_id == default_program_value_node.value) {
 							default_program = program;
 						}
 					}
