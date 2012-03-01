@@ -9,7 +9,7 @@ namespace Data.Platforms
 	public class PlatformNode : Object, PlatformListNode
 	{
 		PlatformFolder _parent;
-		public PlatformNode(Platform platform, PlatformFolder parent) {
+		public PlatformNode(Platform platform, PlatformFolder? parent) {
 			this.platform = platform;
 			_parent = parent;
 		}

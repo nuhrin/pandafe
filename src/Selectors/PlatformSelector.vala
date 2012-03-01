@@ -9,7 +9,10 @@ public class PlatformSelector : Selector
 
 	public PlatformSelector(string id, int16 xpos, int16 ypos) {
 		base(id, xpos, ypos);
-		rebuild();
+		rebuild_items();
+	}
+	protected PlatformSelector.base(string id, int16 xpos, int16 ypos) {
+		base(id, xpos, ypos);
 	}
 
 	public Platform? selected_platform()
@@ -17,6 +20,15 @@ public class PlatformSelector : Selector
 		if (selected_index == -1)
 			return null;
 		return items[selected_index];
+	}
+	
+	public virtual bool select_platform(Platform? platform) {
+		int index = 0;		
+		foreach(var item in items) {
+			if (item == platform)
+				return select_item(index);
+		}
+		return false;			
 	}
 	
 	protected override void rebuild_items() {

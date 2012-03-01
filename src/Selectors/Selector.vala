@@ -163,6 +163,13 @@ public abstract class Selector : Layers.Layer
 		}
 		return false;
 	}
+	public void ensure_selection() {
+		if (selected_index >= 0 || display_item_count == 0) {
+			update();
+			return;
+		}
+		select_item(0);
+	}
 
 	public bool filter(string pattern) {
 		_filter = pattern;

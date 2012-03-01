@@ -192,7 +192,6 @@ public class GameBrowser : Layers.ScreenLayer
 		}
 		if (everything_active)
 			selector.update();	
-		debug("platform_changed(%s) finish", platform.name);
 	}
 	void update_current_folder() {
 		var existing_folder = current_folder;
@@ -623,7 +622,7 @@ public class GameBrowser : Layers.ScreenLayer
 			if (folder_node != null) {
 				current_platform_folder = folder_node;
 				change_selector();
-				selector.select_item(0);
+				selector.ensure_selection();
 				return;
 			}
 			var platform_node = node as PlatformNode;
@@ -636,7 +635,7 @@ public class GameBrowser : Layers.ScreenLayer
 				current_filter = state.get_current_platform_filter();
 				if (current_filter != null)
 					selector.filter(current_filter);
-				selector.select_item(0);
+				selector.ensure_selection();
 				return;
 			}
 		}
@@ -651,7 +650,7 @@ public class GameBrowser : Layers.ScreenLayer
 			current_filter = state.get_current_platform_filter();
 			if (current_filter != null)
 				selector.filter(current_filter);
-			selector.select_item(0);
+			selector.ensure_selection();
 			return;
 		}
 
@@ -664,7 +663,7 @@ public class GameBrowser : Layers.ScreenLayer
 				change_selector();
 				if (current_filter != null)
 					selector.filter(current_filter);
-				selector.select_item(0);
+				selector.ensure_selection();
 				return;
 			}
 			var game = item as GameItem;
@@ -719,15 +718,14 @@ public class GameBrowser : Layers.ScreenLayer
 					selector.selected_index, selector.get_filter_pattern());
 				current_folder = null;
 				current_filter = null;
-				int index=(current_platform_folder != null) ? current_platform_folder.folders.size : 0;
-				foreach(var platform in get_current_platforms()) {
-					if (platform.name == current_platform.name)
-						break;
-					index++;
-				}
+				var platform = current_platform;
 				current_platform = null;
 				change_selector();
-				selector.select_item(index);
+				var platform_selector = selector as PlatformSelector;
+				if (platform_selector != null)
+					platform_selector.select_platform(platform);
+				else
+					selector.select_item_starting_with(platform.name);
 				return;
 			}
 			var current_id = current_folder.unique_id();
