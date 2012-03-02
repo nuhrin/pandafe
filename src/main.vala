@@ -80,7 +80,7 @@ public class MainClass: Object {
 
 		// copy all package platforms to local Platform folder
 		try {
-			var enumerator = File.new_for_path(package_platforms_path).enumerate_children(FILE_ATTRIBUTE_STANDARD_NAME, FileQueryInfoFlags.NONE);
+			var enumerator = File.new_for_path(package_platforms_path).enumerate_children(FileAttribute.STANDARD_NAME, FileQueryInfoFlags.NONE);
 			FileInfo file_info;
 			while ((file_info = enumerator.next_file()) != null) {
 				var name = file_info.get_name();

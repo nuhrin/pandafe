@@ -23,7 +23,7 @@ namespace Data.Options
 			builder.add_string("help", "Help", "Help text to display during option selection", help ?? "");
 		}
 		protected override void build_edit_fields(MenuBuilder builder) { }
-		protected bool save_object(Menu menu) {
+		protected bool save_object(Menus.Menu menu) {
 			set_option_setting_prefix();
 			return true;
 		}

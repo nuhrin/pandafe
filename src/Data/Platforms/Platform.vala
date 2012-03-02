@@ -136,7 +136,7 @@ public class Platform : NamedEntity, MenuObject
 	void initialize_fields() {
 		programs_field.changed.connect(() => default_program_field.set_programs(programs_field.value));
 	}
-	protected virtual bool save_object(Menu menu) {
+	protected virtual bool save_object(Menus.Menu menu) {
 		string? error;
 		if (Data.platforms().save_platform(this, generate_id(), out error) == false) {
 			menu.error(error);

@@ -40,7 +40,7 @@ namespace Data.Platforms
 			platforms_field = new PlatformNodeListField("platforms", "Platforms", null, this);
 			builder.add_field(platforms_field);
 		}
-		protected bool validate_menu(Menu menu) {
+		protected bool validate_menu(Menus.Menu menu) {
 			if (folders_field.value.size == 0 && platforms_field.value.size == 0) {
 				menu.error("At least on child folder or platform is required.");
 				return false;

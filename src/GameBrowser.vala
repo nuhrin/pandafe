@@ -848,7 +848,7 @@ public class GameBrowser : Layers.ScreenLayer
 			show_menu_overlay(new Menus.Concrete.PlatformMenu(platform));
 		
 	}
-	void show_menu_overlay(Menu menu) {
+	void show_menu_overlay(Menus.Menu menu) {
 		new Layers.GameBrowser.MenuOverlay(menu, 40, 40).run();
 	}
 	

@@ -23,7 +23,7 @@ namespace Fields
 			_menu.finished.connect(() => finished());
 		}
 		
-		public Menu menu { get { return _menu; } }
+		public Menus.Menu menu { get { return _menu; } }
 
 		public new OptionGrouping value {
 			get { return grouping; }

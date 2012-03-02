@@ -131,7 +131,7 @@ public class Program : Entity, MenuObject
 			custom_command_field.set_program_name(name_field.value);
 		});
 	}
-	protected bool apply_changed_field(Menu menu, MenuItemField field) {
+	protected bool apply_changed_field(Menus.Menu menu, MenuItemField field) {
 		switch(field.id) {
 			case "name":
 				name = ((string)field.value).strip();
@@ -144,7 +144,7 @@ public class Program : Entity, MenuObject
 		}
 		return false;
 	}
-	protected bool save_object(Menu menu) {
+	protected bool save_object(Menus.Menu menu) {
 		string? error;
 		if (Data.programs().save_program(this, generate_id(), out error) == false) {
 			menu.error(error);

@@ -26,7 +26,7 @@ namespace Layers.GameBrowser
 		Rect lower_right;
 		int16 header_bottom_y;
 		
-		public MenuOverlay(Menu menu, uint8 max_name_length, uint8 max_value_length) {
+		public MenuOverlay(Menus.Menu menu, uint8 max_name_length, uint8 max_value_length) {
 			if (menu.items.size == 0)
 				GLib.error("Menu '%s' has no items.", menu.name);
 			base("menubrowser");
@@ -55,7 +55,7 @@ namespace Layers.GameBrowser
 			@interface.pop_layer();
 		}
 		
-		public signal void menu_changed(Menu menu);
+		public signal void menu_changed(Menus.Menu menu);
 		
 		public Rect get_selector_rect() {
 			return { selector.xpos, selector.ypos, (int16)selector.width };
@@ -77,7 +77,7 @@ namespace Layers.GameBrowser
 			draw_horizontal_line(lower_left.x, lower_right.x, lower_left.y, @interface.white_color);
 		}
 
-		MenuSelector get_selector(Menu menu) {
+		MenuSelector get_selector(Menus.Menu menu) {
 			var new_selector = new MenuSelector(SELECTOR_ID, 0, 0, menu, max_name_length, max_value_length);	
 			update_selector_pos(new_selector);		
 			new_selector.changed.connect(() => on_selector_changed());
@@ -96,7 +96,7 @@ namespace Layers.GameBrowser
 		
 		//
 		// screen updates
-		void push_menu(Menu menu) {
+		void push_menu(Menus.Menu menu) {
 			menu_stack.push_head(selector);
 			selector = get_selector(menu);
 			replace_layer(SELECTOR_ID, selector);
@@ -122,7 +122,7 @@ namespace Layers.GameBrowser
 			update();
 			menu_changed(selector.menu);
 		}		
-		void refresh_menu(Menu menu) {
+		void refresh_menu(Menus.Menu menu) {
 			if (menu == selector.menu) {			
 				clear();
 				set_header();
@@ -291,7 +291,7 @@ namespace Layers.GameBrowser
 		void activate_selected() {
 			clear_message();
 			var selected_item = selector.selected_item();
-			var selected_menu = selected_item as Menu;
+			var selected_menu = selected_item as Menus.Menu;
 			if (selected_menu != null) {
 				push_menu(selected_menu);
 				return;

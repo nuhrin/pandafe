@@ -40,7 +40,7 @@ public class NativePlatform : Platform
 			"If specified, only apps in these categories will be included." , categories);
 		builder.add_field(categories_field);
 	}
-	protected override bool save_object(Menu menu) {
+	protected override bool save_object(Menus.Menu menu) {
 		string? error;
 		if (Data.platforms().save_native_platform(out error) == false) {
 			menu.error(error);

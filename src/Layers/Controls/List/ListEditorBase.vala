@@ -31,13 +31,13 @@ namespace Layers.Controls.List
 			message = add_layer(new MenuMessageLayer("status")) as MenuMessageLayer;	
 			if (help != null)
 				message.help = help;
-			var menu = new Menu("");
+			var menu = new Menus.Menu("");
 			var cancel_text = get_cancel_item_text();
 			if (cancel_text != null)
-				menu.add_item(new MenuItem.cancel_item(cancel_text));
+				menu.add_item(new Menus.MenuItem.cancel_item(cancel_text));
 			var save_text = get_save_item_text();
 			if (save_text != null)
-				menu.add_item(new MenuItem.save_item(save_text));
+				menu.add_item(new Menus.MenuItem.save_item(save_text));
 			menu_selector = add_layer(new MenuSelector("list_menu_selector", MENU_SELECTOR_XPOS, MENU_SELECTOR_YPOS, menu, 100, 0)) as MenuSelector;
 			menu_selector.wrap_selector = false;
 		}

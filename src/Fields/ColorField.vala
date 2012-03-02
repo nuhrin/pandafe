@@ -57,17 +57,17 @@ namespace Fields
 			}
 		}
 		
-		void show_menu(Data.Color color, owned Predicate<Menu> on_save) {
+		void show_menu(Data.Color color, owned Predicate<Menus.Menu> on_save) {
 			_menu_color = color;
-			_menu = new Menu(name, null, null, (owned)on_save);
+			_menu = new Menus.Menu(name, null, null, (owned)on_save);
 			_red_menu_item = add_uint_field("r", "Red", null, color.red, 255);
 			_green_menu_item = add_uint_field("g", "Green", null, color.green, 255);
 			_blue_menu_item = add_uint_field("b", "Blue", null, _color.blue, 255);
 			_hue_menu_item = add_uint_field("h", "Hue", null, _color.hue, 360);
 			_saturation_menu_item = add_uint_field("s", "Saturation", null, _color.saturation, 100);
 			_value_menu_item = add_uint_field("v", "Value", null, _color.value, 100);
-			_menu.add_item(new MenuItem.cancel_item());
-			_menu.add_item(new MenuItem.save_item());
+			_menu.add_item(new Menus.MenuItem.cancel_item());
+			_menu.add_item(new Menus.MenuItem.save_item());
 			watch_rgb_fields();
 			watch_hsv_fields();
 			
@@ -83,7 +83,7 @@ namespace Fields
 			_menu.add_item(field);
 			return field;
 		}
-		Menu _menu;
+		Menus.Menu _menu;
 		Data.Color _menu_color;
 		UIntField _red_menu_item;
 		UIntField _green_menu_item;

@@ -5,6 +5,6 @@ namespace SDL {
 	[CCode (cname="SDL_GetKeyRepeat")]
 	public static void get_key_repeat(out int delay, out int interval);
 
-	public const string DEFAULT_REPEAT_DELAY;
-	public const string DEFAULT_REPEAT_INTERVAL;
+	public const int DEFAULT_REPEAT_DELAY;
+	public const int DEFAULT_REPEAT_INTERVAL;
 }
