@@ -28,7 +28,44 @@ namespace Data
 		public Data.Color? selected_item_color { get; set; }
 		public Data.Color? background_color { get; set; }
 		
+		public GameBrowserAppearance copy() {
+			var copy = new GameBrowserAppearance();
+			copy.font = font;
+			if (item_color != null)
+				copy.item_color = item_color.copy();
+			if (selected_item_color != null)
+				copy.selected_item_color = selected_item_color.copy();
+			if (background_color != null)
+				copy.background_color = background_color.copy();
+			return copy;			
+		}
+		
 		public bool has_data() { return (font != null || item_color != null || selected_item_color != null || background_color != null); }
+		public bool matches(GameBrowserAppearance other) {
+			if (font != other.font)
+				return false;
+			if (color_matches(a=>a.item_color, this, other) == false)
+				return false;
+			if (color_matches(a=>a.selected_item_color, this, other) == false)
+				return false;
+			if (color_matches(a=>a.background_color, this, other) == false)
+				return false;
+			return true;
+		}
+		static bool color_matches(owned MapFunc<Data.Color?,GameBrowserAppearance> get_color, GameBrowserAppearance a, GameBrowserAppearance b) {
+			var color_a = get_color(a);
+			var color_b = get_color(b);
+			if (color_a == null) {
+				if (color_b != null)
+					return false;
+			} else {
+				if (color_b == null)
+					return false;
+				if (color_a.spec != color_b.spec)
+					return false;
+			}
+			return true;
+		}
 
 		public GameBrowserUI create_ui(GameBrowserAppearance? fallback_appearance=null) {
 			unowned string? resolved_font = font;

@@ -29,7 +29,8 @@ public class Platform : NamedEntity, MenuObject
 		}
 	}
 	PlatformType _platform_type;
-
+	public GameBrowserAppearance? appearance { get; set; }
+	
 	// properties for ROM platforms
 	public string rom_folder_root { get; set; }
 	public string rom_file_extensions { get; set; }
@@ -76,7 +77,10 @@ public class Platform : NamedEntity, MenuObject
 		unowned ObjectClass klass = this.get_class();
 	    var properties = klass.list_properties();
 	    foreach(var prop in properties) {
-			if (prop.name != "default-program")
+			if (prop.name == "appearance") {
+				if (appearance != null)
+					builder.add_object_mapping(mapping, this, prop);
+			}  else if (prop.name != "default-program")
 				builder.add_object_mapping(mapping, this, prop);
 		}
 		if (programs.size > 1) {
@@ -131,6 +135,9 @@ public class Platform : NamedEntity, MenuObject
 		default_program_field.required = true;
 		builder.add_field(default_program_field);
 		
+		var appearance_field = new GameBrowserAppearanceField("appearance", "Appearance", null, name + " Appearance", appearance, Data.preferences().appearance);
+		builder.add_field(appearance_field);
+
 		initialize_fields();
 	}
 	void initialize_fields() {

@@ -22,7 +22,9 @@ public class NativePlatform : Platform
 	}
 	protected override Yaml.Node build_yaml_node(Yaml.NodeBuilder builder) {
 		var mapping = new Yaml.MappingNode();
-		builder.add_mapping_values(mapping, "categories", categories);
+		if (appearance != null)
+			mapping.set_scalar("appearance", builder.build_value(appearance));
+		builder.add_mapping_values(mapping, "categories", categories);		
 		return mapping;
 	}
 	protected override bool apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
@@ -36,9 +38,12 @@ public class NativePlatform : Platform
 	
 	// menu
 	protected override void build_menu(MenuBuilder builder) {
-		categories_field = new NativePlatformCategoryListField("categories", "Included Categories", 
+		var categories_field = new NativePlatformCategoryListField("categories", "Included Categories", 
 			"If specified, only apps in these categories will be included." , categories);
 		builder.add_field(categories_field);
+		
+		var appearance_field = new GameBrowserAppearanceField("appearance", "Appearance", null, name + " Appearance", appearance, Data.preferences().appearance);
+		builder.add_field(appearance_field);
 	}
 	protected override bool save_object(Menus.Menu menu) {
 		string? error;
@@ -49,7 +54,5 @@ public class NativePlatform : Platform
 		menu.message("Scanning native platform...");
 		provider.rescan();
 		return true;
-	}
-	
-	NativePlatformCategoryListField categories_field;
+	}	
 }

@@ -28,17 +28,33 @@ namespace Data.Platforms
 
 		public Gee.List<PlatformFolder> folders { get; set; }
 		public Gee.List<PlatformNode> platforms { get; set; }
-								
+		
+		public GameBrowserAppearance? appearance { get; set; }		
+		GameBrowserAppearance get_fallback_appearance() {
+			PlatformFolder? source = _parent;
+			GameBrowserAppearance? fallback = null;
+			while (source != null && fallback == null) {
+				fallback = source.appearance;
+				source = source.parent;
+			}
+			if (fallback == null)
+				fallback = Data.preferences().appearance;
+			return fallback;
+		}
+		
 		// menus
 		protected void build_menu(MenuBuilder builder) {
 			var name_field = builder.add_string("name", "Name", null, this.name);
 			name_field.required = true;
 
-			folders_field = new PlatformFolderListField("folders", "Folders", null, this);
-			builder.add_field(folders_field);
-			
 			platforms_field = new PlatformNodeListField("platforms", "Platforms", null, this);
 			builder.add_field(platforms_field);
+			
+			var appearance_field = new GameBrowserAppearanceField("appearance", "Appearance", null, name + " Appearance", appearance, get_fallback_appearance());
+			builder.add_field(appearance_field);
+
+			folders_field = new PlatformFolderListField("folders", "Subfolders", null, this);
+			builder.add_field(folders_field);			
 		}
 		protected bool validate_menu(Menus.Menu menu) {
 			if (folders_field.value.size == 0 && platforms_field.value.size == 0) {

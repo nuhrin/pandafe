@@ -53,6 +53,8 @@ namespace Data.Platforms
 		Yaml.MappingNode build_platform_folder_node(PlatformFolder folder, Yaml.NodeBuilder builder) {
 			var mapping = new Yaml.MappingNode();
 			mapping.set_scalar("name", builder.build_value(folder.name));
+			if (folder.appearance != null)
+				mapping.set_scalar("appearance", builder.build_value(folder.appearance));
 			mapping.set_scalar("folders", build_platform_folder_list_node(folder.folders, builder));
 			mapping.set_scalar("platforms", build_platform_list_node(folder.platforms, builder));
 			return mapping;
@@ -87,13 +89,17 @@ namespace Data.Platforms
 				? new PlatformFolder(name, parent)
 				: new PlatformFolder.root(name);
 				
+			var appearance_mapping = mapping.get_scalar("appearance") as Yaml.MappingNode;
+			if (appearance_mapping != null)
+				folder.appearance = parser.parse<GameBrowserAppearance?>(appearance_mapping, null);
+			
 			var folders_sequence = mapping.get_scalar("folders") as Yaml.SequenceNode;
 			if (folders_sequence != null)
 				apply_platform_folder_list_node(folder, folders_sequence, parser);
 			var platforms_sequence = mapping.get_scalar("platforms") as Yaml.SequenceNode;
 			if (platforms_sequence != null)
 				apply_platform_list_node(folder, platforms_sequence, parser);
-				
+			
 			return folder;
 		}
 		void apply_platform_folder_list_node(PlatformFolder? parent, Yaml.SequenceNode sequence, Yaml.NodeParser parser) {

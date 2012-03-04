@@ -32,10 +32,18 @@ namespace Fields
 		protected override bool is_menu_item() { return true; }
 
 		protected override void activate(MenuSelector selector) {
-			var new_appearance = appearance ?? new GameBrowserAppearance();
+			var new_appearance = appearance;
+			if (new_appearance == null) {
+				new_appearance = (default_appearance != null)
+					? default_appearance.copy()
+					: new GameBrowserAppearance.default();
+			}
 			var menu = new GameBrowserAppearanceMenu(title ?? "Appearance", new_appearance, default_appearance);
 			menu.saved.connect(() => {
-				change_value(new_appearance);
+				if (default_appearance != null && new_appearance.matches(default_appearance) == true)
+					change_value(null);
+				else 
+					change_value(new_appearance);
 			});
 			new MenuBrowser(menu).run();
 		}

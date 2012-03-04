@@ -42,22 +42,7 @@ namespace Menus.Concrete
 				has_font_change = true;
 			}
 			
-			return true;
-			
-//~ 			if (has_color_change == false && has_font_change == false)
-//~ 				return true;
-//~ 		
-//~ 			bool success = Data.save_preferences();
-//~ 			if (success) {
-//~ 				if (has_color_change == true)
-//~ 					@interface.game_browser_ui.update_colors_from_preferences();
-//~ 				if (has_font_change == true)
-//~ 					@interface.game_browser_ui.update_font_from_preferences();					
-//~ 			} else {
-//~ 				this.error("Error saving preferences.");
-//~ 			}
-//~ 			
-//~ 			return success;
+			return true;			
 		}
 		
 		protected override Layers.Layer? build_additional_menu_browser_layer() { 
