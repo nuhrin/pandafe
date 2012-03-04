@@ -11,7 +11,7 @@ namespace Menus.Concrete
 	{
 		public static bool edit(Program program, int clockspeed=-1, string? extra_arguments=null) {
 			var menu = new ProgramDefaultSettingsMenu(program, clockspeed, extra_arguments);
-			new MenuBrowser(menu, 40, 40).run();
+			new MenuBrowser(menu).run();
 			return menu.was_saved;
 		}
 		

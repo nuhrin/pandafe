@@ -43,7 +43,7 @@ namespace Fields
 		protected override bool has_value() { return true; }
 
 		protected override void activate(Menus.MenuSelector selector) {
-			new MenuBrowser(_menu, 40, 40).run();
+			new MenuBrowser(_menu).run();
 		}
 		
 		void change_value(OptionGrouping new_value) {

@@ -11,8 +11,8 @@ namespace Menus
 		const int16 SELECTOR_YPOS = 60;
 		const string SELECTOR_ID = "selector";
 
-		uint8 max_name_length;
-		uint8 max_value_length;
+		const uint8 MAX_NAME_LENGTH = 40;
+		const uint8 MAX_VALUE_LENGTH = 40;
 
 		bool event_loop_done;
 		GLib.Queue<MenuSelector> menu_stack;
@@ -23,12 +23,10 @@ namespace Menus
 		//int16 pos_y_status_message;
 		//Surface blank_message_area;
 
-		public MenuBrowser(Menu menu, uint8 max_name_length, uint8 max_value_length) {
+		public MenuBrowser(Menu menu) {
 			if (menu.items.size == 0)
 				GLib.error("Menu '%s' has no items.", menu.name);
 			base("menubrowser");
-			this.max_name_length = max_name_length;
-			this.max_value_length = max_value_length;
 			//pos_y_status_message = 470 - (font_height * 2);
 			//blank_message_area = @interface.get_blank_surface(780, font_height * 2);
 			menu_stack = new GLib.Queue<MenuSelector>();
@@ -56,7 +54,7 @@ namespace Menus
 		}
 
 		MenuSelector get_selector(Menu menu) {
-			var new_selector = new MenuSelector(SELECTOR_ID, SELECTOR_XPOS, SELECTOR_YPOS, menu, max_name_length, max_value_length);
+			var new_selector = new MenuSelector(SELECTOR_ID, SELECTOR_XPOS, SELECTOR_YPOS, menu, MAX_NAME_LENGTH, MAX_VALUE_LENGTH);
 			new_selector.changed.connect(() => on_selector_changed());
 			menu.message.connect((message) => on_message(message));
 			menu.error.connect((error) => on_error(error));

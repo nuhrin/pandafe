@@ -12,8 +12,8 @@ namespace Layers.GameBrowser
 		const int16 SELECTOR_YPOS = 100;
 		const string SELECTOR_ID = "overlay_selector";
 
-		uint8 max_name_length;
-		uint8 max_value_length;
+		const uint8 MAX_NAME_LENGTH = 40;
+		const uint8 MAX_VALUE_LENGTH = 40;
 
 		bool event_loop_done;
 		GLib.Queue<MenuSelector> menu_stack;
@@ -26,12 +26,10 @@ namespace Layers.GameBrowser
 		Rect lower_right;
 		int16 header_bottom_y;
 		
-		public MenuOverlay(Menus.Menu menu, uint8 max_name_length, uint8 max_value_length) {
+		public MenuOverlay(Menus.Menu menu) {
 			if (menu.items.size == 0)
 				GLib.error("Menu '%s' has no items.", menu.name);
 			base("menubrowser");
-			this.max_name_length = max_name_length;
-			this.max_value_length = max_value_length;
 			menu_stack = new GLib.Queue<MenuSelector>();
 			header = add_layer(new MenuHeaderLayer("header")) as MenuHeaderLayer;
 			message = add_layer(new MenuMessageLayer("status")) as MenuMessageLayer;			
@@ -78,7 +76,7 @@ namespace Layers.GameBrowser
 		}
 
 		MenuSelector get_selector(Menus.Menu menu) {
-			var new_selector = new MenuSelector(SELECTOR_ID, 0, 0, menu, max_name_length, max_value_length);	
+			var new_selector = new MenuSelector(SELECTOR_ID, 0, 0, menu, MAX_NAME_LENGTH, MAX_VALUE_LENGTH);	
 			update_selector_pos(new_selector);		
 			new_selector.changed.connect(() => on_selector_changed());
 			new_selector.refreshed.connect(() => update_selector_pos(new_selector));

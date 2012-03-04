@@ -849,7 +849,7 @@ public class GameBrowser : Layers.ScreenLayer
 		
 	}
 	void show_menu_overlay(Menus.Menu menu) {
-		new Layers.GameBrowser.MenuOverlay(menu, 40, 40).run();
+		new Layers.GameBrowser.MenuOverlay(menu).run();
 	}
 	
 }

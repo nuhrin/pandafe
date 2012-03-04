@@ -12,7 +12,7 @@ namespace Menus
 		
 		public static bool edit(string title, Object obj) {
 			var menu = new ObjectMenu(title, null, obj);
-			new MenuBrowser(menu, 40, 40).run();
+			new MenuBrowser(menu).run();
 			if (menu.mo != null)
 				menu.mo.i_release_fields();
 			return menu.was_saved;

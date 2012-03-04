@@ -10,7 +10,7 @@ namespace Menus.Concrete
 		public static void run() {
 			var menu = new MainConfiguration();
 			menu.add_item(new MenuItem.cancel_item("Return"));
-			new MenuBrowser(new MainConfiguration(), 40, 40).run();
+			new MenuBrowser(new MainConfiguration()).run();
 		}
 		
 		public MainConfiguration() { 

@@ -71,7 +71,7 @@ namespace Fields
 			watch_rgb_fields();
 			watch_hsv_fields();
 			
-			var browser = new MenuBrowser(_menu, 10, 10);
+			var browser = new MenuBrowser(_menu);
 			var rect = browser.get_selector_rect();			
 			_color_display = new ColorDisplayLayer("color_display", (int16)(rect.x + rect.w), 60, this);
 			browser.add_layer(_color_display);

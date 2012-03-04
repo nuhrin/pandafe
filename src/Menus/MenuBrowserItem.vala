@@ -18,7 +18,7 @@ namespace Menus
 		}		
 		
 		public override void activate(MenuSelector selector) { 
-			new MenuBrowser(menu, 40, 40).run();
+			new MenuBrowser(menu).run();
 		}
 		
 		public override bool is_menu_item() { return true; }

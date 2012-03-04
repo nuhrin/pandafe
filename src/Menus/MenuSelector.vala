@@ -225,7 +225,7 @@ namespace Menus
 			if (max_value_chars > uint8.MAX)
 				max_value_chars = uint8.MAX;			
 			max_name_length_real = (max_name_chars < max_name_length) ? (uint8)max_name_chars : max_name_length;
-			max_value_length_real = (max_value_chars > 0 && max_value_chars < max_name_length) ? (uint8)max_value_chars : max_value_length;
+			max_value_length_real = (max_value_chars != -1 && max_value_chars < max_name_length) ? (uint8)max_value_chars : max_value_length;
 			int name_area_width = @interface.get_monospaced_font_width(max_name_length_real);
 			int value_area_width = @interface.get_monospaced_font_width(max_value_length_real);
 			x_pos_value = @interface.get_monospaced_font_width(max_name_length_real + 3); // +3 for " : " before value
