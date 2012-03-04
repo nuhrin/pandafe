@@ -22,9 +22,12 @@ namespace Layers.Controls
 		}
 
 		protected override string get_first_run_key(string starting_key) { 
-			return (starting_key.has_prefix(root_path) == true)
-				? starting_key
-				: root_path;
+			if (starting_key.has_prefix(root_path) == true) {
+				if (FileUtils.test(starting_key, FileTest.IS_DIR) == false)
+					return get_first_run_key(Path.get_dirname(starting_key));
+				return starting_key;
+			}
+			return root_path;
 		}
 
 		protected override string? get_run_result() { return selected_path; }

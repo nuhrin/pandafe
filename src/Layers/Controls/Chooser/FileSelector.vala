@@ -13,9 +13,6 @@ namespace Layers.Controls.Chooser
 		string original_path;
 		
 		public FileSelector(string id, int16 xpos, int16 ypos, string path, Regex? regex_file_filter=null, bool is_root=false) {
-			if (FileUtils.test(path, FileTest.EXISTS) == false)
-				GLib.error("Path '%s' does not exist.", path);
-									
 			base(id, xpos, ypos, is_root);
 			path_is_dir = FileUtils.test(path, FileTest.IS_DIR);
 			original_path = path;

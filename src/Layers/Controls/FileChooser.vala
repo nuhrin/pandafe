@@ -31,6 +31,8 @@ namespace Layers.Controls
 
 		protected override string get_first_run_key(string starting_key) { 
 			if (starting_key.has_prefix(root_path) == true) {
+				if (FileUtils.test(starting_key, FileTest.EXISTS) == false)
+					return get_first_run_key(Path.get_dirname(starting_key));
 				if (FileUtils.test(starting_key, FileTest.IS_DIR))
 					return Path.get_dirname(starting_key);
 				return starting_key;
