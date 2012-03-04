@@ -97,12 +97,9 @@ public class InterfaceHelper : Object
 
 	public GameBrowserUI game_browser_ui {
 		get {
-			if (_game_browser_ui == null) {
-				_game_browser_ui = new GameBrowserUI(preferences.font, 
-					preferences.item_color.get_sdl_color(),
-					preferences.selected_item_color.get_sdl_color(),
-					preferences.background_color.get_sdl_color());
-			}
+			if (_game_browser_ui == null)
+				_game_browser_ui = preferences.appearance.create_ui();
+			
 			return _game_browser_ui;
 		}
 	}

@@ -3,34 +3,25 @@ using Catapult;
 namespace Data
 {
 	public class Preferences : Entity
-	{
-		const string DEFAULT_FONT_PATH  = "/usr/share/fonts/truetype/";
-		const string DEFAULT_FONT = "/usr/share/fonts/truetype/DejaVuSansMono.ttf";
+	{		
+		internal const string ENTITY_ID = "preferences";		
 
-		internal const string ENTITY_ID = "preferences";
+		public GameBrowserAppearance appearance { get; set; }
+		
+		// yaml
 		protected override string generate_id() { return ENTITY_ID; }
 
-		construct {
-			font = DEFAULT_FONT;
-			platform_order = new ArrayList<string>();
-			// default colors
-			Data.Color color;
-			if (Data.Color.parse("#ffffffffffff", out color) == true)
-				item_color = color; // white
-			if (Data.Color.parse("#00006464ffff", out color) == true)
-				selected_item_color = color; // blue-green
+		protected override Yaml.Node build_yaml_node(Yaml.NodeBuilder builder) {
+			if (appearance == null)
+				appearance = new GameBrowserAppearance.default();
+			
+			return base.build_yaml_node(builder);
 		}
-
-		public string font { get; set; }
-		public Data.Color background_color { get; set; }
-		public Data.Color item_color { get; set; }
-		public Data.Color selected_item_color { get; set; }
-		public Gee.List<string> platform_order { get; set; }
-
-		public void update_platform_order(Iterable<Platform> platforms) {
-			platform_order.clear();
-			foreach(var platform in platforms)
-				platform_order.add(platform.id);
+		protected override bool apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
+			bool result = base.apply_yaml_node(node, parser);
+			if (appearance == null)
+				appearance = new GameBrowserAppearance.default();
+			return result;
 		}
 	}
 }

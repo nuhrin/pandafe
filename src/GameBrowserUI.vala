@@ -64,13 +64,23 @@ public class GameBrowserUI
 		_blank_item_surface = null;
 		colors_updated();
 	}
+	public void set_appearance(Data.GameBrowserAppearance appearance, Data.GameBrowserAppearance? fallback_appearance=null) {
+		var ui = appearance.create_ui(fallback_appearance);
+		set_font(ui._font_path);
+		_item_color = ui._item_color;
+		_selected_item_color = ui._selected_item_color;
+		_background_color = ui._background_color;
+		colors_updated();
+	}
+	
 	public void update_font_from_preferences() {
-		set_font(preferences.font);		
+		set_font(preferences.appearance.font);		
 	}
 	public void update_colors_from_preferences() {
-		set_colors(preferences.item_color.get_sdl_color(),
-				   preferences.selected_item_color.get_sdl_color(),
-				   preferences.background_color.get_sdl_color());
+		var appearance = preferences.appearance;
+		set_colors(appearance.item_color.get_sdl_color(),
+				   appearance.selected_item_color.get_sdl_color(),
+				   appearance.background_color.get_sdl_color());
 	}
 	
 	public unowned Surface get_blank_item_surface() { 

@@ -25,6 +25,7 @@ pandafe_VALASOURCES = \
 	SpawningResult.vala \
 	Utility.vala \
 	Data/Color.vala \
+	Data/GameBrowserAppearance.vala \
 	Data/GameBrowserState.vala \
 	Data/GameSettings.vala \
 	Data/Options/FlagOption.vala \
@@ -64,6 +65,7 @@ pandafe_VALASOURCES = \
 	Fields/ColorField.vala \
 	Fields/ClockSpeedField.vala \
 	Fields/CustomCommandField.vala \
+	Fields/GameBrowserAppearanceField.vala \
 	Fields/NativePlatformCategoryAppListField.vala \
 	Fields/NativePlatformCategoryListField.vala \
 	Fields/NativePlatformSubCategoryListField.vala \

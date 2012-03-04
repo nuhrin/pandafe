@@ -368,9 +368,6 @@ public class GameBrowser : Layers.ScreenLayer
 
 		if (event.keysym.mod == KeyModifier.NONE) {
 			switch(event.keysym.sym) {
-				case KeySymbol.PERIOD:
-					process_unicode_disabled = true;
-					return;
 				case KeySymbol.UP:
 					select_previous();
 					break;
@@ -405,11 +402,8 @@ public class GameBrowser : Layers.ScreenLayer
 				case KeySymbol.SLASH:
 					filter_selector();
 					break;
-				case KeySymbol.p:
-					edit_current_platform();
-					drain_events();
-					break;
 				case KeySymbol.LCTRL: // pandora Select
+				case KeySymbol.PERIOD:
 					do_configuration();
 					drain_events();
 					break;
@@ -418,7 +412,6 @@ public class GameBrowser : Layers.ScreenLayer
 					drain_events();
 					break;
 				case KeySymbol.ESCAPE:
-				case KeySymbol.q:
 					this.event_loop_done = true;
 					break;
 				default:
@@ -426,19 +419,8 @@ public class GameBrowser : Layers.ScreenLayer
 			}
 			return;
 		}
-
-		if ((event.keysym.mod & KeyModifier.SHIFT) != 0) {
-			if (event.keysym.sym == KeySymbol.p) {
-				edit_current_program();
-				drain_events();
-				return;
-			}
-		}
     }
     void on_keyup_event (KeyboardEvent event) {
-		if (event.keysym.sym != KeySymbol.PERIOD)
-			process_unicode_disabled = false;
-
 		if (event.keysym.sym == KeySymbol.RSHIFT) {
 			// pandora L
 			L_pressed = false;
@@ -474,9 +456,6 @@ public class GameBrowser : Layers.ScreenLayer
 	bool R_pressed;
 	bool L_R_both_pressed;
     bool process_unicode(uint16 unicode) {
-		if (process_unicode_disabled)
-			return true;
-
 		if (unicode <= uint8.MAX) {
 			char c = (char)unicode;
 			if (c.isalnum() == true) {
@@ -486,59 +465,6 @@ public class GameBrowser : Layers.ScreenLayer
 			}
 		}
 		return true;
-	}
-	bool process_unicode_disabled;
-
-	//
-	// commands: configuration
-    void do_configuration() {
-//~ 		status_message.push("running main configuration...");
-//~ 		ConfigGui.run();
-//~ 		ui.update_font_from_preferences();
-//~ 		ui.update_colors_from_preferences();
-//~ 		this.update();
-		Menus.Concrete.MainConfiguration.run();
-	}
-	void edit_current_platform() {
-		Platform platform = null;
-		if (everything_active == true) {
-			var game = everything_selector.selected_game();
-			if (game != null)
-				platform = game.platform();
-		} else if (current_platform != null) {
-			platform = current_platform;
-		}
-		if (platform != null) {
-			//status_message.push("editing platform %s...".printf(platform.name));
-			ObjectMenu.edit("Platform: " + platform.name, platform);
-			//ConfigGui.edit_platform(platform);
-			//status_message.pop();
-		}
-	}
-	void edit_current_program() {
-		Platform platform = null;
-		if (everything_active == true) {
-			var game = everything_selector.selected_game();
-			if (game != null)
-				platform = game.platform();
-		} else if (current_platform != null) {
-			platform = current_platform;
-		}
-		if (platform != null) {
-			var program = current_platform.default_program;
-			if (program != null) {
-				//status_message.push("editing program %s...".printf(program.name));
-				//ConfigGui.edit_program(current_platform, program);
-				if (ObjectMenu.edit("Program: " + program.name, program) == true) {
-					try {
-						Data.data_interface().save(platform);
-					} catch(GLib.Error e) {
-						debug("Error saving platform '%s': %s", platform.name, e.message);
-					}
-				}
-				//status_message.pop();
-			}
-		}
 	}
 
 	//
@@ -788,6 +714,13 @@ public class GameBrowser : Layers.ScreenLayer
 		}
 	}
 
+
+	//
+	// commands: menus
+    void do_configuration() {
+		show_menu_overlay(new Menus.Concrete.MainConfiguration());
+	}
+	
 	void show_context_menu() {
 		//Menus.Concrete.MainConfiguration.run();
 		if (selector.selected_index == -1) {
@@ -806,12 +739,12 @@ public class GameBrowser : Layers.ScreenLayer
 			var platform_node = platform_folder_selector.selected_node() as PlatformNode;
 			if (platform_node != null) {
 				show_platform_menu(platform_node.platform);
-				return;
 			}
+			return;
 		}
 		
 		var platform_selector = selector as PlatformSelector;
-		if (platform_selector != null) {			
+		if (platform_selector != null) {
 			show_platform_menu(platform_selector.selected_platform());
 			return;
 		}
