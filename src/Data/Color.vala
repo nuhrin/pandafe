@@ -124,6 +124,8 @@ namespace Data
 		public string spec {
 			get { return _spec; }
 			set {
+				if (value == _spec)
+					return;
 				Gdk.Color parsed;
 				if (Gdk.Color.parse(value, out parsed) == true) {
 					set_gdk_color(parsed);

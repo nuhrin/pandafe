@@ -14,7 +14,7 @@ public class Spawning
 	public static SpawningResult spawn_program(Program program, bool premount, ProgramSettings? program_settings=null, string? game_path=null) {			
 		Data.Pnd.AppItem app = program.get_app();
 		if (app == null)
-			return new SpawningResult.error("No pnd app specified for program '%s'.".printf(program.name));		
+			return new SpawningResult.error("No pnd app found for program '%s'.".printf(program.name));		
 		
 		string unique_id = app.id;
 		string appdata_dirname = app.appdata_dirname;

@@ -72,6 +72,7 @@ public abstract class Selector : Layers.Layer
 	}
 	public void rebuild() {
 		reset_surface();
+		_items = null;
 		rebuild_items();
 	}
 	protected abstract void	rebuild_items();
