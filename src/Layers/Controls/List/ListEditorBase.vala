@@ -23,11 +23,11 @@ namespace Layers.Controls.List
 		Gee.List<G> _list;
 		ArrayList<ListItem<G>> _items;
 		
-		protected ListEditorBase(string id, string name, string? help=null, Gee.List<G> list=new ArrayList<G>()) {
+		protected ListEditorBase(string id, string title, string? help=null, Gee.List<G> list=new ArrayList<G>()) {
 			base(id);
 			_list = list;
 			header = add_layer(new MenuHeaderLayer("header")) as MenuHeaderLayer;
-			header.set_text(null, "Edit List: " + name, null, false);
+			header.set_text(null, title, null, false);
 			message = add_layer(new MenuMessageLayer("status")) as MenuMessageLayer;	
 			if (help != null)
 				message.help = help;

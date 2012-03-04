@@ -34,7 +34,7 @@ namespace Menus.Fields
 			}			
 		}
 		protected virtual StringListEditor get_list_editor() { 
-			return new StringListEditor(id + "_editor", name, null, _value);
+			return new StringListEditor(id + "_editor", "Edit List: " + name, null, _value);
 		}
 		
 		void change_value(Gee.List<string> new_value) {
