@@ -23,7 +23,7 @@ namespace Data
 	public MountSet pnd_mountset() { return Provider.instance().get_mountset(); }
 
 	public GameSettings? get_game_settings(GameItem item) { return Provider.instance().get_game_settings(item); }
-	public bool save_game_settings(GameSettings settings, GameItem item) { return Provider.instance().save_game_settings(settings, item); }
+	public bool save_game_settings(GameSettings settings, GameItem item) { return Provider.instance().save_game_settings(settings, item.id); }
 
 	public class Provider
 	{
@@ -144,13 +144,13 @@ namespace Data
 			}
 			return null;
 		}
-		public bool save_game_settings(GameSettings settings, GameItem item) {
+		public bool save_game_settings(GameSettings settings, string id) {
 			try {
-				data_interface.save(settings, item.id);
+				data_interface.save(settings, id);
 				return true;
 			}
 			catch (Error e) {
-				debug("Error while saving game settings for '%s': %s", item.id, e.message);
+				debug("Error while saving game settings for '%s': %s", id, e.message);
 			}			
 			return false;
 		}

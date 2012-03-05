@@ -141,6 +141,18 @@ namespace Data.Platforms
 			platform_changed(platform);
 			return true;
 		}
+		public bool remove_platform(Platform platform, out string? error) {
+			error = null;
+			try {
+				remove(platform);
+				platform_id_hash.unset(platform.id);
+				all_platforms = null;
+				return true;
+			} catch(Error e) {
+				error = e.message;
+			}
+			return false;
+		}
 		
 		protected override Entity? get_entity(string entity_id) {
 			return get_platform(entity_id);			

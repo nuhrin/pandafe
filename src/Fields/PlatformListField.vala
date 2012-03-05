@@ -35,6 +35,14 @@ namespace Fields
 			protected override bool edit_list_item(ListItem<Platform> item, uint index) {
 				return ObjectMenu.edit("Edit Platform", item.value);
 			}
+			protected override bool confirm_deletion() { return true; }
+			protected override bool on_delete(ListItem<Platform> item) {
+				string? error;
+				if (Data.platforms().remove_platform(item.value, out error) == true)
+					return true;
+				debug(error);				
+				return false;
+			}
 			protected override bool can_delete(ListItem<Platform> item) { return !(item.value is NativePlatform); }
 			protected override string? get_cancel_item_text() { return null; }
 			protected override string? get_save_item_text() { return "Return"; }

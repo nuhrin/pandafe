@@ -8,9 +8,9 @@ public class GameSettings : Entity
 		program_settings = new ProgramSettingsMap();
 	}
 	
-	public string? selected_program_id { get; set; }
-	
+	public string? selected_program_id { get; set; }	
 	public ProgramSettingsMap program_settings { get; set; }
+	public string? platform { get; set; }
 	
 	protected override string generate_id() {
 		assert_not_reached();

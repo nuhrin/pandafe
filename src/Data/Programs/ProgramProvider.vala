@@ -13,6 +13,12 @@ namespace Data.Programs
 			base(root_folder);			
 		}
 		
+		public Enumerable<Program> get_all_programs() {
+			ensure_programs();
+			return new Enumerable<Program>(program_id_hash.values)
+				.sort((a,b) => Utility.strcasecmp(a.name, b.name));				
+		}
+		
 		public Program? get_program(string id) {
 			ensure_programs();
 			if (program_id_hash.has_key(id) == true)
@@ -78,6 +84,18 @@ namespace Data.Programs
 			if (needs_app_id_rebuild)
 				rebuild_app_id_hash();			
 			return true;
+		}
+		public bool remove_program(Program program, out string? error) {
+			error = null;
+			try {
+				remove(program);
+				program_id_hash.unset(program.id);
+				rebuild_app_id_hash();
+				return true;
+			} catch(Error e) {
+				error = e.message;
+			}
+			return false;
 		}
 		
 		protected override Entity? get_entity(string entity_id) {

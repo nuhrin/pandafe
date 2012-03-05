@@ -10,19 +10,22 @@ namespace Menus.Concrete
 {
 	public class GameSettingsMenu : Menu  
 	{	
-		GameItem game;
+		string game_id;
+		string game_name;
 		GameSettings game_settings;
 		GameProgramSelectionField program_field;
 		ClockSpeedField clockspeed_field;
 		HashMap<Option,MenuItemField> field_hash;
 		
 		public GameSettingsMenu(GameItem game) {
-			base("Settings: " + game.full_name);
-			this.game = game;
-			game_settings = Data.get_game_settings(game) ?? new GameSettings();
 			var platform = game.platform();
-			//var valid_programs = new Enumerable<Program>(platform.programs)
-			//	.where(p=>p.get_app() != null);
+			this.custom(game.id, game.full_name, platform, Data.get_game_settings(game) ?? new GameSettings() { platform = platform.id });
+		}
+		public GameSettingsMenu.custom(string game_id, string game_name, Platform platform, GameSettings settings) {
+			base("Setting: " + game_name);
+			this.game_id = game_id;
+			this.game_name = game_name;
+			game_settings = settings;
 			program = (game_settings.selected_program_id != null)
 				? platform.get_program(game_settings.selected_program_id) ?? platform.default_program
 				: platform.default_program;			
@@ -51,7 +54,7 @@ namespace Menus.Concrete
 				foreach(var option in program.options) {
 					var grouping = option as OptionGrouping;
 					if (grouping != null) {
-						var field = grouping.get_grouping_field(settings, game.full_name);
+						var field = grouping.get_grouping_field(settings, game_name);
 						field_hash[option] = field;
 						items.add(field);
 						continue;
@@ -81,14 +84,15 @@ namespace Menus.Concrete
 					var grouping_field = field as OptionGroupingField;
 					if (grouping_field != null)
 						grouping_field.populate_settings_from_fields(settings);
-					else
+					else {
 						settings[option.setting_name] = option.get_setting_value_from_field(field);
+					}
 				}
 				settings.clockspeed = clockspeed_field.value;
 				game_settings.program_settings[program.app_id] = settings;			
 			}
 			
-			Data.save_game_settings(game_settings, game);		
+			Data.Provider.instance().save_game_settings(game_settings, game_id);
 			return true;
 		}
 		

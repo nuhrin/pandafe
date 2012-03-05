@@ -404,7 +404,7 @@ public class GameBrowser : Layers.ScreenLayer
 					break;
 				case KeySymbol.LCTRL: // pandora Select
 				case KeySymbol.PERIOD:
-					do_configuration();
+					show_main_menu();
 					drain_events();
 					break;
 				case KeySymbol.SPACE:
@@ -717,8 +717,8 @@ public class GameBrowser : Layers.ScreenLayer
 
 	//
 	// commands: menus
-    void do_configuration() {
-		show_menu_overlay(new Menus.Concrete.MainConfiguration());
+    void show_main_menu() {
+		show_menu_overlay(new Menus.Concrete.MainMenu());
 	}
 	
 	void show_context_menu() {

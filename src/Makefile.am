@@ -66,6 +66,7 @@ pandafe_VALASOURCES = \
 	Fields/ClockSpeedField.vala \
 	Fields/CustomCommandField.vala \
 	Fields/GameBrowserAppearanceField.vala \
+	Fields/GameSettingsListField.vala \
 	Fields/NativePlatformCategoryAppListField.vala \
 	Fields/NativePlatformCategoryListField.vala \
 	Fields/NativePlatformSubCategoryListField.vala \
@@ -124,7 +125,7 @@ pandafe_VALASOURCES = \
 	Menus/Concrete/GameFolderMenu.vala \
 	Menus/Concrete/GameMenu.vala \
 	Menus/Concrete/GameSettingsMenu.vala \
-	Menus/Concrete/MainConfiguration.vala \
+	Menus/Concrete/MainMenu.vala \
 	Menus/Concrete/OptionGroupingMenu.vala \
 	Menus/Concrete/PlatformMenu.vala \
 	Menus/Concrete/ProgramDefaultSettingsMenu.vala \
