@@ -40,7 +40,7 @@ namespace Layers.Controls.List
 				menu.add_item(new Menus.MenuItem.save_item(save_text));
 			menu_selector = add_layer(new MenuSelector("list_menu_selector", MENU_SELECTOR_XPOS, MENU_SELECTOR_YPOS, menu, 100, 0)) as MenuSelector;
 			menu_selector.wrap_selector = false;
-		}
+		}		
 		
 		public void set_header(string? left, string? center, string? right) {
 			header.set_text(left, center, right);
@@ -73,6 +73,7 @@ namespace Layers.Controls.List
 		protected abstract ListItem<G> get_list_item(G item);
 		protected abstract bool create_item(Rect selected_item_rect, out G item);
 		protected abstract bool edit_list_item(ListItem<G> item, uint index);
+		protected virtual bool confirm_deletion() { return false; }
 		protected virtual bool on_delete(ListItem<G> item) { return true; }
 		protected virtual bool can_edit(ListItem<G> item) { return true; }
 		protected virtual bool can_delete(ListItem<G> item) { return true; }
@@ -320,6 +321,10 @@ namespace Layers.Controls.List
 					break;				
 				case ListItemActionType.DELETE:
 					// todo: confirmation "dialog"
+					if (confirm_deletion() == true) {
+						if (new DeleteConfirmation("delete_confirmation", rect.x + (int16)rect.w, rect.y).run() == false)
+							break;
+					}
 					if (on_delete(selector.selected_item()) == true) {
 						selector.remove_selected_item();
 						update();
@@ -330,6 +335,23 @@ namespace Layers.Controls.List
 			}
 
 		}
-		
+		class DeleteConfirmation : StringSelector
+		{
+			const string CANCEL_TEXT = ".. cancel";
+			const string CONFIRM_TEXT = "!! Confirm";
+			public DeleteConfirmation(string id, int16 xpos, int16 ypos)
+			{
+				base(id, xpos, ypos, 200);
+				for(int index=0;index<7;index++)
+					add_item(CANCEL_TEXT);
+				add_item(CONFIRM_TEXT);
+				add_item(CANCEL_TEXT);
+				add_item(CANCEL_TEXT);
+			}
+			public new bool run(uchar screen_alpha=128, uint32 rgb_color=0) {
+				base.run(screen_alpha, rgb_color);
+				return (selected_item() == CONFIRM_TEXT);
+			}
+		}
 	}
 }
