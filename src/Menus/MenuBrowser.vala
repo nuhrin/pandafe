@@ -95,8 +95,8 @@ namespace Menus
 		}
 		void refresh_menu(Menu menu) {
 			if (menu == selector.menu) {
-				selector.update();
 				message.reset();
+				update();
 			}
 		}
 		void add_additional_layer(Menu menu) {			
