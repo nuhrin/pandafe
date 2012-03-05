@@ -14,6 +14,12 @@ namespace Data.Options
 		public override OptionType option_type { get { return OptionType.GROUPING; } }
 		public OptionSet options { get; set; }
 		
+		public override void set_setting_prefix(string prefix) { 
+			base.set_setting_prefix(prefix);
+			foreach(var option in options)
+				option.set_setting_prefix(this.setting_name + "/");
+		}
+		
 		// menu
 		protected override void build_menu(MenuBuilder builder) {
 			add_name_field(name, builder);

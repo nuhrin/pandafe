@@ -20,9 +20,8 @@ namespace Data.Options
 				return name;
 			}
 		}
-		public void set_setting_prefix(string prefix) { _setting_name = prefix + name; }
-		string? _setting_name;
-		
+		public virtual void set_setting_prefix(string prefix) { _setting_name = prefix + name; }
+		string? _setting_name;		
 		
 		// menu
 		protected virtual void build_menu(MenuBuilder builder) {

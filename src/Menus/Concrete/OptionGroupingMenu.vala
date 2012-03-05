@@ -21,7 +21,8 @@ namespace Menus.Concrete
 			this.settings = settings;
 			this.program_name = program_name;
 			this.title_prefix = title_prefix;
-			field_hash = new HashMap<Option,MenuItemField>();			
+			field_hash = new HashMap<Option,MenuItemField>();
+			ensure_items();
 		}
 		
 		public void populate_settings_from_fields(ProgramSettings target_settings) {
