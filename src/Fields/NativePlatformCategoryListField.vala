@@ -12,12 +12,12 @@ namespace Fields
 {
 	public class NativePlatformCategoryListField : ListField<NativePlatformCategory>
 	{
-		public NativePlatformCategoryListField(string id, string name, string? help=null, Gee.List<NativePlatformCategory> value) {
-			base(id, name, help, value);
+		public NativePlatformCategoryListField(string id, string name, string? help=null, Gee.List<NativePlatformCategory> value, string? title=null) {
+			base(id, name, help, value, title);
 		}
 		
-		protected override ListEditor<NativePlatformCategory> get_list_editor() {
-			return new NativePlatformCategoryListEditor(id, name, help, value, c=>c.name);
+		protected override ListEditor<NativePlatformCategory> get_list_editor(string? title) {
+			return new NativePlatformCategoryListEditor(id, title ?? name, help, value, c=>c.name);
 		}
 		
 		class NativePlatformCategoryListEditor : ListEditor<NativePlatformCategory>

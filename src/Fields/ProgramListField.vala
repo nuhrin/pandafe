@@ -11,18 +11,18 @@ namespace Fields
 {
 	public class ProgramListField : ListField<Program>
 	{
-		public ProgramListField(string id, string name, string? help=null, Gee.List<Program> value) {
-			base(id, name, help, value);
+		public ProgramListField(string id, string name, string? help=null, Gee.List<Program> value, string? title=null) {
+			base(id, name, help, value, title);
 		}
 		
-		protected override ListEditor<Program> get_list_editor() {
-			return new ProgramListEditor(id, name, null, value, p=>p.name);
+		protected override ListEditor<Program> get_list_editor(string? title) {
+			return new ProgramListEditor(id, title ?? name, null, value, p=>p.name);
 		}
 		
 		class ProgramListEditor : ListEditor<Program>
 		{
-			public ProgramListEditor(string id, string name, string? help=null, Gee.List<Program> list, owned MapFunc<string?, Program> get_name_string) {
-				base(id, name, help, list, (owned)get_name_string);
+			public ProgramListEditor(string id, string title, string? help=null, Gee.List<Program> list, owned MapFunc<string?, Program> get_name_string) {
+				base(id, title, help, list, (owned)get_name_string);
 			}
 			protected override bool create_item(Rect selected_item_rect, out Program item) {
 				item = null;

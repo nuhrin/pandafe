@@ -15,8 +15,8 @@ namespace Fields
 	{
 		NativePlatformCategory category;
 		Category? main_category;
-		public NativePlatformSubCategoryListField(string id, string name, string? help=null, NativePlatformCategory category) {
-			base(id, name, help, category.excluded_subcategories);
+		public NativePlatformSubCategoryListField(string id, string name, string? help=null, NativePlatformCategory category, string? title=null) {
+			base(id, name, help, category.excluded_subcategories, title);
 			this.category = category;
 			main_category = Data.pnd_data().get_category(category.name);
 		}
@@ -28,15 +28,15 @@ namespace Fields
 			}
 			base.activate(selector);
 		}
-		protected override StringListEditor get_list_editor() {
-			return new NativePlatformSubCategoryListEditor(id, name, help, main_category, value);
+		protected override StringListEditor get_list_editor(string? title) {
+			return new NativePlatformSubCategoryListEditor(id, title ?? name, help, main_category, value);
 		}
 		
 		class NativePlatformSubCategoryListEditor : StringListEditor
 		{
 			Category? category;
-			public NativePlatformSubCategoryListEditor(string id, string name, string? help=null, Category? category, Gee.List<string> list) {
-				base(id, name, help, list);
+			public NativePlatformSubCategoryListEditor(string id, string title, string? help=null, Category? category, Gee.List<string> list) {
+				base(id, title, help, list);
 				this.category = category;
 			}
 			protected override bool create_item(Rect selected_item_rect, out string item) {

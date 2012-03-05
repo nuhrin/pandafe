@@ -13,13 +13,13 @@ namespace Fields
 	public class PlatformNodeListField : ListField<PlatformNode>
 	{
 		PlatformFolder folder;
-		public PlatformNodeListField(string id, string name, string? help=null, PlatformFolder folder) {
-			base(id, name, help, folder.platforms);
+		public PlatformNodeListField(string id, string name, string? help=null, PlatformFolder folder, string? title=null) {
+			base(id, name, help, folder.platforms, title);
 			this.folder = folder;
 		}
 		
-		protected override ListEditor<PlatformNode> get_list_editor() {
-			return new PlatformNodeListEditor(id, name, help, folder, value, n=>n.name);
+		protected override ListEditor<PlatformNode> get_list_editor(string? title) {
+			return new PlatformNodeListEditor(id, title ?? name, help, folder, value, n=>n.name);
 		}
 		
 		class PlatformNodeListEditor : ListEditor<PlatformNode>

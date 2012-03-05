@@ -13,16 +13,16 @@ namespace Fields
 	public class PlatformFolderListField : ListField<PlatformFolder>
 	{
 		PlatformFolder? parent;
-		public PlatformFolderListField(string id, string name, string? help=null, PlatformFolder folder) {
-			base(id, name, help, folder.folders);
+		public PlatformFolderListField(string id, string name, string? help=null, PlatformFolder folder, string? title=null) {
+			base(id, name, help, folder.folders, title);
 			this.parent = folder;
 		}
 		public PlatformFolderListField.root(string id, string name, string? help=null, Gee.List<PlatformFolder> folders) {
 			base(id, name, help, folders);
 		}
 		
-		protected override ListEditor<PlatformFolder> get_list_editor() {
-			return new PlatformFolderListEditor(id, name, help, parent, value, n=>n.name);
+		protected override ListEditor<PlatformFolder> get_list_editor(string? title) {
+			return new PlatformFolderListEditor(id, title ?? "Platform Folders", help, parent, value, n=>n.name);
 		}
 		
 		class PlatformFolderListEditor : ListEditor<PlatformFolder>

@@ -11,18 +11,18 @@ namespace Fields
 {
 	public class PlatformListField : ListField<Platform>
 	{
-		public PlatformListField(string id, string name, string? help=null, Gee.List<Platform> value) {
-			base(id, name, help, value);
+		public PlatformListField(string id, string name, string? help=null, Gee.List<Platform> value, string? title=null) {
+			base(id, name, help, value, title);
 		}
 
-		protected override ListEditor<Platform> get_list_editor() {
-			return new PlatformListEditor(id, name, null, value, p=>p.name);
+		protected override ListEditor<Platform> get_list_editor(string? title) {
+			return new PlatformListEditor(id, title ?? name, null, value, p=>p.name);
 		}
 		
 		class PlatformListEditor : ListEditor<Platform>
 		{
-			public PlatformListEditor(string id, string name, string? help=null, Gee.List<Platform> list, owned MapFunc<string?, Platform> get_name_string) {
-				base(id, name, help, list, (owned)get_name_string);
+			public PlatformListEditor(string id, string title, string? help=null, Gee.List<Platform> list, owned MapFunc<string?, Platform> get_name_string) {
+				base(id, title, help, list, (owned)get_name_string);
 				save_on_return = true;
 			}
 			protected override bool create_item(Rect selected_item_rect, out Platform item) {

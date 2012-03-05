@@ -108,7 +108,7 @@ namespace Data.Options
 				
 			}
 
-			protected override ListEditor<Choice> get_list_editor() {
+			protected override ListEditor<Choice> get_list_editor(string? title) {
 				return new ChoiceListEditor(id, name, null, value, p=>p.name);
 			}
 			

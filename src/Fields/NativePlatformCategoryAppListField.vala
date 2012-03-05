@@ -15,8 +15,8 @@ namespace Fields
 	{
 		NativePlatformCategory category;
 		Gee.List<AppItem>? category_apps;
-		public NativePlatformCategoryAppListField(string id, string name, string? help=null, NativePlatformCategory category) {
-			base(id, name, help, category.excluded_apps);
+		public NativePlatformCategoryAppListField(string id, string name, string? help=null, NativePlatformCategory category, string? title=null) {
+			base(id, name, help, category.excluded_apps, title);
 			this.category = category;
 			var main_category = Data.pnd_data().get_category(category.name);
 			if (main_category != null) {
@@ -40,15 +40,15 @@ namespace Fields
 			}
 			base.activate(selector);
 		}
-		protected override StringListEditor get_list_editor() {
-			return new NativePlatformCategoryAppListEditor(id, name, help, category_apps, value);
+		protected override StringListEditor get_list_editor(string? title) {
+			return new NativePlatformCategoryAppListEditor(id, title ?? name, help, category_apps, value);
 		}
 		
 		class NativePlatformCategoryAppListEditor : StringListEditor
 		{
 			Gee.List<AppItem>? category_apps;
-			public NativePlatformCategoryAppListEditor(string id, string name, string? help=null, Gee.List<AppItem>? category_apps, Gee.List<string> list) {
-				base(id, name, help, list);
+			public NativePlatformCategoryAppListEditor(string id, string title, string? help=null, Gee.List<AppItem>? category_apps, Gee.List<string> list) {
+				base(id, title, help, list);
 				this.category_apps = category_apps;
 			}
 			protected override bool create_item(Rect selected_item_rect, out string item) {

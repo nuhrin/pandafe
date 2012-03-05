@@ -12,14 +12,14 @@ namespace Fields
 {
 	public class ProgramOptionsListField : ListField<Option>
 	{
-		public ProgramOptionsListField(string id, string name, string? help=null, OptionSet value) {
-			base(id, name, help, value);
+		public ProgramOptionsListField(string id, string name, string? help=null, OptionSet value, string? title=null) {
+			base(id, name, help, value, title);
 		}
 
 		public OptionSet options() { return (OptionSet)base.get_field_value(); }
 
-		protected override ListEditor<Option> get_list_editor() {
-			return new ProgramOptionsListEditor(id, name, null, value, o=>o.name);
+		protected override ListEditor<Option> get_list_editor(string? title) {
+			return new ProgramOptionsListEditor(id, title ?? name, null, value, o=>o.name);
 		}
 		
 		class ProgramOptionsListEditor : ListEditor<Option>
