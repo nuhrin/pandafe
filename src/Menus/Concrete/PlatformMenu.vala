@@ -18,7 +18,7 @@ namespace Menus.Concrete
 					saved();
 			}));
 			items.add(new MenuItem.custom("Rescan", null, "Scanning platform folders...", () => {
-				platform.get_root_folder().rescan_children(true);
+				platform.rescan();
 			}));		
 		}						
 	}

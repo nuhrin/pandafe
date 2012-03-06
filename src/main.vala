@@ -114,7 +114,7 @@ public class MainClass: Object {
 					if (type == FileType.DIRECTORY) {
 						if (platform_ids.contains(name) == false) {
 							var unmatched_directory = File.new_for_path(Path.build_filename(gamelistcache_path, name));
-							remove_directory(unmatched_directory);
+							Utility.remove_directory_recursive(unmatched_directory);
 						}
 					}
 				}
@@ -125,26 +125,4 @@ public class MainClass: Object {
 			}
 		}
 	}
-	static bool remove_directory(File directory) throws GLib.Error
-	{
-		var enumerator = directory.enumerate_children("standard::*", FileQueryInfoFlags.NONE);
-		FileInfo file_info;
-		while ((file_info = enumerator.next_file ()) != null) {
-			var type = file_info.get_file_type();
-			var name = file_info.get_name();
-			if (name.has_prefix(".") == true)
-				continue;
-			File child = File.new_for_path(Path.build_filename(directory.get_path(), name));
-			bool child_delete_result = false;
-			if (type == FileType.DIRECTORY) {
-				child_delete_result = remove_directory(child);					
-			} else {
-				child_delete_result = child.delete();
-			}
-			if (child_delete_result == false)
-				return false;
-		}
-		return directory.delete();
-	}
-		
 }

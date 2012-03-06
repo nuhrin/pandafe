@@ -57,6 +57,12 @@ public class Platform : NamedEntity, MenuObject
 
 		return get_root_folder().get_descendant_folder(unique_id);
 	}
+	
+	public void rescan() {
+		provider.rescan();
+		rescanned();
+	}
+	public signal void rescanned();
 
 	protected GameListProvider provider {
 		get {
@@ -151,7 +157,7 @@ public class Platform : NamedEntity, MenuObject
 		}
 		menu.message("Scanning platform folders...");
 		reset_provider();
-		provider.rescan();
+		rescan();
 		return true;		
 	}
 	

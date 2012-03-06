@@ -25,6 +25,7 @@ namespace Data.GameList
 
 
 		public void rescan() {
+			remove_platform_gamelist_cache();
 			rescan_init();
 			root_folder.rescan_children(true);
 		}
@@ -51,6 +52,18 @@ namespace Data.GameList
 			return Spawning.spawn_program(program, true, program_settings, game_path);
 		}
 
-		
+		void remove_platform_gamelist_cache() {
+			if (platform.id == null)
+				return;
+			string gamelistcache_path = Path.build_filename(Config.LOCAL_CONFIG_DIR, Data.GameList.GameFolder.YAML_FOLDER_ROOT, platform.id);
+			if (FileUtils.test(gamelistcache_path, FileTest.IS_DIR) == true) {
+				try {
+					var directory = File.new_for_path(gamelistcache_path);
+					Utility.remove_directory_recursive(directory);
+				} catch(GLib.Error e) {
+					debug("error remove platform '%s' gamelist cache: %s", platform.id, e.message);
+				}
+			}
+		}
 	}
 }
