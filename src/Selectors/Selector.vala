@@ -632,6 +632,10 @@ public abstract class Selector : Layers.Layer
 			idle_function_name = "selector-" + Random.next_int().to_string();
 			@interface.connect_idle_function(idle_function_name, rendering_iteration);
 		}
+		~SelectorSurface() {
+			if (idle_function_name != null)
+				@interface.disconnect_idle_function(idle_function_name);			
+		}
 
 		public int item_height { get { return (last_index - first_index); } }
 		public int top_item_index { get { return first_index; } }
