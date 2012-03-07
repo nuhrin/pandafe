@@ -707,9 +707,15 @@ public class GameBrowser : Layers.ScreenLayer
 		
 		var platform_folder_selector = selector as PlatformFolderSelector;
 		if (platform_folder_selector != null) {
-			var platform_node = platform_folder_selector.selected_node() as PlatformNode;
+			var node = platform_folder_selector.selected_node();
+			var folder_node = node as PlatformFolder;
+			if (folder_node != null) {
+				show_menu_overlay(new Menus.Concrete.PlatformFolderMenu(folder_node, folder_node.parent));
+				return;
+			}
+			var platform_node = node as PlatformNode;
 			if (platform_node != null) {
-				show_platform_menu(platform_node.platform);
+				show_platform_menu(platform_node.platform, platform_folder_selector.folder);
 			}
 			return;
 		}
@@ -747,9 +753,9 @@ public class GameBrowser : Layers.ScreenLayer
 	void show_folder_menu(GameFolder folder) {
 		show_menu_overlay(new Menus.Concrete.GameFolderMenu(folder));
 	}
-	void show_platform_menu(Platform? platform) {
+	void show_platform_menu(Platform? platform, PlatformFolder? platform_folder=null) {
 		if (platform != null)
-			show_menu_overlay(new Menus.Concrete.PlatformMenu(platform));
+			show_menu_overlay(new Menus.Concrete.PlatformMenu(platform, platform_folder));
 		
 	}
 	void show_menu_overlay(Menus.Menu menu) {

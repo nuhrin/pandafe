@@ -1,3 +1,4 @@
+using Data.Platforms;
 using Fields;
 using Menus.Fields;
 
@@ -6,9 +7,11 @@ namespace Menus.Concrete
 	public class PlatformMenu : Menu  
 	{	
 		Platform platform;
-		public PlatformMenu(Platform platform) {
+		PlatformFolder? platform_folder;
+		public PlatformMenu(Platform platform, PlatformFolder? platform_folder=null) {
 			base("Platform: " + platform.name);
 			this.platform = platform;
+			this.platform_folder = platform_folder;
 			ensure_items();		
 		}
 		
@@ -21,7 +24,14 @@ namespace Menus.Concrete
 			items.add(new MenuItem.custom("Rescan", null, "Scanning platform folders...", () => {
 				platform.rescan(f=> this.message("Scanning folder '%s'...".printf(f.unique_name())));
 				refresh(1);
-			}));		
+			}));
+			
+			if (platform_folder != null) {
+				var platform_folder_menu = new PlatformFolderMenu(platform_folder);
+				var platform_folder_item_index = items.size;
+				platform_folder_menu.saved.connect(() => refresh(platform_folder_item_index));
+				items.add(platform_folder_menu);
+			}
 		}						
 	}
 

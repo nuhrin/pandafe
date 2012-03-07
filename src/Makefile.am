@@ -127,6 +127,7 @@ pandafe_VALASOURCES = \
 	Menus/Concrete/GameSettingsMenu.vala \
 	Menus/Concrete/MainMenu.vala \
 	Menus/Concrete/OptionGroupingMenu.vala \
+	Menus/Concrete/PlatformFolderMenu.vala \
 	Menus/Concrete/PlatformMenu.vala \
 	Menus/Concrete/ProgramDefaultSettingsMenu.vala \
 	Menus/Fields/BooleanField.vala \
