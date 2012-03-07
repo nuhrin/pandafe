@@ -122,9 +122,6 @@ namespace Layers.Controls.Chooser
 						drain_events();
 						break;
 					case KeySymbol.HOME: // pandora A
-						go_back();
-						drain_events();
-						break;
 					case KeySymbol.ESCAPE:
 						this.event_loop_done = true;
 						break;
