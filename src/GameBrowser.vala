@@ -48,9 +48,8 @@ public class GameBrowser : Layers.ScreenLayer
 		ui.colors_updated.connect(update_colors);
 		ui.font_updated.connect(update_font);
 		var pp = Data.platforms();
-		pp.platform_changed.connect((p) => platform_changed(p));
+		pp.platform_rescanned.connect((p) => platform_rescanned(p));
 		pp.platform_folders_changed.connect(() => platform_folders_changed());
-		pp.native_platform_changed.connect(() => native_platform_changed());
 		flip();
 		Key.enable_unicode(1);
         while(event_loop_done == false) {
@@ -150,111 +149,13 @@ public class GameBrowser : Layers.ScreenLayer
 		state.current_platform_folder = (current_platform_folder != null) ? current_platform_folder.path() : null;
 		state.current_platform = (current_platform != null) ? current_platform.id : null;
 		if (current_platform != null)
-			state.apply_platform_state(current_platform, (current_folder != null) ? current_folder.unique_id() : null, selector.selected_index, selector.get_filter_pattern());
+			state.apply_platform_state(current_platform, (current_folder != null) ? current_folder.unique_name() : null, selector.selected_index, selector.get_filter_pattern());
 		if (everything_selector != null)
 			state.apply_all_games_state(everything_active, everything_selector.selected_index, everything_selector.get_filter_pattern());
 		else
 			state.apply_all_games_state(false, 0, null);
 	}
-	void platform_folders_changed() {
-		
-	}
-	void native_platform_changed() {
-		if (everything_selector != null)
-			everything_selector.rebuild();
-		if (current_platform is NativePlatform && current_folder != null) {			
-			update_current_folder();
-		}
-		if (everything_active)
-			selector.update();
-		debug("native_platform_changed() finish");
-	}
-	void platform_changed(Platform platform) {
-		if (everything_selector != null)
-			everything_selector.rebuild();
-		if (current_platform != null && current_platform == platform && current_folder != null) {
-			update_current_folder();
-		} else if (current_platform_folder != null) {
-			foreach(var platform_node in current_platform_folder.platforms) {
-				if (platform_node.platform == platform) {
-					if (everything_active) {
-						var pfs = existing_selector as PlatformFolderSelector;
-						if (pfs != null)
-							pfs.rebuild();
-					} else {
-						int index = selector.selected_index;
-						selector.rebuild();
-						selector.select_item(index);
-					}
-					break;
-				}				
-			}
-		}
-		if (everything_active)
-			selector.update();	
-	}
-	void update_current_folder() {
-		var existing_folder = current_folder;
-		var new_folder = current_platform.get_folder(existing_folder.unique_id());
-		while (new_folder == null && existing_folder.parent != null) {
-			existing_folder = existing_folder.parent;
-			new_folder = current_platform.get_folder(existing_folder.unique_id());
-		}
-		if (new_folder == null)
-			new_folder = current_platform.get_root_folder();
-		current_folder = new_folder;
-		if (everything_active) {
-			var gfs = existing_selector as GameFolderSelector;
-			if (gfs != null)
-				gfs.folder = current_folder;
-		} else {
-			change_selector();
-			selector.select_first();
-		}
-	}
-//~ 	void update_platforms() {
-//~ 		string? current_id = (current_platform != null) ? current_platform.id : null;
-//~ 		platforms = Data.platforms();
-//~ 		current_platform = null;
-//~ 		current_platform_index = -1;
-//~ 		if (current_id != null) {
-//~ 			for(int index=0; index<platforms.size; index++) {
-//~ 				var platform = platforms[index];
-//~ 				if (platform.id == current_id) {
-//~ 					current_platform = platform;
-//~ 					current_platform_index = index;
-//~ 					break;
-//~ 				}
-//~ 			}
-//~ 		}
-//~ 		if (current_platform != null && current_folder != null) {
-//~ 			var unique_id = current_folder.unique_id();
-//~ 			var new_folder = current_platform.get_folder(unique_id);
-//~ 			if (new_folder == null)
-//~ 				new_folder = current_platform.get_root_folder();
-//~ 			current_folder = new_folder;
-//~ 		} else {
-//~ 			current_folder = null;
-//~ 		}
-//~ 		
-//~ 		if (everything_selector != null)
-//~ 			everything_selector.rebuild();
-//~ 		if (everything_active && existing_selector != null) {
-//~ 			var gfs = existing_selector as GameFolderSelector;
-//~ 			if (gfs != null) {
-//~ 				if (current_folder != null)
-//~ 					gfs.folder = current_folder;
-//~ 				else
-//~ 					existing_selector = null;
-//~ 			} else {
-//~ 				existing_selector.rebuild();
-//~ 			}			
-//~ 		}
-//~ 		change_selector();
-//~ 		selector.update();
-//~ 		debug("update_platforms() finish");
-//~ 	}
-
+	
 	//
 	// layer updates
 	void set_header() {		
@@ -267,12 +168,12 @@ public class GameBrowser : Layers.ScreenLayer
 			if (game != null) {
 				center = game.platform().name;
 				if (game.parent.parent != null)
-					right = game.parent.unique_id().strip();
+					right = game.parent.unique_name().strip();
 			}
 		}
 		else if (current_platform != null) {
 			left = current_platform.name;
-			right = current_folder.unique_id().strip();
+			right = current_folder.unique_name().strip();
 		} else {
 			left = "Platforms";
 			if (current_platform_folder != null)
@@ -286,20 +187,25 @@ public class GameBrowser : Layers.ScreenLayer
 			if (everything_selector == null) {
 				everything_selector = new EverythingSelector(SELECTOR_ID, SELECTOR_XPOS, SELECTOR_YPOS);
 				everything_selector.changed.connect(() => on_selector_changed());
+				everything_selector.rebuilt.connect(() => on_selector_rebuilt(everything_selector));
 			}
 			new_selector = everything_selector;
 		} else if (this.current_folder != null) {
 			new_selector = new GameFolderSelector(this.current_folder, SELECTOR_ID, SELECTOR_XPOS, SELECTOR_YPOS);
-			new_selector.changed.connect(() => on_selector_changed());			
+			new_selector.changed.connect(() => on_selector_changed());
+			new_selector.rebuilt.connect(() => on_selector_rebuilt(new_selector));
 		} else if (this.current_platform_folder != null) {
 			new_selector = new PlatformFolderSelector(this.current_platform_folder, SELECTOR_ID, SELECTOR_XPOS, SELECTOR_YPOS);
 			new_selector.changed.connect(() => on_selector_changed());
+			new_selector.rebuilt.connect(() => on_selector_rebuilt(new_selector));
 		} else if (this.platform_folder_data.folders.size > 0) {
 			new_selector = new PlatformFolderSelector.root(SELECTOR_ID, SELECTOR_XPOS, SELECTOR_YPOS);
-			new_selector.changed.connect(() => on_selector_changed());			
+			new_selector.changed.connect(() => on_selector_changed());
+			new_selector.rebuilt.connect(() => on_selector_rebuilt(new_selector));
 		} else {
 			new_selector = new PlatformSelector(SELECTOR_ID, SELECTOR_XPOS, SELECTOR_YPOS);
 			new_selector.changed.connect(() => on_selector_changed());
+			new_selector.rebuilt.connect(() => on_selector_rebuilt(new_selector));
 		}
 		
 		if (this.selector == null)
@@ -324,7 +230,72 @@ public class GameBrowser : Layers.ScreenLayer
 			right = "\"%s\"".printf(active_pattern);
 		status_message.push(null, center, right, false);
 	}	
+	void on_selector_rebuilt(Selector selector) {
+		if (this.selector != selector)
+			return;
+		selector.ensure_selection(false);
+		update();
+	}
 	
+	void platform_folders_changed() {
+//~     PlatformFolderData platform_folder_data;
+//~     PlatformFolder? current_platform_folder;
+//~     int current_platform_folder_index;
+//~     Platform? current_platform;
+//~     int current_platform_index;
+//~     string current_filter;
+//~ 	GameFolder? current_folder;
+
+		debug("platform folders changed");
+	}
+
+	void platform_rescanned(Platform platform) {
+		if (current_platform != null && current_platform == platform && current_folder != null) {
+			var existing_folder = current_folder;
+			var new_folder = current_platform.get_folder_by_id(existing_folder.unique_id());
+			while (new_folder == null && existing_folder.parent != null) {
+				existing_folder = existing_folder.parent;
+				new_folder = current_platform.get_folder(existing_folder.unique_id());
+			}
+			if (new_folder == null)
+				new_folder = current_platform.get_root_folder();
+			current_folder = new_folder;
+			if (everything_active) {
+				var gfs = existing_selector as GameFolderSelector;
+				if (gfs != null)
+					gfs.folder = current_folder;
+			} else {
+				var gfs = selector as GameFolderSelector;
+				if (gfs != null) {
+					gfs.folder = current_folder;					
+				} else {
+					change_selector();
+					selector.select_first();
+				}
+			}
+		} else if (current_platform_folder != null) {
+			foreach(var platform_node in current_platform_folder.platforms) {
+				if (platform_node.platform == platform) {
+					if (everything_active) {
+						var pfs = existing_selector as PlatformFolderSelector;
+						if (pfs != null)
+							pfs.rebuild();
+					} else {
+						int index = selector.selected_index;
+						selector.rebuild();
+						selector.select_item(index);
+					}
+					break;
+				}				
+			}
+		}
+		if (everything_selector != null) {			
+			everything_selector.rebuild();			
+		}
+		if (everything_active)
+			selector.update();
+	}
+		
 	//
 	// events
     void process_events() {
@@ -598,7 +569,7 @@ public class GameBrowser : Layers.ScreenLayer
 		}
 	}
 	void run_game(GameItem game) {
-		status_message.push("running '%s'...".printf(game.unique_id()));				
+		status_message.push("running '%s'...".printf(game.unique_name()));				
 		var result = game.run();		
 		status_message.pop();
 		if (result.success == false) {
@@ -611,7 +582,7 @@ public class GameBrowser : Layers.ScreenLayer
 						? "Error running " + program.name
 						: "Error running program";
 					result.show_error_dialog(primary_message, 
-						"\t<i>%s</i>".printf(game.unique_id()));
+						"\t<i>%s</i>".printf(game.unique_name()));
 				}
 			}
 		}
@@ -640,7 +611,7 @@ public class GameBrowser : Layers.ScreenLayer
 		var game_selector = selector as GameFolderSelector;
 		if (game_selector != null) {
 			if (current_folder.parent == null) {
-				Data.browser_state().apply_platform_state(current_platform, current_folder.unique_id(),
+				Data.browser_state().apply_platform_state(current_platform, current_folder.unique_name(),
 					selector.selected_index, selector.get_filter_pattern());
 				current_folder = null;
 				current_filter = null;
@@ -654,14 +625,14 @@ public class GameBrowser : Layers.ScreenLayer
 					selector.select_item_starting_with(platform.name);
 				return;
 			}
-			var current_id = current_folder.unique_id();
+			var current_name = current_folder.unique_name();
 			current_folder = current_folder.parent;
 			change_selector();
 			if (current_filter != null)
 				selector.filter(current_filter);
 			int index=0;
 			foreach(var subfolder in current_folder.child_folders()) {
-				if (subfolder.unique_id() == current_id)
+				if (subfolder.unique_name() == current_name)
 					break;
 				index++;
 			}

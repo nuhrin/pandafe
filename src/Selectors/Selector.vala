@@ -70,12 +70,17 @@ public abstract class Selector : Layers.Layer
 			blit_surface(window.surface_two.get_surface(), window.rect_two, dest);
 		}
 	}
+	public signal void rebuilt();
 	public void rebuild() {
-		reset_surface();
+		reset_surface();		
 		_items = null;
-		rebuild_items();
+		_item_count = -1;
+		int index = selected_index;
+		selected_index = -1;
+		rebuild_items(index);
+		rebuilt();
 	}
-	protected abstract void	rebuild_items();
+	protected abstract void	rebuild_items(int selection_index);
 
 	public bool has_previous { get { return selected_display_index() > 0; } }
 	public bool has_next { get { return selected_display_index() < display_item_count - 1; } }
@@ -148,10 +153,10 @@ public abstract class Selector : Layers.Layer
 
 		return false;
 	}
-	public bool select_item(int index) {
-		return select_display_item(get_display_index_from_index(index));
+	public bool select_item(int index, bool flip=true) {
+		return select_display_item(get_display_index_from_index(index), flip);
 	}
-	public bool select_display_item(int display_index) {
+	public bool select_display_item(int display_index, bool flip=true) {
 		index_before_select_first = -1;
 		index_before_select_last = -1;
 
@@ -159,17 +164,17 @@ public abstract class Selector : Layers.Layer
 		ensure_surfaces(display_index);
 		if (surfaces.select_item(display_index, selected_display_index()) == true) {
 			selected_index = get_index_from_display_index(display_index);
-			update();
+			update(flip);
 			return true;
 		}
 		return false;
 	}
-	public void ensure_selection() {
+	public void ensure_selection(bool flip=true) {
 		if (selected_index >= 0 || display_item_count == 0) {
-			update();
+			update(flip);
 			return;
 		}
-		select_item(0);
+		select_item(0, flip);
 	}
 
 	public bool filter(string pattern) {

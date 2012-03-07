@@ -9,7 +9,7 @@ public class PlatformSelector : Selector
 
 	public PlatformSelector(string id, int16 xpos, int16 ypos) {
 		base(id, xpos, ypos);
-		rebuild_items();
+		rebuild_items(-1);
 	}
 	protected PlatformSelector.base(string id, int16 xpos, int16 ypos) {
 		base(id, xpos, ypos);
@@ -31,7 +31,7 @@ public class PlatformSelector : Selector
 		return false;			
 	}
 	
-	protected override void rebuild_items() {
+	protected override void rebuild_items(int selection_index) {
 		items = Data.platforms().get_all_platforms().to_list();
 	}
 

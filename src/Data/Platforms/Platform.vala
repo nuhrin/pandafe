@@ -51,15 +51,29 @@ public class Platform : NamedEntity, MenuObject
 	}
 
 	public GameFolder get_root_folder() { return provider.root_folder; }
-	public GameFolder? get_folder(string unique_id) {
-		if (unique_id == null || unique_id == "")
+	public GameFolder? get_folder(string unique_name) {
+		if (unique_name == null || unique_name == "")
 			return null;
 
-		return get_root_folder().get_descendant_folder(unique_id);
+		return get_root_folder().get_descendant_folder(unique_name);
+	}
+	public GameFolder? get_folder_by_id(string unique_id) {
+		if (unique_id == null || unique_id == "")
+			return null;
+		
+		var root_folder = get_root_folder();
+		if (unique_id == root_folder.unique_id())
+			return root_folder;
+
+		return root_folder.get_descendant_folder_by_id(unique_id);
 	}
 	
-	public void rescan() {
-		provider.rescan();
+	public void rebuild_folders(owned ForallFunc<GameFolder>? pre_scan_action=null) {
+		reset_provider();
+		rescan((owned)pre_scan_action);
+	}
+	public void rescan(owned ForallFunc<GameFolder>? pre_scan_action=null) {
+		provider.rescan((owned)pre_scan_action);
 		rescanned();
 	}
 	public signal void rescanned();
@@ -151,13 +165,10 @@ public class Platform : NamedEntity, MenuObject
 	}
 	protected virtual bool save_object(Menus.Menu menu) {
 		string? error;
-		if (Data.platforms().save_platform(this, generate_id(), out error) == false) {
+		if (Data.platforms().save_platform(this, generate_id(), out error, f=> menu.message("Scanning folder '%s'...".printf(f.unique_name()))) == false) {
 			menu.error(error);
 			return false;
 		}
-		menu.message("Scanning platform folders...");
-		reset_provider();
-		rescan();
 		return true;		
 	}
 	

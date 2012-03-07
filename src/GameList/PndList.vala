@@ -40,7 +40,7 @@ namespace Data.GameList
 			return new SpawningResult.error("Unable to run pnd '%s' (%s).".printf(game.name, game.id));
 		}
 		
-		public override string get_unique_id(IGameListNode node) {
+		public override string get_unique_name(IGameListNode node) {
 			if (node is GameItem || node.parent == null || node.parent.id == "")
 				return node.id;
 			return "%s/%s".printf(node.parent.id, node.id);
@@ -48,7 +48,6 @@ namespace Data.GameList
 
 		protected override void rescan_init() {
 			init_categories();
-			recreate_root_folder();
 		}
 
 

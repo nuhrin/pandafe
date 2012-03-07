@@ -67,7 +67,14 @@ namespace Data.GameList
 
 			return all;
 		}
-		public GameFolder? get_descendant_folder(string unique_id) {
+		public GameFolder? get_descendant_folder(string unique_name) {
+			foreach(var folder in all_subfolders()) {
+				if (folder.unique_name() == unique_name)
+					return folder;
+			}
+			return null;
+		}
+		public GameFolder? get_descendant_folder_by_id(string unique_id) {
 			foreach(var folder in all_subfolders()) {
 				if (folder.unique_id() == unique_id)
 					return folder;
@@ -84,10 +91,11 @@ namespace Data.GameList
 			return all.concat(child_games());
 		}
 
-		public void rescan_children(bool recursive=false) {
+		public signal void rescanned();
+		public void rescan_children(bool recursive=false, owned ForallFunc<GameFolder>? pre_scan_action=null) {
 			if (children_loaded == false)
 				load_children_yaml();
-			scan_children(recursive);
+			scan_children(recursive, (owned)pre_scan_action);
 		}
 		public void update_cache() {
 			var cache = new GameFolderCache();
@@ -144,7 +152,10 @@ namespace Data.GameList
 			children_loaded = true;
 			return true;
 		}
-		void scan_children(bool recursive) {
+		void scan_children(bool recursive, owned ForallFunc<GameFolder>? pre_scan_action=null) {
+			if (pre_scan_action != null)
+				pre_scan_action(this);
+			
 			ArrayList<GameItem> games;
 			provider.scan_children(this, out _child_folders, out games);
 			// todo: reapply game settings from already loaded games, once thats present
@@ -152,10 +163,11 @@ namespace Data.GameList
 
 			update_cache();
 			children_loaded = true;
-
+			rescanned();
+			
 			if (recursive == true && _child_folders != null) {
 				foreach(var subfolder in _child_folders)
-					subfolder.scan_children(true);
+					subfolder.scan_children(true, (owned)pre_scan_action);
 			}
 		}
 

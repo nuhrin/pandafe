@@ -47,12 +47,10 @@ public class NativePlatform : Platform
 	}
 	protected override bool save_object(Menus.Menu menu) {
 		string? error;
-		if (Data.platforms().save_native_platform(out error) == false) {
+		if (Data.platforms().save_native_platform(out error, f=> menu.message("Scanning category '%s'...".printf(f.unique_name()))) == false) {
 			menu.error(error);
 			return false;
 		}
-		menu.message("Scanning native platform...");
-		provider.rescan();
 		return true;
 	}	
 }

@@ -21,13 +21,15 @@ namespace Data.GameList
 		GameFolder _root;
 
 		public abstract SpawningResult run_game(GameItem game);
-		public abstract string get_unique_id(IGameListNode node);
+		public abstract string get_unique_name(IGameListNode node);
+		public virtual string get_unique_id(IGameListNode node) { return get_unique_name(node); }
 
 
-		public void rescan() {
+		public void rescan(owned ForallFunc<GameFolder>? pre_scan_action=null) {
 			remove_platform_gamelist_cache();
 			rescan_init();
-			root_folder.rescan_children(true);
+			_root = null;
+			root_folder.rescan_children(true, (owned)pre_scan_action);
 		}
 		public void clear_cache() {
 			assert_not_reached();
@@ -40,7 +42,6 @@ namespace Data.GameList
 		}
 
 		protected virtual void rescan_init() { }
-		protected void recreate_root_folder() { _root = create_root_folder(); }
 		
 		protected abstract bool get_children(GameFolder folder, out ArrayList<GameFolder> child_folders, out ArrayList<GameItem> child_games);
 		protected abstract GameFolder create_root_folder();

@@ -14,11 +14,13 @@ namespace Menus.Concrete
 		
 		protected override void populate_items(Gee.List<MenuItem> items) { 
 			items.add(new MenuItem.custom("Edit", null, null, () => {
-				if (ObjectMenu.edit("Platform: " + platform.name, platform) == true)
+				if (ObjectMenu.edit("Platform: " + platform.name, platform) == true) {
 					saved();
+				}
 			}));
 			items.add(new MenuItem.custom("Rescan", null, "Scanning platform folders...", () => {
-				platform.rescan();
+				platform.rescan(f=> this.message("Scanning folder '%s'...".printf(f.unique_name())));
+				refresh(1);
 			}));		
 		}						
 	}

@@ -11,7 +11,7 @@ public class PlatformFolderSelector : PlatformSelector
 	public PlatformFolderSelector(PlatformFolder folder, string id, int16 xpos, int16 ypos) {
 		base.base(id, xpos, ypos);
 		_folder = folder;
-		rebuild_items();
+		rebuild_items(-1);
 	}
 	public PlatformFolderSelector.root(string id, int16 xpos, int16 ypos) {
 		base(id, xpos, ypos);
@@ -37,7 +37,7 @@ public class PlatformFolderSelector : PlatformSelector
 		return false;
 	}
 	
-	protected override void rebuild_items() {
+	protected override void rebuild_items(int selection_index) {
 		items = new ArrayList<PlatformListNode>();
 		if (folder == null) {
 			items.add_all(Data.platforms().get_platform_folder_data().folders);

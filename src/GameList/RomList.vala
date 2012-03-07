@@ -29,8 +29,11 @@ namespace Data.GameList
 			return run_program_with_premount(program, settings, get_full_path(game));
 		}
 
-		public override string get_unique_id(IGameListNode node) {
+		public override string get_unique_name(IGameListNode node) {
 			return get_relative_path(node);
+		}
+		public override string get_unique_id(IGameListNode node) {
+			return get_full_path(node);
 		}
 
 		protected override bool get_children(GameFolder folder, out ArrayList<GameFolder> child_folders, out ArrayList<GameItem> child_games) {

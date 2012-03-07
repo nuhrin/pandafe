@@ -9,6 +9,7 @@ namespace Data.GameList
 		public abstract string name { get; }
 		public abstract string full_name { get; }
 
+		public string unique_name() { return provider.get_unique_name(this); }
 		public string unique_id() { return provider.get_unique_id(this); }
 		public Platform platform() { return provider.platform; }
 	}

@@ -1,5 +1,6 @@
 using Gee;
 using Catapult;
+using Data.GameList;
 using Data.Pnd;
 
 namespace Data.Platforms
@@ -16,8 +17,7 @@ namespace Data.Platforms
 		}
 		
 		public signal void platform_folders_changed();
-		public signal void native_platform_changed();
-		public signal void platform_changed(Platform platform);
+		public signal void platform_rescanned(Platform platform);
 		
 		public Enumerable<Platform> get_all_platforms() {
 			if (all_platforms == null) {
@@ -79,15 +79,17 @@ namespace Data.Platforms
 					catch (Error e) {
 					}
 				}
+				_native_platform.rescanned.connect(() => platform_rescanned(_native_platform));
 			}
 			return _native_platform;
 		}
 		NativePlatform _native_platform;
-		public bool save_native_platform(out string? error) {
+		public bool save_native_platform(out string? error, owned ForallFunc<GameFolder>? pre_scan_action=null) {
 			error = null;
 			try {
-				Data.data_interface().save(get_native_platform(), NATIVE_PLATFORM_ID, "");
-				native_platform_changed();
+				var platform = get_native_platform();
+				Data.data_interface().save(platform, NATIVE_PLATFORM_ID, "");
+				platform.rescan((owned)pre_scan_action);
 				return true;
 			}
 			catch (Error e) {
@@ -105,7 +107,7 @@ namespace Data.Platforms
 			return null;
 		}
 		
-		public bool save_platform(Platform platform, string id, out string? error) {
+		public bool save_platform(Platform platform, string id, out string? error, owned ForallFunc<GameFolder>? pre_scan_action=null) {
 			if (platform.platform_type == PlatformType.NATIVE)
 				GLib.error("NativePlatform instance cannot be saved in this fashion. Use save_native_platform().");
 			error = null;
@@ -134,11 +136,18 @@ namespace Data.Platforms
 				return false;				
 			}
 
-			if (platform_id_hash.has_key(original_id) == true)
+			if (original_id == null) {
+				// newly saved
+				platform.rescanned.connect(() => platform_rescanned(platform));
+			} else if (platform_id_hash.has_key(original_id) == true) {
 				platform_id_hash.unset(original_id);
+			}
+			
 			platform_id_hash[id] = platform;
-			all_platforms = null;
-			platform_changed(platform);
+			all_platforms = null;			
+			
+			// rebuild platform folders
+			platform.rebuild_folders((owned)pre_scan_action);
 			return true;
 		}
 		public bool remove_platform(Platform platform, out string? error) {
@@ -167,8 +176,10 @@ namespace Data.Platforms
 				platforms = load_all(false);
 			} catch(Error e) {
 			}
-			foreach(var platform in platforms)
-				platform_id_hash[platform.id] = platform;		
+			foreach(var platform in platforms) {
+				platform_id_hash[platform.id] = platform;
+				platform.rescanned.connect(() => platform_rescanned(platform));
+			}
 		}
 	}	
 }
