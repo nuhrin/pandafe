@@ -35,9 +35,12 @@ namespace Menus.Concrete
 			});
 			items.add(appearance_field);
 			var platform_folders_field = new PlatformFolderListField.root("folders", "Platforms", null, Data.platforms().get_platform_folder_data().folders);
+			var platform_folders_item_index = items.size;
 			platform_folders_field.changed.connect(() => {
 				string? error;
-				if (Data.platforms().save_platform_folder_data(out error) == false)
+				if (Data.platforms().save_platform_folder_data(out error) == true)
+					refresh(platform_folders_item_index);
+				else
 					this.error(error);
 			});
 			items.add(platform_folders_field);

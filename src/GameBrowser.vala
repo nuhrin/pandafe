@@ -238,15 +238,91 @@ public class GameBrowser : Layers.ScreenLayer
 	}
 	
 	void platform_folders_changed() {
-//~     PlatformFolderData platform_folder_data;
-//~     PlatformFolder? current_platform_folder;
-//~     int current_platform_folder_index;
-//~     Platform? current_platform;
-//~     int current_platform_index;
-//~     string current_filter;
-//~ 	GameFolder? current_folder;
-
-		debug("platform folders changed");
+		if (current_platform_folder == null) {
+			if (current_platform == null) {
+				// at root selector
+				if (platform_folder_data.folders.size > 0) {
+					// ensure PlatformFolderSelector
+					if (selector is PlatformFolderSelector)
+						selector.rebuild();
+					else {
+						var ps = selector as PlatformSelector;
+						if (ps != null) {
+							var platform = ps.selected_platform();
+							change_selector();
+							var pfs = selector as PlatformFolderSelector;
+							if (pfs != null && platform != null)
+								pfs.select_platform(platform);							
+							selector.ensure_selection();
+						} else {
+							change_selector();
+							selector.select_first();
+						}
+					}
+				} else {
+					// ensure PlatformSelector
+					var pfs = selector as PlatformFolderSelector;
+					if (pfs != null) {
+						var platform = pfs.selected_platform();
+						change_selector();
+						var ps = selector as PlatformSelector;
+						if (ps != null && platform != null)
+							ps.select_platform(platform);
+						selector.ensure_selection();
+					} else if (selector is PlatformSelector) {
+						selector.rebuild();
+					} else {
+						change_selector();
+						selector.select_first();
+					}
+				}
+			} else {
+				if (platform_folder_data.folders.size > 0) {
+					// freshly populated platform folder data. look for platform folder with the current platform
+					var folder_with_platform = platform_folder_data.get_folder_with_platform(current_platform);
+					if (folder_with_platform != null) {
+						current_platform_folder = folder_with_platform;
+						current_platform_folder_index = current_platform_folder.folders.size + current_platform_folder.index_of_platform(current_platform);
+					}
+				}
+			}
+			return;
+		}			
+		
+		var existing_platform_folder = current_platform_folder;
+		current_platform_folder = platform_folder_data.get_folder(existing_platform_folder.path());
+		if (current_platform != null) {
+			// does platform folder still have current platform?
+			int found_platform_index = -1;
+			if (current_platform_folder != null)
+				found_platform_index = current_platform_folder.index_of_platform(current_platform);			
+			if (found_platform_index != -1) {
+				// yes
+				current_platform_folder_index = current_platform_folder.folders.size + found_platform_index;
+			} else {
+				// no
+				var folder_with_platform = platform_folder_data.get_folder_with_platform(current_platform);
+				if (folder_with_platform != null) {
+					// different folder has platform. change current platform folder to match
+					current_platform_folder = folder_with_platform;
+					current_platform_folder_index = current_platform_folder.folders.size + current_platform_folder.index_of_platform(current_platform);
+				} else {
+					// no platform folder has the current platform. bail on the platform selector
+					current_platform_folder_index = 0;
+					current_platform = null;
+					current_folder = null;
+					change_selector();
+					selector.ensure_selection();
+				}
+			}			
+		} else {
+			if (current_platform_folder == existing_platform_folder && selector is PlatformFolderSelector) {
+				selector.rebuild();				
+			} else {
+				change_selector();
+				selector.ensure_selection();
+			}			
+		}
 	}
 
 	void platform_rescanned(Platform platform) {

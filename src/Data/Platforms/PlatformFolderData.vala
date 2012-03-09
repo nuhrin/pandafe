@@ -34,9 +34,26 @@ namespace Data.Platforms
 			}
 			return found_folder;
 		}
-//~ 		public PlatformFolder? get_folder_with_platform(Platform platform) {
-//~ 			
-//~ 		}
+		public PlatformFolder? get_folder_with_platform(Platform platform) {
+			foreach(var folder in folders) {
+				var match = find_folder_with_platform(platform, folder);
+				if (match != null)
+					return match;
+			}
+			return null;
+		}
+		PlatformFolder? find_folder_with_platform(Platform platform, PlatformFolder parent) {
+			foreach(var folder_platform in parent.platforms) {
+				if (folder_platform.platform == platform)
+					return parent;
+			}
+			foreach(var folder in parent.folders) {
+				var match = find_folder_with_platform(platform, folder);
+				if (match != null)
+					return match;
+			}
+			return null;
+		}
 		
 		// menus
 		protected void build_menu(MenuBuilder builder) {

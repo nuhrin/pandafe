@@ -29,6 +29,17 @@ namespace Data.Platforms
 		public Gee.List<PlatformFolder> folders { get; set; }
 		public Gee.List<PlatformNode> platforms { get; set; }
 		
+		public int index_of_platform(Platform platform) {
+			int found_platform_index = -1;
+			for(int index=0;index<platforms.size;index++) {
+				if (platforms[index].platform == platform) {
+					found_platform_index = index;
+					break;
+				}
+			}
+			return found_platform_index;
+		}
+		
 		public GameBrowserAppearance? appearance { get; set; }		
 		GameBrowserAppearance get_fallback_appearance() {
 			PlatformFolder? source = _parent;

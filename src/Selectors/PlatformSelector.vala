@@ -32,7 +32,21 @@ public class PlatformSelector : Selector
 	}
 	
 	protected override void rebuild_items(int selection_index) {
+		var platform = (selection_index != -1) ? items[selection_index] : null;
+		var previous_selection_id = (platform != null) ? platform.id : null;		
 		items = Data.platforms().get_all_platforms().to_list();
+		int new_index = -1;
+		if (previous_selection_id != null) {
+			for(int index=0;index<items.size;index++) {
+				var item = items[index];
+				if (item.id == previous_selection_id) {
+					new_index = index;
+					break;
+				}
+			}
+		}
+		if (new_index != -1)
+			select_item(new_index, false);
 	}
 
 	protected override int get_itemcount() { return items.size; }

@@ -38,6 +38,8 @@ public class PlatformFolderSelector : PlatformSelector
 	}
 	
 	protected override void rebuild_items(int selection_index) {
+		var node = (selection_index != -1) ? items[selection_index] : null;
+		var previous_selection_name = (node != null) ? node.name : null;		
 		items = new ArrayList<PlatformListNode>();
 		if (folder == null) {
 			items.add_all(Data.platforms().get_platform_folder_data().folders);
@@ -46,6 +48,18 @@ public class PlatformFolderSelector : PlatformSelector
 		else {
 			items = new Enumerable<PlatformNode>(folder.folders).concat(new Enumerable<PlatformListNode>(folder.platforms)).to_list();
 		}
+		int new_index = -1;
+		if (previous_selection_name != null) {
+			for(int index=0;index<items.size;index++) {
+				var item = items[index];
+				if (item.name == previous_selection_name) {
+					new_index = index;
+					break;
+				}
+			}
+		}
+		if (new_index != -1)
+			select_item(new_index, false);
 	}
 
 	protected override int get_itemcount() { return items.size; }
