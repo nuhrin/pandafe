@@ -14,6 +14,7 @@ public class GameBrowser : Layers.ScreenLayer
 	const int16 SELECTOR_XPOS = 100;
 	const int16 SELECTOR_YPOS = 60;
 	const string SELECTOR_ID = "selector";
+	const string FILTER_LABEL = "filter: ";
 	
 	bool event_loop_done;
 
@@ -108,10 +109,11 @@ public class GameBrowser : Layers.ScreenLayer
 			if (all_games != null) {
 				if (all_games.filter != null)
 					selector.filter(all_games.filter);
+				int index = 0;
 				if (all_games.item_index > 0)
-					selector.select_item(all_games.item_index);
-				else
-					selector.select_first();
+					index = all_games.item_index;
+				if (selector.select_item(index) == false)				
+					selector.ensure_selection();
 			}
 			return true;
 		}
@@ -141,7 +143,7 @@ public class GameBrowser : Layers.ScreenLayer
 		if (item_index < 0)
 			item_index = 0;
 		if (selector.select_item(item_index) == false)
-			selector.update();
+			selector.ensure_selection();
 	}
 	void update_browser_state() {
 		var state = Data.browser_state();
@@ -227,7 +229,7 @@ public class GameBrowser : Layers.ScreenLayer
 		string? right = null;
 		string? active_pattern = selector.get_filter_pattern();
 		if (active_pattern != null)
-			right = "\"%s\"".printf(active_pattern);
+			right = "%s\"%s\"".printf(FILTER_LABEL, active_pattern);
 		status_message.push(null, center, right, false);
 	}	
 	void on_selector_rebuilt(Selector selector) {
@@ -719,12 +721,10 @@ public class GameBrowser : Layers.ScreenLayer
 
 	void filter_selector() {
 		status_message.flush();
-		var entry = new TextEntry("selection_filter", 600, 450, 200, selector.get_filter_pattern(), "[-\\d\\.]", "^-?\\d*(\\.\\d*)?$");
-		//var entry = new IntegerEntry("selection_filter", 600, 450, 200, 43, 5, 100, 25);
-//~ 		entry.text_changed.connect((text) => {
-//~ 			selector.filter(text);
-//~ 			selector.update();
-//~ 		});
+		var label = @interface.game_browser_ui.render_text_selected(FILTER_LABEL);
+		Rect label_rect = {600 - (int16)label.w, 455};
+		blit_surface(label, null, label_rect);
+		var entry = new TextEntry("selection_filter", 600, 450, 200, selector.get_filter_pattern());
 		var new_pattern = entry.run();
 		if (new_pattern != "") {
 			selector.filter(new_pattern);
@@ -733,7 +733,7 @@ public class GameBrowser : Layers.ScreenLayer
 			selector.clear_filter();
 			current_filter = null;
 		}
-		update();
+		selector.rebuild();
 	}
 
 	void toggle_everything() {

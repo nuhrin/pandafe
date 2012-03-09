@@ -54,7 +54,7 @@ public abstract class Selector : Layers.Layer
 
 	protected override void draw() {
 		Rect dest = {xpos, ypos};
-		if (item_count == 0) {
+		if (display_item_count == 0) {
 			blit_surface(ui.render_text("(no items)"), null, dest);
 			return;
 		}
