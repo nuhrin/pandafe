@@ -31,6 +31,22 @@ namespace Data.GameList
 		public string name { get { return _name; } }
 		public string full_name { get { return (_full_name != null) ? _full_name : _name; } }
 
+		public bool is_favorite 
+		{
+			get { return Data.favorites().contains(this); }
+			set {
+				var favorites = Data.favorites();
+				if (value == false) {
+					if (favorites.contains(this) == false)
+						return;
+					favorites.remove(this);
+				} else {
+					favorites.add(this);
+				}
+				Data.save_favorites();
+			}
+		}
+
 		public SpawningResult run() { return provider.run_game(this); }
 
 		public Program? get_program(out ProgramSettings? settings=null) {
@@ -67,7 +83,6 @@ namespace Data.GameList
 			return mapping;
 		}
 		protected override bool apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
-			//var timer = new TimerBlock("GameItem apply_yaml_node: ");
 			var mapping = node as Yaml.MappingNode;
 			if (mapping == null)
 				return false;

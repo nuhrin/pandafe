@@ -27,12 +27,13 @@ namespace Data
 				ps.filter = filter;
 			platform_state[platform.id] = ps;
 		}
-		public void apply_all_games_state(bool active, int item_index, string? filter) {
+		public void apply_all_games_state(bool active, int item_index, string? filter, bool favorites_only) {
 			if (all_games == null)
 				all_games = new AllGamesState();
 			all_games.active = active;
 			all_games.item_index = item_index;
 			all_games.filter = filter;
+			all_games.favorites_only = favorites_only;
 		}
 		public string? get_current_platform_folder_id() {
 			if (current_platform == null || platform_state.has_key(current_platform) == false)
@@ -54,6 +55,7 @@ namespace Data
 		public bool active { get; set; }
 		public int item_index { get; set; }
 		public string? filter { get; set; }
+		public bool favorites_only { get; set; }
 	}
 	public class GameBrowserPlatformState : Object {
 		public string folder_id { get; set; }

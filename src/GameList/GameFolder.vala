@@ -158,7 +158,8 @@ namespace Data.GameList
 			
 			ArrayList<GameItem> games;
 			provider.scan_children(this, out _child_folders, out games);
-			// todo: reapply game settings from already loaded games, once thats present
+			
+			// note: any transient GameItem settings (only in cache) need to be remapped here to the newly scanned items
 			_child_games = games;
 
 			update_cache();

@@ -112,7 +112,11 @@ public class GameBrowser : Layers.ScreenLayer
 				int index = 0;
 				if (all_games.item_index > 0)
 					index = all_games.item_index;
-				if (selector.select_item(index) == false)				
+				if (everything_selector != null) {
+					if (all_games.favorites_only == true)
+						everything_selector.show_favorites();
+				}
+				if (selector.select_item(index) == false)			
 					selector.ensure_selection();
 			}
 			return true;
@@ -153,9 +157,9 @@ public class GameBrowser : Layers.ScreenLayer
 		if (current_platform != null)
 			state.apply_platform_state(current_platform, (current_folder != null) ? current_folder.unique_name() : null, selector.selected_index, selector.get_filter_pattern());
 		if (everything_selector != null)
-			state.apply_all_games_state(everything_active, everything_selector.selected_index, everything_selector.get_filter_pattern());
+			state.apply_all_games_state(everything_active, everything_selector.selected_index, everything_selector.get_filter_pattern(), everything_selector.favorites_only);
 		else
-			state.apply_all_games_state(false, 0, null);
+			state.apply_all_games_state(false, 0, null, false);
 	}
 	
 	//
@@ -165,7 +169,7 @@ public class GameBrowser : Layers.ScreenLayer
 		string center = null;
 		string right = null;
 		if (everything_active == true) {
-			left = "All Games";
+			left = (everything_selector.favorites_only == true) ? "Favorites" : "All Games";
 			var game = everything_selector.selected_game();
 			if (game != null) {
 				center = game.platform().name;
@@ -448,6 +452,7 @@ public class GameBrowser : Layers.ScreenLayer
 				case KeySymbol.PAGEDOWN: // pandora X
 					select_last();
 					break;
+				case KeySymbol.COMMA:
 				case KeySymbol.SLASH:
 					filter_selector();
 					break;
@@ -462,6 +467,15 @@ public class GameBrowser : Layers.ScreenLayer
 					break;
 				case KeySymbol.ESCAPE:
 					this.event_loop_done = true;
+					break;
+				case KeySymbol.QUOTE:
+					if (everything_active == true) {
+						if (everything_selector.favorites_only == true)
+							everything_selector.show_all();
+						else
+							everything_selector.show_favorites();
+						set_header();
+					}
 					break;
 				default:
 					break;

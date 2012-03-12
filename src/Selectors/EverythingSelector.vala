@@ -7,6 +7,7 @@ public class EverythingSelector : Selector {
 
 	public EverythingSelector(string id, int16 xpos, int16 ypos) {
 		base(id, xpos, ypos);
+		Data.favorites().changed.connect(() => favorites_changed());
 	}
 
 	Gee.List<GameItem> items {
@@ -15,8 +16,10 @@ public class EverythingSelector : Selector {
 				_items = new ArrayList<GameItem>();
 				var platforms = Data.platforms().get_all_platforms();
 				foreach(var platform in platforms) {
-					var platform_games = platform.get_root_folder().all_games().to_list();
-					_items.add_all(platform_games);
+					var platform_games = platform.get_root_folder().all_games();
+					if (favorites_only == true)
+						platform_games = platform_games.where(g=>g.is_favorite == true);					
+					_items.add_all(platform_games.to_list());
 				}
 				_items.sort();
 			}
@@ -24,6 +27,24 @@ public class EverythingSelector : Selector {
 		}
 	}
 	Gee.List<GameItem> _items;
+	public bool favorites_only { get; private set; }
+	
+	public void show_favorites() {
+		if (favorites_only == true)
+			return;
+		favorites_only = true;
+		rebuild();
+	}
+	public void show_all() {
+		if (favorites_only == false)
+			return;
+		favorites_only = false;
+		rebuild();
+	}
+	void favorites_changed() {
+		if (favorites_only == true)
+			rebuild();
+	}
 
 	public GameItem? selected_game() {
 		if (selected_index < 0)

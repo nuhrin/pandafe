@@ -36,6 +36,13 @@ namespace Menus.Concrete
 				items.add(settings_menu_item);
 			}
 			
+			var favorites_index = items.size;
+			var is_favorite = game.is_favorite;
+			items.add(new MenuItem.custom("Favorite: " + ((is_favorite) ? "Unmark" : "Mark"), null, null, ()=> {
+				game.is_favorite = !is_favorite;
+				refresh(favorites_index);
+			}));			
+			
 			if (game.parent != null) {
 				var menu = new GameFolderMenu(game.parent);
 				items.add(menu);

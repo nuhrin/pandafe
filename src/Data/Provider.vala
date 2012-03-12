@@ -22,8 +22,11 @@ namespace Data
 
 	public MountSet pnd_mountset() { return Provider.instance().get_mountset(); }
 
-	public GameSettings? get_game_settings(GameItem item) { return Provider.instance().get_game_settings(item); }
-	public bool save_game_settings(GameSettings settings, GameItem item) { return Provider.instance().save_game_settings(settings, item.id); }
+	public GameSettings? get_game_settings(GameItem game) { return Provider.instance().get_game_settings(game); }
+	public bool save_game_settings(GameSettings settings, GameItem game) { return Provider.instance().save_game_settings(settings, game.id); }
+
+	public Favorites favorites() { return Provider.instance().get_favorites(); }
+	public bool save_favorites() { return Provider.instance().save_favorites(); }
 
 	public class Provider
 	{
@@ -152,6 +155,32 @@ namespace Data
 			catch (Error e) {
 				debug("Error while saving game settings for '%s': %s", id, e.message);
 			}			
+			return false;
+		}
+		
+		public Favorites get_favorites() {
+			if (_favorites == null) {
+				try {
+					_favorites = data_interface.load<Favorites>(Favorites.ENTITY_ID, "");
+				}
+				catch (Error e) {
+					if ((e is RuntimeError.FILE) == false)
+						debug("Error while retrieving favorites: %s", e.message);
+					_favorites = new Favorites();
+				}				
+			}
+			return _favorites;
+		}
+		Favorites _favorites;
+		public bool save_favorites() {
+			var favorties = get_favorites();
+			try {
+				data_interface.save(favorties, Favorites.ENTITY_ID, "");
+				return true;
+			}
+			catch (Error e) {
+				debug("Error while saving favorites: %s", e.message);
+			}
 			return false;
 		}
 	}
