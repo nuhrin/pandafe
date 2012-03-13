@@ -111,6 +111,7 @@ pandafe_VALASOURCES = \
 	Layers/Controls/ValueSelectorBase.vala \
 	Layers/GameBrowser/HeaderLayer.vala \
 	Layers/GameBrowser/MenuOverlay.vala \
+	Layers/GameBrowser/PlatformChooser.vala \
 	Layers/GameBrowser/StatusMessageLayer.vala \
 	Layers/MenuBrowser/ColorDisplayLayer.vala \
 	Layers/MenuBrowser/MenuHeaderLayer.vala \

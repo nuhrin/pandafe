@@ -510,7 +510,8 @@ public class GameBrowser : Layers.ScreenLayer
 				drain_events();
 				return;
 			}
-			select_next_platform();
+			//select_next_platform();
+			choose_platform();
 			drain_events();
 			return;
 		}
@@ -550,18 +551,6 @@ public class GameBrowser : Layers.ScreenLayer
 	void select_last() {
 		selector.select_last();
 	}
-	void select_next_platform() {
-		if (everything_active == true || current_platform == null)
-			return;
-//~ 		update_browser_state();
-//~ 		current_platform_index++;
-//~ 		if (current_platform_index >= platforms.size)
-//~ 			current_platform_index = 0;
-//~ 		current_platform = platforms[current_platform_index];
-//~ 		Data.browser_state().current_platform = current_platform.id;
-//~ 		apply_platform_state();
-//~ 		selector.update();
-	}
 	void select_previous_platform() {
 		if (everything_active == true || current_platform == null)
 			return;
@@ -573,7 +562,7 @@ public class GameBrowser : Layers.ScreenLayer
 //~ 		Data.browser_state().current_platform = current_platform.id;
 //~ 		apply_platform_state();
 //~ 		selector.update();
-	}
+	} 
 	void select_next_starting_with(char c) {
 		if (last_pressed_alphanumeric == c) {
 			last_pressed_alphanumeric_repeat_count++;
@@ -773,6 +762,34 @@ public class GameBrowser : Layers.ScreenLayer
 				selector.update();			
 			}
 		}
+	}
+
+	// commands: choosers
+	void choose_platform() {		
+		var new_platform = new PlatformChooser("platform_chooser").run(current_platform);
+		if (new_platform == null || new_platform == current_platform)
+			return;
+		
+		if (current_platform != null && current_folder != null) {
+			Data.browser_state().apply_platform_state(current_platform, current_folder.unique_name(),
+					selector.selected_index, selector.get_filter_pattern());
+		}
+				
+		current_platform_folder = null;
+		current_platform_folder_index = 0;
+		if (platform_folder_data.folders.size > 0) {
+			current_platform_folder = platform_folder_data.get_folder_with_platform(new_platform);
+			if (current_platform_folder != null) {
+				int found_platform_index = current_platform_folder.index_of_platform(new_platform);			
+				if (found_platform_index != -1)				
+					current_platform_folder_index = current_platform_folder.folders.size + found_platform_index;
+			} 
+		}
+		
+		current_platform = new_platform;
+		Data.browser_state().current_platform = current_platform.id;
+ 		apply_platform_state();
+ 		selector.update();
 	}
 
 

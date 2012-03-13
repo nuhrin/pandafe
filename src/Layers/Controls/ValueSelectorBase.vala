@@ -101,15 +101,7 @@ namespace Layers.Controls
 		}
 				
 		public uint run(uchar screen_alpha=128, uint32 rgb_color=0) {
-			if (items.size < 2) {
-				if (can_select_single_item == false)
-					GLib.error("ValueSelector '%s' has too few items (%d). At least two are required for selection to make sense.", id, items.size);
-				else if (items.size == 0)
-					GLib.error("Value selector has no values.");
-			}
-				
-			ensure_surface();
-			update_item_name((int)_selected_index, true);
+			ensure_selection();	
 			
 			@interface.push_layer(this, screen_alpha, rgb_color);
 			drain_events();
@@ -121,6 +113,26 @@ namespace Layers.Controls
 			@interface.pop_layer();
 			
 			return _selected_index;
+		}
+		public uint run_no_push() {
+			ensure_selection();
+			drain_events();
+			while(event_loop_done == false) {
+				process_events();
+				@interface.execute_idle_loop_work();
+			}
+			drain_events();
+			return _selected_index;
+		}
+		public void ensure_selection() {
+			if (items.size < 2) {
+				if (can_select_single_item == false)
+					GLib.error("ValueSelector '%s' has too few items (%d). At least two are required for selection to make sense.", id, items.size);
+				else if (items.size == 0)
+					GLib.error("Value selector has no values.");
+			}
+			ensure_surface();
+			update_item_name((int)_selected_index, true);			
 		}
 		
 		protected abstract string get_item_name(int index);
