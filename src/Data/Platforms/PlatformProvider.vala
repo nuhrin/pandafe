@@ -18,6 +18,7 @@ namespace Data.Platforms
 		
 		public signal void platform_folders_changed();
 		public signal void platform_rescanned(Platform platform);
+		public signal void platform_folder_scanned(GameFolder folder);
 		
 		public Enumerable<Platform> get_all_platforms() {
 			if (all_platforms == null) {
@@ -80,6 +81,7 @@ namespace Data.Platforms
 					}
 				}
 				_native_platform.rescanned.connect(() => platform_rescanned(_native_platform));
+				_native_platform.folder_scanned.connect(folder => platform_folder_scanned(folder));
 			}
 			return _native_platform;
 		}
@@ -139,12 +141,13 @@ namespace Data.Platforms
 			if (original_id == null) {
 				// newly saved
 				platform.rescanned.connect(() => platform_rescanned(platform));
+				platform.folder_scanned.connect(folder => platform_folder_scanned(folder));
 			} else if (platform_id_hash.has_key(original_id) == true) {
 				platform_id_hash.unset(original_id);
 			}
 			
 			platform_id_hash[id] = platform;
-			all_platforms = null;			
+			all_platforms = null;
 			
 			// rebuild platform folders
 			platform.rebuild_folders((owned)pre_scan_action);
@@ -179,6 +182,7 @@ namespace Data.Platforms
 			foreach(var platform in platforms) {
 				platform_id_hash[platform.id] = platform;
 				platform.rescanned.connect(() => platform_rescanned(platform));
+				platform.folder_scanned.connect(folder => platform_folder_scanned(folder));
 			}
 		}
 	}	

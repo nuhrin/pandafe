@@ -40,16 +40,16 @@ namespace Layers.GameBrowser
 				
 			var sm = status_message_stack.peek_head();
 			Rect rect = {0, 0};
-			if (sm.left != null) {
+			if (sm.left != null && sm.left != "") {
 				blit_surface(ui.render_text_selected_fast(sm.left), null, rect);
 			}
 			Surface rendered_message;
-			if (sm.center != null) {
+			if (sm.center != null && sm.center != "") {
 				rendered_message = ui.render_text_selected_fast(sm.center);
 				rect.x = (int16)(surface.w/2 - rendered_message.w/2);
 				blit_surface(rendered_message, null, rect);
 			}
-			if (sm.right != null) {
+			if (sm.right != null && sm.right != "") {
 				rendered_message = ui.render_text_selected_fast(sm.right);
 				rect.x = (int16)(surface.w - rendered_message.w);
 				blit_surface(rendered_message, null, rect);

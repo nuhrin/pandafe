@@ -44,13 +44,15 @@ public class GameBrowser : Layers.ScreenLayer
 
 	public void run() {
 		platform_folder_data = Data.platforms().get_platform_folder_data();
-		initialize_from_browser_state();
-		@interface.push_screen_layer(this, false);
 		ui.colors_updated.connect(update_colors);
 		ui.font_updated.connect(update_font);
 		var pp = Data.platforms();
 		pp.platform_rescanned.connect((p) => platform_rescanned(p));
 		pp.platform_folders_changed.connect(() => platform_folders_changed());
+		pp.platform_folder_scanned.connect((f) => game_folder_scanned(f));
+
+		@interface.push_screen_layer(this);
+		initialize_from_browser_state();
 		flip();
 		Key.enable_unicode(1);
         while(event_loop_done == false) {
@@ -188,6 +190,9 @@ public class GameBrowser : Layers.ScreenLayer
 		header.set_text(left, center, right, false);
 	}
 	void change_selector() {
+		clear();
+		set_header();
+		
 		Selector new_selector = null;
 		if (this.everything_active == true) {
 			if (everything_selector == null) {
@@ -219,9 +224,7 @@ public class GameBrowser : Layers.ScreenLayer
 		else
 			replace_layer(SELECTOR_ID, new_selector);
 		
-		this.selector = new_selector;
-		clear();
-		set_header();
+		this.selector = new_selector;		
 	}
 	void on_selector_changed() {
 		if (selector is PlatformFolderSelector)
@@ -242,7 +245,12 @@ public class GameBrowser : Layers.ScreenLayer
 		selector.ensure_selection(false);
 		update();
 	}
-	
+	void game_folder_scanned(GameFolder folder) {
+		if (@interface.peek_layer() != null)
+			return; // another layer has focus, don't bother reporting scan
+		status_message.flush(false);
+		status_message.push("Scanning", folder.platform().name, folder.unique_name());
+	}
 	void platform_folders_changed() {
 		if (current_platform_folder == null) {
 			if (current_platform == null) {
@@ -330,7 +338,6 @@ public class GameBrowser : Layers.ScreenLayer
 			}			
 		}
 	}
-
 	void platform_rescanned(Platform platform) {
 		if (current_platform != null && current_platform == platform && current_folder != null) {
 			var existing_folder = current_folder;

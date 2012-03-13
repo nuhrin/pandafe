@@ -77,7 +77,8 @@ public class Platform : NamedEntity, MenuObject
 		rescanned();
 	}
 	public signal void rescanned();
-
+	public signal void folder_scanned(GameFolder folder);
+	
 	protected GameListProvider provider {
 		get {
 			if (_provider == null)

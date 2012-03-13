@@ -155,10 +155,11 @@ namespace Data.GameList
 		void scan_children(bool recursive, owned ForallFunc<GameFolder>? pre_scan_action=null) {
 			if (pre_scan_action != null)
 				pre_scan_action(this);
+			platform().folder_scanned(this);
 			
 			ArrayList<GameItem> games;
 			provider.scan_children(this, out _child_folders, out games);
-			
+
 			// note: any transient GameItem settings (only in cache) need to be remapped here to the newly scanned items
 			_child_games = games;
 
