@@ -20,7 +20,11 @@ namespace Layers.GameBrowser
 		}
 		
 		public Platform? run(Platform? current_platform, uchar screen_alpha=128, uint32 rgb_color=0) {
-			var platforms = Data.platforms().get_all_platforms().to_list();
+			var folder_data = Data.platforms().get_platform_folder_data();
+			var platforms = (folder_data.folders.size > 0)
+				? folder_data.get_all_platforms().to_list()
+				: Data.platforms().get_all_platforms().to_list();
+			
 			selector = get_platform_selector(platforms, current_platform);
 			
 			@interface.push_layer(this, screen_alpha, rgb_color);

@@ -10,16 +10,42 @@ namespace Data.Platforms
 	{
 		construct {
 			folders = new ArrayList<PlatformFolder>();
+			platforms = new ArrayList<PlatformNode>();
+			platforms.add(new PlatformNode(Data.platforms().get_native_platform(), null));
 		}
 		
 		public Gee.List<PlatformFolder> folders { get; set; }
+		public Gee.List<PlatformNode> platforms { get; private set; }
 		
 		public Enumerable<PlatformFolder> get_all_folders() {
-			var all_folders = new Enumerable<PlatformFolder>(folders);
+			var all_folders = new ArrayList<PlatformFolder>();
 			foreach(var folder in folders)
-				all_folders = all_folders.concat(folder.get_descendant_folders());
-			return all_folders;
+				get_all_folders_add_folder(folder, all_folders);
+			return new Enumerable<PlatformFolder>(all_folders);
 		}
+			void get_all_folders_add_folder(PlatformFolder folder, Gee.List<PlatformFolder> list) {
+				list.add(folder);
+				foreach(var child in folder.folders)
+					get_all_folders_add_folder(child, list);
+			}
+		public Enumerable<Platform> get_all_platforms(PlatformFolder? root_folder=null) {
+			HashSet<Platform> all_platforms = new HashSet<Platform>();
+			if (root_folder != null) {
+				get_all_platforms_add_folder_platforms(root_folder, all_platforms);
+			} else {
+				foreach(var platform_node in platforms)
+					all_platforms.add(platform_node.platform);
+				foreach(var folder in folders)
+					get_all_platforms_add_folder_platforms(folder, all_platforms);				
+			}
+			return new Enumerable<Platform>(all_platforms).sort((a,b) => a.name.casefold().collate(b.name.casefold()));
+		}
+			void get_all_platforms_add_folder_platforms(PlatformFolder folder, HashSet<Platform> all_platforms) {
+				foreach(var platform_node in folder.platforms)
+					all_platforms.add(platform_node.platform);
+				foreach(var child in folder.folders)
+					get_all_platforms_add_folder_platforms(child, all_platforms);
+			}
 		
 		public PlatformFolder? get_folder(string path) {
 			string[] parts = path.split("/");

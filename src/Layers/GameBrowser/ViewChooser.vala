@@ -46,7 +46,6 @@ namespace Layers.GameBrowser
 			
 			var folders = Data.platforms().get_platform_folder_data().get_all_folders()
 				.select<GameBrowserViewData>(folder => new GameBrowserViewData.folder(folder))
-				.sort((a,b) => Utility.strcasecmp(a.name, b.name))
 				.to_list();
 			data.add_all(folders);
 			return data;
