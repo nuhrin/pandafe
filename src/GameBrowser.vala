@@ -171,13 +171,15 @@ public class GameBrowser : Layers.ScreenLayer
 		string left = null;
 		string center = null;
 		string right = null;
-		if (everything_active == true && everything_selector != null) {
-			left = everything_selector.view_name;
-			var game = everything_selector.selected_game();
-			if (game != null) {
-				center = game.platform().name;
-				if (game.parent.parent != null)
-					right = game.parent.unique_name().strip();
+		if (everything_active == true) {
+			if (everything_selector != null) {
+				left = everything_selector.view_name;
+				var game = everything_selector.selected_game();
+				if (game != null) {
+					center = game.platform().name;
+					if (game.parent.parent != null)
+						right = game.parent.unique_name().strip();
+				}
 			}
 		}
 		else if (current_platform != null) {
@@ -728,11 +730,16 @@ public class GameBrowser : Layers.ScreenLayer
 		if (everything_active == false)
 			existing_selector = selector;
 		
-		everything_active = true;
 		if (everything_selector == null) {
 			Data.browser_state().apply_all_games_state(true, 0, null, new_view);
 			apply_all_games_state();
 		} else {
+			if (everything_active == false) {
+				everything_active = true;
+				existing_selector = selector;
+				change_selector();
+				selector.update();
+			}
 			current_view_data = new_view;
 			everything_selector.change_view(current_view_data);
 		}				
