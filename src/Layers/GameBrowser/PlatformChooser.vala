@@ -16,7 +16,7 @@ namespace Layers.GameBrowser
 		public PlatformChooser(string id) {
 			base(id);
 			header = add_layer(new MenuHeaderLayer(id+"_header")) as MenuHeaderLayer;
-			header.set_text(null, "Platform Chooser", null, false);
+			header.set_text(null, "Choose Platform", null, false);
 		}
 		
 		public Platform? run(Platform? current_platform, uchar screen_alpha=128, uint32 rgb_color=0) {
@@ -32,6 +32,10 @@ namespace Layers.GameBrowser
 			return platforms[(int)selected_index];
 		}
 		
+		protected override void draw() {
+			draw_rectangle_outline(header.xpos-1, header.ypos-1, (int16)header.width + 2, (int16)header.height + 2, @interface.white_color);
+		}
+
 		ValueSelector<Platform> get_platform_selector(Gee.List<Platform> platforms, Platform? current_platform) {
 			int max_chars = SELECTOR_MIN_CHAR_WIDTH;
 			int found_index=-1;
@@ -59,11 +63,5 @@ namespace Layers.GameBrowser
 			selector.ensure_selection();
 			return selector;
 		}
-		
-		
-		protected override void draw() {
-			draw_rectangle_outline(header.xpos-1, header.ypos-1, (int16)header.width + 2, (int16)header.height + 2, @interface.white_color);
-		}
-		
 	}
 }

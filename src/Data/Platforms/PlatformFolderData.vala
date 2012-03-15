@@ -14,6 +14,13 @@ namespace Data.Platforms
 		
 		public Gee.List<PlatformFolder> folders { get; set; }
 		
+		public Enumerable<PlatformFolder> get_all_folders() {
+			var all_folders = new Enumerable<PlatformFolder>(folders);
+			foreach(var folder in folders)
+				all_folders = all_folders.concat(folder.get_descendant_folders());
+			return all_folders;
+		}
+		
 		public PlatformFolder? get_folder(string path) {
 			string[] parts = path.split("/");
 			if (parts.length == 0)

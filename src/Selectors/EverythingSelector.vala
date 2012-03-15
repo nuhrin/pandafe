@@ -1,48 +1,40 @@
 using Gee;
 using SDL;
 using SDLTTF;
+using Catapult;
+using Data;
 using Data.GameList;
 
 public class EverythingSelector : Selector {
 
-	public EverythingSelector(string id, int16 xpos, int16 ypos) {
-		base(id, xpos, ypos);
+	GameBrowserViewData view;
+	public EverythingSelector(string id, int16 xpos, int16 ypos, GameBrowserViewData? view) {
+		base(id, xpos, ypos);		
+		this.view = view ?? new GameBrowserViewData(GameBrowserViewType.ALL_GAMES);
 		Data.favorites().changed.connect(() => favorites_changed());
 	}
 
 	Gee.List<GameItem> items {
 		get {
 			if (_items == null) {
-				_items = new ArrayList<GameItem>();
-				var platforms = Data.platforms().get_all_platforms();
-				foreach(var platform in platforms) {
-					var platform_games = platform.get_root_folder().all_games();
-					if (favorites_only == true)
-						platform_games = platform_games.where(g=>g.is_favorite == true);					
-					_items.add_all(platform_games.to_list());
-				}
+				_items = get_view_games(view);
 				_items.sort();
 			}
 			return _items;
 		}
 	}
 	Gee.List<GameItem> _items;
-	public bool favorites_only { get; private set; }
 	
-	public void show_favorites() {
-		if (favorites_only == true)
+	public unowned string view_name { get { return view.name; } }
+	
+	public void change_view(GameBrowserViewData view) {
+		if (this.view.equals(view) == true)
 			return;
-		favorites_only = true;
-		rebuild();
-	}
-	public void show_all() {
-		if (favorites_only == false)
-			return;
-		favorites_only = false;
+		this.view = view;
 		rebuild();
 	}
 	void favorites_changed() {
-		if (favorites_only == true)
+		if (view.view_type == GameBrowserViewType.FAVORITES)
 			rebuild();
 	}
 
@@ -69,12 +61,36 @@ public class EverythingSelector : Selector {
 		if (new_index != -1)
 			select_item(new_index, false);
 	}
-
 	protected override int get_itemcount() { return items.size; }
 	protected override string get_item_name(int index) {
 		return items[index].name;
 	}
 	protected override string get_item_full_name(int index) {
 		return items[index].full_name;
+	}
+	
+	Gee.List<GameItem> get_view_games(GameBrowserViewData view) {
+		var games = new ArrayList<GameItem>();
+		var platforms = Enumerable.empty<Platform>();
+		switch (view.view_type) {
+			case GameBrowserViewType.FAVORITES:
+			case GameBrowserViewType.ALL_GAMES:
+				platforms = Data.platforms().get_all_platforms();
+				break;
+			case GameBrowserViewType.PLATFORM_FOLDER_GAMES:
+				if (view.platform_folder != null)
+					platforms = view.platform_folder.get_all_platforms();
+				break;
+			default:
+				break;
+		}
+		
+		foreach(var platform in platforms) {
+			var platform_games = platform.get_root_folder().all_games();
+			if (view.view_type == GameBrowserViewType.FAVORITES)
+				platform_games = platform_games.where(g=>g.is_favorite == true);
+			games.add_all(platform_games.to_list());
+		}	
+		return games;
 	}
 }

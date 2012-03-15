@@ -28,6 +28,7 @@ pandafe_VALASOURCES = \
 	Data/Favorites.vala \
 	Data/GameBrowserAppearance.vala \
 	Data/GameBrowserState.vala \
+	Data/GameBrowserViewData.vala \
 	Data/GameSettings.vala \
 	Data/Options/FlagOption.vala \
 	Data/Options/IntegerOption.vala \
@@ -113,6 +114,7 @@ pandafe_VALASOURCES = \
 	Layers/GameBrowser/MenuOverlay.vala \
 	Layers/GameBrowser/PlatformChooser.vala \
 	Layers/GameBrowser/StatusMessageLayer.vala \
+	Layers/GameBrowser/ViewChooser.vala \
 	Layers/MenuBrowser/ColorDisplayLayer.vala \
 	Layers/MenuBrowser/MenuHeaderLayer.vala \
 	Layers/MenuBrowser/MenuMessageLayer.vala \

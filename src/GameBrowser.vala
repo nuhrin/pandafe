@@ -26,6 +26,7 @@ public class GameBrowser : Layers.ScreenLayer
     Selector existing_selector;
     EverythingSelector everything_selector;
     bool everything_active;
+    GameBrowserViewData? current_view_data;
     PlatformFolderData platform_folder_data;
     PlatformFolder? current_platform_folder;
     int current_platform_folder_index;
@@ -84,6 +85,7 @@ public class GameBrowser : Layers.ScreenLayer
 	// browser state
 	void initialize_from_browser_state() {
 		var state = Data.browser_state();
+		current_view_data = null;
 		current_platform_folder = null;
 		current_platform = null;
 		if (state.current_platform_folder != null)
@@ -104,23 +106,22 @@ public class GameBrowser : Layers.ScreenLayer
 	}
 	bool apply_all_games_state(bool active=false) {
 		var all_games = Data.browser_state().all_games;
+		if (all_games  == null)
+			return false;
+			
+		current_view_data = all_games.get_view();
 
-		if (all_games != null && (active == true || all_games.active == true)) {
+		if (active == true || all_games.active == true) {
 			everything_active = true;
 			change_selector();
-			if (all_games != null) {
-				if (all_games.filter != null)
-					selector.filter(all_games.filter);
-				int index = 0;
-				if (all_games.item_index > 0)
-					index = all_games.item_index;
-				if (everything_selector != null) {
-					if (all_games.favorites_only == true)
-						everything_selector.show_favorites();
-				}
-				if (selector.select_item(index) == false)			
-					selector.ensure_selection();
-			}
+			
+			if (all_games.filter != null)
+				selector.filter(all_games.filter);
+			int index = 0;
+			if (all_games.item_index > 0)
+				index = all_games.item_index;
+			if (selector.select_item(index) == false)
+				selector.ensure_selection();		
 			return true;
 		}
 		return false;
@@ -132,7 +133,7 @@ public class GameBrowser : Layers.ScreenLayer
 		} else {
 			current_folder = current_platform.get_folder(state.get_current_platform_folder_id() ?? "");
 			if (current_folder == null)
-				current_folder = current_platform.get_root_folder();			
+				current_folder = current_platform.get_root_folder();
 		}
 		change_selector();
 		int item_index = -1;
@@ -159,9 +160,9 @@ public class GameBrowser : Layers.ScreenLayer
 		if (current_platform != null)
 			state.apply_platform_state(current_platform, (current_folder != null) ? current_folder.unique_name() : null, selector.selected_index, selector.get_filter_pattern());
 		if (everything_selector != null)
-			state.apply_all_games_state(everything_active, everything_selector.selected_index, everything_selector.get_filter_pattern(), everything_selector.favorites_only);
+			state.apply_all_games_state(everything_active, everything_selector.selected_index, everything_selector.get_filter_pattern(), current_view_data);
 		else
-			state.apply_all_games_state(false, 0, null, false);
+			state.apply_all_games_state(false, 0, null, null);
 	}
 	
 	//
@@ -170,8 +171,8 @@ public class GameBrowser : Layers.ScreenLayer
 		string left = null;
 		string center = null;
 		string right = null;
-		if (everything_active == true) {
-			left = (everything_selector.favorites_only == true) ? "Favorites" : "All Games";
+		if (everything_active == true && everything_selector != null) {
+			left = everything_selector.view_name;
 			var game = everything_selector.selected_game();
 			if (game != null) {
 				center = game.platform().name;
@@ -196,7 +197,7 @@ public class GameBrowser : Layers.ScreenLayer
 		Selector new_selector = null;
 		if (this.everything_active == true) {
 			if (everything_selector == null) {
-				everything_selector = new EverythingSelector(SELECTOR_ID, SELECTOR_XPOS, SELECTOR_YPOS);
+				everything_selector = new EverythingSelector(SELECTOR_ID, SELECTOR_XPOS, SELECTOR_YPOS, current_view_data);
 				everything_selector.changed.connect(() => on_selector_changed());
 				everything_selector.rebuilt.connect(() => on_selector_rebuilt(everything_selector));
 			}
@@ -558,18 +559,6 @@ public class GameBrowser : Layers.ScreenLayer
 	void select_last() {
 		selector.select_last();
 	}
-	void select_previous_platform() {
-		if (everything_active == true || current_platform == null)
-			return;
-//~ 		update_browser_state();
-//~ 		current_platform_index--;
-//~ 		if (current_platform_index < 0)
-//~ 			current_platform_index = platforms.size - 1;
-//~ 		current_platform = platforms[current_platform_index];
-//~ 		Data.browser_state().current_platform = current_platform.id;
-//~ 		apply_platform_state();
-//~ 		selector.update();
-	} 
 	void select_next_starting_with(char c) {
 		if (last_pressed_alphanumeric == c) {
 			last_pressed_alphanumeric_repeat_count++;
@@ -771,11 +760,55 @@ public class GameBrowser : Layers.ScreenLayer
 		}
 	}
 
+	//
 	// commands: choosers
-	void choose_platform() {		
-		var new_platform = new PlatformChooser("platform_chooser").run(current_platform);
-		if (new_platform == null || new_platform == current_platform)
+	void choose_view() {
+		var new_view = new ViewChooser("view_chooser").run(current_view_data);
+		if (new_view == null || new_view == current_view_data || new_view.equals(current_view_data) == true)
 			return;
+		
+		if (new_view.view_type == GameBrowserViewType.BROWSER) {
+			current_view_data = null;
+			if (everything_active == false)
+				return;
+			everything_active = false;
+			if (existing_selector == null) {
+				apply_platform_state();
+			} else {
+				clear();
+				selector = existing_selector;
+				replace_layer(SELECTOR_ID, selector);
+				set_header();
+				selector.update();
+			}
+			return;
+		}
+		
+		if (everything_active == false)
+			existing_selector = selector;
+		
+		everything_active = true;
+		if (everything_selector == null) {
+			Data.browser_state().apply_all_games_state(true, 0, null, new_view);
+			apply_all_games_state();
+		} else {
+			current_view_data = new_view;
+			everything_selector.change_view(current_view_data);
+		}				
+	}
+	void choose_platform() {
+		var active_platform = current_platform;
+		if (everything_active == true && everything_selector != null) {
+			var selected_game = everything_selector.selected_game();
+			if (selected_game != null)
+				active_platform = selected_game.platform();
+		}
+			
+		var new_platform = new PlatformChooser("platform_chooser").run(active_platform);
+		if (new_platform == null || (new_platform == active_platform && everything_active == false))
+			return;		
+		
+		everything_active = false;		
 		
 		if (current_platform != null && current_folder != null) {
 			Data.browser_state().apply_platform_state(current_platform, current_folder.unique_name(),
@@ -794,7 +827,7 @@ public class GameBrowser : Layers.ScreenLayer
 		}
 		
 		current_platform = new_platform;
-		Data.browser_state().current_platform = current_platform.id;
+		Data.browser_state().current_platform = current_platform.id;		
  		apply_platform_state();
  		selector.update();
 	}

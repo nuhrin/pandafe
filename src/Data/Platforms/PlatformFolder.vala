@@ -29,6 +29,19 @@ namespace Data.Platforms
 		public Gee.List<PlatformFolder> folders { get; set; }
 		public Gee.List<PlatformNode> platforms { get; set; }
 		
+		public Enumerable<PlatformFolder> get_descendant_folders() {
+			var descendants = new Enumerable<PlatformFolder>(folders);
+			foreach(var folder in folders)
+				descendants = descendants.concat(folder.get_descendant_folders());
+			return descendants;
+		}
+		public Enumerable<Platform> get_all_platforms() {
+			var all_platforms = new Enumerable<PlatformNode>(platforms).select<Platform>(n=>n.platform);
+			foreach(var folder in folders)
+				all_platforms = all_platforms.concat(folder.get_all_platforms());
+			return all_platforms;
+		}
+		
 		public int index_of_platform(Platform platform) {
 			int found_platform_index = -1;
 			for(int index=0;index<platforms.size;index++) {

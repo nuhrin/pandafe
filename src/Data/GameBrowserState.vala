@@ -27,13 +27,19 @@ namespace Data
 				ps.filter = filter;
 			platform_state[platform.id] = ps;
 		}
-		public void apply_all_games_state(bool active, int item_index, string? filter, bool favorites_only) {
+		public void apply_all_games_state(bool active, int item_index, string? filter, GameBrowserViewData? view) {
 			if (all_games == null)
 				all_games = new AllGamesState();
 			all_games.active = active;
 			all_games.item_index = item_index;
 			all_games.filter = filter;
-			all_games.favorites_only = favorites_only;
+			if (view == null) {
+				all_games.view_type = GameBrowserViewType.ALL_GAMES;
+				all_games.view_platform_folder = null;
+			} else {
+				all_games.view_type = view.view_type;			
+				all_games.view_platform_folder = (view.platform_folder != null) ? view.platform_folder.path() : null;
+			}
 		}
 		public string? get_current_platform_folder_id() {
 			if (current_platform == null || platform_state.has_key(current_platform) == false)
@@ -55,7 +61,19 @@ namespace Data
 		public bool active { get; set; }
 		public int item_index { get; set; }
 		public string? filter { get; set; }
-		public bool favorites_only { get; set; }
+		public GameBrowserViewType view_type { get; set; }
+		public string? view_platform_folder { get; set; }
+		public GameBrowserViewData get_view() {
+			if (view_type == GameBrowserViewType.PLATFORM_FOLDER_GAMES) {
+				if (view_platform_folder != null) {
+					var folder = Data.platforms().get_platform_folder_data().get_folder(view_platform_folder);
+					if (folder != null)
+						return new GameBrowserViewData.folder(folder);
+				}
+				return new GameBrowserViewData(GameBrowserViewType.BROWSER);
+			}
+			return new GameBrowserViewData(view_type);
+		}
 	}
 	public class GameBrowserPlatformState : Object {
 		public string folder_id { get; set; }
