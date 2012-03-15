@@ -398,9 +398,6 @@ public class GameBrowser : Layers.ScreenLayer
 				case EventType.KEYDOWN:
 					this.on_keydown_event(event.key);
 					break;
-				case EventType.KEYUP:
-					this.on_keyup_event(event.key);
-					break;
 			}
         }
     }
@@ -411,21 +408,6 @@ public class GameBrowser : Layers.ScreenLayer
     void on_keydown_event (KeyboardEvent event) {
 		if (process_unicode(event.keysym.unicode) == false)
 			return;
-
-		if (event.keysym.sym == KeySymbol.RSHIFT) {
-			// pandora L
-			L_pressed = true;
-			if (R_pressed == true)
-				L_R_both_pressed = true;
-			return;
-		}
-		if (event.keysym.sym == KeySymbol.RCTRL) {
-			// pandora R
-			R_pressed = true;
-			if (L_pressed == true)
-				L_R_both_pressed = true;
-			return;
-		}
 
 		if (event.keysym.mod == KeyModifier.NONE) {
 			switch(event.keysym.sym) {
@@ -448,11 +430,8 @@ public class GameBrowser : Layers.ScreenLayer
 					drain_events();
 					break;
 				case KeySymbol.HOME: // pandora A
-//~ 					if (everything_active == true || (current_platform_folder == null && current_platform == null)) {
-//~ 						this.event_loop_done = true;
-//~ 						return;
-//~ 					}
 					go_back();
+					drain_events();
 					break;
 				case KeySymbol.PAGEUP: // pandora Y
 					select_first();
@@ -473,17 +452,16 @@ public class GameBrowser : Layers.ScreenLayer
 					show_context_menu();
 					drain_events();
 					break;
+				case KeySymbol.RSHIFT: // pandora L
+					choose_view();
+					drain_events();
+					break;
+				case KeySymbol.RCTRL: // pandora R
+					choose_platform();
+					drain_events();
+					break;
 				case KeySymbol.ESCAPE:
 					this.event_loop_done = true;
-					break;
-				case KeySymbol.QUOTE:
-					if (everything_active == true) {
-						if (everything_selector.favorites_only == true)
-							everything_selector.show_all();
-						else
-							everything_selector.show_favorites();
-						set_header();
-					}
 					break;
 				default:
 					break;
@@ -491,47 +469,10 @@ public class GameBrowser : Layers.ScreenLayer
 			return;
 		}
     }
-    void on_keyup_event (KeyboardEvent event) {
-		if (event.keysym.sym == KeySymbol.RSHIFT) {
-			// pandora L
-			L_pressed = false;
-			if (L_R_both_pressed == true) {
-				if (R_pressed == true)
-					return;
-				L_R_both_pressed = false;
-				toggle_everything();
-				drain_events();
-				return;
-			}
-			select_previous_platform();
-			drain_events();
-			return;
-		}
-		if (event.keysym.sym == KeySymbol.RCTRL) {
-			// pandora R
-			R_pressed = false;
-			if (L_R_both_pressed == true) {
-				if (L_pressed == true)
-					return;
-				L_R_both_pressed = false;
-				toggle_everything();
-				drain_events();
-				return;
-			}
-			//select_next_platform();
-			choose_platform();
-			drain_events();
-			return;
-		}
-	}
-	bool L_pressed;
-	bool R_pressed;
-	bool L_R_both_pressed;
     bool process_unicode(uint16 unicode) {
 		if (unicode <= uint8.MAX) {
 			char c = (char)unicode;
 			if (c.isalnum() == true) {
-				//debug("'%c' pressed", c);
 				select_next_starting_with(c);
 				return false;
 			}
