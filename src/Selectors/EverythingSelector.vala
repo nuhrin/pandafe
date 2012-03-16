@@ -75,7 +75,10 @@ public class EverythingSelector : Selector {
 		switch (view.view_type) {
 			case GameBrowserViewType.FAVORITES:
 			case GameBrowserViewType.ALL_GAMES:
-				platforms = Data.platforms().get_all_platforms();
+				var folder_data = Data.platforms().get_platform_folder_data();
+				platforms = (folder_data.folders.size > 0)
+					? folder_data.get_all_platforms()
+					: Data.platforms().get_all_platforms();
 				break;
 			case GameBrowserViewType.PLATFORM_FOLDER_GAMES:
 				if (view.platform_folder != null)

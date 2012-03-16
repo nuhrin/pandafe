@@ -44,7 +44,9 @@ public class PlatformFolderSelector : PlatformSelector
 		if (folder == null) {
 			var data = Data.platforms().get_platform_folder_data();
 			items.add_all(data.folders);
-			items.add_all(data.platforms);
+			var native_platform = Data.platforms().get_native_platform();
+			if (data.get_folder_with_platform(native_platform) == null)
+				items.add(new PlatformNode(native_platform, null));
 		}
 		else {
 			items = new Enumerable<PlatformNode>(folder.folders).concat(new Enumerable<PlatformListNode>(folder.platforms)).to_list();
