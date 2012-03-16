@@ -148,6 +148,15 @@ namespace Data.Platforms
 			
 			platform_id_hash[id] = platform;
 			all_platforms = null;
+			if (original_id != null && original_id != platform.id)
+			{
+				// update dependent entities
+				try {
+					Data.data_interface().save(get_platform_folder_data(), PLATFORM_FOLDER_ID, "");
+				}
+				catch (Error e) {
+				}
+			}
 			
 			// rebuild platform folders
 			platform.rebuild_folders((owned)pre_scan_action);
