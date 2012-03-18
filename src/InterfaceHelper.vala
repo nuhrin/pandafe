@@ -201,4 +201,6 @@ public class InterfaceHelper : Object
 	}
 	static bool gtk_is_initialized;	
 	static string[] NULL_ARGS = null;
+	
+	public signal void quit_all();
 }

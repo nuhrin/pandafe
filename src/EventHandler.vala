@@ -5,7 +5,8 @@ public interface EventHandler : Object
 	protected signal void quit_event_loop();
 	protected void process_events() {
 		drain_events();
-		bool event_loop_done = false;
+		bool event_loop_done = false;		
+		@interface.quit_all.connect(() => event_loop_done = true);
 		quit_event_loop.connect(() => event_loop_done = true);
 		while(event_loop_done == false) {
 			do_event_loop();
@@ -19,7 +20,7 @@ public interface EventHandler : Object
 		while(Event.poll(out event) == 1) {
 			switch(event.type) {
 				case EventType.QUIT:
-					quit_event_loop();
+					@interface.quit_all();
 					break;
 				case EventType.KEYDOWN:
 					this.on_keydown_event(event.key);

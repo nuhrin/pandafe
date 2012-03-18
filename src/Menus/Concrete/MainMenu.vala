@@ -17,6 +17,15 @@ namespace Menus.Concrete
 			items.add(new MenuItem.custom("Scan PNDs", null, "Scanning PNDs...", () => {
 				Data.rescan_pnd_data();
 			}));
+			
+			items.add(new MenuItemSeparator());
+			items.add(new MenuItem.custom("Quit", null, "", () => {
+				if (Data.pnd_mountset().has_mounted == true) {
+					message("Unmounting PNDs...");
+					Data.pnd_mountset().unmount_all();
+				}
+				@interface.quit_all();
+			}));
 		}
 	}
 	class ConfigurationMenu : Menu
