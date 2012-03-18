@@ -92,12 +92,12 @@ namespace Fields
 			var frame_label = frame.label_widget as Label;
 			frame_label.use_markup = true;
 			frame.shadow_type = ShadowType.NONE;
-			frame.add(sw);
-
+			frame.add(sw);			
+			var notebook = new Notebook();
+				
 			// dialog
 			var dialog = new Dialog();
 			dialog.title = _title;
-			dialog.vbox.pack_end(frame, true, true, 0);
 			dialog.add_button (Stock.CANCEL, ResponseType.CANCEL);
 			dialog.add_button(Stock.OK, ResponseType.OK);
 			dialog.set_default_size (@interface.screen_width, @interface.screen_height);
@@ -106,6 +106,16 @@ namespace Fields
 			bool stock_supported = (_stock != null && app != null);
 			bool stock_active = false;
 			
+			if (stock_supported) {
+				notebook.show_border = false;
+				notebook.append_page(frame, new Label("Content"));
+				notebook.page = 0;
+				
+				dialog.vbox.pack_end(notebook, true, true, 0);
+			} else
+				dialog.vbox.pack_end(frame, true, true, 0);
+			
+						
 			// revert, stock buttons
 			var btnRevert = new Button.with_mnemonic("_Revert");
 			var btnStock = new ToggleButton.with_mnemonic("_Stock");
@@ -181,6 +191,38 @@ namespace Fields
 			} else {
 				btnStock.active = true;
 			}
+			if (mounted_path != null) {
+				var terminal_sw = new ScrolledWindow(null, null);
+				terminal_sw.set_policy(PolicyType.AUTOMATIC, PolicyType.AUTOMATIC);
+				terminal_sw.shadow_type = ShadowType.ETCHED_IN;
+				notebook.show_tabs = true;
+				notebook.append_page(terminal_sw, new Label("Terminal"));
+				notebook.switch_page.connect((page,num) => {
+					if (num == 0) {
+						btnRevert.visible = true;
+						btnOpen.visible = true;
+						btnStock.visible = true;
+					} else if (num == 1) {
+						btnRevert.visible = false;
+						btnOpen.visible = false;
+						btnStock.visible = false;
+						
+						if (terminal_sw.child == null) {
+							var vte = new Vte.Terminal();
+							terminal_sw.add(vte);
+							vte.show_all();
+							vte.fork_command("/bin/bash", null, null, mounted_path, false, false, false);
+//~ 							try {								
+//~ 								Pid pid;
+//~ 								vte.fork_command_full(Vte.PtyFlags.DEFAULT, mounted_path, new string[] { Vte.get_user_shell() }, null, 0, null, out pid);
+//~ 							}
+//~ 							catch(GLib.Error e) {
+//~ 							}
+						}
+					}
+				});
+			}
+			
 			
 			// response handling
 			bool ok_clicked = false;
