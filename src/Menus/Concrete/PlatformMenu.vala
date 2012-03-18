@@ -27,6 +27,8 @@ namespace Menus.Concrete
 			}));
 			
 			if (platform_folder != null) {
+				items.add(new MenuItemSeparator());
+				
 				var platform_folder_menu = new PlatformFolderMenu(platform_folder);
 				var platform_folder_item_index = items.size;
 				platform_folder_menu.saved.connect(() => refresh(platform_folder_item_index));

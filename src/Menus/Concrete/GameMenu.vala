@@ -38,10 +38,12 @@ namespace Menus.Concrete
 			
 			var favorites_index = items.size;
 			var is_favorite = game.is_favorite;
-			items.add(new MenuItem.custom("Favorite: " + ((is_favorite) ? "Unmark" : "Mark"), null, null, ()=> {
+			items.add(new MenuItem.custom("Favorite: " + ((is_favorite) ? "Yes" : "No"), null, null, ()=> {
 				game.is_favorite = !is_favorite;
 				refresh(favorites_index);
 			}));			
+			
+			items.add(new MenuItemSeparator());
 			
 			if (game.parent != null) {
 				var menu = new GameFolderMenu(game.parent);
