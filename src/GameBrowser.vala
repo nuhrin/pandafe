@@ -49,6 +49,9 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		pp.platform_rescanned.connect((p) => platform_rescanned(p));
 		pp.platform_folders_changed.connect(() => platform_folders_changed());
 		pp.platform_folder_scanned.connect((f) => game_folder_scanned(f));
+		var mountset = Data.pnd_mountset();
+		mountset.pnd_mounting.connect((name) => status_message.right = "Mounting '%s'...".printf(name));
+		mountset.pnd_unmounting.connect((name) => status_message.right = "Unmounting '%s'...".printf(name));
 
 		@interface.push_screen_layer(this);
 		initialize_from_browser_state();
@@ -60,7 +63,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		update_browser_state();
 		Data.save_browser_state();
 		if (Data.pnd_mountset().has_mounted == true) {
-			status_message.push("Unmounting PNDs...");
+			status_message.set("Unmounting PNDs...");
 			Data.pnd_mountset().unmount_all();
 		}
 		@interface.pop_screen_layer();
@@ -231,14 +234,16 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 			current_platform_folder_index = selector.selected_index;
 		if (everything_active == true)
 			set_header();
-		status_message.clear();
+		set_status(false);
+	}
+	void set_status(bool flip=true) {
 		string center = "%d / %d".printf(selector.selected_display_index() + 1, selector.display_item_count);
 		string? right = null;
 		string? active_pattern = selector.get_filter_pattern();
 		if (active_pattern != null)
 			right = "%s\"%s\"".printf(FILTER_LABEL, active_pattern);
-		status_message.push(null, center, right, false);
-	}	
+		status_message.set(null, center, right, flip);
+	}
 	void on_selector_rebuilt(Selector selector) {
 		if (this.selector != selector)
 			return;
@@ -248,8 +253,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 	void game_folder_scanned(GameFolder folder) {
 		if (@interface.peek_layer() != null)
 			return; // another layer has focus, don't bother reporting scan
-		status_message.flush(false);
-		status_message.push("Scanning", folder.platform().name, folder.unique_name());
+		status_message.set("Scanning", folder.platform().name, folder.unique_name());
 	}
 	void platform_folders_changed() {
 		if (current_platform_folder == null) {
@@ -565,12 +569,12 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		}
 	}
 	void run_game(GameItem game) {
-		status_message.push("running '%s'...".printf(game.unique_name()));				
-		var result = game.run();		
-		status_message.pop();
+		status_message.set("running '%s'...".printf(game.unique_name()));				
+		var result = game.run();
+		set_status();
 		if (result.success == false) {
 			if (result.error_message != null && status_message.text_will_fit("Error: " + result.error_message))
-				status_message.push("Error: " + result.error_message);
+				status_message.set("Error: " + result.error_message);
 			else {
 				var program = game.get_program();
 				if (result.exit_status != 0 && program != null && program.expected_exit_code != result.exit_status) {
@@ -638,7 +642,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 	}
 
 	void filter_selector() {
-		status_message.flush();
+		status_message.clear();
 		var label = @interface.game_browser_ui.render_text_selected(FILTER_LABEL);
 		Rect label_rect = {600 - (int16)label.w, 455};
 		blit_surface(label, null, label_rect);

@@ -23,7 +23,7 @@ namespace Menus.Concrete
 			items.add(new MenuItem.custom("Quit", null, "", () => {
 				if (Data.pnd_mountset().has_mounted == true) {
 					message("Unmounting PNDs...");
-					Data.pnd_mountset().unmount_all();
+					Data.pnd_mountset().unmount_all(name => this.message("Unmounting '%s'...".printf(name)));
 				}
 				@interface.quit_all();
 			}));
