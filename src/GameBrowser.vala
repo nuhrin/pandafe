@@ -654,36 +654,14 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		selector.rebuild();
 	}
 
-	void toggle_everything() {
-		if (everything_active == false) {
-			existing_selector = selector;
-			if (everything_selector == null) {
-				apply_all_games_state(true);
-			} else {
-				everything_active = true;
-				change_selector();
-				selector.update();
-			}
-			
-		} else {
-			everything_active = false;
-			if (existing_selector == null) {
-				apply_platform_state();
-			} else {
-				clear();			
-				selector = existing_selector;
-				replace_layer(SELECTOR_ID, selector);
-				set_header();
-				selector.update();			
-			}
-		}
-	}
-
 	//
 	// commands: choosers
 	void choose_view() {
-		var new_view = new ViewChooser("view_chooser").run(current_view_data);
-		if (new_view == null || new_view == current_view_data || new_view.equals(current_view_data) == true)
+		var resolved_view_data = current_view_data;
+		if (everything_active == false)
+			resolved_view_data = new GameBrowserViewData(GameBrowserViewType.BROWSER);
+		var new_view = new ViewChooser("view_chooser").run(resolved_view_data);
+		if (new_view == null || new_view == resolved_view_data || new_view.equals(resolved_view_data) == true)
 			return;
 		
 		if (new_view.view_type == GameBrowserViewType.BROWSER) {
