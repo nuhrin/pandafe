@@ -28,7 +28,8 @@ public class InterfaceHelper : Object
 	int16 font_mono_char_width;
 	int16 font_mono_height;
 	int16 font_mono_small_height;
-	Color _black_color;
+	Color _black_color;	
+	Color _grey_color;
 	Color _white_color;
 	uint32 _white_color_rgb;
 
@@ -40,7 +41,8 @@ public class InterfaceHelper : Object
 		idle_function_hash = new HashMap<string, ulong>();
 
 		_black_color = {0, 0, 0};
-		_white_color = {255, 255, 255};
+		_grey_color = {125, 125, 125};
+		_white_color = {255, 255, 255};		
 		_white_color_rgb = this.screen.format.map_rgb(255, 255, 255);
 
 		font_mono = new Font(FONT_MONO, FONT_SIZE);
@@ -104,6 +106,7 @@ public class InterfaceHelper : Object
 		}
 	}
 	public unowned SDL.Color black_color { get { return _black_color; } }
+	public unowned SDL.Color grey_color { get{ return _grey_color; } }
 	public unowned SDL.Color white_color { get{ return _white_color; } }
 	public uint32 white_color_rgb { get { return _white_color_rgb; } }
 	public unowned SDL.Color highlight_color { get { return game_browser_ui.background_color; } }

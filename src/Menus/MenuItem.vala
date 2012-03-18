@@ -25,6 +25,7 @@ namespace Menus
 		protected MenuItem(string name, string? help=null) {
 			_name = name;
 			_help = help;
+			_enabled = is_initially_enabled();
 		}
 		string _name;
 		string? _help;
@@ -34,6 +35,16 @@ namespace Menus
 		public unowned string name { get { return _name; } }
 		public MenuItemActionType action { get; private set; }
 		public unowned string? help { get { return _help; } }
+		
+		public bool enabled 
+		{
+			get { return _enabled; }
+			set {
+				if (can_change_enabled_state() == true)
+					_enabled = value;
+			}
+		}
+		bool _enabled;
 		
 		public virtual void activate(MenuSelector selector) { 
 			if (activate_action != null) {
@@ -51,5 +62,8 @@ namespace Menus
 		public virtual bool process_keyup_event(KeyboardEvent event) { return false; }
 
 		public virtual bool is_menu_item() { return false; }
+		
+		protected virtual bool is_initially_enabled() { return true; }
+		protected virtual bool can_change_enabled_state() { return true; }
 	}
 }

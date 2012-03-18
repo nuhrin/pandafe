@@ -29,6 +29,8 @@ namespace Menus
 		int item_spacing;
 		int index_before_select_first;
 		int index_before_select_last;
+		int first_enabled_index;
+		int last_enabled_index;
 
 		public MenuSelector(string id, int16 xpos, int16 ypos, Menu menu, uint8 max_name_length, uint8 max_value_length) {
 			base(id);
@@ -110,44 +112,51 @@ namespace Menus
 			update(flip);
 		}
 		public bool select_previous(bool flip=true) {
-			if (selected_index == 0) {
+			if (first_enabled_index == -1)
+				return false;
+			if (selected_index == (uint)first_enabled_index) {
 				if (wrap_selector)
-					return select_item(item_count - 1, flip);
+					return select_previous_enabled_item(last_enabled_index, flip);
 				return false;
 			}
 
-			return select_item(selected_index - 1, flip);
+			return select_previous_enabled_item(selected_index - 1, flip);
 		}
 		public bool select_next(bool flip=true) {
-			if (selected_index == item_count - 1) {
+			if (last_enabled_index == -1)
+				return false;
+			
+			if (selected_index == last_enabled_index) {
 				if (wrap_selector)
-					return select_item(0, flip);
+					return select_item(first_enabled_index, flip);
 				return false;
 			}
 
 			return select_item(selected_index + 1, flip);
 		}
 		public bool select_first(bool flip=true) {
+			if (first_enabled_index == -1)
+				return false;
+			
 			if (index_before_select_first != -1)
 				return select_item(index_before_select_first, flip);
 
 			int index = (int)selected_index;
-			if (select_item(0, flip) == false)
+			if (select_item(first_enabled_index, flip) == false)
 				return false;
 
 			index_before_select_first = index;
 			return true;
 		}
 		public bool select_last(bool flip=true) {
+			if (last_enabled_index == -1)
+				return false;
+				
 			if (index_before_select_last != -1)
 				return select_item(index_before_select_last, flip);
 
-			int last_index = (int)item_count - 1;
-			if (last_index < 0)
-				return false;
-
 			int index = (int)selected_index;
-			if (select_item(last_index, flip) == false)
+			if (select_item(last_enabled_index, flip) == false)
 				return false;
 
 			index_before_select_last = index;
@@ -157,23 +166,8 @@ namespace Menus
 			return false;
 		}
 		public bool select_item(uint index, bool flip=true) {
-			if (select_item_no_update(index) == false)
-				return false;
-			update(flip);
-			return true;
+			return select_next_enabled_item(index, flip);
 		}
-		protected bool select_item_no_update(uint index) {
-			if (index >= item_count)
-				return false;
-
-			update_item_name((int)selected_index, false);
-			update_item_name((int)index, true);
-			selected_index = index;
-			index_before_select_first = -1;
-			index_before_select_last = -1;
-			return true;
-		}
-
 		public void update_selected_item_value() {
 			update_item_value((int)selected_index);
 			draw();
@@ -185,18 +179,73 @@ namespace Menus
 			refreshed();
 		}
 
+		protected bool select_item_no_update(uint index) {
+			return select_next_enabled_item_no_update(index);
+		}
+		bool select_previous_enabled_item(uint index, bool flip=true) {
+			if (first_enabled_index == -1)
+				return false;
+				
+			uint resolved_index = index;
+			if (resolved_index > last_enabled_index)
+				resolved_index = last_enabled_index;
+
+			while (menu.items[(int)resolved_index].enabled == false) {
+				if (resolved_index == first_enabled_index)
+					return false;
+				resolved_index--;
+			}
+			select_resolved_item_no_update(resolved_index);
+			update(flip);
+			return true;
+		}
+		bool select_next_enabled_item(uint index, bool flip=true) {
+			if (select_next_enabled_item_no_update(index) == false)
+				return false;
+			update(flip);
+			return true;
+		}
+		bool select_next_enabled_item_no_update(uint index) {
+			if (index > last_enabled_index)
+				return false;
+			
+			uint resolved_index = index;
+			while(menu.items[(int)resolved_index].enabled == false) {
+				resolved_index++;
+				if (resolved_index > last_enabled_index)
+					return false;					
+			}
+			select_resolved_item_no_update(resolved_index);
+			return true;			
+		}		
+		void select_resolved_item_no_update(uint index) {
+			update_item_name((int)selected_index, false);
+			update_item_name((int)index, true);
+			selected_index = index;
+			index_before_select_first = -1;
+			index_before_select_last = -1;			
+		}
+
 		void ensure_surface() {
 			if (surface != null)
 				return;
 			update_selector_attributes();
 			surface = @interface.get_blank_surface(_width, _height);
-
+			
+			first_enabled_index = -1;
+			last_enabled_index = -1;
 			Rect rect = {0, 0};
 			for(int index=0; index < item_count; index++) {
+				if (menu.items[index].enabled == true) {
+					if (first_enabled_index == -1)
+						first_enabled_index = index;
+					last_enabled_index = index;
+				}
 				render_item(index).blit(null, surface, rect);
 				rect.y = (int16)(rect.y + font_height + item_spacing);
 			}
 		}
+		
 		void update_selector_attributes() {
 			int surface_items = menu.items.size;
 			_height = (font_height * surface_items) + (item_spacing * surface_items) + (item_spacing * 2);
@@ -244,23 +293,28 @@ namespace Menus
 
 		Surface render_item(int index) {
 			var item = menu.items[index];
+			unowned SDL.Color render_color = get_render_color(item);
+			var text = item.name;
+			if (item.name.strip() == "")
+				text = " ";
 			if (item.is_menu_item())
-				return font.render_shaded(menu_item_format.printf(item.name), @interface.white_color, @interface.black_color);
+				return font.render_shaded(menu_item_format.printf(text), render_color, @interface.black_color);
 			var field = item as MenuItemField;
 			if (field != null)
-				return font.render_shaded(field_item_format.printf(field.name, field.get_value_text()), @interface.white_color, @interface.black_color);
+				return font.render_shaded(field_item_format.printf(text, field.get_value_text()), @render_color, @interface.black_color);
 			
-			return font.render_shaded(item.name, @interface.white_color, @interface.black_color);
+			return font.render_shaded(text, render_color, @interface.black_color);
 		}
 		void update_item_name(int index, bool selected=false) {
 			Rect rect = {0, get_offset(index)};
 			var item = menu.items[index];
+			unowned SDL.Color render_color = get_render_color(item, selected);
 			if (selected == true) {
 				select_name_area.blit(null, surface, rect);
-				font.render_shaded(item.name, @interface.black_color, @interface.white_color).blit(null, surface, rect);
+				font.render_shaded(item.name, render_color, @interface.white_color).blit(null, surface, rect);
 			} else {
 				blank_name_area.blit(null, surface, rect);
-				font.render_shaded(item.name, @interface.white_color, @interface.black_color).blit(null, surface, rect);
+				font.render_shaded(item.name, render_color, @interface.black_color).blit(null, surface, rect);
 			}
 		}
 		void update_item_value(int index) {
@@ -271,8 +325,18 @@ namespace Menus
 			blank_value_area.blit(null, surface, rect);
 			Surface? value_surface = field.get_value_rendering(font);
 			if (value_surface == null)
-				value_surface = font.render_shaded(field.get_value_text(), @interface.white_color, @interface.black_color);
+				value_surface = font.render_shaded(field.get_value_text(), get_render_color(field), @interface.black_color);
 			value_surface.blit(null, surface, rect);
+		}
+		unowned SDL.Color get_render_color(MenuItem item, bool selected=false) {
+			if (item.enabled == true) {
+				if (selected == false)
+					return @interface.white_color;
+				else
+					return @interface.black_color;
+			} else {
+				return @interface.grey_color;
+			}
 		}
 		int16 get_offset(uint index) {
 			return (int16)((font_height * index) + (item_spacing * index));

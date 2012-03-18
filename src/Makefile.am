@@ -151,6 +151,7 @@ pandafe_VALASOURCES = \
 	Menus/MenuBrowserItem.vala \
 	Menus/MenuBuilder.vala \
 	Menus/MenuItem.vala \
+	Menus/MenuItemSeparator.vala \
 	Menus/MenuItemActionType.vala \
 	Menus/MenuObject.vala \
 	Menus/MenuSelector.vala \
