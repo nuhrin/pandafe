@@ -97,6 +97,11 @@ namespace Data.Programs
 			}
 			return false;
 		}
+		public void rebuild_program_apps() {
+			foreach(var program in program_id_hash.values) {
+				program.app_id = program.app_id; // forces program._apps rebuild on next access
+			}
+		}
 		
 		protected override Entity? get_entity(string entity_id) {
 			var program = get_program(entity_id);

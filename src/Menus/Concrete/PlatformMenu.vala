@@ -21,7 +21,11 @@ namespace Menus.Concrete
 					saved();
 				}
 			}));
-			items.add(new MenuItem.custom("Rescan", null, "Scanning platform folders...", () => {
+			items.add(new MenuItem.custom("Rescan", null, "", () => {
+				if (platform.platform_type == PlatformType.NATIVE) {
+					this.message("Scanning PNDs...");
+					Data.rescan_pnd_data();
+				}
 				platform.rescan(f=> this.message("Scanning folder '%s'...".printf(f.unique_name())));
 				refresh(1);
 			}));

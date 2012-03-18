@@ -128,6 +128,7 @@ namespace Data
 		public PndData rescan_pnd_data() {
 			_pnd_data = new PndData(data_interface);
 			_pnd_data.rescan();
+			program_provider.rebuild_program_apps();
 			return _pnd_data;
 		}
 
