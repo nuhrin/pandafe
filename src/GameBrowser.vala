@@ -9,15 +9,13 @@ using Layers.GameBrowser;
 using Menus;
 using Menus.Fields;
 
-public class GameBrowser : Layers.ScreenLayer
+public class GameBrowser : Layers.ScreenLayer, EventHandler
 {
 	const int16 SELECTOR_XPOS = 100;
 	const int16 SELECTOR_YPOS = 60;
 	const string SELECTOR_ID = "selector";
 	const string FILTER_LABEL = "filter: ";
 	
-	bool event_loop_done;
-
 	GameBrowserUI ui;
 
 	HeaderLayer header;
@@ -56,10 +54,9 @@ public class GameBrowser : Layers.ScreenLayer
 		initialize_from_browser_state();
 		flip();
 		Key.enable_unicode(1);
-        while(event_loop_done == false) {
-            process_events();
-            @interface.execute_idle_loop_work();
-        }
+        
+        process_events();
+        
 		update_browser_state();
 		Data.save_browser_state();
 		if (Data.pnd_mountset().has_mounted == true) {
@@ -390,23 +387,6 @@ public class GameBrowser : Layers.ScreenLayer
 		
 	//
 	// events
-    void process_events() {
-        Event event;
-        while(Event.poll(out event) == 1) {
-            switch(event.type) {
-				case EventType.QUIT:
-					this.event_loop_done = true;
-					break;
-				case EventType.KEYDOWN:
-					this.on_keydown_event(event.key);
-					break;
-			}
-        }
-    }
-    void drain_events() {
-		Event event;
-        while(Event.poll(out event) == 1);
-	}
     void on_keydown_event (KeyboardEvent event) {
 		if (process_unicode(event.keysym.unicode) == false)
 			return;
@@ -447,23 +427,19 @@ public class GameBrowser : Layers.ScreenLayer
 					break;
 				case KeySymbol.LCTRL: // pandora Select
 				case KeySymbol.PERIOD:
-					show_main_menu();
-					drain_events();
+					show_main_menu();					
 					break;
 				case KeySymbol.SPACE:
 					show_context_menu();
-					drain_events();
 					break;
 				case KeySymbol.RSHIFT: // pandora L
 					choose_view();
-					drain_events();
 					break;
 				case KeySymbol.RCTRL: // pandora R
 					choose_platform();
-					drain_events();
 					break;
 				case KeySymbol.ESCAPE:
-					this.event_loop_done = true;
+					quit_event_loop();
 					break;
 				default:
 					break;

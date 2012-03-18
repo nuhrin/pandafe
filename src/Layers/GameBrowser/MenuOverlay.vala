@@ -6,7 +6,7 @@ using Menus.Fields;
 
 namespace Layers.GameBrowser
 {
-	public class MenuOverlay : Layer
+	public class MenuOverlay : Layer, EventHandler
 	{
 		const int SELECTOR_MIN_WIDTH = 150;
 		const int16 SELECTOR_YPOS = 100;
@@ -15,7 +15,6 @@ namespace Layers.GameBrowser
 		const uint8 MAX_NAME_LENGTH = 40;
 		const uint8 MAX_VALUE_LENGTH = 40;
 
-		bool event_loop_done;
 		GLib.Queue<MenuSelector> menu_stack;
 		MenuSelector selector;
 		MenuHeaderLayer header;
@@ -44,12 +43,11 @@ namespace Layers.GameBrowser
 
 		public void run() {
 			@interface.push_layer(this);//, 150);
+			
 			set_header();			
-			selector.select_first();
-			while(event_loop_done == false) {
-				process_events();
-				@interface.execute_idle_loop_work();
-			}
+			selector.select_first();			
+			process_events();
+			
 			@interface.pop_layer();
 		}
 		
@@ -108,7 +106,7 @@ namespace Layers.GameBrowser
 		}
 		void pop_menu() {
 			if (menu_stack.length == 0) {
-				event_loop_done = true;
+				quit_event_loop();
 				return;
 			}
 			selector = menu_stack.pop_head();
@@ -158,26 +156,6 @@ namespace Layers.GameBrowser
 
 		//
 		// events
-		void process_events() {
-			Event event;
-			while(Event.poll(out event) == 1) {
-				switch(event.type) {
-					case EventType.QUIT:
-						this.event_loop_done = true;
-						break;
-					case EventType.KEYDOWN:
-						this.on_keydown_event(event.key);
-						break;
-					case EventType.KEYUP:
-						this.on_keyup_event(event.key);
-						break;
-				}
-			}
-		}
-		void drain_events() {
-			Event event;
-			while(Event.poll(out event) == 1);
-		}
 		void on_keydown_event (KeyboardEvent event) {
 			if (process_unicode(event.keysym.unicode) == false)
 				return;
@@ -218,7 +196,7 @@ namespace Layers.GameBrowser
 						break;
 					case KeySymbol.SPACE:
 						if (selector.menu.cancel() == true)
-							event_loop_done = true;
+							quit_event_loop();
 						break;
 					default:
 						break;
@@ -312,11 +290,11 @@ namespace Layers.GameBrowser
 					break;
 				case MenuItemActionType.QUIT:
 					if (selector.menu.cancel() == true)
-						event_loop_done = true;
+						quit_event_loop();
 					break;
 				case MenuItemActionType.SAVE_AND_QUIT:
 					if (selector.menu.save() == true)
-						event_loop_done = true;					
+						quit_event_loop();
 					break;
 				default:
 					selected_item.activate(selector);

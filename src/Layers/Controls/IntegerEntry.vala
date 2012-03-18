@@ -46,18 +46,18 @@ namespace Layers.Controls
 		protected override bool is_valid_value() { 
 			return !(_value < min_value || _value > max_value);
 		}
-		protected override bool on_keydown_event(KeyboardEvent event) { 
+		protected override void on_keydown_event(KeyboardEvent event) { 
 			if (event.keysym.mod == KeyModifier.NONE) {
 				switch(event.keysym.sym) {
 					case KeySymbol.UP:
 						change_value(_value + (int)step);
-						return false;
+						return;
 					case KeySymbol.DOWN:
 						change_value(_value - (int)step);
-						return false;
+						return;
 				}
 			}
-			return true;
+			base.on_keydown_event(event);
 		}
 		void change_value(int new_value) {
 			if (new_value < min_value)

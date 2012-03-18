@@ -3,7 +3,7 @@ using SDLTTF;
 
 namespace Layers.Controls
 {
-	public class TextEntry : Layers.SurfaceLayer
+	public class TextEntry : Layers.SurfaceLayer, EventHandler
 	{
 		const string DEFAULT_CHARACTER_MASK = "[[:alnum:][:punct:] ]";
 		
@@ -18,7 +18,6 @@ namespace Layers.Controls
 		int cursor_pos;
 		int16 cursor_y;
 		int16 cursor_height;
-		bool event_loop_done;
 		string text;
 		string original_text;
 		
@@ -53,12 +52,7 @@ namespace Layers.Controls
 
 		public string? run(uchar screen_alpha=128, uint32 rgb_color=0) {
 			@interface.push_layer(this, screen_alpha, rgb_color);
-			drain_events();
-			while(event_loop_done == false) {
-				process_events();
-				@interface.execute_idle_loop_work();
-			}
-			drain_events();
+			process_events();
 			@interface.pop_layer();
 			return text;
 		}
@@ -81,32 +75,11 @@ namespace Layers.Controls
 		}
 		protected virtual void on_text_changed() { }
 		protected virtual bool is_valid_value() { return true; }
-		protected virtual bool on_keydown_event(KeyboardEvent event) { return true; }
 		
 		protected override void clear() { }
 		protected override void draw() { }
 
-		void drain_events() {
-			Event event;
-			while(Event.poll(out event) == 1);
-		}
-		void process_events() {
-			Event event;
-			while(Event.poll(out event) == 1) {
-				switch(event.type) {
-					case EventType.QUIT:
-						this.event_loop_done = true;
-						break;
-					case EventType.KEYDOWN:
-						if (on_keydown_event(event.key) == true)
-							this.on_keyboard_event(event.key);
-						break;
-					default:
-						break;
-				}
-			}
-		}		
-		void on_keyboard_event(KeyboardEvent event) {
+		protected virtual void on_keydown_event(KeyboardEvent event) {
 			if (process_unicode(event.keysym.unicode) == false)
 				return;
 
@@ -118,15 +91,11 @@ namespace Layers.Controls
 							validation_error();
 							_error_thrown = true;
 						} else
-							event_loop_done = true;
+							quit_event_loop();
 						break;
 					case KeySymbol.ESCAPE:
-						this.event_loop_done = true;
-						update_text(original_text);
-						if (has_valid_value == false)
-							validation_error();
-						else
-							event_loop_done = true;
+						value = original_text ?? "";
+						quit_event_loop();
 						break;
 					case KeySymbol.LEFT:
 						if (cursor_pos > 0) {

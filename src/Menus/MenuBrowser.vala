@@ -5,7 +5,7 @@ using Layers.MenuBrowser;
 
 namespace Menus
 {
-	public class MenuBrowser : ScreenLayer
+	public class MenuBrowser : ScreenLayer, EventHandler
 	{
 		const int16 SELECTOR_XPOS = 100;
 		const int16 SELECTOR_YPOS = 60;
@@ -14,7 +14,6 @@ namespace Menus
 		const uint8 MAX_NAME_LENGTH = 40;
 		const uint8 MAX_VALUE_LENGTH = 40;
 
-		bool event_loop_done;
 		GLib.Queue<MenuSelector> menu_stack;
 		MenuSelector selector;
 		MenuHeaderLayer header;
@@ -37,13 +36,12 @@ namespace Menus
 
 		public void run() {
 			@interface.push_screen_layer(this);
+			
 			set_header();			
 			add_additional_layer(selector.menu);
-			selector.select_first();
-			while(event_loop_done == false) {
-				process_events();
-				@interface.execute_idle_loop_work();
-			}
+			selector.select_first();			
+			process_events();
+			
 			@interface.pop_screen_layer();
 		}
 		
@@ -80,7 +78,7 @@ namespace Menus
 		}
 		void pop_menu() {
 			if (menu_stack.length == 0) {
-				event_loop_done = true;
+				quit_event_loop();
 				return;
 			}
 			remove_additional_layer();
@@ -139,26 +137,6 @@ namespace Menus
 
 		//
 		// events
-		void process_events() {
-			Event event;
-			while(Event.poll(out event) == 1) {
-				switch(event.type) {
-					case EventType.QUIT:
-						this.event_loop_done = true;
-						break;
-					case EventType.KEYDOWN:
-						this.on_keydown_event(event.key);
-						break;
-					case EventType.KEYUP:
-						this.on_keyup_event(event.key);
-						break;
-				}				
-			}
-		}
-		void drain_events() {
-			Event event;
-			while(Event.poll(out event) == 1);
-		}
 		void on_keydown_event (KeyboardEvent event) {
 			if (process_unicode(event.keysym.unicode) == false)
 				return;
@@ -284,11 +262,11 @@ namespace Menus
 					break;
 				case MenuItemActionType.QUIT:
 					if (selector.menu.cancel() == true)
-						event_loop_done = true;
+						quit_event_loop();
 					break;
 				case MenuItemActionType.SAVE_AND_QUIT:
 					if (selector.menu.save() == true)
-						event_loop_done = true;					
+						quit_event_loop();
 					break;
 				default:
 					selected_item.activate(selector);

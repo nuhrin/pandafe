@@ -6,13 +6,11 @@ using Layers.MenuBrowser;
 
 namespace Layers.Controls.Chooser
 {
-	public abstract class ChooserBase : ScreenLayer
+	public abstract class ChooserBase : ScreenLayer, EventHandler
 	{		
 		const int16 SELECTOR_XPOS = 100;
 		const int16 SELECTOR_YPOS = 70;
 
-		bool event_loop_done;
-		
 		HashMap<string, ChooserSelector> selector_hash;
 		ChooserSelector selector;
 		ChooserHeader header;
@@ -34,10 +32,8 @@ namespace Layers.Controls.Chooser
 			if (index == 0 || selector.select_item(index) == false)
 				selector.select_first();
 			
-			while(event_loop_done == false) {
-				process_events();
-				@interface.execute_idle_loop_work();
-			}
+			process_events();
+			
 			@interface.pop_screen_layer();
 			
 			return get_run_result();
@@ -74,23 +70,6 @@ namespace Layers.Controls.Chooser
 
 		//
 		// events
-		void process_events() {
-			Event event;
-			while(Event.poll(out event) == 1) {
-				switch(event.type) {
-					case EventType.QUIT:
-						this.event_loop_done = true;
-						break;
-					case EventType.KEYDOWN:
-						this.on_keydown_event(event.key);
-						break;
-				}
-			}
-		}
-		void drain_events() {
-			Event event;
-			while(Event.poll(out event) == 1);
-		}
 		void on_keydown_event (KeyboardEvent event) {
 			if (process_unicode(event.keysym.unicode) == false)
 				return;
@@ -123,7 +102,7 @@ namespace Layers.Controls.Chooser
 						break;
 					case KeySymbol.HOME: // pandora A
 					case KeySymbol.ESCAPE:
-						this.event_loop_done = true;
+						quit_event_loop();
 						break;
 					default:
 						break;
@@ -194,7 +173,7 @@ namespace Layers.Controls.Chooser
 		void activate_selected() {
 			selector.choose_selected_item_secondary_id();
 			if (process_activation(selector) == true) {
-				this.event_loop_done = true;
+				quit_event_loop();
 				return;
 			}
 			if (selector.is_go_back_item_selected) {

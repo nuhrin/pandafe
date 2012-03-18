@@ -4,10 +4,8 @@ using Gee;
 
 namespace Layers.Controls
 {
-	public abstract class ValueSelectorBase<G> : Layers.Layer 
+	public abstract class ValueSelectorBase<G> : Layers.Layer, EventHandler
 	{
-		bool event_loop_done;
-
 		Surface surface;
 		unowned Font font;
 		int16 font_height;
@@ -104,24 +102,14 @@ namespace Layers.Controls
 			ensure_selection();	
 			
 			@interface.push_layer(this, screen_alpha, rgb_color);
-			drain_events();
-			while(event_loop_done == false) {
-				process_events();
-				@interface.execute_idle_loop_work();
-			}
-			drain_events();
+			process_events();
 			@interface.pop_layer();
 			
 			return _selected_index;
 		}
 		public uint run_no_push() {
 			ensure_selection();
-			drain_events();
-			while(event_loop_done == false) {
-				process_events();
-				@interface.execute_idle_loop_work();
-			}
-			drain_events();
+			process_events();			
 			return _selected_index;
 		}
 		public void ensure_selection() {
@@ -156,38 +144,19 @@ namespace Layers.Controls
 			draw_rectangle_outline(xpos, ypos, (int16)_width, height + 5, @interface.white_color);
 		}
 		
-		void drain_events() {
-			Event event;
-			while(Event.poll(out event) == 1);
-		}
-		void process_events() {
-			Event event;
-			while(Event.poll(out event) == 1) {
-				switch(event.type) {
-					case EventType.QUIT:
-						this.event_loop_done = true;
-						break;
-					case EventType.KEYDOWN:
-						this.on_keyboard_event(event.key);
-						break;
-					default:
-						break;
-				}
-			}
-		}		
-		void on_keyboard_event(KeyboardEvent event) {
+		void on_keydown_event(KeyboardEvent event) {
 			if (event.keysym.mod == KeyModifier.NONE) {
 				switch(event.keysym.sym) {
 					case KeySymbol.RETURN:
 					case KeySymbol.KP_ENTER:
 					case KeySymbol.END:
-						event_loop_done = true;
+						quit_event_loop();
 						break;
 					case KeySymbol.ESCAPE:
 					case KeySymbol.HOME:
-						this.event_loop_done = true;
 						_selected_index = original_index;
 						canceled = true;
+						quit_event_loop();
 						break;
 					case KeySymbol.UP:
 						select_previous();

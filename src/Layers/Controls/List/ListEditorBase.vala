@@ -5,14 +5,13 @@ using Layers.MenuBrowser;
 
 namespace Layers.Controls.List
 {
-	public abstract class ListEditorBase<G> : ScreenLayer
+	public abstract class ListEditorBase<G> : ScreenLayer, EventHandler
 	{
 		const int16 SELECTOR_XPOS = 100;
 		const int16 SELECTOR_YPOS = 70;
 		const int16 MENU_SELECTOR_XPOS = 80;
 		const int16 MENU_SELECTOR_YPOS = 350;
 		
-		bool event_loop_done;
 		bool move_active;
 		bool menu_active;
 		bool save_requested;
@@ -54,10 +53,7 @@ namespace Layers.Controls.List
 			selector = add_layer(new ListItemSelector("list_item_selector", SELECTOR_XPOS, SELECTOR_YPOS, _items)) as ListItemSelector;
 			@interface.push_screen_layer(this);
 			selector.select_first();
-			while(event_loop_done == false) {
-				process_events();
-				@interface.execute_idle_loop_work();
-			}
+			process_events();
 			@interface.pop_screen_layer();
 			
 			if (save_requested) {
@@ -96,23 +92,6 @@ namespace Layers.Controls.List
 	
 		//
 		// events
-		void process_events() {
-			Event event;
-			while(Event.poll(out event) == 1) {
-				switch(event.type) {
-					case EventType.QUIT:
-						this.event_loop_done = true;
-						break;
-					case EventType.KEYDOWN:
-						this.on_keydown_event(event.key);
-						break;
-				}
-			}
-		}
-		void drain_events() {
-			Event event;
-			while(Event.poll(out event) == 1);
-		}
 		void on_keydown_event (KeyboardEvent event) {
 			if (process_unicode(event.keysym.unicode) == false)
 				return;
@@ -133,17 +112,21 @@ namespace Layers.Controls.List
 						break;
 					case KeySymbol.PAGEUP: // pandora Y
 						focus_list();
+						drain_events();
 						break;
 					case KeySymbol.PAGEDOWN: // pandora X
 						focus_menu();
+						drain_events();
 						break;
 					case KeySymbol.SPACE:
 					case KeySymbol.TAB:
 						toggle_focus();
+						drain_events();
 						break;
 					case KeySymbol.RETURN:
 					case KeySymbol.KP_ENTER:
-					case KeySymbol.END: // pandora B
+					case KeySymbol.END: // pandora B					
+						drain_events();
 						if (move_active == true) {
 							selector.move_finish();
 							move_active = false;
@@ -161,7 +144,7 @@ namespace Layers.Controls.List
 						}
 						if (save_on_return == true)
 							save_requested = true;
-						this.event_loop_done = true;
+						quit_event_loop();
 						break;
 					default:
 						break;
@@ -251,11 +234,11 @@ namespace Layers.Controls.List
 				MenuItemActionType action = menu_selector.selected_item().action;
 				switch(action) {
 					case MenuItemActionType.CANCEL:
-						event_loop_done = true;
+						quit_event_loop();
 						break;
 					case MenuItemActionType.SAVE:
 						save_requested = true;
-						event_loop_done = true;
+						quit_event_loop();
 						break;
 					default:
 						break;										

@@ -18,6 +18,7 @@ bin_PROGRAMS = \
 
 pandafe_VALASOURCES = \
 	main.vala \
+	EventHandler.vala \
 	GameBrowser.vala \
 	GameBrowserUI.vala \
 	InterfaceHelper.vala \
