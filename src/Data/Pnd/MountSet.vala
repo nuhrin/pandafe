@@ -26,6 +26,7 @@ namespace Data.Pnd
 		}
 
 		public signal void pnd_mounting(string name);
+		public signal void pnd_mounted(string name);
 		public signal void pnd_unmounting(string name);
 
 		public bool has_mounted { get { return (mounted_pnd_name_hash.size > 0); } }
@@ -116,6 +117,8 @@ namespace Data.Pnd
 						mounted_pnd_ids.remove_at(index);
 				}
 			}
+			
+			pnd_mounted(name);
 			
 			return true;
 		}
