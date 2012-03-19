@@ -60,6 +60,12 @@ namespace Fields
 			string? contents;
 			bool had_value = has_value();
 			if (run_dialog(out contents) == true) {
+				if (contents != null && contents != _value && mounted_path != null) {
+					// remove custom script, if it already exists, so it will be updated on next run
+					string custom_script_path = Path.build_filename(mounted_path, Spawning.CUSTOM_COMMAND_SCRIPT_PATH);
+					if (FileUtils.test(custom_script_path, FileTest.EXISTS) == true)
+						FileUtils.remove(custom_script_path);
+				}
 				change_value(contents);
 				if (has_value() != had_value) {
 					selector.update_selected_item_value();
@@ -232,7 +238,7 @@ namespace Fields
 					if (stock_active == false) {
 						buffer = get_buffer_text(source_buffer);
 						if (buffer._strip() == "")
-							buffer = null;						
+							buffer = null;
 					}
 					ok_clicked = true;
 				}

@@ -3,7 +3,7 @@ using Data.Programs;
 
 public class Spawning
 {
-	const string CUSTOM_COMMAND_SCRIPT_PATH = "pandafe-custom-run.sh";
+	public const string CUSTOM_COMMAND_SCRIPT_PATH = "pandafe-custom-run.sh";
 	const string CUSTOM_PNDRUN_PATH = "scripts/pnd_run_nomount.sh";
 	const string CPUSPEED_WRAPPER_SCRIPT_PATH = "scripts/cpuspeed_change_exec_wrapper.sh";
 	const string TMP_PATH = "/tmp/pandafe";
