@@ -90,6 +90,8 @@ namespace Data.Pnd
 			mounted_pnd_name_hash[pnd.pnd_id] = name;
 			mounted_pnd_ids.add(pnd.pnd_id);			
 
+			pnd_mounted(name);
+			
 			return true;
 		}
 
@@ -117,8 +119,6 @@ namespace Data.Pnd
 						mounted_pnd_ids.remove_at(index);
 				}
 			}
-			
-			pnd_mounted(name);
 			
 			return true;
 		}
