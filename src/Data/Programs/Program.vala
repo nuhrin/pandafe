@@ -105,7 +105,7 @@ public class Program : Entity, MenuObject
 		options_field = new ProgramOptionsListField("options", "Options", null, options);
 		builder.add_field(options_field);
 		
-		default_setting_field = new ProgramDefaultSettingsField("default_settings", "Default Settings", null, this);
+		default_setting_field = new ProgramDefaultSettingsField("default_settings", "Default Settings", null, name, default_settings, options);
 		builder.add_field(default_setting_field);
 		
 		initialize_fields();
@@ -127,8 +127,12 @@ public class Program : Entity, MenuObject
 			}
 			custom_command_field.app = app;
 		});
+		options_field.changed.connect(() => {
+			default_setting_field.set_options(options_field.options());
+		});
 		name_field.changed.connect(() => {
 			custom_command_field.set_program_name(name_field.value);
+			default_setting_field.set_program_name(name_field.value);
 		});
 	}
 	protected bool apply_changed_field(Menus.Menu menu, MenuItemField field) {

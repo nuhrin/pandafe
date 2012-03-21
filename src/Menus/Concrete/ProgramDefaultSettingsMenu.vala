@@ -9,25 +9,27 @@ namespace Menus.Concrete
 {
 	public class ProgramDefaultSettingsMenu : Menu  
 	{
-		public static bool edit(Program program, int clockspeed=-1, string? extra_arguments=null) {
-			var menu = new ProgramDefaultSettingsMenu(program, clockspeed, extra_arguments);
+		public static bool edit(string program_name, ProgramDefaultSettings settings, OptionSet options, int clockspeed=-1, string? extra_arguments=null) {
+			var menu = new ProgramDefaultSettingsMenu(program_name, settings, options, clockspeed, extra_arguments);
 			new MenuBrowser(menu).run();
 			return menu.was_saved;
 		}
 		
-		Program program;
+		string program_name;
+		OptionSet options;
 		HashMap<Option,MenuItemField> field_hash;
 		ProgramDefaultSettings original_settings;
 		ProgramDefaultSettings settings;
 		StringField extra_arguments_field;
 		ClockSpeedField clockspeed_field;
 		
-		public ProgramDefaultSettingsMenu(Program program, int clockspeed=-1, string? extra_arguments=null) {
-			base("Default Settings: " + program.name);
-			this.program = program;			
-			this.original_settings = program.default_settings;
+		public ProgramDefaultSettingsMenu(string program_name, ProgramDefaultSettings settings, OptionSet options, int clockspeed=-1, string? extra_arguments=null) {
+			base("Default Settings: " + program_name);
+			this.program_name = program_name;
+			this.options = options;
+			this.original_settings = settings;
 			var effective = new ProgramDefaultSettings();
-			effective.merge_override(program.default_settings);
+			effective.merge_override(settings);
 			this.settings = effective;
 			field_hash = new HashMap<Option,MenuItemField>();
 			ensure_items();		
@@ -52,7 +54,7 @@ namespace Menus.Concrete
 		}
 		protected override bool do_save() {
 			original_settings.clear();			
-			foreach(var option in program.options) {
+			foreach(var option in options) {
 				var field = field_hash[option];
 				var grouping_field = field as OptionGroupingField;
 				if (grouping_field != null)
@@ -66,10 +68,10 @@ namespace Menus.Concrete
 			return true;
 		}
 		protected override void populate_items(Gee.List<MenuItem> items) {
-			foreach(var option in program.options) {
+			foreach(var option in options) {
 				var grouping = option as OptionGrouping;
 				if (grouping != null) {
-					var field = grouping.get_grouping_field(settings, program.name, "Default ");
+					var field = grouping.get_grouping_field(settings, program_name, "Default ");
 					field_hash[option] = field;
 					items.add(field);
 					continue;
@@ -81,7 +83,7 @@ namespace Menus.Concrete
 				field_hash[option] = field;
 				items.add(field);
 			}
-			string name = (program.options.size > 0) ? "Extra Arguments" : "Arguments";
+			string name = (options.size > 0) ? "Extra Arguments" : "Arguments";
 			extra_arguments_field = new StringField("extra_arguments", name, null, settings.extra_arguments ?? "");
 			items.add(extra_arguments_field);
 			
