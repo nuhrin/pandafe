@@ -26,7 +26,7 @@ namespace Data.GameList
 			if (program == null)				
 				return new SpawningResult.error("No program found to run '%s'.".printf(game.name));			
 
-			return run_program_with_premount(program, settings, get_full_path(game));
+			return run_platform_program_with_premount(game.platform(), program, settings, get_full_path(game));
 		}
 
 		public override string get_unique_name(IGameListNode node) {

@@ -12,6 +12,7 @@ namespace Menus.Concrete
 	{	
 		string game_id;
 		string game_name;
+		Platform platform;
 		GameSettings game_settings;
 		GameProgramSelectionField program_field;
 		ClockSpeedField clockspeed_field;
@@ -22,10 +23,11 @@ namespace Menus.Concrete
 			this.custom(game.id, game.full_name, platform, Data.get_game_settings(game) ?? new GameSettings() { platform = platform.id });
 		}
 		public GameSettingsMenu.custom(string game_id, string game_name, Platform platform, GameSettings settings) {
-			base("Setting: " + game_name);
+			base("Game Settings: " + game_name);
 			this.game_id = game_id;
 			this.game_name = game_name;
 			game_settings = settings;
+			this.platform = platform;
 			program = (game_settings.selected_program_id != null)
 				? platform.get_program(game_settings.selected_program_id) ?? platform.default_program
 				: platform.default_program;			
@@ -47,7 +49,10 @@ namespace Menus.Concrete
 			items.add(program_field);
 			if (program != null) {
 				var settings = new ProgramSettings();
-				settings.merge_override(program.default_settings);
+				if (platform.program_settings.has_key(program.app_id) == true)
+					settings.merge_override(platform.program_settings[program.app_id]);
+				else
+					settings.merge_override(program.default_settings);
 				if (game_settings.program_settings.has_key(program.app_id))
 					settings.merge_override(game_settings.program_settings[program.app_id]);
 				field_hash = new HashMap<Option,MenuItemField>();

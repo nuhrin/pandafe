@@ -36,8 +36,6 @@ namespace Data.GameList
 		}
 		public bool scan_children(GameFolder folder, out ArrayList<GameFolder> child_folders, out ArrayList<GameItem> child_games) {
 			bool result = get_children(folder, out child_folders, out child_games);
-			// todo: notify some signal of folder scan
-			//debug("folder '%s' scanned.", folder.unique_id());
 			return result;
 		}
 
@@ -52,6 +50,12 @@ namespace Data.GameList
 		protected SpawningResult run_program_with_premount(Program program, ProgramSettings? program_settings=null, string? game_path=null) {
 			return Spawning.spawn_program(program, true, program_settings, game_path);
 		}
+		protected SpawningResult run_platform_program(Platform platform, Program program, ProgramSettings? program_settings=null, string? game_path=null) {
+			return Spawning.spawn_platform_program(platform, program, false, program_settings, game_path);
+		}
+		protected SpawningResult run_platform_program_with_premount(Platform platform, Program program, ProgramSettings? program_settings=null, string? game_path=null) {
+			return Spawning.spawn_platform_program(platform, program, true, program_settings, game_path);
+		}		
 
 		void remove_platform_gamelist_cache() {
 			if (platform.id == null)

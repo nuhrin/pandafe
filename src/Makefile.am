@@ -46,6 +46,7 @@ pandafe_VALASOURCES = \
 	Data/Platforms/PlatformFolderData.vala \
 	Data/Platforms/PlatformListNode.vala \
 	Data/Platforms/PlatformNode.vala \
+	Data/Platforms/PlatformProgramSettingsMap.vala \
 	Data/Platforms/PlatformProvider.vala \
 	Data/Pnd/AppIdType.vala \
 	Data/Pnd/AppItem.vala \
@@ -78,6 +79,7 @@ pandafe_VALASOURCES = \
 	Fields/PlatformFolderListField.vala \
 	Fields/PlatformListField.vala \
 	Fields/PlatformNodeListField.vala \
+	Fields/PlatformProgramSettingsMapField.vala \
 	Fields/PndAppField.vala \
 	Fields/PndCategoryField.vala \
 	Fields/PndSelectionField.vala \
@@ -135,6 +137,7 @@ pandafe_VALASOURCES = \
 	Menus/Concrete/OptionGroupingMenu.vala \
 	Menus/Concrete/PlatformFolderMenu.vala \
 	Menus/Concrete/PlatformMenu.vala \
+	Menus/Concrete/PlatformProgramSettingsMapMenu.vala \
 	Menus/Concrete/ProgramDefaultSettingsMenu.vala \
 	Menus/Fields/BooleanField.vala \
 	Menus/Fields/EnumField.vala \

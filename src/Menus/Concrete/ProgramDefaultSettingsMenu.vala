@@ -8,13 +8,14 @@ using Menus.Fields;
 namespace Menus.Concrete
 {
 	public class ProgramDefaultSettingsMenu : Menu  
-	{
+	{		
 		public static bool edit(string program_name, ProgramDefaultSettings settings, OptionSet options, int clockspeed=-1, string? extra_arguments=null) {
-			var menu = new ProgramDefaultSettingsMenu(program_name, settings, options, clockspeed, extra_arguments);
+			var menu = new ProgramDefaultSettingsMenu("Default", program_name, settings, options, clockspeed, extra_arguments);
 			new MenuBrowser(menu).run();
 			return menu.was_saved;
 		}
-		
+	
+		string? title_prefix;
 		string program_name;
 		OptionSet options;
 		HashMap<Option,MenuItemField> field_hash;
@@ -23,8 +24,9 @@ namespace Menus.Concrete
 		StringField extra_arguments_field;
 		ClockSpeedField clockspeed_field;
 		
-		public ProgramDefaultSettingsMenu(string program_name, ProgramDefaultSettings settings, OptionSet options, int clockspeed=-1, string? extra_arguments=null) {
-			base("Default Settings: " + program_name);
+		public ProgramDefaultSettingsMenu(string title_prefix, string program_name, ProgramDefaultSettings settings, OptionSet options, int clockspeed=-1, string? extra_arguments=null) {
+			base(title_prefix + " Settings: " + program_name);
+			this.title_prefix = title_prefix;
 			this.program_name = program_name;
 			this.options = options;
 			this.original_settings = settings;
@@ -71,7 +73,7 @@ namespace Menus.Concrete
 			foreach(var option in options) {
 				var grouping = option as OptionGrouping;
 				if (grouping != null) {
-					var field = grouping.get_grouping_field(settings, program_name, "Default ");
+					var field = grouping.get_grouping_field(settings, program_name, title_prefix + " ");
 					field_hash[option] = field;
 					items.add(field);
 					continue;
