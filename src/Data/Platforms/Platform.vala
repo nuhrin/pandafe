@@ -124,7 +124,7 @@ public class Platform : NamedEntity, MenuObject
 	GameListProvider _provider;	
 	protected void reset_provider() { _provider = null; }
 	protected virtual GameListProvider create_provider() {
-		return new RomList(this, name, rom_folder_root, rom_file_extensions);
+		return new RomList(this, name, rom_folder_root ?? "", rom_file_extensions);
 	}
 
 	// yaml

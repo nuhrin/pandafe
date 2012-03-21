@@ -525,6 +525,8 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 			}
 			var platform_node = node as PlatformNode;
 			if (platform_node != null) {
+				if (ensure_platform_root_rolder(platform_node.platform) == false)
+					return;
 				current_platform = platform_node.platform;
 				current_folder = current_platform.get_root_folder();
 				change_selector();
@@ -540,7 +542,10 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 
 		var platform_selector = selector as PlatformSelector;
 		if (platform_selector != null) {
-			current_platform = platform_selector.selected_platform();
+			var selected_platform = platform_selector.selected_platform();
+			if (ensure_platform_root_rolder(selected_platform) == false)
+				return;
+			current_platform = selected_platform;
 			current_folder = current_platform.get_root_folder();
 			change_selector();
 			var state = Data.browser_state();
@@ -569,6 +574,28 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 				run_game(game);							
 		}
 	}
+	
+	bool ensure_platform_root_rolder(Platform platform) {
+		if (platform.platform_type != PlatformType.ROM)
+			return true;
+			
+		var rom_folder_root = platform.rom_folder_root;
+		if (rom_folder_root == null || rom_folder_root.strip() == "" || FileUtils.test(rom_folder_root, FileTest.IS_DIR) == false) {
+			var chooser = new FolderChooser("rom_folder_chooser", "Choose %s Rom Folder".printf(platform.name));
+			var new_root = chooser.run(rom_folder_root);
+			if (new_root == null)
+				return false;
+			platform.rom_folder_root = new_root;
+			string? error;
+			if (Data.platforms().save_platform(platform, platform.id, out error, f=> status_message.set("Scanning", platform.name, f.unique_name())) == false) {
+				status_message.set(error);
+				return false;
+			}
+			status_message.clear();
+		}		
+		return true;
+	}
+	
 	void run_game(GameItem game) {
 		status_message.set("running '%s'...".printf(game.unique_name()));				
 		var result = game.run();
@@ -712,7 +739,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		}
 			
 		var new_platform = new PlatformChooser("platform_chooser").run(active_platform);
-		if (new_platform == null || (new_platform == active_platform && everything_active == false))
+		if (new_platform == null || (ensure_platform_root_rolder(new_platform) == false ) || (new_platform == active_platform && everything_active == false))
 			return;		
 		
 		everything_active = false;		
