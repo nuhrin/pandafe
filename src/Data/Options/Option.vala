@@ -8,7 +8,8 @@ namespace Data.Options
 	{
 		const string NAME_CHARACTER_REGEX = "[[:alnum:] ]";
 		public string name { get; set; }
-		public string? help { get; set; }
+		public string? help { get; set; }		
+		public bool locked { get; set; }
 		public string option { get; set; }
 		
 		public abstract OptionType option_type { get; }
@@ -27,7 +28,8 @@ namespace Data.Options
 		protected virtual void build_menu(MenuBuilder builder) {
 			add_name_field(name, builder);
 			builder.add_string("option", "Option", "-o, --option, etc", option ?? "");
-			build_edit_fields(builder);
+			build_edit_fields(builder);			
+			builder.add_bool("locked", "Locked", "If true, games cannot change this setting.", locked);
 			builder.add_string("help", "Help", "Help text to display during option selection", help ?? "");
 		}
 		protected abstract void build_edit_fields(MenuBuilder builder);

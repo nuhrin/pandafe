@@ -68,6 +68,8 @@ namespace Menus.Concrete
 					if (settings.has_key(option.setting_name) == true)
 						setting = settings[option.setting_name];
 					var field = option.get_setting_field(setting);
+					if (option.locked == true)
+						field.enabled = false;
 					field_hash[option] = field;
 					items.add(field);
 				}
@@ -85,6 +87,8 @@ namespace Menus.Concrete
 			if (program != null) {
 				var settings = new ProgramSettings();
 				foreach(var option in program.options) {
+					if (option.locked == true)
+						continue;
 					var field = field_hash[option];
 					var grouping_field = field as OptionGroupingField;
 					if (grouping_field != null)
