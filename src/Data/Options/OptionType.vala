@@ -9,16 +9,16 @@ namespace Data.Options
 		INTEGER,
 		MULTIPLE_CHOICE;
 		
-		public Option? create_option() {
+		public Option? create_option(OptionSet parent) {
 			switch(this) {
 				case OptionType.FLAG:
-					return new FlagOption();
+					return new FlagOption(parent);
 				case OptionType.GROUPING:
-					return new OptionGrouping();
+					return new OptionGrouping(parent);
 				case OptionType.INTEGER:
-					return new IntegerOption();
+					return new IntegerOption(parent);
 				case OptionType.MULTIPLE_CHOICE:
-					return new MultipleChoiceOption();
+					return new MultipleChoiceOption(parent);
 				default:
 					break;
 			}
@@ -38,11 +38,11 @@ namespace Data.Options
 			return option_type_names;
 		}
 		
-		public static Option? create_option_from_name(string name) {
+		public static Option? create_option_from_name(string name, OptionSet parent) {
 			ensure_option_type_names();
 			for(int index=0;index<option_type_names.length;index++) {
 				if (name == option_type_names[index])
-					return ((OptionType)index + 1).create_option();
+					return ((OptionType)index + 1).create_option(parent);
 			}
 			warning("No OptionType found for name '%s'.", name);
 			return null;

@@ -6,6 +6,9 @@ namespace Data.Options
 {
 	public class FlagOption : Option
 	{
+		public FlagOption(OptionSet parent) {
+			base(parent);
+		}
 		public override OptionType option_type { get { return OptionType.FLAG; } }
 		public bool on_by_default { get; set; }
 		

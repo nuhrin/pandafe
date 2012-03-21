@@ -10,7 +10,8 @@ namespace Data.Options
 {
 	public class MultipleChoiceOption : Option
 	{
-		construct {
+		public MultipleChoiceOption(OptionSet parent) {
+			base(parent);
 			choices = new ArrayList<Choice>();
 			default_choice_index = -1;
 		}

@@ -6,6 +6,9 @@ namespace Data.Options
 {
 	public class IntegerOption : Option
 	{
+		public IntegerOption(OptionSet parent) {
+			base(parent);
+		}
 		public override OptionType option_type { get { return OptionType.INTEGER; } }
 		public int min_value { get; set; }
 		public int max_value { get; set; }

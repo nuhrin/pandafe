@@ -50,7 +50,7 @@ namespace Data.Options
 			foreach(var option_mapping in sequence.mappings()) {
 				OptionType option_type = get_option_type_from_mapping(parser, option_mapping);
 				if (option_type != OptionType.NONE) {
-					var option = option_type.create_option();
+					var option = option_type.create_option(this);
 					if (option != null) {
 						apply_option_yaml_node(option_mapping, parser, option);
 						this.add(option);

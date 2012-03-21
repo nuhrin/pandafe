@@ -8,7 +8,8 @@ namespace Data.Options
 {
 	public class OptionGrouping : Option
 	{
-		public OptionGrouping() {
+		public OptionGrouping(OptionSet parent) {
+			base(parent);
 			options = new OptionSet();
 		}
 		public override OptionType option_type { get { return OptionType.GROUPING; } }

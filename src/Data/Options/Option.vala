@@ -7,6 +7,13 @@ namespace Data.Options
 	public abstract class Option : Object, MenuObject
 	{
 		const string NAME_CHARACTER_REGEX = "[[:alnum:] ]";
+		weak OptionSet _parent;
+		public Option(OptionSet parent) {
+			_parent = parent;
+		}
+		
+		public weak OptionSet parent { get { return _parent; } }
+		
 		public string name { get; set; }
 		public string? help { get; set; }		
 		public bool locked { get; set; }

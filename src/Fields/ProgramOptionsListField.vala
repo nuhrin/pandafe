@@ -12,21 +12,25 @@ namespace Fields
 {
 	public class ProgramOptionsListField : ListField<Option>
 	{
+		OptionSet option_set;
 		public ProgramOptionsListField(string id, string name, string? help=null, OptionSet value, string? title=null) {
 			base(id, name, help, value, title);
+			this.option_set = value;
 		}
 
 		public OptionSet options() { return (OptionSet)base.get_field_value(); }
 
 		protected override Gee.List<Option> create_new_value_list() { return new OptionSet(); }
 		protected override ListEditor<Option> get_list_editor(string? title) {
-			return new ProgramOptionsListEditor(id, title ?? name, null, value, o=>o.name);
+			return new ProgramOptionsListEditor(id, title ?? name, null, option_set, o=>o.name);
 		}
 		
 		class ProgramOptionsListEditor : ListEditor<Option>
 		{
-			public ProgramOptionsListEditor(string id, string name, string? help=null, Gee.List<Option> list, owned MapFunc<string?, Option> get_name_string) {
-				base(id, name, help, list, (owned)get_name_string);
+			OptionSet options;
+			public ProgramOptionsListEditor(string id, string name, string? help=null,OptionSet options, owned MapFunc<string?, Option> get_name_string) {
+				base(id, name, help, options, (owned)get_name_string);
+				this.options = options;
 			}
 			protected override bool create_item(Rect selected_item_rect, out Option item) {
 				item = null;
@@ -36,7 +40,7 @@ namespace Fields
 				selector.run();
 				if (selector.was_canceled)
 					return false;
-				Option? option = OptionType.create_option_from_name(selector.selected_item_name());
+				Option? option = OptionType.create_option_from_name(selector.selected_item_name(), options);
 				if (option != null) {
 					item = option;
 					return true;
