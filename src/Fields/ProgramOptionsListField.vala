@@ -18,6 +18,7 @@ namespace Fields
 
 		public OptionSet options() { return (OptionSet)base.get_field_value(); }
 
+		protected override Gee.List<Option> create_new_value_list() { return new OptionSet(); }
 		protected override ListEditor<Option> get_list_editor(string? title) {
 			return new ProgramOptionsListEditor(id, title ?? name, null, value, o=>o.name);
 		}

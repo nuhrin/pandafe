@@ -9,7 +9,8 @@ namespace Menus.Fields
 		string? title;
 		public ListField(string id, string name, string? help=null, Gee.List<G> value, string? title=null) {
 			base(id, name, help);
-			_value = value;
+			_value = create_new_value_list();
+			_value.add_all(value);
 			this.title = title;
 		}
 
@@ -32,6 +33,7 @@ namespace Menus.Fields
 			}			
 		}
 		
+		protected virtual Gee.List<G> create_new_value_list() { return new ArrayList<G>(); }
 		protected abstract ListEditor<G> get_list_editor(string? title);
 		
 		void change_value(Gee.List<G> new_value) {

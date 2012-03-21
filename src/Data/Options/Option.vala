@@ -35,6 +35,7 @@ namespace Data.Options
 			var name_field = builder.add_string("name", "Name", null, name ?? "", NAME_CHARACTER_REGEX);
 			name_field.required = true;
 		}
+		protected virtual bool apply_changed_field(Menus.Menu menu, MenuItemField field) { return false; }
 
 		// field
 		public abstract MenuItemField get_setting_field(string? setting);

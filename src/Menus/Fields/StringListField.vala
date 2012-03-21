@@ -11,7 +11,8 @@ namespace Menus.Fields
 		string? value_mask_regex;
 		public StringListField(string id, string name, string? help=null, Gee.List<string> value, string? title, string? character_mask_regex=null, string? value_mask_regex=null) {
 			base(id, name, help);
-			_value = value;
+			_value = create_new_value_list();
+			_value.add_all(value);
 			this.title = title;
 			this.character_mask_regex = character_mask_regex;
 			this.value_mask_regex = value_mask_regex;
@@ -24,6 +25,8 @@ namespace Menus.Fields
 
 		public override string get_value_text() { return ""; }
 		public override int get_minimum_menu_value_text_length() { return 0; }
+
+		protected virtual Gee.List<string> create_new_value_list() { return new ArrayList<string>(); }
 
 		protected override Value get_field_value() { return _value; }
 		protected override void set_field_value(Value value) { change_value((Gee.List<string>)value); }
