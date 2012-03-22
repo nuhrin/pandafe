@@ -31,9 +31,9 @@ namespace Data.Platforms
 				get_all_platforms_add_folder_platforms(root_folder, all_platforms);
 			} else {
 				foreach(var folder in folders)
-					get_all_platforms_add_folder_platforms(folder, all_platforms);				
-			}
-			all_platforms.add(Data.platforms().get_native_platform());
+					get_all_platforms_add_folder_platforms(folder, all_platforms);
+				all_platforms.add(Data.platforms().get_native_platform());
+			}			
 			return new Enumerable<Platform>(all_platforms).sort((a,b) => a.name.casefold().collate(b.name.casefold()));
 		}
 			void get_all_platforms_add_folder_platforms(PlatformFolder folder, HashSet<Platform> all_platforms) {
