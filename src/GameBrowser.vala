@@ -168,7 +168,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 	
 	//
 	// layer updates
-	void set_header() {		
+	void set_header(bool flip=false) {
 		string left = null;
 		string center = null;
 		string right = null;
@@ -191,14 +191,14 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 			if (current_platform_folder != null)
 				right = current_platform_folder.path();
 		}
-		header.set_text(left, center, right, false);
+		header.set_text(left, center, right, flip);
 	}
 	void change_selector() {
 		clear();
-		set_header();
-		on_selector_loading();
+		set_header(true);
 		Selector new_selector = null;
 		if (this.everything_active == true) {
+			on_selector_loading();		
 			if (everything_selector == null) {
 				everything_selector = new EverythingSelector(SELECTOR_ID, SELECTOR_XPOS, SELECTOR_YPOS, current_view_data);
 				everything_selector.changed.connect(() => on_selector_changed());
@@ -208,6 +208,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 			new_selector = everything_selector;
 		} else {
 			if (this.current_folder != null) {
+				on_selector_loading();		
 				new_selector = new GameFolderSelector(this.current_folder, SELECTOR_ID, SELECTOR_XPOS, SELECTOR_YPOS);				
 			} else if (this.current_platform_folder != null) {
 				new_selector = new PlatformFolderSelector(this.current_platform_folder, SELECTOR_ID, SELECTOR_XPOS, SELECTOR_YPOS);
@@ -676,16 +677,20 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		var label = @interface.game_browser_ui.render_text_selected(FILTER_LABEL);
 		Rect label_rect = {600 - (int16)label.w, 455};
 		blit_surface(label, null, label_rect);
+		
 		var entry = new TextEntry("selection_filter", 600, 450, 200, selector.get_filter_pattern());
 		var new_pattern = entry.run();
-		if (new_pattern != "") {
-			selector.filter(new_pattern);
-			current_filter = new_pattern;
-		} else {
-			selector.clear_filter();
-			current_filter = null;
-		}
-		selector.rebuild();
+		if (new_pattern == null || new_pattern.strip() == "")
+			new_pattern = null;
+		
+		if (new_pattern == current_filter)
+			return;		
+		current_filter = new_pattern;
+		
+		if (current_filter != null)
+			selector.filter(current_filter);
+		else
+			selector.clear_filter();		
 	}
 
 	//

@@ -195,20 +195,17 @@ public abstract class Selector : Layers.Layer
 		for(int index=0; index<_filter_match_indexes.size; index++)
 			_filter_index_position_hash[_filter_match_indexes[index]] = index;
 
-		reset_surface();
 		if (display_index != -1)
-			select_display_item(display_index);
-		else
-			ensure_surfaces(0);
-
+			select_display_item(display_index, false);
+		
+		rebuild();
 		return success;
 	}
 	public void clear_filter() {
 		_filter = null;
 		_filter_match_indexes = null;
 		_filter_index_position_hash = null;
-		reset_surface();
-		ensure_surfaces(selected_index);
+		rebuild();
 	}
 	public string? get_filter_pattern() { return _filter; }
 
@@ -223,17 +220,17 @@ public abstract class Selector : Layers.Layer
 		reset_surface();
 	}
 
-	void ensure_surfaces(int display_index) {
+	void ensure_surfaces(int display_index) {		
 		if (surfaces == null)
 			surfaces = new SelectorSurfaceSet(display_item_count, ITEMS_PER_SURFACE, this, get_index_from_display_index);
 		surfaces.ensure_surfaces(display_index);
 	}
 
-	int get_index_from_display_index(int display_index) {
-		if (_filter_match_indexes == null)
-			return display_index;
+	int get_index_from_display_index(int display_index) {		
 		if (display_index < 0 || display_index >= display_item_count)
 			return -1;
+		if (_filter_match_indexes == null)
+			return display_index;
 
 		return _filter_match_indexes[display_index];
 	}
