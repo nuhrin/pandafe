@@ -10,13 +10,14 @@ public InterfaceHelper @interface;
 
 public class InterfaceHelper : Object
 {
-	const string FONT_MONO = "/usr/share/fonts/truetype/DejaVuSansMono.ttf";
+	public const string FONT_MONO_DEFAULT = "/usr/share/fonts/truetype/DejaVuSansMono.ttf";
+	const string FONT_MONO_PREFERRED = "fonts/deluxefontregular.ttf";
 	const int IDLE_DELAY = 10;
 	public const int SELECTOR_VISIBLE_ITEMS = 15;
 	public const int16 SELECTOR_ITEM_SPACING = 5;
 
-	const int FONT_SIZE = 16;
-	const int FONT_SMALL_SIZE = 12;
+	public const int FONT_SIZE = 12;
+	const int FONT_SMALL_SIZE = 10;
 	const int DEPTH = 32;
 
 	Data.Preferences preferences;
@@ -45,14 +46,20 @@ public class InterfaceHelper : Object
 		_white_color = {255, 255, 255};		
 		_white_color_rgb = this.screen.format.map_rgb(255, 255, 255);
 
-		font_mono = new Font(FONT_MONO, FONT_SIZE);
+		string mono_font_path = Path.build_filename(Config.PACKAGE_DATADIR, FONT_MONO_PREFERRED);
+		if (FileUtils.test(mono_font_path, FileTest.EXISTS) == false) {
+			debug("fail: %s", mono_font_path);
+			mono_font_path = FONT_MONO_DEFAULT;
+		}
+		
+		font_mono = new Font(mono_font_path, FONT_SIZE);
 		if (font_mono == null) {
 			GLib.error("Error loading monospaced font: %s", SDL.get_error());
 		}
 		font_mono_height = (int16)font_mono.height();
 		font_mono_char_width = (int16)font_mono.render_shaded(" ", _black_color, _black_color).w;
 
-		font_mono_small = new Font(FONT_MONO, FONT_SMALL_SIZE);
+		font_mono_small = new Font(mono_font_path, FONT_SMALL_SIZE);
 		font_mono_small_height = (int16)font_mono_small.height();
 		
 		screen_layer_stack = new GLib.Queue<ScreenLayer>();

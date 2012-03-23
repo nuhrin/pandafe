@@ -50,7 +50,7 @@ namespace Menus.Concrete
 		}
 		
 		protected override void populate_items(Gee.List<MenuItem> items) { 
-			font = new FileField("font", "Font", null, "", "ttf", "/usr/share/fonts/truetype");
+			font = new FileField("font", "Font", null, "", "ttf", Path.build_filename(Config.PACKAGE_DATADIR, "fonts"));
 			item_color = new ColorField("item_color", "Item Color");
 			selected_item_color = new ColorField("selected_item_color", "Selected Item Color");
 			background_color = new ColorField("background_color", "Background Color");

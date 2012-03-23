@@ -11,8 +11,8 @@ using Menus.Fields;
 
 public class GameBrowser : Layers.ScreenLayer, EventHandler
 {
-	const int16 SELECTOR_XPOS = 100;
-	const int16 SELECTOR_YPOS = 60;
+	const int16 SELECTOR_XPOS = 75;
+	const int16 SELECTOR_YPOS = 70;
 	const string SELECTOR_ID = "selector";
 	const string FILTER_LABEL = "filter: ";
 	

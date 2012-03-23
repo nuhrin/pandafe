@@ -71,6 +71,7 @@ AC_SUBST(SDL_GFX_LIBS)
 AC_CONFIG_FILES([
 	Makefile
 	data/Makefile
+	data/fonts/Makefile
 	data/Platform/Makefile
 	scripts/Makefile
 	src/Makefile
