@@ -39,6 +39,12 @@ public class MainClass: Object {
 
 		if (SDLTTF.init() == -1)
 			GLib.error("Error initializing SDL_ttf: %s", SDL.get_error());
+			
+		var font = new Font(InterfaceHelper.FONT_MONO_DEFAULT, InterfaceHelper.FONT_SIZE);
+		if (font != null) {
+			font.render("Initializing...", {255,255,255}).blit(null, screen, {20,20});
+			screen.flip();
+		}
 
 		if (SDL.enable_key_repeat() == -1)
 			GLib.error("Error enabling key repeat: %s", SDL.get_error());

@@ -17,6 +17,7 @@ public class EverythingSelector : Selector {
 	Gee.List<GameItem> items {
 		get {
 			if (_items == null) {
+				loading();
 				_items = get_view_games(view);
 				_items.sort();
 			}

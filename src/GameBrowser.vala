@@ -196,33 +196,30 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 	void change_selector() {
 		clear();
 		set_header();
-		
+		on_selector_loading();
 		Selector new_selector = null;
 		if (this.everything_active == true) {
 			if (everything_selector == null) {
 				everything_selector = new EverythingSelector(SELECTOR_ID, SELECTOR_XPOS, SELECTOR_YPOS, current_view_data);
 				everything_selector.changed.connect(() => on_selector_changed());
+				everything_selector.loading.connect(() => on_selector_loading());
 				everything_selector.rebuilt.connect(() => on_selector_rebuilt(everything_selector));
 			}
 			new_selector = everything_selector;
-		} else if (this.current_folder != null) {
-			new_selector = new GameFolderSelector(this.current_folder, SELECTOR_ID, SELECTOR_XPOS, SELECTOR_YPOS);
-			new_selector.changed.connect(() => on_selector_changed());
-			new_selector.rebuilt.connect(() => on_selector_rebuilt(new_selector));
-		} else if (this.current_platform_folder != null) {
-			new_selector = new PlatformFolderSelector(this.current_platform_folder, SELECTOR_ID, SELECTOR_XPOS, SELECTOR_YPOS);
-			new_selector.changed.connect(() => on_selector_changed());
-			new_selector.rebuilt.connect(() => on_selector_rebuilt(new_selector));
-		} else if (this.platform_folder_data.folders.size > 0) {
-			new_selector = new PlatformFolderSelector.root(SELECTOR_ID, SELECTOR_XPOS, SELECTOR_YPOS);
-			new_selector.changed.connect(() => on_selector_changed());
-			new_selector.rebuilt.connect(() => on_selector_rebuilt(new_selector));
 		} else {
-			new_selector = new PlatformSelector(SELECTOR_ID, SELECTOR_XPOS, SELECTOR_YPOS);
+			if (this.current_folder != null) {
+				new_selector = new GameFolderSelector(this.current_folder, SELECTOR_ID, SELECTOR_XPOS, SELECTOR_YPOS);				
+			} else if (this.current_platform_folder != null) {
+				new_selector = new PlatformFolderSelector(this.current_platform_folder, SELECTOR_ID, SELECTOR_XPOS, SELECTOR_YPOS);
+			} else if (this.platform_folder_data.folders.size > 0) {
+				new_selector = new PlatformFolderSelector.root(SELECTOR_ID, SELECTOR_XPOS, SELECTOR_YPOS);
+			} else {
+				new_selector = new PlatformSelector(SELECTOR_ID, SELECTOR_XPOS, SELECTOR_YPOS);
+			}
 			new_selector.changed.connect(() => on_selector_changed());
+			new_selector.loading.connect(() => on_selector_loading());
 			new_selector.rebuilt.connect(() => on_selector_rebuilt(new_selector));
-		}
-		
+		}		
 		if (this.selector == null)
 			add_layer(new_selector);
 		else
@@ -244,6 +241,11 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		if (active_pattern != null)
 			right = "%s\"%s\"".printf(FILTER_LABEL, active_pattern);
 		status_message.set(null, center, right, flip);
+	}
+	void on_selector_loading() {
+		if (@interface.peek_layer() != null)
+			return; // another layer has focus, don't bother reporting load
+		status_message.set("Loading list...");
 	}
 	void on_selector_rebuilt(Selector selector) {
 		if (this.selector != selector)

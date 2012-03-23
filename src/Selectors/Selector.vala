@@ -70,9 +70,10 @@ public abstract class Selector : Layers.Layer
 			blit_surface(window.surface_two.get_surface(), window.rect_two, dest);
 		}
 	}
+	public signal void loading();
 	public signal void rebuilt();
 	public void rebuild() {
-		reset_surface();		
+		reset_surface();
 		_items = null;
 		_item_count = -1;
 		int index = selected_index;
