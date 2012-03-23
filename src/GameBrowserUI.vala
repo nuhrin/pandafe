@@ -3,8 +3,8 @@ using SDLTTF;
 
 public class GameBrowserUI
 {
-	const int FONT_SIZE = 14;
-	public const int16 SELECTOR_WITDH = 600;
+	const int FONT_SIZE = 16;
+	public const int16 SELECTOR_WITDH = 680;
 
 	Data.Preferences preferences;
 	Font _font;

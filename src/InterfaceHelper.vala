@@ -11,13 +11,13 @@ public InterfaceHelper @interface;
 public class InterfaceHelper : Object
 {
 	public const string FONT_MONO_DEFAULT = "/usr/share/fonts/truetype/DejaVuSansMono.ttf";
-	const string FONT_MONO_PREFERRED = "fonts/deluxefontregular.ttf";
+	const string FONT_MONO_PREFERRED = "fonts/pixelcarnagemono.ttf";
 	const int IDLE_DELAY = 10;
-	public const int SELECTOR_VISIBLE_ITEMS = 15;
+	public const int SELECTOR_VISIBLE_ITEMS = 18;
 	public const int16 SELECTOR_ITEM_SPACING = 5;
 
-	public const int FONT_SIZE = 12;
-	const int FONT_SMALL_SIZE = 10;
+	public const int FONT_SIZE = 20;
+	const int FONT_SMALL_SIZE = 14;
 	const int DEPTH = 32;
 
 	Data.Preferences preferences;
