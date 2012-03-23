@@ -69,7 +69,7 @@ namespace Menus.Concrete
 						setting = settings[option.setting_name];
 					var field = option.get_setting_field(setting);
 					if (option.locked == true)
-						field.enabled = false;
+						continue;
 					field_hash[option] = field;
 					items.add(field);
 				}
