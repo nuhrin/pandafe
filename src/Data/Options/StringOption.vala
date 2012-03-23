@@ -27,7 +27,11 @@ namespace Data.Options
 		
 		// setting
 		public override string get_option_from_setting_value(string? setting) {
-			return get_setting_value(setting);
+			var value = get_setting_value(setting);
+			if (value == null || value.strip() == "")
+				return "";
+                       
+			return option + value;
 		}
 		
 		string? get_setting_value(string? setting) {
