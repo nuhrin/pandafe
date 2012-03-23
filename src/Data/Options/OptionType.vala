@@ -7,7 +7,8 @@ namespace Data.Options
 		FLAG,
 		GROUPING,
 		INTEGER,
-		MULTIPLE_CHOICE;
+		MULTIPLE_CHOICE,
+		STRING;
 		
 		public Option? create_option(OptionSet parent) {
 			switch(this) {
@@ -19,6 +20,8 @@ namespace Data.Options
 					return new IntegerOption(parent);
 				case OptionType.MULTIPLE_CHOICE:
 					return new MultipleChoiceOption(parent);
+				case OptionType.STRING:
+					return new StringOption(parent);
 				default:
 					break;
 			}
@@ -56,7 +59,8 @@ namespace Data.Options
 			"Flag",
 			"Grouping",
 			"Integer",
-			"Multiple Choice"
+			"Multiple Choice",
+			"String"
 		};	
 	}
 }

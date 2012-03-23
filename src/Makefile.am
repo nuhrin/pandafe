@@ -39,6 +39,7 @@ pandafe_VALASOURCES = \
 	Data/Options/OptionGrouping.vala \
 	Data/Options/OptionSet.vala \
 	Data/Options/OptionType.vala \
+	Data/Options/StringOption.vala \
 	Data/Platforms/NativePlatform.vala \
 	Data/Platforms/NativePlatformCategory.vala \
 	Data/Platforms/Platform.vala \
