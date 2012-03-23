@@ -64,7 +64,7 @@ namespace Data
 		public GameBrowserViewType view_type { get; set; }
 		public string? view_platform_folder { get; set; }
 		public GameBrowserViewData get_view() {
-			if (view_type == GameBrowserViewType.PLATFORM_FOLDER_GAMES) {
+			if (view_type == GameBrowserViewType.PLATFORM_FOLDER) {
 				if (view_platform_folder != null) {
 					var folder = Data.platforms().get_platform_folder_data().get_folder(view_platform_folder);
 					if (folder != null)

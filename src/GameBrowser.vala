@@ -713,6 +713,14 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 				selector.update();
 			}
 			return;
+		} else if (new_view.view_type == GameBrowserViewType.PLATFORM_FOLDER) {
+			everything_active = false;
+			current_view_data = null;
+			current_platform_folder = new_view.platform_folder;
+			current_platform = null;
+			current_folder = null;
+			apply_platform_state();
+			return;			
 		}
 		
 		if (everything_active == false)

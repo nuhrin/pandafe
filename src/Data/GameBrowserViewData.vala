@@ -6,7 +6,7 @@ namespace Data
 		BROWSER,
 		FAVORITES,
 		ALL_GAMES,
-		PLATFORM_FOLDER_GAMES
+		PLATFORM_FOLDER
 	}
 	public class GameBrowserViewData {
 		string _name;
@@ -27,8 +27,8 @@ namespace Data
 			}
 		}
 		public GameBrowserViewData.folder(PlatformFolder folder) {
-			_name = "All %s Games".printf(folder.path());
-			view_type = GameBrowserViewType.PLATFORM_FOLDER_GAMES;
+			_name = folder.path();
+			view_type = GameBrowserViewType.PLATFORM_FOLDER;
 			platform_folder = folder;
 		}
 		public unowned string name { get { return _name; } }
@@ -38,7 +38,7 @@ namespace Data
 		public bool equals(GameBrowserViewData? other) {
 			if (other == null)
 				return false;
-			if (view_type != GameBrowserViewType.PLATFORM_FOLDER_GAMES)
+			if (view_type != GameBrowserViewType.PLATFORM_FOLDER)
 				return (view_type == other.view_type);
 				
 			if (other.platform_folder == null)

@@ -81,7 +81,7 @@ public class EverythingSelector : Selector {
 					? folder_data.get_all_platforms()
 					: Data.platforms().get_all_platforms();
 				break;
-			case GameBrowserViewType.PLATFORM_FOLDER_GAMES:
+			case GameBrowserViewType.PLATFORM_FOLDER:
 				if (view.platform_folder != null)
 					platforms = view.platform_folder.get_all_platforms();
 				break;
