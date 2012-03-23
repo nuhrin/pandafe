@@ -194,8 +194,8 @@ public class Platform : NamedEntity, MenuObject
 		program_settings_field = new PlatformProgramSettingsMapField("program_settings", "Program Settings", null, name, program_settings, programs);
 		builder.add_field(program_settings_field);
 		
-		var appearance_field = new GameBrowserAppearanceField("appearance", "Appearance", null, name + " Appearance", appearance, Data.preferences().appearance);
-		builder.add_field(appearance_field);
+//~ 		var appearance_field = new GameBrowserAppearanceField("appearance", "Appearance", null, name + " Appearance", appearance, Data.preferences().appearance);
+//~ 		builder.add_field(appearance_field);
 
 		initialize_fields();
 	}
