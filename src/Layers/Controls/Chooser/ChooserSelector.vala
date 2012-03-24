@@ -29,12 +29,12 @@ namespace Layers.Controls.Chooser
 		
 		string? choose_item_name;
 		
-		protected ChooserSelector(string id, int16 xpos, int16 ypos, bool is_root=false, string? choose_item_name=null) {
+		protected ChooserSelector(string id, int16 xpos, int16 ypos, int16 max_height, bool is_root=false, string? choose_item_name=null) {
 			base(id);
 			this.xpos = xpos;
 			this.ypos = ypos;			
-			visible_items = @interface.SELECTOR_VISIBLE_ITEMS;
-			item_spacing = @interface.SELECTOR_ITEM_SPACING;
+			visible_items = @interface.get_monospaced_font_selector_visible_items(max_height);
+			item_spacing = @interface.get_monospaced_font_item_spacing();
 			font = @interface.get_monospaced_font();
 			font_height = @interface.get_monospaced_font_height();
 						

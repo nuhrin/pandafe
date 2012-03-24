@@ -8,15 +8,15 @@ namespace Layers.Controls.List
 	public abstract class ListEditorBase<G> : ScreenLayer, EventHandler
 	{
 		const int16 SELECTOR_XPOS = 100;
-		const int16 SELECTOR_YPOS = 70;
 		const int16 MENU_SELECTOR_XPOS = 80;
-		const int16 MENU_SELECTOR_YPOS = 350;
 		
 		bool move_active;
 		bool menu_active;
 		bool save_requested;
 		MenuHeaderLayer header;
 		MenuMessageLayer message;
+		int16 selector_ypos;
+		int16 menu_selector_ypos;
 		ListItemSelector selector;
 		MenuSelector menu_selector;
 		Gee.List<G> _list;
@@ -37,7 +37,10 @@ namespace Layers.Controls.List
 			var save_text = get_save_item_text();
 			if (save_text != null)
 				menu.add_item(new Menus.MenuItem.save_item(save_text));
-			menu_selector = add_layer(new MenuSelector("list_menu_selector", MENU_SELECTOR_XPOS, MENU_SELECTOR_YPOS, menu, 100, 0)) as MenuSelector;
+			selector_ypos = header.ypos + (int16)header.height + @interface.get_monospaced_font_height();
+			int16 menu_selector_max_height = (int16)((@interface.get_monospaced_font_height() + @interface.get_monospaced_font_item_spacing()) * menu.items.size);
+			menu_selector_ypos = message.ypos - menu_selector_max_height;
+			menu_selector = add_layer(new MenuSelector("list_menu_selector", MENU_SELECTOR_XPOS, menu_selector_ypos, menu, menu_selector_max_height, 100, 0)) as MenuSelector;
 			menu_selector.wrap_selector = false;
 		}		
 		
@@ -50,7 +53,7 @@ namespace Layers.Controls.List
 		
 		public bool run() {
 			ensure_items();
-			selector = add_layer(new ListItemSelector("list_item_selector", SELECTOR_XPOS, SELECTOR_YPOS, _items)) as ListItemSelector;
+			selector = add_layer(new ListItemSelector("list_item_selector", SELECTOR_XPOS, selector_ypos, menu_selector_ypos - selector_ypos, _items)) as ListItemSelector;
 			@interface.push_screen_layer(this);
 			selector.select_first();
 			process_events();

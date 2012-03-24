@@ -26,23 +26,23 @@ namespace Menus
 
 		bool has_field;
 		int visible_items;
-		int item_spacing;
+		int16 item_spacing;
 		int index_before_select_first;
 		int index_before_select_last;
 		int first_enabled_index;
 		int last_enabled_index;
 
-		public MenuSelector(string id, int16 xpos, int16 ypos, Menu menu, uint8 max_name_length, uint8 max_value_length) {
+		public MenuSelector(string id, int16 xpos, int16 ypos, Menu menu, int16 max_height, uint8 max_name_length, uint8 max_value_length) {
 			base(id);
 			this.xpos = xpos;
 			this.ypos = ypos;
 			this._menu = menu;
 			this.max_name_length = max_name_length;
 			this.max_value_length = max_value_length;
-			visible_items = @interface.SELECTOR_VISIBLE_ITEMS;
-			item_spacing = @interface.SELECTOR_ITEM_SPACING;
 			font = @interface.get_monospaced_font();
 			font_height = @interface.get_monospaced_font_height();
+			item_spacing = @interface.get_monospaced_font_item_spacing();			
+			visible_items = @interface.get_monospaced_font_selector_visible_items(max_height);
 			ensure_surface();
 			index_before_select_first = -1;
 			index_before_select_last = -1;

@@ -11,9 +11,9 @@ namespace Layers.Controls.Chooser
 	{
 		const string CURRENT_ITEM_NAME = "(Choose this category)";
 		
-		public PndCategorySelector(string id, int16 xpos, int16 ypos, string path) {
+		public PndCategorySelector(string id, int16 xpos, int16 ypos, int16 max_height, string path) {
 			var category = Data.pnd_data().get_category_from_path(path);
-			base(id, xpos, ypos, (category == null), CURRENT_ITEM_NAME);			
+			base(id, xpos, ypos, max_height, (category == null), CURRENT_ITEM_NAME);			
 			this.path = (category != null) ? path : "";
 		}
 		

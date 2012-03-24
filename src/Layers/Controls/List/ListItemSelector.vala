@@ -30,12 +30,12 @@ namespace Layers.Controls.List
 		int index_before_select_first;
 		int index_before_select_last;
 		
-		public ListItemSelector(string id, int16 xpos, int16 ypos, Gee.List<ListItem> items) {
+		public ListItemSelector(string id, int16 xpos, int16 ypos, int16 max_height, Gee.List<ListItem> items) {
 			base(id);
 			this.xpos = xpos;
 			this.ypos = ypos;
-			visible_items = VISIBLE_ITEMS;
-			item_spacing = @interface.SELECTOR_ITEM_SPACING;
+			visible_items = @interface.get_monospaced_font_selector_visible_items(max_height);
+			item_spacing = @interface.get_monospaced_font_item_spacing();
 			font = @interface.get_monospaced_font();
 			font_height = @interface.get_monospaced_font_height();
 			

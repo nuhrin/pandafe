@@ -12,8 +12,8 @@ namespace Layers.Controls.Chooser
 		bool path_is_dir;
 		string original_path;
 		
-		public FileSelector(string id, int16 xpos, int16 ypos, string path, Regex? regex_file_filter=null, bool is_root=false) {
-			base(id, xpos, ypos, is_root);
+		public FileSelector(string id, int16 xpos, int16 ypos, int16 max_height, string path, Regex? regex_file_filter=null, bool is_root=false) {
+			base(id, xpos, ypos, max_height, is_root);
 			path_is_dir = FileUtils.test(path, FileTest.IS_DIR);
 			original_path = path;
 			this.path = (path_is_dir == false || path.has_suffix(Path.DIR_SEPARATOR_S) == true) 

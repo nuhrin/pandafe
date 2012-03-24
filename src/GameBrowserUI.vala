@@ -9,6 +9,7 @@ public class GameBrowserUI
 	Data.Preferences preferences;
 	Font _font;
 	string _font_path;
+	int _font_size;
 	int16 _font_height;
 	SDL.Color _item_color;
 	SDL.Color _selected_item_color;
@@ -16,9 +17,9 @@ public class GameBrowserUI
 	uint32 _background_color_rgb;
 	Surface _blank_item_surface;
 	
-	public GameBrowserUI(string font_path, SDL.Color item_color, SDL.Color selected_item_color, SDL.Color background_color) {
+	public GameBrowserUI(string font_path, int font_size, SDL.Color item_color, SDL.Color selected_item_color, SDL.Color background_color) {
 		preferences = Data.preferences();
-		set_font(font_path);
+		set_font(font_path, font_size);
 		_item_color = item_color;
 		_selected_item_color = selected_item_color;
 		_background_color = background_color;
@@ -33,6 +34,7 @@ public class GameBrowserUI
 	
 	public unowned Font font { get { return _font; } }
 	public unowned string font_path { get { return _font_path; } }
+	public int font_size { get { return _font_size; } }
 	public int16 font_height { get { return _font_height; } }
 	public unowned SDL.Color item_color { get { return _item_color; } }
 	public unowned SDL.Color selected_item_color { get { return _selected_item_color; } }
@@ -43,17 +45,17 @@ public class GameBrowserUI
 	public signal void colors_updated();
 	
 	public GameBrowserUI clone() {
-		return new GameBrowserUI(_font_path, _item_color, _selected_item_color, _background_color);
+		return new GameBrowserUI(_font_path, _font_size, _item_color, _selected_item_color, _background_color);
 	}
 	
-	public void set_font(string font_path) {
-		_font = new Font(font_path, FONT_SIZE);
+	public void set_font(string font_path, int font_size) {
+		_font = new Font(font_path, font_size);
 		if (_font == null) {
 			GLib.error("Error loading font: %s", SDL.get_error());
 		}
+		_font_size = font_size;
 		_font_path = font_path;
 		_font_height = (int16)font.height();
-		_blank_item_surface = null;
 		font_updated();
 	}
 	public void set_colors(SDL.Color item, SDL.Color selected_item, SDL.Color background) {
@@ -66,7 +68,7 @@ public class GameBrowserUI
 	}
 	public void set_appearance(Data.GameBrowserAppearance appearance, Data.GameBrowserAppearance? fallback_appearance=null) {
 		var ui = appearance.create_ui(fallback_appearance);
-		set_font(ui._font_path);
+		set_font(ui._font_path, ui._font_size);
 		_item_color = ui._item_color;
 		_selected_item_color = ui._selected_item_color;
 		_background_color = ui._background_color;
@@ -74,7 +76,7 @@ public class GameBrowserUI
 	}
 	
 	public void update_font_from_preferences() {
-		set_font(preferences.appearance.font);		
+		set_font(preferences.appearance.font, preferences.appearance.font_size);		
 	}
 	public void update_colors_from_preferences() {
 		var appearance = preferences.appearance;

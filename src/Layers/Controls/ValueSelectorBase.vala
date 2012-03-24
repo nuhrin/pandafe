@@ -48,7 +48,7 @@ namespace Layers.Controls
 			base(id);
 			this.xpos = xpos;
 			this.ypos = ypos;
-			item_spacing = @interface.SELECTOR_ITEM_SPACING;
+			item_spacing = @interface.get_monospaced_font_item_spacing();
 			font = @interface.get_monospaced_font();
 			font_height = @interface.get_monospaced_font_height();
 			max_text_width = max_width - 8;

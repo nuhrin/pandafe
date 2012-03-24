@@ -12,6 +12,8 @@ namespace Layers.Controls.Chooser
 		const int16 SELECTOR_YPOS = 70;
 
 		HashMap<string, ChooserSelector> selector_hash;
+		int16 selector_ypos;
+		int16 selector_max_height;
 		ChooserSelector selector;
 		ChooserHeader header;
 
@@ -20,6 +22,8 @@ namespace Layers.Controls.Chooser
 			selector_hash = new HashMap<string, ChooserSelector>();
 			header = add_layer(new ChooserHeader("header")) as ChooserHeader;
 			header.title = title;
+			selector_ypos = (int16)(header.ypos + header.height + @interface.get_monospaced_font_height());
+			selector_max_height = (int16)(@interface.screen_height - selector_ypos - 20);
 		}
 
 		public string? run(string? starting_key, string? secondary_starting_key=null) {
@@ -52,12 +56,12 @@ namespace Layers.Controls.Chooser
 			if (selector_hash.has_key(key) == true)
 				return selector_hash[key];
 				
-			var new_selector = create_selector(key, SELECTOR_XPOS, SELECTOR_YPOS);
+			var new_selector = create_selector(key, SELECTOR_XPOS, selector_ypos, selector_max_height);
 			new_selector.changed.connect(() => on_selector_changed());
 			selector_hash[key] = new_selector;
 			return new_selector;
 		}
-		protected abstract ChooserSelector create_selector(string key, int16 xpos, int16 ypos);
+		protected abstract ChooserSelector create_selector(string key, int16 xpos, int16 ypos, int16 max_height);
 		
 		//
 		// screen updates

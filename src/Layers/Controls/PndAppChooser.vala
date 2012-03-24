@@ -49,8 +49,8 @@ namespace Layers.Controls
 		}
 		protected override string? get_run_result() { return path; }
 		
-		protected override ChooserSelector create_selector(string key, int16 xpos, int16 ypos) {
-			return new PndAppSelector(SELECTOR_ID, xpos, ypos, key);
+		protected override ChooserSelector create_selector(string key, int16 xpos, int16 ypos, int16 max_height) {
+			return new PndAppSelector(SELECTOR_ID, xpos, ypos, max_height, key);
 		}		
 		
 		protected override void update_header(ChooserHeader header, ChooserSelector selector) {

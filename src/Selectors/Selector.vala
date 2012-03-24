@@ -5,17 +5,19 @@ using Gee;
 public abstract class Selector : Layers.Layer
 {
 	const int ITEMS_PER_SURFACE = 50;
-
+	const int MAX_WIDTH = 680;
+	const int MAX_HEIGHT = 380;
+	
 	GameBrowserUI ui;
 	SelectorSurfaceSet surfaces;
-	int16 xpos;
-	int16 ypos;
 	int index_before_select_first;
 	int index_before_select_last;
+	int visible_items;
+	int16 item_spacing;
 	string _filter;
 	Gee.List<int> _filter_match_indexes;
 	HashMap<int,int> _filter_index_position_hash;
-
+	
 	protected Selector(string id, int16 xpos=0, int16 ypos=0, GameBrowserUI? ui=null) {
 		base(id);
 		this.ui = ui ?? @interface.game_browser_ui;
@@ -24,9 +26,13 @@ public abstract class Selector : Layers.Layer
 		selected_index = -1;
 		index_before_select_first = -1;
 		index_before_select_last = -1;
+		update_font();
 		this.ui.font_updated.connect(update_font);
 		this.ui.colors_updated.connect(reset_surface);		
 	}
+
+	public int16 xpos { get; set; }
+	public int16 ypos { get; set; }
 	
 	SelectorItemSet items {
 		get {
@@ -92,6 +98,9 @@ public abstract class Selector : Layers.Layer
 
 		return select_display_item(selected_display_index() - 1);
 	}
+	public bool select_previous_page() {
+		return select_previous_by((uint)visible_items);
+	}
 	public bool select_previous_by(uint count) {
 		int s_display_index = selected_display_index();
 		if (count == 0 || s_display_index == 0)
@@ -107,6 +116,9 @@ public abstract class Selector : Layers.Layer
 			return false;
 
 		return select_display_item(selected_display_index() + 1);
+	}
+	public bool select_next_page() {
+		return select_next_by((uint)visible_items);
 	}
 	public bool select_next_by(uint count) {
 		int s_display_index = selected_display_index();
@@ -216,7 +228,9 @@ public abstract class Selector : Layers.Layer
 	void reset_surface() {
 		surfaces = null;
 	}
-	void update_font() {		
+	void update_font() {
+		item_spacing = ui.font_height / 4;
+		visible_items = MAX_HEIGHT / (ui.font_height + item_spacing);
 		reset_surface();
 	}
 
@@ -307,8 +321,8 @@ public abstract class Selector : Layers.Layer
 			mid_index = -1;
 			bot_index = -1;
 
-			visible_items = @interface.SELECTOR_VISIBLE_ITEMS;
-			item_spacing = @interface.SELECTOR_ITEM_SPACING;
+			visible_items = selector.visible_items;
+			item_spacing = selector.item_spacing;
 		}
 		public bool select_item(int new_index, int old_index) {
 			//debug("SelectorSurfaceSet.select_item(%d, %d)", new_index, old_index);
@@ -627,8 +641,8 @@ public abstract class Selector : Layers.Layer
 			this.get_index_from_display_index = (owned)get_index_from_display_index;
 			first_rendered_index = -1;
 			last_rendered_index = -1;
-			visible_items = @interface.SELECTOR_VISIBLE_ITEMS;
-			item_spacing = @interface.SELECTOR_ITEM_SPACING;
+			visible_items = selector.visible_items;
+			item_spacing = selector.item_spacing;
 			int surface_items = last_index - first_index + 1;
 			int height = (font_height * surface_items) + (item_spacing * surface_items) + (item_spacing * 2);
 			surface = selector.ui.get_blank_background_surface(GameBrowserUI.SELECTOR_WITDH, height);

@@ -8,29 +8,28 @@ namespace Menus
 	public class MenuBrowser : ScreenLayer, EventHandler
 	{
 		const int16 SELECTOR_XPOS = 100;
-		const int16 SELECTOR_YPOS = 60;
 		const string SELECTOR_ID = "selector";
 
 		const uint8 MAX_NAME_LENGTH = 40;
 		const uint8 MAX_VALUE_LENGTH = 40;
 
-		GLib.Queue<MenuSelector> menu_stack;
-		MenuSelector selector;
 		MenuHeaderLayer header;
 		MenuMessageLayer message;
+		int16 selector_ypos;		
+		int16 selector_max_height;
+		MenuSelector selector;
+		GLib.Queue<MenuSelector> menu_stack;		
 		Layer? additional_layer;
-		//int16 pos_y_status_message;
-		//Surface blank_message_area;
 
 		public MenuBrowser(Menu menu) {
 			if (menu.items.size == 0)
 				GLib.error("Menu '%s' has no items.", menu.name);
 			base("menubrowser");
-			//pos_y_status_message = 470 - (font_height * 2);
-			//blank_message_area = @interface.get_blank_surface(780, font_height * 2);
 			menu_stack = new GLib.Queue<MenuSelector>();
 			header = add_layer(new MenuHeaderLayer("header")) as MenuHeaderLayer;
-			message = add_layer(new MenuMessageLayer("status")) as MenuMessageLayer;			
+			message = add_layer(new MenuMessageLayer("status")) as MenuMessageLayer;
+			selector_ypos = header.ypos + (int16)header.height + @interface.get_monospaced_font_height();
+			selector_max_height = message.ypos - selector_ypos;
 			selector = add_layer(get_selector(menu)) as MenuSelector;
 		}
 
@@ -48,11 +47,11 @@ namespace Menus
 		public signal void menu_changed(Menu menu);
 		
 		public Rect get_selector_rect() {
-			return { SELECTOR_XPOS, SELECTOR_YPOS, (int16)selector.width };
+			return { SELECTOR_XPOS, selector_ypos, (int16)selector.width };
 		}
 
 		MenuSelector get_selector(Menu menu) {
-			var new_selector = new MenuSelector(SELECTOR_ID, SELECTOR_XPOS, SELECTOR_YPOS, menu, MAX_NAME_LENGTH, MAX_VALUE_LENGTH);
+			var new_selector = new MenuSelector(SELECTOR_ID, SELECTOR_XPOS, selector_ypos, menu, selector_max_height, MAX_NAME_LENGTH, MAX_VALUE_LENGTH);
 			new_selector.changed.connect(() => on_selector_changed());
 			menu.message.connect((message) => on_message(message));
 			menu.error.connect((error) => on_error(error));

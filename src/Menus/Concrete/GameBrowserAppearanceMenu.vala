@@ -41,20 +41,28 @@ namespace Menus.Concrete
 				appearance.font = font.value;
 				has_font_change = true;
 			}
+			if (font_size.has_changes()) {
+				appearance.font_size = font_size.value;
+				has_font_change = true;
+			}
+			
 			
 			return true;			
 		}
 		
 		protected override Layers.Layer? build_additional_menu_browser_layer() { 
-			return new BrowserPreview(235, ui);
+			return new BrowserPreview(275, ui);
 		}
 		
 		protected override void populate_items(Gee.List<MenuItem> items) { 
 			font = new FileField("font", "Font", null, "", "ttf", Path.build_filename(Config.PACKAGE_DATADIR, "fonts"));
+			font_size = new IntegerField("font_size", "Font Size", null, GameBrowserAppearance.DEFAULT_FONT_SIZE, 
+				GameBrowserAppearance.MIN_FONT_SIZE, GameBrowserAppearance.MAX_FONT_SIZE);
 			item_color = new ColorField("item_color", "Item Color");
 			selected_item_color = new ColorField("selected_item_color", "Selected Item Color");
 			background_color = new ColorField("background_color", "Background Color");
 			items.add(font);
+			items.add(font_size);
 			items.add(item_color);
 			items.add(selected_item_color);
 			items.add(background_color);
@@ -62,19 +70,21 @@ namespace Menus.Concrete
 				items.add(new MenuItem.custom("Defaults", "Reset to the default appearance for the current context" , null, () => {
 					if (default_appearance.font != null)
 						font.value = default_appearance.font;
+					font_size.value = default_appearance.font_size;
 					if (default_appearance.item_color != null)
 						item_color.value = default_appearance.item_color;
 					if (default_appearance.selected_item_color != null)
 						selected_item_color.value = default_appearance.selected_item_color;
 					if (default_appearance.background_color != null)
 						background_color.value = default_appearance.background_color;
-					refresh(4);
+					refresh(5);
 				}));
 			}
 			items.add(new MenuItem.cancel_item());
 			items.add(new MenuItem.save_item());
 			initialize(ui);
 			font.changed.connect(on_font_change);
+			font_size.changed.connect(on_font_change);
 			item_color.changed.connect(on_color_change);
 			selected_item_color.changed.connect(on_color_change);
 			background_color.changed.connect(on_color_change);
@@ -82,12 +92,13 @@ namespace Menus.Concrete
 		
 		void initialize(GameBrowserUI ui) {
 			font.value = ui.font_path;
+			font_size.value = ui.font_size;
 			item_color.value = new Data.Color.from_sdl(ui.item_color);
 			selected_item_color.value = new Data.Color.from_sdl(ui.selected_item_color);
 			background_color.value = new Data.Color.from_sdl(ui.background_color);
 		}
 		void on_font_change() {
-			ui.set_font(font.value);
+			ui.set_font(font.value, font_size.value);
 		}
 		void on_color_change() {
 			ui.set_colors(item_color.value.get_sdl_color(), 
@@ -96,6 +107,7 @@ namespace Menus.Concrete
 		}
 		
 		FileField font;
+		IntegerField font_size;
 		ColorField item_color;
 		ColorField selected_item_color;
 		ColorField background_color;

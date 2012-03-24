@@ -10,8 +10,8 @@ namespace Layers.Controls.Chooser
 	{
 		const string CURRENT_FOLDER_ITEM_NAME = "(Choose this folder)";
 		
-		public FolderSelector(string id, int16 xpos, int16 ypos, string path, bool is_root=false) {			
-			base(id, xpos, ypos, is_root, CURRENT_FOLDER_ITEM_NAME);
+		public FolderSelector(string id, int16 xpos, int16 ypos, int16 max_height, string path, bool is_root=false) {			
+			base(id, xpos, ypos, max_height, is_root, CURRENT_FOLDER_ITEM_NAME);
 			this.path = path;
 		}
 		

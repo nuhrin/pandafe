@@ -14,11 +14,12 @@ namespace Layers.GameBrowser
 
 		const uint8 MAX_NAME_LENGTH = 40;
 		const uint8 MAX_VALUE_LENGTH = 40;
-
-		GLib.Queue<MenuSelector> menu_stack;
-		MenuSelector selector;
+		
 		MenuHeaderLayer header;
 		MenuMessageLayer message;
+		int16 selector_max_height;
+		MenuSelector selector;
+		GLib.Queue<MenuSelector> menu_stack;
 		Rect upper_left;
 		Rect upper_right;
 		Rect lower_left;
@@ -33,6 +34,7 @@ namespace Layers.GameBrowser
 			header = add_layer(new MenuHeaderLayer("header")) as MenuHeaderLayer;
 			message = add_layer(new MenuMessageLayer("status")) as MenuMessageLayer;			
 			message.centered = true;
+			selector_max_height = (int16)(@interface.screen_height - SELECTOR_YPOS - message.height - 10);
 			selector = add_layer(get_selector(menu)) as MenuSelector;
 			upper_left={header.xpos - 1, header.ypos - 1};
 			upper_right={header.xpos + (int16)header.width + 1, upper_left.y};
@@ -74,7 +76,7 @@ namespace Layers.GameBrowser
 		}
 
 		MenuSelector get_selector(Menus.Menu menu) {
-			var new_selector = new MenuSelector(SELECTOR_ID, 0, 0, menu, MAX_NAME_LENGTH, MAX_VALUE_LENGTH);	
+			var new_selector = new MenuSelector(SELECTOR_ID, 0, 0, menu, selector_max_height, MAX_NAME_LENGTH, MAX_VALUE_LENGTH);	
 			update_selector_pos(new_selector);		
 			new_selector.changed.connect(() => on_selector_changed());
 			new_selector.refreshed.connect(() => update_selector_pos(new_selector));

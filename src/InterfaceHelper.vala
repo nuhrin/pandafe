@@ -13,9 +13,7 @@ public class InterfaceHelper : Object
 	public const string FONT_MONO_DEFAULT = "/usr/share/fonts/truetype/DejaVuSansMono.ttf";
 	const string FONT_MONO_PREFERRED = "fonts/pixelcarnagemono.ttf";
 	const int IDLE_DELAY = 10;
-	public const int SELECTOR_VISIBLE_ITEMS = 18;
-	public const int16 SELECTOR_ITEM_SPACING = 5;
-
+	
 	public const int FONT_SIZE = 20;
 	const int FONT_SMALL_SIZE = 14;
 	const int DEPTH = 32;
@@ -29,6 +27,7 @@ public class InterfaceHelper : Object
 	int16 font_mono_char_width;
 	int16 font_mono_height;
 	int16 font_mono_small_height;
+	int16 font_mono_item_spacing;
 	Color _black_color;	
 	Color _grey_color;
 	Color _white_color;
@@ -47,10 +46,8 @@ public class InterfaceHelper : Object
 		_white_color_rgb = this.screen.format.map_rgb(255, 255, 255);
 
 		string mono_font_path = Path.build_filename(Config.PACKAGE_DATADIR, FONT_MONO_PREFERRED);
-		if (FileUtils.test(mono_font_path, FileTest.EXISTS) == false) {
-			debug("fail: %s", mono_font_path);
-			mono_font_path = FONT_MONO_DEFAULT;
-		}
+		if (FileUtils.test(mono_font_path, FileTest.EXISTS) == false)
+			mono_font_path = FONT_MONO_DEFAULT;	
 		
 		font_mono = new Font(mono_font_path, FONT_SIZE);
 		if (font_mono == null) {
@@ -58,6 +55,7 @@ public class InterfaceHelper : Object
 		}
 		font_mono_height = (int16)font_mono.height();
 		font_mono_char_width = (int16)font_mono.render_shaded(" ", _black_color, _black_color).w;
+		font_mono_item_spacing = font_mono_height / 5;
 
 		font_mono_small = new Font(mono_font_path, FONT_SMALL_SIZE);
 		font_mono_small_height = (int16)font_mono_small.height();
@@ -124,6 +122,13 @@ public class InterfaceHelper : Object
 	public unowned Font get_monospaced_font() { return font_mono; }
 	public int16 get_monospaced_font_width(uint chars=1) { return (int16)(font_mono_char_width * chars); }
 	public int16 get_monospaced_font_height() { return font_mono_height; }
+	public int16 get_monospaced_font_item_spacing() { return font_mono_item_spacing; }
+	public int get_monospaced_font_selector_visible_items(int16 max_height) {
+		var min_height = (font_mono_height + font_mono_item_spacing) * 3;
+		if (max_height < min_height)
+			return 3;
+		return max_height / (font_mono_height + font_mono_item_spacing);			
+	}
 	public unowned Font get_monospaced_small_font() { return font_mono_small; }
 	public int16 get_monospaced_small_font_height() { return font_mono_small_height; }
 

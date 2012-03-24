@@ -9,9 +9,9 @@ namespace Layers.Controls.Chooser
 {
 	public class PndAppSelector : ChooserSelector
 	{		
-		public PndAppSelector(string id, int16 xpos, int16 ypos, string path) {
+		public PndAppSelector(string id, int16 xpos, int16 ypos, int16 max_height, string path) {
 			var category = Data.pnd_data().get_category_from_path(path);
-			base(id, xpos, ypos, (category == null));			
+			base(id, xpos, ypos, max_height, (category == null));			
 			this.path = (category != null) ? path : "";
 		}
 		
