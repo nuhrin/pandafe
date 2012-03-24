@@ -6,7 +6,6 @@ public abstract class Selector : Layers.Layer
 {
 	const int ITEMS_PER_SURFACE = 50;
 	const int MAX_WIDTH = 680;
-	const int MAX_HEIGHT = 380;
 	
 	GameBrowserUI ui;
 	SelectorSurfaceSet surfaces;
@@ -18,7 +17,7 @@ public abstract class Selector : Layers.Layer
 	Gee.List<int> _filter_match_indexes;
 	HashMap<int,int> _filter_index_position_hash;
 	
-	protected Selector(string id, int16 xpos=0, int16 ypos=0, GameBrowserUI? ui=null) {
+	protected Selector(string id, int16 xpos, int16 ypos, GameBrowserUI? ui=null) {
 		base(id);
 		this.ui = ui ?? @interface.game_browser_ui;
 		this.xpos = xpos;
@@ -230,7 +229,8 @@ public abstract class Selector : Layers.Layer
 	}
 	void update_font() {
 		item_spacing = ui.font_height / 4;
-		visible_items = MAX_HEIGHT / (ui.font_height + item_spacing);
+		int16 max_height = (int16)@interface.screen_height - (ui.font_height * 2) - 10 - ypos;
+		visible_items = max_height / (ui.font_height + item_spacing);
 		reset_surface();
 	}
 

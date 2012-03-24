@@ -39,7 +39,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		current_platform_index = -1;
 		header = add_layer(new HeaderLayer("header")) as HeaderLayer;
 		status_message = add_layer(new StatusMessageLayer("status-message")) as StatusMessageLayer;
-		selector_ypos = header.ypos + (int16)header.height + (ui.font_height * 2);
+		update_selector_ypos();
 	}
 
 	public void run() {
@@ -88,7 +88,12 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		set_header();
 		status_message = new StatusMessageLayer("status-message");
 		replace_layer(status_message.id, status_message);
-		selector.ypos = header.ypos + (int16)header.height + (ui.font_height * 2);
+		update_selector_ypos();
+	}
+	void update_selector_ypos() {		
+		selector_ypos = header.ypos + (int16)header.height + (int16)(ui.font_height * 1.5);
+		if (selector != null)
+			selector.ypos = selector_ypos;
 	}
 	//
 	// browser state
