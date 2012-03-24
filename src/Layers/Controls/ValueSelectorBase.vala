@@ -145,6 +145,9 @@ namespace Layers.Controls
 		}
 		
 		void on_keydown_event(KeyboardEvent event) {
+			if (process_unicode(event.keysym.unicode) == false)
+				return;
+
 			if (event.keysym.mod == KeyModifier.NONE) {
 				switch(event.keysym.sym) {
 					case KeySymbol.RETURN:
@@ -180,6 +183,16 @@ namespace Layers.Controls
 						break;
 				}
 			}
+		}
+		bool process_unicode(uint16 unicode) {
+			if (unicode <= uint8.MAX) {
+				char c = (char)unicode;
+				if (c.isalnum() == true) {
+					select_next_starting_with(c);
+					return false;
+				}
+			}
+			return true;
 		}
 
 		void select_previous() {
@@ -222,7 +235,21 @@ namespace Layers.Controls
 			_selected_index = index;
 			update();
 		}
-
+		void select_next_starting_with(char c) {
+			if (items.size == 0)
+				return;
+			uint test_index = _selected_index;
+			for(int counter=1;counter<items.size;counter++) {
+				test_index++;
+				if (test_index >= items.size)
+					test_index = 0;
+				if (get_item_name((int)test_index).casefold().has_prefix(c.to_string().casefold()) == true) {
+					select_item(test_index);
+					return;
+				}
+			}			
+		}
+		
 		void ensure_surface() {
 			if (surface != null)
 				return;
