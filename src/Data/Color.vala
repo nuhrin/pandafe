@@ -29,7 +29,7 @@ namespace Data
 			copy_from(color);
 		}
 		
-		public static bool parse (string spec, out Color color) {
+		public static bool parse(string spec, out Color color) {
 			Gdk.Color gcolor;
 			if (Gdk.Color.parse(spec, out gcolor) == true) {
 				color = new Color.from_gdk(gcolor);
@@ -38,6 +38,12 @@ namespace Data
 			}
 			color = null;
 			return false;
+		}
+		public static SDL.Color parse_sdl(string spec) {
+			Color color;
+			if (parse(spec, out color) == true)
+				return color.get_sdl_color();
+			return {0,0,0};
 		}
 		public Color copy() {
 			return new Color.from_other(this);

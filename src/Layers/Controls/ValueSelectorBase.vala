@@ -280,7 +280,7 @@ namespace Layers.Controls
 
 			blank_name_area = @interface.get_blank_surface(name_area_width, font_height);
 			select_name_area = @interface.get_blank_surface(name_area_width, font_height);
-			select_name_area.fill(null, @interface.highlight_color_rgb);
+			select_name_area.fill(null, @interface.white_color_rgb);
 			
 			int screen_height = @interface.screen_height;
 			visible_items = (screen_height / 2) / (font_height + item_spacing);
@@ -307,7 +307,7 @@ namespace Layers.Controls
 			Rect rect = {0, get_offset(index)};
 			if (selected == true) {
 				select_name_area.blit(null, surface, rect);
-				font.render_shaded(get_display_name(index), @interface.white_color, @interface.highlight_color).blit(null, surface, rect);
+				font.render_shaded(get_display_name(index), @interface.black_color, @interface.white_color).blit(null, surface, rect);
 			} else {
 				blank_name_area.blit(null, surface, rect);
 				font.render_shaded(get_display_name(index), @interface.white_color, @interface.black_color).blit(null, surface, rect);

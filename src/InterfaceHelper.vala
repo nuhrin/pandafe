@@ -11,12 +11,12 @@ public InterfaceHelper @interface;
 public class InterfaceHelper : Object
 {
 	public const string FONT_MONO_DEFAULT = "/usr/share/fonts/truetype/DejaVuSansMono.ttf";
-	const string FONT_MONO_PREFERRED = "fonts/pixelcarnagemono.ttf";
-	const int IDLE_DELAY = 10;
-	
-	public const int FONT_SIZE = 20;
+	const string FONT_MONO_PREFERRED = "fonts/monof55.ttf";	
+	const int FONT_SIZE = 20;
 	const int FONT_SMALL_SIZE = 14;
+	const string MENU_HIGHLIGHT_COLOR = "#00498A";
 	const int DEPTH = 32;
+	const int IDLE_DELAY = 10;
 
 	Data.Preferences preferences;
 	unowned SDL.Screen screen;
@@ -32,6 +32,8 @@ public class InterfaceHelper : Object
 	Color _grey_color;
 	Color _white_color;
 	uint32 _white_color_rgb;
+	Color _highlight_color;
+	uint32 _highlight_color_rgb;
 
 	HashMap<string, ulong> idle_function_hash;
 
@@ -44,10 +46,12 @@ public class InterfaceHelper : Object
 		_grey_color = {125, 125, 125};
 		_white_color = {255, 255, 255};		
 		_white_color_rgb = this.screen.format.map_rgb(255, 255, 255);
-
+		_highlight_color = Data.Color.parse_sdl(MENU_HIGHLIGHT_COLOR);
+		_highlight_color_rgb = map_rgb(_highlight_color);
+		
 		string mono_font_path = Path.build_filename(Config.PACKAGE_DATADIR, FONT_MONO_PREFERRED);
 		if (FileUtils.test(mono_font_path, FileTest.EXISTS) == false)
-			mono_font_path = FONT_MONO_DEFAULT;	
+			mono_font_path = FONT_MONO_DEFAULT;
 		
 		font_mono = new Font(mono_font_path, FONT_SIZE);
 		if (font_mono == null) {
@@ -114,8 +118,8 @@ public class InterfaceHelper : Object
 	public unowned SDL.Color grey_color { get{ return _grey_color; } }
 	public unowned SDL.Color white_color { get{ return _white_color; } }
 	public uint32 white_color_rgb { get { return _white_color_rgb; } }
-	public unowned SDL.Color highlight_color { get { return game_browser_ui.background_color; } }
-	public uint32 highlight_color_rgb { get { return game_browser_ui.background_color_rgb; } }
+	public unowned SDL.Color highlight_color { get { return _highlight_color; } }
+	public uint32 highlight_color_rgb { get { return _highlight_color_rgb; } }
 
 	public uint32 map_rgb(SDL.Color color) { return this.screen.format.map_rgb(color.r, color.g, color.b); }
 

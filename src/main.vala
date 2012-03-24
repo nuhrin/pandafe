@@ -40,9 +40,9 @@ public class MainClass: Object {
 		if (SDLTTF.init() == -1)
 			GLib.error("Error initializing SDL_ttf: %s", SDL.get_error());
 			
-		var font = new Font(InterfaceHelper.FONT_MONO_DEFAULT, InterfaceHelper.FONT_SIZE);
+		var font = new Font(InterfaceHelper.FONT_MONO_DEFAULT, 20);
 		if (font != null) {
-			font.render("Initializing...", {255,255,255}).blit(null, screen, {20,20});
+			font.render("Pandafe", {255,255,255}).blit(null, screen, {50,50});
 			screen.flip();
 		}
 

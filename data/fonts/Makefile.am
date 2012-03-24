@@ -7,6 +7,7 @@ dist_fonts_DATA = \
 	commodore-64-v621c.ttf \
 	deluxefontregular.ttf \
 	emulator.ttf \
+	monof55.ttf \
 	pixelcarnagemono.ttf \
 	$(NULL)
 
