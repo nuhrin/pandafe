@@ -14,7 +14,7 @@ namespace Data.Options
 				if (settings.has_key(option.setting_name) == true)
 					setting = settings[option.setting_name];
 				var output = option.get_option_from_setting_value(setting);
-				if (output != "")
+				if (output != null && output != "")
 					sb.append(output).append(" ");
 			}
 			if (extra_arguments != null)

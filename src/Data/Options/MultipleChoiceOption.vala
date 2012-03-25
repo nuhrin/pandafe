@@ -56,9 +56,9 @@ namespace Data.Options
 		}
 		public override string get_option_from_setting_value(string? setting) {
 			string choice_option = get_choice_option_from_setting_value(setting);
-			if (choice_option != "")
-				return option + choice_option;
-			return "";
+			if (choice_option == null || choice_option.strip() == "")
+				return "";
+			return option + choice_option;
 		}
 		string get_choice_option_from_setting_value(string? setting) {
 			if (setting == null) {
