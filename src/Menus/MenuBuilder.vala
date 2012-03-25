@@ -40,6 +40,9 @@ namespace Menus
 		public ColorField add_color(string id, string name, string? help=null, Data.Color? color=null) {
 			return (ColorField)add_field(new ColorField(id, name, help, color));
 		}
+		public DoubleField add_double(string id, string name, string? help=null, double value, double min_value, double max_value, double step=0.1, uint precision=1) {
+			return (DoubleField)add_field(new DoubleField(id, name, help, value, min_value, max_value, step, precision));
+		}
 		public EnumField add_enum(string id, string name, string? help=null, Value enum_value) {
 			return (EnumField)add_field(new EnumField(id, name, help, enum_value));
 		}

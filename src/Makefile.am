@@ -32,6 +32,7 @@ pandafe_VALASOURCES = \
 	Data/GameBrowserState.vala \
 	Data/GameBrowserViewData.vala \
 	Data/GameSettings.vala \
+	Data/Options/DoubleOption.vala \
 	Data/Options/FlagOption.vala \
 	Data/Options/IntegerOption.vala \
 	Data/Options/MultipleChoiceOption.vala \
@@ -103,6 +104,7 @@ pandafe_VALASOURCES = \
 	Layers/Controls/List/ListItemActionType.vala \
 	Layers/Controls/List/ListItemSelector.vala \
 	Layers/Controls/List/StringListItem.vala \
+	Layers/Controls/DoubleEntry.vala \
 	Layers/Controls/FileChooser.vala \
 	Layers/Controls/FolderChooser.vala \
 	Layers/Controls/IntegerEntry.vala \
@@ -141,6 +143,7 @@ pandafe_VALASOURCES = \
 	Menus/Concrete/PlatformProgramSettingsMapMenu.vala \
 	Menus/Concrete/ProgramDefaultSettingsMenu.vala \
 	Menus/Fields/BooleanField.vala \
+	Menus/Fields/DoubleField.vala \
 	Menus/Fields/EnumField.vala \
 	Menus/Fields/FileField.vala \
 	Menus/Fields/FolderField.vala \

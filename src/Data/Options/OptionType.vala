@@ -5,23 +5,26 @@ namespace Data.Options
 	{
 		NONE,
 		FLAG,
-		GROUPING,
-		INTEGER,
 		MULTIPLE_CHOICE,
-		STRING;
+		STRING,
+		INTEGER,
+		DOUBLE,
+		GROUPING;
 		
 		public Option? create_option(OptionSet parent) {
 			switch(this) {
 				case OptionType.FLAG:
 					return new FlagOption(parent);
-				case OptionType.GROUPING:
-					return new OptionGrouping(parent);
-				case OptionType.INTEGER:
-					return new IntegerOption(parent);
 				case OptionType.MULTIPLE_CHOICE:
 					return new MultipleChoiceOption(parent);
 				case OptionType.STRING:
 					return new StringOption(parent);
+				case OptionType.INTEGER:
+					return new IntegerOption(parent);
+				case OptionType.DOUBLE:
+					return new DoubleOption(parent);
+				case OptionType.GROUPING:
+					return new OptionGrouping(parent);
 				default:
 					break;
 			}
@@ -56,11 +59,12 @@ namespace Data.Options
 		if (option_type_names != null)
 			return;
 		option_type_names = {
-			"Flag",
-			"Grouping",
-			"Integer",
+			"Flag",			
 			"Multiple Choice",
-			"String"
+			"String",
+			"Integer",
+			"Double",
+			"Grouping"
 		};	
 	}
 }
