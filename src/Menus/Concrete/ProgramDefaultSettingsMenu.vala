@@ -91,6 +91,7 @@ namespace Menus.Concrete
 			
 			clockspeed_field = new ClockSpeedField("clockspeed", "Clockspeed", null, settings.clockspeed, 150, 1000, 5);
 			items.add(clockspeed_field);
+			items.add(new MenuItemSeparator());
 			items.add(new MenuItem.cancel_item());
 			items.add(new MenuItem.save_item());
 		}		

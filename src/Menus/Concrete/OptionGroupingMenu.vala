@@ -58,6 +58,7 @@ namespace Menus.Concrete
 				field_hash[option] = field;
 				items.add(field);
 			}
+			items.add(new MenuItemSeparator());
 			items.add(new MenuItem.cancel_item("Return"));
 		}	
 	}
