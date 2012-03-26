@@ -60,9 +60,9 @@ namespace Fields
 			string? contents;
 			bool had_value = has_value();
 			if (run_dialog(out contents) == true) {
-				if (contents != null && contents != _value && mounted_path != null) {
+				if (contents != null && contents != _value && mounted_path != null && app != null) {
 					// remove custom script, if it already exists, so it will be updated on next run
-					string custom_script_path = Path.build_filename(mounted_path, Spawning.CUSTOM_COMMAND_SCRIPT_PATH);
+					string custom_script_path = Path.build_filename(mounted_path, Spawning.get_custom_command_script_name(app));
 					if (FileUtils.test(custom_script_path, FileTest.EXISTS) == true)
 						FileUtils.remove(custom_script_path);
 				}

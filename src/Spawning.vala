@@ -3,11 +3,15 @@ using Data.Programs;
 
 public class Spawning
 {
-	public const string CUSTOM_COMMAND_SCRIPT_PATH = "pandafe-custom-run.sh";
+	const string CUSTOM_COMMAND_SCRIPT_FORMAT = "pandafe-custom-run_%s.sh";
 	const string CUSTOM_PNDRUN_PATH = "scripts/pnd_run_nomount.sh";
 	const string CPUSPEED_WRAPPER_SCRIPT_PATH = "scripts/cpuspeed_change_exec_wrapper.sh";
 	const string TMP_PATH = "/tmp/pandafe";
-		
+	
+	public static string get_custom_command_script_name(AppItem app) {
+		return CUSTOM_COMMAND_SCRIPT_FORMAT.printf(app.id);
+	}
+	
 	public static SpawningResult spawn_app(AppItem app) {
 		return spawn_app_wrapper(app.get_fullpath(), app.appdata_dirname ?? app.id, app.exec_command, app.startdir, app.exec_arguments, app.clockspeed);
 	}
@@ -66,14 +70,14 @@ public class Spawning
 
 		// ensure custom_command script, if specified
 		if (has_custom_command == true) {
-			command = CUSTOM_COMMAND_SCRIPT_PATH;
+			command = get_custom_command_script_name(app);
 			string appdata_path = mountset.get_appdata_path(app.package_id);
 			if (appdata_path == null)
 				return new SpawningResult.error("appdata path not found for '%s'".printf(mount_id));
 			else if (FileUtils.test(appdata_path, FileTest.EXISTS) == false)
 				return new SpawningResult.error("appdata path does not exist: %s".printf(appdata_path));
 			
-			string custom_path = appdata_path + CUSTOM_COMMAND_SCRIPT_PATH;
+			string custom_path = appdata_path + command;
 			if (already_mounted == false || FileUtils.test(custom_path, FileTest.EXISTS) == false) {
 				try {
 					if (FileUtils.set_contents(custom_path, program.custom_command) == true)
