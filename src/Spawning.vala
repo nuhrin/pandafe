@@ -4,7 +4,6 @@ using Data.Programs;
 public class Spawning
 {
 	const string CUSTOM_COMMAND_SCRIPT_FORMAT = "pandafe-custom-run_%s.sh";
-	const string CUSTOM_PNDRUN_PATH = "scripts/pnd_run_nomount.sh";
 	const string CPUSPEED_WRAPPER_SCRIPT_PATH = "scripts/cpuspeed_change_exec_wrapper.sh";
 	const string TMP_PATH = "/tmp/pandafe";
 	
@@ -93,10 +92,14 @@ public class Spawning
 			string? symlink_error;
 			if (create_game_symlink(game_path_link, game_path, out symlink_error) == false)
 				return new SpawningResult.error("game setup: " + symlink_error);			
-		}
-		Pandora.Apps.set_pndrun_path(get_custom_pndrun_path());
-		var result = spawn_app_wrapper(app.get_fullpath(), mount_id, command, startdir, args, clockspeed, Pandora.Apps.ExecOption.BLOCK);
-		Pandora.Apps.unset_pndrun_path();
+		}				
+		//Pandora.Apps.set_pndrun_path(get_custom_pndrun_path());
+		//var result = spawn_app_wrapper(app.get_fullpath(), mount_id, command, startdir, args, clockspeed, Pandora.Apps.ExecOption.BLOCK);
+		//Pandora.Apps.unset_pndrun_path();
+		var working_directory = mountset.get_mounted_path(app.package_id);
+		if (has_custom_command == false && startdir != null && startdir.strip() != "")
+			working_directory = Path.build_filename(working_directory, startdir);
+		var result = spawn_app_wrapper_direct(working_directory, command, args, clockspeed);
 		if (game_path_link != null)
 			delete_game_symlink(game_path_link);
 		
@@ -160,16 +163,29 @@ public class Spawning
 			return new SpawningResult.error_with_command_line(e.message, command_line);
 		}
 	}
-	
-	static unowned string get_custom_pndrun_path() {
-		if (_custom_pndrun_path == null) {				
-			_custom_pndrun_path = Path.build_filename(Config.PACKAGE_DATADIR, CUSTOM_PNDRUN_PATH);
-			if (FileUtils.test(_custom_pndrun_path, FileTest.EXISTS) == false)
-				_custom_pndrun_path = CUSTOM_PNDRUN_PATH;
+	static SpawningResult spawn_app_wrapper_direct(string working_directory, string command, string? args=null, uint clockspeed=0) {
+		int exit_status = -1;
+		string standard_output;
+		string standard_error;
+		bool success;
+		string command_line = (args != null) ? "%s %s".printf(command, args) : command;
+		try {			
+			if (clockspeed != 0) {			
+				var modified_commandline = "%s %u %s%s%s".printf(get_cpuspeed_wrapper_script_path(), clockspeed, working_directory, Path.DIR_SEPARATOR_S, command_line);
+				success = Process.spawn_command_line_sync(modified_commandline, out standard_output, out standard_error, out exit_status);				
+			} else {
+				string[] argv;
+				Shell.parse_argv(command_line, out argv);
+				success = Process.spawn_sync(working_directory, argv, null, 0, null, out standard_output, out standard_error, out exit_status);
+			}
+			if (success == true && exit_status > 0)
+				success = false;
+			return new SpawningResult(success, command_line, standard_output, standard_error, exit_status);
+		} catch(Error e) {
+			return new SpawningResult.error_with_command_line(e.message, command_line);
 		}
-		return _custom_pndrun_path;
-	}
-	static string? _custom_pndrun_path;
+	}	
+	
 	static unowned string get_cpuspeed_wrapper_script_path() {
 		if (_cpuspeed_wrapper_script_path == null) {				
 			_cpuspeed_wrapper_script_path = Path.build_filename(Config.PACKAGE_DATADIR, CPUSPEED_WRAPPER_SCRIPT_PATH);

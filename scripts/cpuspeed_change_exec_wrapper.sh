@@ -19,6 +19,7 @@ if [[ ! -x "$CMD" ]]; then
 	echo "Cannot be executed: $CMD"
 	exit 1
 fi
+cd "$(dirname $CMD)" # change working directory to dirname of command
 shift
 
 # get current speed. complexity here is for the benefit of testing when /proc/pandora/cpu_mhz_max is unavailable
