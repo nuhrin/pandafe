@@ -1,3 +1,4 @@
+using Catapult.Helpers;
 using Data.Pnd;
 using Data.Programs;
 
@@ -6,7 +7,15 @@ public class Spawning
 	const string CUSTOM_COMMAND_SCRIPT_FORMAT = "pandafe-custom-run_%s.sh";
 	const string CPUSPEED_WRAPPER_SCRIPT_PATH = "scripts/cpuspeed_change_exec_wrapper.sh";
 	const string TMP_PATH = "/tmp/pandafe";
-	
+	static unowned RegexHelper invalid_file_chars { 
+		get { 
+			if (_invalid_file_chars == null)
+				_invalid_file_chars = new RegexHelper("""[ '"]+""");
+			return _invalid_file_chars;
+		}
+	}				
+	static RegexHelper _invalid_file_chars = null;
+
 	public static string get_custom_command_script_name(AppItem app) {
 		return CUSTOM_COMMAND_SCRIPT_FORMAT.printf(app.id);
 	}
@@ -43,7 +52,7 @@ public class Spawning
 
 		string game_path_link = null;
 		if (game_path != null) {
-			if (game_path.index_of(" ") != -1)
+			if (invalid_file_chars.match(game_path) == true)
 				// if game path contains spaces, use a temp symlink without spaces to workaround libpnd issues
 				game_path_link = get_game_symlink_path(game_path);
 			if (args != null && args.index_of("%g") != -1)
@@ -107,7 +116,7 @@ public class Spawning
 	}
 
 	static string? get_game_symlink_path(string game_path) {
-		return "%s%c%s".printf(TMP_PATH, Path.DIR_SEPARATOR, File.new_for_path(game_path).get_basename().replace(" ", "_"));
+		return "%s%c%s".printf(TMP_PATH, Path.DIR_SEPARATOR, invalid_file_chars.replace(File.new_for_path(game_path).get_basename(), "_"));
 	}
 	static bool create_game_symlink(string linkpath, string game_path, out string? error) {
 		error = null;
@@ -171,7 +180,7 @@ public class Spawning
 		string command_line = (args != null) ? "%s %s".printf(command, args) : command;
 		try {			
 			if (clockspeed != 0) {			
-				var modified_commandline = "%s %u %s%s%s".printf(get_cpuspeed_wrapper_script_path(), clockspeed, working_directory, Path.DIR_SEPARATOR_S, command_line);
+				var modified_commandline = "%s %u %s%c%s".printf(get_cpuspeed_wrapper_script_path(), clockspeed, working_directory, Path.DIR_SEPARATOR, command_line);
 				success = Process.spawn_command_line_sync(modified_commandline, out standard_output, out standard_error, out exit_status);				
 			} else {
 				string[] argv;
