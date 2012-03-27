@@ -72,6 +72,7 @@ public class GameBrowserUI
 		_item_color = ui._item_color;
 		_selected_item_color = ui._selected_item_color;
 		_background_color = ui._background_color;
+		_background_color_rgb = ui._background_color_rgb;
 		colors_updated();
 	}
 	

@@ -27,13 +27,10 @@ namespace Layers.Preview
 			header.set_rgb_color(ui.background_color_rgb);
 			status_message.set_rgb_color(ui.background_color_rgb);
 			this.set_rgb_color(ui.background_color_rgb);
-			selector.rebuild();
-			update();
 		}
 		void update_font() {
 			clear();
-			set_layers();
-			
+			set_layers();			
 			update();
 		}
 		void set_layers() {
