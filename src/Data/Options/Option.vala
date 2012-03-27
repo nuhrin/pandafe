@@ -34,11 +34,14 @@ namespace Data.Options
 		// menu
 		protected virtual void build_menu(MenuBuilder builder) {
 			add_name_field(name, builder);
-			builder.add_string("option", "Option", "-o, --option, etc", option ?? "");
+			var option_field = builder.add_string("option", "Option", "-o, --option, etc", option ?? "");
+			if (is_option_required() == true)
+				option_field.required = true;
 			build_edit_fields(builder);			
 			builder.add_bool("locked", "Locked", "If true, games cannot change this setting.", locked);
 			builder.add_string("help", "Help", "Help text to display during option selection", help ?? "");
 		}
+		protected abstract bool is_option_required();
 		protected abstract void build_edit_fields(MenuBuilder builder);
 		protected static void add_name_field(string? name, MenuBuilder builder) {
 			var name_field = builder.add_string("name", "Name", null, name ?? "", NAME_CHARACTER_REGEX);

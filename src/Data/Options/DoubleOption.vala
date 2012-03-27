@@ -26,6 +26,7 @@ namespace Data.Options
 			builder.add_double("default_value", "Default Value", null, default_value, double.MIN, double.MAX);
 			builder.add_bool("include_option_for_default_value", "Include for Default", null, include_option_for_default_value);
 		}
+		protected override bool is_option_required() { return true; }
 		
 		// setting field
 		public override MenuItemField get_setting_field(string? setting) {

@@ -18,19 +18,22 @@ namespace Data.Options
 		public override OptionType option_type { get { return OptionType.MULTIPLE_CHOICE; } }
 		public Gee.List<Choice> choices { get; set; }
 		public int default_choice_index { get; set; }
+		public bool include_option_for_default_value { get; set; }
 		
 		// menu
-		protected override void build_edit_fields(MenuBuilder builder) {			
+		protected override void build_edit_fields(MenuBuilder builder) {
 			choices_field = new ChoiceListField("choices", "Choices", null, choices);
 			choices_field.add_validator(value => ((Gee.List<Choice>)value).size > 1, "Choices must have at least two items.");
 			builder.add_field(choices_field);			
 			default_choice_field = new DefaultChoiceField("default_choice_index", "Default Choice", null, choices, default_choice_index);
 			builder.add_field(default_choice_field);
+			builder.add_bool("include_option_for_default_value", "Include for Default", null, include_option_for_default_value);
 			
 			choices_field.changed.connect(() => {
 				default_choice_field.set_choices(choices_field.value);
 			});
 		}
+		protected override bool is_option_required() { return false; }
 		protected void release_fields() {
 			choices_field = null;
 			default_choice_field = null;
@@ -58,11 +61,11 @@ namespace Data.Options
 			string choice_option = get_choice_option_from_setting_value(setting);
 			if (choice_option == null || choice_option.strip() == "")
 				return "";
-			return option + choice_option;
+			return (option ?? "") + choice_option;
 		}
 		string get_choice_option_from_setting_value(string? setting) {
 			if (setting == null) {
-				if (choices.size > 0 && default_choice_index >= 0 && default_choice_index < choices.size)
+				if (choices.size > 0 && default_choice_index >= 0 && default_choice_index < choices.size && include_option_for_default_value)
 					return choices[default_choice_index].option;
 				return "";
 			}

@@ -29,6 +29,7 @@ namespace Data.Options
 			builder.add_field(options_field);
 			builder.add_string("help", "Help", "Help text to display during option selection", help ?? "");
 		}
+		protected override bool is_option_required() { return false; }
 		protected override void build_edit_fields(MenuBuilder builder) { }
 		protected override bool apply_changed_field(Menus.Menu menu, MenuItemField field) {
 			if(field.id == "options") {

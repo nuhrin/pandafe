@@ -11,7 +11,8 @@ namespace Data.Options
 		}
 		public override OptionType option_type { get { return OptionType.INTEGER; } }
 		public int min_value { get; set; }
-		public int max_value { get; set; }
+		public int max_value { get; set; }		
+		public uint step { get; set; }
 		public int default_value { get; set; }
 		public bool include_option_for_default_value { get; set; }
 		
@@ -19,13 +20,15 @@ namespace Data.Options
 		protected override void build_edit_fields(MenuBuilder builder) {
 			builder.add_int("min_value", "Minimum Value", null, min_value, int.MIN, int.MAX);
 			builder.add_int("max_value", "Maximum Value", null, max_value, int.MIN, int.MAX);
+			builder.add_uint("step", "Step", null, step, 0, uint.MAX);
 			builder.add_int("default_value", "Default Value", null, default_value, int.MIN, int.MAX);
 			builder.add_bool("include_option_for_default_value", "Include for Default", null, include_option_for_default_value);
 		}
+		protected override bool is_option_required() { return true; }
 		
 		// setting field
 		public override MenuItemField get_setting_field(string? setting) {
-			return new IntegerField(name, name, help, get_setting_value(setting), min_value, max_value);
+			return new IntegerField(name, name, help, get_setting_value(setting), min_value, max_value, step);
 		}
 		public override string get_setting_value_from_field(MenuItemField field) {
 			return (field as IntegerField).value.to_string();

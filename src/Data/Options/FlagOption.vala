@@ -16,6 +16,7 @@ namespace Data.Options
 		protected override void build_edit_fields(MenuBuilder builder) {
 			builder.add_bool("on_by_default", "On By Default", null, on_by_default);
 		}
+		protected override bool is_option_required() { return true; }
 		
 		// setting field
 		public override MenuItemField get_setting_field(string? setting) {
