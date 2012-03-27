@@ -41,11 +41,15 @@ namespace Data.GameList
 		}
 		
 		public override string get_unique_name(IGameListNode node) {
+			if (node is GameItem || node.parent == null || node.parent.name == "")
+				return node.name;
+			return "%s/%s".printf(node.parent.name, node.name);
+		}
+		public override string get_unique_id(IGameListNode node) {
 			if (node is GameItem || node.parent == null || node.parent.id == "")
 				return node.id;
 			return "%s/%s".printf(node.parent.id, node.id);
 		}
-
 		protected override void rescan_init() {
 			init_categories();
 		}
@@ -63,7 +67,7 @@ namespace Data.GameList
 
 		protected override GameFolder create_root_folder() {
 			if (main_categories.size == 1)
-				return new GameFolder.root(main_categories[0], this, main_categories[0]);
+				return new GameFolder.root("", this, main_categories[0]);
 
 			return new GameFolder.root(platform.name, this, "");
 		}
