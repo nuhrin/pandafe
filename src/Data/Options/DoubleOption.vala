@@ -19,11 +19,11 @@ namespace Data.Options
 		
 		// menu
 		protected override void build_edit_fields(MenuBuilder builder) {
-			builder.add_double("min_value", "Minimum Value", null, min_value, double.MIN, double.MAX);
-			builder.add_double("max_value", "Maximum Value", null, max_value, double.MIN, double.MAX);
-			builder.add_double("step", "Step", null, step, 0.01, double.MAX);
+			builder.add_double("min_value", "Minimum Value", null, min_value, double.MIN, double.MAX, 0.1, 3);
+			builder.add_double("max_value", "Maximum Value", null, max_value, double.MIN, double.MAX, 0.1, 3);
+			builder.add_double("step", "Step", null, step, 0.01, double.MAX, 0.1, 3);
 			builder.add_uint("precision", "Precision", null, precision, 0, 10);
-			builder.add_double("default_value", "Default Value", null, default_value, double.MIN, double.MAX);
+			builder.add_double("default_value", "Default Value", null, default_value, double.MIN, double.MAX, 0.1, 3);
 			builder.add_bool("include_option_for_default_value", "Include for Default", null, include_option_for_default_value);
 		}
 		protected override bool is_option_required() { return true; }

@@ -13,14 +13,15 @@ namespace Menus.Fields
 			if (max_value < min_value)
 				GLib.error("max_value (%d) < max_value (%d)", max_value, min_value);
 
+			_value = value;
 			this.min_value = min_value;
 			this.max_value = max_value;
 			if (value < min_value)
 				_value = min_value;
 			else if (value > max_value)
 				_value = max_value;
-			else
-				_value = value;
+			if (_value != value)
+				changed();
 			this.step = step;
 		}
 
