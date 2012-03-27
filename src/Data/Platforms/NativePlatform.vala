@@ -42,8 +42,8 @@ public class NativePlatform : Platform
 			"If specified, only apps in these categories will be included." , categories);
 		builder.add_field(categories_field);
 		
-		var appearance_field = new GameBrowserAppearanceField("appearance", "Appearance", null, name + " Appearance", appearance, Data.preferences().appearance);
-		builder.add_field(appearance_field);
+//~ 		var appearance_field = new GameBrowserAppearanceField("appearance", "Appearance", null, name + " Appearance", appearance, Data.preferences().appearance);
+//~ 		builder.add_field(appearance_field);
 	}
 	protected override bool save_object(Menus.Menu menu) {
 		string? error;
