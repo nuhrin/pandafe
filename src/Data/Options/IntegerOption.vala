@@ -20,7 +20,7 @@ namespace Data.Options
 		protected override void build_edit_fields(MenuBuilder builder) {
 			builder.add_int("min_value", "Minimum Value", null, min_value, int.MIN, int.MAX);
 			builder.add_int("max_value", "Maximum Value", null, max_value, int.MIN, int.MAX);
-			builder.add_uint("step", "Step", null, step, 0, uint.MAX);
+			builder.add_uint("step", "Step", null, step, 1, uint.MAX);
 			builder.add_int("default_value", "Default Value", null, default_value, int.MIN, int.MAX);
 			builder.add_bool("include_option_for_default_value", "Include for Default", null, include_option_for_default_value);
 		}
