@@ -10,15 +10,17 @@ namespace Menus.Concrete
 	public class OptionGroupingMenu : Menu  
 	{	
 		OptionSet options;
-		ProgramSettings settings;		
+		ProgramSettings settings;
+		ProgramSettings default_settings;
 		string program_name;
 		string? title_prefix;
 		HashMap<Option,MenuItemField> field_hash;
 		
-		public OptionGroupingMenu(OptionGrouping grouping, ProgramSettings settings, string program_name, string? title_prefix=null) {
+		public OptionGroupingMenu(OptionGrouping grouping, ProgramSettings settings, ProgramSettings? default_settings, string program_name, string? title_prefix=null) {
 			base("%s%s Settings: %s".printf(title_prefix ?? "", grouping.name, program_name));
 			this.options = grouping.options;
 			this.settings = settings;
+			this.default_settings = default_settings;
 			this.program_name = program_name;
 			this.title_prefix = title_prefix;
 			field_hash = new HashMap<Option,MenuItemField>();
@@ -39,11 +41,15 @@ namespace Menus.Concrete
 			}
 		}
 		
+		protected override void do_refresh(uint select_index) {
+			clear_items();
+			ensure_items();
+		}
 		protected override void populate_items(Gee.List<MenuItem> items) {
 			foreach(var option in options) {
 				var grouping = option as OptionGrouping;
 				if (grouping != null) {
-					var field = grouping.get_grouping_field(settings, program_name, title_prefix);
+					var field = grouping.get_grouping_field(settings, default_settings, program_name, title_prefix);
 					field_hash[option] = field;
 					items.add(field);
 					continue;
@@ -59,7 +65,13 @@ namespace Menus.Concrete
 				items.add(field);
 			}
 			items.add(new MenuItemSeparator());
+			var reset_index = items.size;
+			items.add(new MenuItem.custom("Reset", "Reset settings to defaults", "", () => {
+				settings.clear();
+				this.settings.merge_override(default_settings);
+				refresh(reset_index);
+			}));
 			items.add(new MenuItem.cancel_item("Return"));
-		}	
+		}
 	}
 }

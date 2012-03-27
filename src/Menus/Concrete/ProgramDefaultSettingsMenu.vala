@@ -69,11 +69,16 @@ namespace Menus.Concrete
 			was_saved = true;
 			return true;
 		}
+		protected override void do_refresh(uint select_index) {
+			clear_items();
+			ensure_items();
+		}
+
 		protected override void populate_items(Gee.List<MenuItem> items) {
 			foreach(var option in options) {
 				var grouping = option as OptionGrouping;
 				if (grouping != null) {
-					var field = grouping.get_grouping_field(settings, program_name, title_prefix + " ");
+					var field = grouping.get_grouping_field(original_settings, null, program_name, title_prefix + " ");
 					field_hash[option] = field;
 					items.add(field);
 					continue;
@@ -92,8 +97,13 @@ namespace Menus.Concrete
 			clockspeed_field = new ClockSpeedField("clockspeed", "Clockspeed", null, settings.clockspeed, 150, 1000, 5);
 			items.add(clockspeed_field);
 			items.add(new MenuItemSeparator());
+			var reset_index = items.size;
+			items.add(new MenuItem.custom("Reset", "Reset settings to defaults", "", () => {
+				this.settings.clear();
+				refresh(reset_index);
+			}));
 			items.add(new MenuItem.cancel_item());
 			items.add(new MenuItem.save_item());
-		}		
+		}
 	}
 }

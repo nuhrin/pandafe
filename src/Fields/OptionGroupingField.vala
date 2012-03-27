@@ -10,14 +10,12 @@ namespace Fields
 	public class OptionGroupingField : MenuItemField, SubMenuItem
 	{
 		OptionGrouping grouping;
-		ProgramSettings settings;
 		OptionGroupingMenu _menu;
 		
-		public OptionGroupingField(string id, string name, string? help=null, OptionGrouping grouping, ProgramSettings settings, string program_name, string? title_prefix=null) {
+		public OptionGroupingField(string id, string name, string? help=null, OptionGrouping grouping, ProgramSettings settings, ProgramSettings? default_settings, string program_name, string? title_prefix=null) {
 			base(id, name, help);
 			this.grouping = grouping;
-			this.settings = settings;
-			_menu = new OptionGroupingMenu(grouping, settings, program_name, title_prefix);
+			_menu = new OptionGroupingMenu(grouping, settings, default_settings, program_name, title_prefix);
 			_menu.cancelled.connect(() => cancelled());
 			_menu.saved.connect(() => saved());
 			_menu.finished.connect(() => finished());
@@ -38,7 +36,7 @@ namespace Fields
 		public override int get_minimum_menu_value_text_length() { return 0; }
 		public override bool is_menu_item() { return true; }
 
-		protected override Value get_field_value() { return settings; }
+		protected override Value get_field_value() { return grouping; }
 		protected override void set_field_value(Value value) { change_value((OptionGrouping)value); }
 		protected override bool has_value() { return true; }
 

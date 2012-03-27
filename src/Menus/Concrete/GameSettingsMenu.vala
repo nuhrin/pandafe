@@ -48,18 +48,20 @@ namespace Menus.Concrete
 		protected override void populate_items(Gee.List<MenuItem> items) {
 			items.add(program_field);
 			if (program != null) {
-				var settings = new ProgramSettings();
+				var default_settings = new ProgramSettings();
 				if (platform.program_settings.has_key(program.app_id) == true)
-					settings.merge_override(platform.program_settings[program.app_id]);
+					default_settings.merge_override(platform.program_settings[program.app_id]);
 				else
-					settings.merge_override(program.default_settings);
+					default_settings.merge_override(program.default_settings);
+				var settings = new ProgramSettings();
+				settings.merge_override(default_settings);
 				if (game_settings.program_settings.has_key(program.app_id))
 					settings.merge_override(game_settings.program_settings[program.app_id]);
 				field_hash = new HashMap<Option,MenuItemField>();
 				foreach(var option in program.options) {
 					var grouping = option as OptionGrouping;
 					if (grouping != null) {
-						var field = grouping.get_grouping_field(settings, game_name);
+						var field = grouping.get_grouping_field(settings, default_settings, game_name);
 						field_hash[option] = field;
 						items.add(field);
 						continue;
@@ -79,6 +81,12 @@ namespace Menus.Concrete
 				field_hash = null;
 			}
 			items.add(new MenuItemSeparator());
+			var reset_index = items.size;
+			items.add(new MenuItem.custom("Reset", "Reset settings to defaults", "", () => {
+				if (program != null && game_settings.program_settings.has_key(program.app_id) == true)
+					game_settings.program_settings.unset(program.app_id);				
+				refresh(reset_index);
+			}));
 			items.add(new MenuItem.cancel_item());
 			items.add(new MenuItem.save_item());
 		}
