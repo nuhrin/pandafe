@@ -11,7 +11,7 @@ namespace Menus.Concrete
 	{	
 		OptionSet options;
 		ProgramSettings settings;
-		ProgramSettings default_settings;
+		ProgramSettings? default_settings;
 		string program_name;
 		string? title_prefix;
 		HashMap<Option,MenuItemField> field_hash;
@@ -68,7 +68,8 @@ namespace Menus.Concrete
 			var reset_index = items.size;
 			items.add(new MenuItem.custom("Reset", "Reset settings to defaults", "", () => {
 				settings.clear();
-				this.settings.merge_override(default_settings);
+				if (default_settings != null)
+					this.settings.merge_override(default_settings);
 				refresh(reset_index);
 			}));
 			items.add(new MenuItem.cancel_item("Return"));
