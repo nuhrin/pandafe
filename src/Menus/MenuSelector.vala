@@ -31,6 +31,7 @@ namespace Menus
 		int index_before_select_last;
 		int first_enabled_index;
 		int last_enabled_index;
+		int enabled_item_count;
 
 		public MenuSelector(string id, int16 xpos, int16 ypos, Menu menu, int16 max_height, uint8 max_name_length, uint8 max_value_length) {
 			base(id);
@@ -162,7 +163,18 @@ namespace Menus
 			index_before_select_last = index;
 			return true;
 		}
-		public bool select_item_starting_with(string str, uint index=0, bool flip=true) {
+		public bool select_item_starting_with(string str, bool flip=true) {
+			if (first_enabled_index == -1)
+				return false;
+			
+			uint test_index = _selected_index;
+			for(int counter=0;counter<enabled_item_count;counter++) {
+				test_index++;
+				if (test_index > last_enabled_index)
+					test_index = first_enabled_index;
+				if (menu.items[(int)test_index].name.strip().casefold().has_prefix(str.casefold()) == true)
+					return select_item(test_index);				
+			}
 			return false;
 		}
 		public bool select_item(uint index, bool flip=true) {
@@ -234,12 +246,14 @@ namespace Menus
 			
 			first_enabled_index = -1;
 			last_enabled_index = -1;
+			enabled_item_count = 0;
 			Rect rect = {0, 0};
 			for(int index=0; index < item_count; index++) {
 				if (menu.items[index].enabled == true) {
 					if (first_enabled_index == -1)
 						first_enabled_index = index;
 					last_enabled_index = index;
+					enabled_item_count++;
 				}
 				render_item(index).blit(null, surface, rect);
 				rect.y = (int16)(rect.y + font_height + item_spacing);

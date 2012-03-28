@@ -188,20 +188,15 @@ namespace Menus
 			}
 		}
 		bool process_unicode(uint16 unicode) {
-			if (process_unicode_disabled)
-				return true;
-
 			if (unicode <= uint8.MAX) {
 				char c = (char)unicode;
 				if (c.isalnum() == true) {
-					//debug("'%c' pressed", c);
 					select_next_starting_with(c);
 					return false;
 				}
 			}
 			return true;
 		}
-		bool process_unicode_disabled;
 
 		//
 		// commands: selection
@@ -223,21 +218,8 @@ namespace Menus
 		}
 		void select_next_starting_with(char c) {
 			clear_message();
-			if (last_pressed_alphanumeric == c) {
-				last_pressed_alphanumeric_repeat_count++;
-			} else {
-				last_pressed_alphanumeric = c;
-				last_pressed_alphanumeric_repeat_count = 0;
-			}
-			if (last_pressed_alphanumeric_repeat_count > 0) {
-				if (selector.select_item_starting_with(last_pressed_alphanumeric.to_string(), last_pressed_alphanumeric_repeat_count) == true)
-					return;				
-				last_pressed_alphanumeric_repeat_count = 0;
-			}
-			selector.select_item_starting_with(last_pressed_alphanumeric.to_string());
+			selector.select_item_starting_with(c.to_string());
 		}
-		char last_pressed_alphanumeric = 0;
-		int last_pressed_alphanumeric_repeat_count;
 
 		//
 		// commands: misc
