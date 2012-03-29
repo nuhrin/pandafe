@@ -1,7 +1,7 @@
 appearance:
-  font: fonts/bitwise.ttf
+  font: @pkgdatadir@/fonts/bitwise.ttf
   font-size: 19
   item-color: ! '#178ECB'
   selected-item-color: ! '#FFFFFF'
   background-color: ! '#0F3854'
-
+default-rom-path: /media/mmcblk0p1/pandora/roms

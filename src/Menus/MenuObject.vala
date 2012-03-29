@@ -30,5 +30,7 @@ namespace Menus
 		
 		protected virtual void release_fields() { }
 		internal void i_release_fields() { release_fields(); }
+		
+		public virtual signal void refreshed(uint select_index) { }
 	}
 }

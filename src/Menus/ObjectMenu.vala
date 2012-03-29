@@ -17,11 +17,23 @@ namespace Menus
 				menu.mo.i_release_fields();
 			return menu.was_saved;
 		}
+		public static MenuBrowserItem get_browser_item(string name, string? title, string? help, Object obj) {
+			var menu = new ObjectMenu(title ?? name, null, obj);
+			var item = new MenuBrowserItem(name, help, menu);
+			item.finished.connect(() => {
+				if (menu.mo != null)
+					menu.mo.i_release_fields();
+			});
+			return item;
+		}
 		
 		ObjectMenu(string name, string? help=null, Object obj) {
 			base(name, help);
 			this.obj = obj;
 			mo = this.obj as MenuObject;
+			if (mo != null)
+				mo.refreshed.connect((select_index) => this.refresh(select_index));
+			
 		}
 		~ObjectMenu() {
 			if (mo != null)

@@ -8,7 +8,7 @@ namespace Data
 		//const string DEFAULT_FONT_PATH  = "/usr/share/fonts/truetype/";
 		const string DEFAULT_FONT = "/usr/share/fonts/truetype/DejaVuSansMono.ttf";
 		const string DEFAULT_FONT_PREFERRED = "fonts/bitwise.ttf";
-		public const int DEFAULT_FONT_SIZE = 16;
+		public const int DEFAULT_FONT_SIZE = 19;
 		public const int MAX_FONT_SIZE = 24;
 		public const int MIN_FONT_SIZE = 10;
 		const string DEFAULT_ITEM_COLOR = "#178ECB";

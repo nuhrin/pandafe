@@ -36,14 +36,8 @@ namespace Menus.Concrete
 			ensure_items();
 		}
 				
-		protected override void populate_items(Gee.List<MenuItem> items) { 
-			var preferences = Data.preferences();
-			var appearance_field = new GameBrowserAppearanceField("appearance", "Appearance", null, "Default Appearance", preferences.appearance, new Data.GameBrowserAppearance.default());
-			appearance_field.changed.connect(() => {
-				Data.save_preferences();
-				@interface.game_browser_ui.set_appearance(preferences.appearance);
-			});
-			items.add(appearance_field);
+		protected override void populate_items(Gee.List<MenuItem> items) { 			
+			items.add(ObjectMenu.get_browser_item("Preferences", "Pandafe Preferences", null, Data.preferences()));
 			var platform_folders_field = new PlatformFolderListField.root("folders", "Platforms", null, Data.platforms().get_platform_folder_data().folders);
 			var platform_folders_item_index = items.size;
 			platform_folders_field.changed.connect(() => {
