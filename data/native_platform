@@ -2,5 +2,5 @@ categories:
 - name: Game
   excluded-subcategories:
   - Emulator
-  excluded-apps: {}
+  excluded-apps: []
 
