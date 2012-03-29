@@ -2,9 +2,5 @@ categories:
 - name: Game
   excluded-subcategories:
   - Emulator
-  - Other
-  excluded-apps:
-  - atari800-app
-  - hugo
-  - pocketsnes-6.5.0
+  excluded-apps: {}
 

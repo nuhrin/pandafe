@@ -77,11 +77,9 @@ namespace Data.GameList
 				foreach(var category in main_categories)
 					folder_list.add(new GameFolder(category, this, root_folder));
 			} else if (folder.parent == null || folder.parent.id == "") {
-				var native_category = platform_category_hash[folder.name];
+				var native_category = platform_category_hash[folder.id];
 				var excluded_hash = new HashSet<string>();
 				excluded_hash.add_all(native_category.excluded_subcategories);
-				foreach (var item in excluded_hash)
-					debug(item);
 				var category = pnddata.get_category(folder.id);
 				if (category != null) {
 					foreach(var subcategory in category.subcategories) {
