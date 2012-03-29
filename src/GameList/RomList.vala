@@ -37,6 +37,12 @@ namespace Data.GameList
 		}
 
 		protected override bool get_children(GameFolder folder, out ArrayList<GameFolder> child_folders, out ArrayList<GameItem> child_games) {
+			child_folders = null;
+			child_games = null;
+			if (folder.parent == null) {
+				if (root_folder_path == null || FileUtils.test(root_folder_path, FileTest.IS_DIR) == false)
+					return false; // avoid scanning platforms that have not specified rom path
+			}
 			var folder_list = new ArrayList<GameFolder>();
 			var file_names = new ArrayList<string>();
 			try {
@@ -64,8 +70,6 @@ namespace Data.GameList
 			{
 				//debug("Error while getting children of '%s': %s", get_full_path(folder), e.message);
 			}
-			child_folders = null;
-			child_games = null;
 			return false;
 		}
 
