@@ -1,0 +1,104 @@
+app-id-type: exact
+app-id: mame.cosam.106
+custom-command: ! "#!/bin/sh\n\nHOME=`pwd`\nOPTS=\"-inipath . -fullscreen\"\nOPTS=\"$OPTS
+  -cfg_directory ./cfg\"\nOPTS=\"$OPTS -comment_directory ./comments\"\nOPTS=\"$OPTS
+  -ctrlr_directory ./ctrlr\"\nOPTS=\"$OPTS -diff_directory ./diff\"\nOPTS=\"$OPTS
+  -hiscore_directory ./hi\"\nOPTS=\"$OPTS -input_directory ./inp\"\nOPTS=\"$OPTS -memcard_directory
+  ./mem\"\nOPTS=\"$OPTS -nvram_directory ./nvram\"\nOPTS=\"$OPTS -state_directory
+  ./sta\"\nOPTS=\"$OPTS -snapshot_directory ./snap\"\n\nmkdir -p cfg diff hi inp mem
+  nvram rc sta\n\n#ROM=\"#`zenity --file-selection --title=\"Select a ROM\"`\n#[ $?
+  = 0 ] || exit 1\n\n#MODE=`zenity --list --title \"Select display options\" \\\n#\t--column
+  \"\" --column \"Display Mode\" \\\n#\t1 \"Normal\" \\\n#\t2 \"2x Scale\" \\\n#\t3
+  \"2x Scale, Rotate left\" \\\n#\t4 \"2x Scale, Rotate right\"`\n#[ $? = 0 ] || exit
+  1\n\n#case \"$MODE\" in \n#\t2) OPTS=\"$OPTS -s 2\" ;;\n#\t3) OPTS=\"$OPTS -s 2
+  -rl\" ;;\n#\t4) OPTS=\"$OPTS -s 2 -rr\" ;;\n#esac\n\n./xmame.sdl $OPTS \"$@\"\n#[
+  $? = 0 ] || zenity --text-info --title=\"Oops...\" \\\n#\t--filename /tmp/pndrunmame.106.out
+  > /dev/null"
+expected-exit-code: 0
+options:
+- type: flag
+  name: Skip Gameinfo
+  help: !!null 
+  option: -skip_gameinfo
+  on-by-default: false
+- type: multiple-choice
+  name: Scaling
+  help: !!null 
+  option: ! ' '
+  choices:
+  - name: None
+    option: ! ' '
+    value: none
+  - name: 2x
+    option: -ws 2
+    value: 
+  - name: 2y
+    option: -hs 2
+    value: 
+  - name: 2xy
+    option: -s 2
+    value: !!null 
+  - name: Fit Height
+    option: -ah 480
+    value: fit
+  - name: Auto Doubling
+    option: -adb
+    value: adb
+  default-choice-index: 0
+- type: multiple-choice
+  name: Effect
+  help: !!null 
+  option: ! '-ef '
+  choices:
+  - name: None
+    option: 0
+    value: none
+  - name: scale2x
+    option: 1
+    value: !!null 
+  - name: lq2x
+    option: 2
+    value: !!null 
+  - name: hq2x
+    option: 3
+    value: !!null 
+  - name: 6tap2x
+    option: 4
+    value: !!null 
+  - name: scan2
+    option: 5
+    value: !!null 
+  - name: rgbscan
+    option: 6
+    value: !!null 
+  - name: scan3
+    option: 7
+    value: !!null 
+  - name: fakescan
+    option: 8
+    value: !!null 
+  default-choice-index: 0
+- type: multiple-choice
+  name: Rotation
+  help: !!null 
+  option: ! ' '
+  choices:
+  - name: None
+    option: ! ' '
+    value: n
+  - name: Left
+    option: -rl
+    value: l
+  - name: Right
+    option: -rr
+    value: r
+  default-choice-index: 0
+default-settings:
+  extra-arguments: 
+  clockspeed: 0
+  Rotation: n
+  Skip Gameinfo: true
+  Effect: none
+  Scaling: none
+name: MAME
+

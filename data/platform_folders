@@ -1,0 +1,26 @@
+- name: Nintendo
+  folders: []
+  platforms:
+  - nes
+  - supernes
+  - nintendo64
+  - gameboy
+  - gameboyadvance
+- name: Sega
+  folders: []
+  platforms:
+  - segamastersystem
+  - segagenesis
+  - sega32x
+  - segacd
+  - segagamegear
+- name: Other
+  folders: []
+  platforms:
+  - atarilynx
+  - mame
+  - neogeopocket
+  - psx
+  - turbografx16
+  - wonderswan
+

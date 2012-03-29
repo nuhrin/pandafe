@@ -4,7 +4,7 @@ using SDLTTF;
 public class MainClass: Object {
 	public static int main (string[] args)
 	{
-		ensure_pandafedata_folder();
+		ensure_pandafe_appdata();
 
 		unowned SDL.Screen screen = inititialize_sdl();
 		WindowManager.set_caption("Pandafe", "");
@@ -13,7 +13,7 @@ public class MainClass: Object {
 
         SDL.quit();
 
-		cleanup_pandafedata_folder();
+		cleanup_cache();
  		return 0;
 	}
 
@@ -59,52 +59,89 @@ public class MainClass: Object {
 		return screen;
     }
 
-	static void ensure_pandafedata_folder() {
+	static void ensure_pandafe_appdata() {
 		if (FileUtils.test(Config.LOCAL_CONFIG_DIR, FileTest.IS_DIR) == false) {
 			if (FileUtils.test(Config.LOCAL_CONFIG_DIR, FileTest.EXISTS) == true)
 				GLib.error("Local config directory '%s' exists but is not a directory.", Config.LOCAL_CONFIG_DIR);
 		}
-		string platforms_path = Path.build_filename(Config.LOCAL_CONFIG_DIR, "Platform");
-		if (FileUtils.test(platforms_path, FileTest.IS_DIR) == true)
+		// ensure appdata
+		ensure_appdata_folder("fonts", false);
+		ensure_appdata_folder("Platform");
+		ensure_appdata_folder("Program");
+		ensure_appdata_file("native_platform");
+		ensure_appdata_file("platform_folders");
+		
+
+		// ensure preferences file
+		if (ensure_appdata_file("preferences") == false)
+			Data.save_preferences();
+	}
+	static void ensure_appdata_folder(string foldername, bool copy_files=true) {
+		string target_path = Path.build_filename(Config.LOCAL_CONFIG_DIR, foldername);
+		if (FileUtils.test(target_path, FileTest.IS_DIR) == true)
+			return;
+		if (FileUtils.test(target_path, FileTest.EXISTS) == true)
+			GLib.error("Local config directory '%s' exists but is not a directory.", target_path);
+
+		// check for source folder in the pkgconfigdir
+		string source_path = Path.build_filename(Config.PACKAGE_DATADIR, foldername);
+		if (FileUtils.test(source_path, FileTest.IS_DIR) == false)
 			return;
 
-		if (FileUtils.test(platforms_path, FileTest.EXISTS) == true)
-			GLib.error("Local config directory '%s' exists but is not a directory.", platforms_path);
-
-		// check for default platforms in the pkgconfigdir
-		string package_platforms_path = Path.build_filename(Config.PACKAGE_DATADIR, "Platform");
-		if (FileUtils.test(package_platforms_path, FileTest.IS_DIR) == false)
-			return;
-
-		// create the local Platform folder
+		// create the target folder
 		try {
-			if (File.new_for_path(platforms_path).make_directory_with_parents() == false)
-				GLib.error("Local config directory '%s' could not be created.", platforms_path);
+			if (File.new_for_path(target_path).make_directory_with_parents() == false)
+				GLib.error("Local config directory '%s' could not be created.", target_path);
 		} catch(GLib.Error e) {
-			GLib.error("Error creating local config directory '%s': %s", platforms_path, e.message);
+			GLib.error("Error creating local config directory '%s': %s", target_path, e.message);
 		}
-
-		// copy all package platforms to local Platform folder
+	
+		if (copy_files == false)
+			return;
+			
+		// copy all source folder files to local target folder
 		try {
-			var enumerator = File.new_for_path(package_platforms_path).enumerate_children(FileAttribute.STANDARD_NAME, FileQueryInfoFlags.NONE);
+			var enumerator = File.new_for_path(source_path).enumerate_children(FileAttribute.STANDARD_NAME, FileQueryInfoFlags.NONE);
 			FileInfo file_info;
 			while ((file_info = enumerator.next_file()) != null) {
 				var name = file_info.get_name();
-				var source = File.new_for_path(Path.build_filename(package_platforms_path, name));
-				var destination = File.new_for_path(Path.build_filename(platforms_path, name));
-				source.copy(destination, FileCopyFlags.NONE);
+				var source = File.new_for_path(Path.build_filename(source_path, name));
+				var destination = File.new_for_path(Path.build_filename(target_path, name));
+				source.copy(destination, FileCopyFlags.NOFOLLOW_SYMLINKS);
 			}
 		}
 		catch(GLib.Error e)
 		{
-			debug("Error while populating local config directory '%s': %s", platforms_path, e.message);
+			debug("Error while populating local config directory '%s': %s", target_path, e.message);
 		}
-
-		// create preferences file
-		Data.save_preferences();
 	}
-
-	static void cleanup_pandafedata_folder() {
+	static bool ensure_appdata_file(string filename) {
+		string target_path = Path.build_filename(Config.LOCAL_CONFIG_DIR, filename);
+		if (FileUtils.test(target_path, FileTest.IS_REGULAR) == true)
+			return true;
+		if (FileUtils.test(target_path, FileTest.EXISTS) == true)
+			GLib.error("Local config file '%s' exists but is not a regular file.", target_path);
+		
+		// check for source file in the pkgconfigdir
+		string source_path = Path.build_filename(Config.PACKAGE_DATADIR, filename);
+		if (FileUtils.test(source_path, FileTest.IS_REGULAR) == false)
+			return false;
+		
+		// copy source file to local target file
+		try {
+			var source = File.new_for_path(source_path);
+			var destination = File.new_for_path(target_path);
+			source.copy(destination, FileCopyFlags.NOFOLLOW_SYMLINKS);
+			return true;
+		}
+		catch(GLib.Error e)
+		{
+			debug("Error while populating local config file '%s': %s", target_path, e.message);
+		}
+		return false;
+	}
+	
+	static void cleanup_cache() {
 		string gamelistcache_path = Path.build_filename(Config.LOCAL_CONFIG_DIR, Data.GameList.GameFolder.YAML_FOLDER_ROOT);
 		if (FileUtils.test(gamelistcache_path, FileTest.EXISTS) == true) {
 			try {

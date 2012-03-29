@@ -14,7 +14,7 @@ PND_APP_ID=pandafe
 AC_SUBST(PND_APP_ID)
 AC_DEFINE_UNQUOTED([PND_APP_ID], "$PND_APP_ID", [The app id to be used in the pnd])
 
-LOCAL_CONFIG_DIR=./PandafeData
+LOCAL_CONFIG_DIR=.
 AC_SUBST(LOCAL_CONFIG_DIR)
 AC_DEFINE_UNQUOTED(LOCAL_CONFIG_DIR, "$LOCAL_CONFIG_DIR", [Local configuration directory])
 
@@ -73,6 +73,7 @@ AC_CONFIG_FILES([
 	data/Makefile
 	data/fonts/Makefile
 	data/Platform/Makefile
+	data/Program/Makefile
 	scripts/Makefile
 	src/Makefile
 	vapi/Makefile

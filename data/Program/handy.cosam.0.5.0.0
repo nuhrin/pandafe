@@ -1,0 +1,16 @@
+app-id-type: exact
+app-id: handy.cosam.0.5.0.0
+custom-command: ! "#!/bin/sh\n\nBIOS=lynxboot.img\n\nif [ ! -f ./$BIOS ] ; then\n\tcp
+  \"`zenity --file-selection --title=\"Select your $BIOS file\"`\" $BIOS\n\tif [ $?
+  != 0 ] ; then\n\t\tzenity --error --text=\"Sorry, emulator cannot run without a
+  BIOS file.\"\n\t\texit 1\n\tfi\n\tmd5sum -c lynxboot.md5 || zenity --question --text=\"BIOS
+  does not appear to be the correct version. Use it anyway?\"\n\tif [ $? != 0 ] ;
+  then\n\t\trm -f $BIOS\n\t\texit 1\n\tfi\nfi\n\nexport LD_LIBRARY_PATH=.\n./handy_sdl
+  $@"
+expected-exit-code: 0
+options: []
+default-settings:
+  extra-arguments: 
+  clockspeed: 0
+name: Handy
+

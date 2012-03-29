@@ -1,0 +1,10 @@
+name: Atari Lynx
+platform-type: rom
+rom-folder-root: !!null
+rom-file-extensions: zip
+programs:
+- handy.cosam.0.5.0.0
+- mednafen-lynx
+program-settings: {}
+default-program: mednafen-lynx
+

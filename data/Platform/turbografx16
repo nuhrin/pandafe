@@ -1,0 +1,10 @@
+name: TurboGrafx-16
+platform-type: rom
+rom-folder-root: !!null
+rom-file-extensions: pce
+programs:
+- mednafen-pce
+- hugo
+program-settings: {}
+default-program: mednafen-pce
+

@@ -2,12 +2,22 @@ NULL =
 
 platformsdir=$(pkgdatadir)/Platform
 dist_platforms_DATA = \
+	atarilynx \
 	gameboy \
-	n64 \
-	neogeo \
+	gameboyadvance \
+	mame \
+	neogeopocket \
 	nes \
+	nintendo64 \
 	playstation \
-	snes \
+	sega32x \
+	segacd \
+	segagamegear \
+	segagenesis \
+	segamastersystem \
+	supernes \
+	turbografx16 \
+	wonderswan \
 	$(NULL)
 
 $(dist_platforms_DATA):

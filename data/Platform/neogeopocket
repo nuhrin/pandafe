@@ -1,8 +1,8 @@
-name: Playstation
+name: NeoGeo Pocket
 platform-type: rom
 rom-folder-root: !!null
-rom-file-extensions: bin
+rom-file-extensions: zip
 programs:
-- pcsx_rearmed.notaz
+- mednafen-ngp
 program-settings: {}
 

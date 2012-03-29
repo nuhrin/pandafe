@@ -1,0 +1,14 @@
+app-id-type: exact
+app-id: gpfcegp2x
+custom-command: ! "#!/bin/sh\n\nexport FBDEV=/dev/fb1\nofbset -fb $FBDEV -pos 80 0
+  -size 640 480 -mem 614400 -en 1\nfbset -fb $FBDEV -g 320 240 320 480 16\n\n# make
+  it runnable from ssh\nif [ -z \"$DISPLAY\" ]; then\nexport DISPLAY=:0\nfi\n\n./ginge_prep
+  ./gpfce.gpe \"$*\"\n  \nofbset -fb $FBDEV -pos 0 0 -size 0 0 -mem 0 -en 0"
+expected-exit-code: 2560
+options: []
+default-settings:
+  extra-arguments: 
+  clockspeed: 0
+  No Throttle: false
+name: gpFCE-GP2X
+

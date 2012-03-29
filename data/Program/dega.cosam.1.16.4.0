@@ -1,0 +1,24 @@
+app-id-type: exact
+app-id: dega.cosam.1.16.4.0
+custom-command: ! "#!/bin/bash\n\nFBDEV=/dev/fb1\n\n# Get a ROM file name.\nROM=\"$1\"\n\n#
+  Get video settings\nSTRETCH=0\nif [ -f videorc ] ; then\n\t. videorc\nfi\n\n# Identify
+  the ROM and set frame buffer stuff to scale accordingly.\nif [ `./dega -i \"$ROM\"`
+  = \"GG\" ]; then\n\tcase \"$STRETCH\" in\n\t\t1)\t# Stretch, but maintain aspect
+  ratio\n\t\t\tofbset -fb $FBDEV -pos 133 0 -size 534 480 -mem 92160 -en 1 ;;\n\t\t2)\t#
+  Fill entire screen\n\t\t\tofbset -fb $FBDEV -pos 0 0 -size 800 480 -mem 92160 -en
+  1 ;;\n\t\t*)\t# Standard integer scaling\n\t\t\tofbset -fb $FBDEV -pos 160 24 -size
+  480 432 -mem 92160 -en 1 ;;\n\tesac\n\tfbset -fb $FBDEV -g 160 144 160 288 16\nelse\n\tcase
+  \"$STRETCH\" in\n\t\t1)\t# Stretch, but maintain aspect ratio\n\t\t\tofbset -fb
+  $FBDEV -pos 80 0 -size 640 480 -mem 196608 -en 1 ;;\n\t\t2)\t# Fill entire screen\n\t\t\tofbset
+  -fb $FBDEV -pos 0 0 -size 800 480 -mem 196608 -en 1 ;;\n\t\t*)\t# Standard integer
+  scaling\n\t\t\tofbset -fb $FBDEV -pos 144 48 -size 512 384 -mem 196608 -en 1 ;;\n\tesac\n\tfbset
+  -fb $FBDEV -g 256 192 256 384 16\nfi\n\n# Run the emulator\nop_runfbapp ./dega \"$*\"\n\n#
+  Upon failure, display the contents of the pndrun file.\n[ $? -eq 0 ] || zenity --text-info
+  --title=\"Oops...\" --filename=/tmp/pndrundega.out\n\n# Reset frame buffer stuff.\nofbset
+  -fb $FBDEV -pos 0 0 -size 0 0 -mem 0 -en 0"
+expected-exit-code: 0
+options: []
+default-settings:
+  clockspeed: 0
+name: Dega
+

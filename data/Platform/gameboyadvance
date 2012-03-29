@@ -1,0 +1,10 @@
+name: Gameboy Advance
+platform-type: rom
+rom-folder-root: !!null
+rom-file-extensions: zip
+programs:
+- gpsp.notaz
+- mednafen-gba
+program-settings: {}
+default-program: gpsp.notaz
+

@@ -4,11 +4,7 @@ fontsdir=$(pkgdatadir)/fonts
 dist_fonts_DATA = \
 	bitwise-license.txt \
 	bitwise.ttf \
-	commodore-64-v621c.ttf \
-	deluxefontregular.ttf \
-	emulator.ttf \
 	monof55.ttf \
-	pixelcarnagemono.ttf \
 	$(NULL)
 
 $(dist_fonts_DATA):
@@ -18,3 +14,5 @@ install-data-hook:
 	rm -f $(DESTDIR)$(fontsdir)/system
 	ln -s /usr/share/fonts/truetype \
 		$(DESTDIR)$(fontsdir)/system
+	ln -s /mnt/utmp/$(PND_APP_ID)/fonts \
+		$(DESTDIR)$(fontsdir)/user

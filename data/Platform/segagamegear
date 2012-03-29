@@ -1,0 +1,10 @@
+name: Sega Game Gear
+platform-type: rom
+rom-folder-root: !!null
+rom-file-extensions: zip
+programs:
+- mednafen-gg
+- dega.cosam.1.16.4.0
+program-settings: {}
+default-program: mednafen-gg
+

@@ -1,0 +1,10 @@
+app-id-type: exact
+app-id: mupen64plus-PickleLauncher
+custom-command: ! "#!/bin/bash\nexport HOME=$(pwd)\nif [ ! -f \"./profile.txt\" ];
+  then\n    cp -R defconf/* ./\nfi\ncd $HOME\n./launchers/mupen64plus.sh \"$@\""
+expected-exit-code: 0
+options: []
+default-settings:
+  clockspeed: 0
+name: Mupen64plus
+

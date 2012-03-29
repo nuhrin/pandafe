@@ -1,0 +1,8 @@
+name: Super NES
+platform-type: rom
+rom-folder-root: !!null
+rom-file-extensions: zip smc sfc fig 1 2
+programs:
+- snes9x.skeezix.alpha
+program-settings: {}
+

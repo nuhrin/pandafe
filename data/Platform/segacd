@@ -1,8 +1,8 @@
-name: Playstation
+name: Sega CD
 platform-type: rom
 rom-folder-root: !!null
-rom-file-extensions: bin
+rom-file-extensions: zip
 programs:
-- pcsx_rearmed.notaz
+- picodrive.notaz.1.80
 program-settings: {}
 

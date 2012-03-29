@@ -1,0 +1,9 @@
+app-id-type: exact
+app-id: picodrive.notaz.1.80
+custom-command: !!null 
+expected-exit-code: 0
+options: []
+default-settings:
+  clockspeed: 0
+name: PicoDrive 1.80
+
