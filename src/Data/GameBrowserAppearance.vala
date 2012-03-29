@@ -11,9 +11,9 @@ namespace Data
 		public const int DEFAULT_FONT_SIZE = 16;
 		public const int MAX_FONT_SIZE = 24;
 		public const int MIN_FONT_SIZE = 10;
-		const string DEFAULT_ITEM_COLOR = "#ffffff";
-		const string DEFAULT_SELECTED_ITEM_COLOR = "#0064ff";
-		const string DEFAULT_BACKGROUND_COLOR = "#000000";
+		const string DEFAULT_ITEM_COLOR = "#178ECB";
+		const string DEFAULT_SELECTED_ITEM_COLOR = "#FFFFFF";
+		const string DEFAULT_BACKGROUND_COLOR = "#0F3854";
 		
 		construct {
 		}
