@@ -14,7 +14,7 @@ namespace Menus.Concrete
 		string game_name;
 		Platform platform;
 		GameSettings game_settings;
-		GameProgramSelectionField program_field;
+		GameProgramSelectionField? program_field;
 		ClockSpeedField clockspeed_field;
 		HashMap<Option,MenuItemField> field_hash;
 		
@@ -30,13 +30,15 @@ namespace Menus.Concrete
 			this.platform = platform;
 			program = (game_settings.selected_program_id != null)
 				? platform.get_program(game_settings.selected_program_id) ?? platform.default_program
-				: platform.default_program;			
-			program_field = new GameProgramSelectionField("program", "Program", null, platform.programs, program);
+				: platform.default_program;
+			program_field = new GameProgramSelectionField("program", "Program", "Change the program to use for this game", platform.programs, program);
 			program_field.changed.connect(()=> {
 				program = program_field.selected_program;
 				program_changed = true;
 				refresh(0);
-			});			
+			});
+			if (platform.programs.size < 2)
+				program_field.enabled = false;
 		}
 		public Program? program { get; private set; }
 		public bool program_changed { get; private set; }
@@ -46,7 +48,8 @@ namespace Menus.Concrete
 			ensure_items();
 		}
 		protected override void populate_items(Gee.List<MenuItem> items) {
-			items.add(program_field);
+			if (program_field != null)
+				items.add(program_field);
 			if (program != null) {
 				var default_settings = new ProgramSettings();
 				if (platform.program_settings.has_key(program.app_id) == true)

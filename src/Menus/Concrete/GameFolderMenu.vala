@@ -8,9 +8,9 @@ namespace Menus.Concrete
 	{	
 		GameFolder folder;		
 		Platform platform;
-		public GameFolderMenu(GameFolder folder) {
+		public GameFolderMenu(GameFolder folder, string? help=null) {
 			string name = "Folder: " + ((folder.parent != null) ? folder.name : "Root");
-			base(name);
+			base(name, help);
 			this.title = "Game " + name;
 			this.folder = folder;			
 			platform = folder.platform();
@@ -18,7 +18,7 @@ namespace Menus.Concrete
 		}
 
 		protected override void populate_items(Gee.List<MenuItem> items) { 
-			items.add(new MenuItem.custom("Rescan", null, "Scanning folder...", () => {
+			items.add(new MenuItem.custom("Rescan", "Rescan the folder for game changes", "Scanning folder...", () => {
 				folder.rescan_children(true);
 			}));
 

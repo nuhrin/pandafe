@@ -12,16 +12,16 @@ namespace Menus.Concrete
 			ensure_items();			
 		}
 		protected override void populate_items(Gee.List<MenuItem> items) {
-			items.add(new MenuBrowserItem("Config", null, new ConfigurationMenu()));
-			items.add(new MenuBrowserItem("Data", null, new DataMenu()));
-			items.add(new MenuItem.custom("Scan PNDs", null, "Scanning PNDs...", () => {
+			items.add(new MenuBrowserItem("Config", "Show configuration menu", new ConfigurationMenu()));
+			items.add(new MenuBrowserItem("Data", "Show data management menu", new DataMenu()));
+			items.add(new MenuItem.custom("Scan PNDs", "Scan system for new pnd apps, and rescan native platform", "Scanning PNDs...", () => {
 				Data.rescan_pnd_data();
 				Data.platforms().get_native_platform().rescan(f=> this.message("Scanning folder '%s'...".printf(f.unique_name())));
 				refresh(2);
 			}));
 			
 			items.add(new MenuItemSeparator());
-			items.add(new MenuItem.custom("Quit", null, "", () => {
+			items.add(new MenuItem.custom("Quit", "Exit Pandafe", "", () => {
 				if (Data.pnd_mountset().has_mounted == true) {
 					message("Unmounting PNDs...");
 					Data.pnd_mountset().unmount_all(name => this.message("Unmounting '%s'...".printf(name)));
@@ -38,8 +38,8 @@ namespace Menus.Concrete
 		}
 				
 		protected override void populate_items(Gee.List<MenuItem> items) { 			
-			items.add(ObjectMenu.get_browser_item("Preferences", "Pandafe Preferences", null, Data.preferences()));
-			var platform_folders_field = new PlatformFolderListField.root("folders", "Platforms", null, Data.platforms().get_platform_folder_data().folders);
+			items.add(ObjectMenu.get_browser_item("Preferences", "Pandafe Preferences", "Edit preferences", Data.preferences()));
+			var platform_folders_field = new PlatformFolderListField.root("folders", "Platforms", "Edit platform folders", Data.platforms().get_platform_folder_data().folders);
 			var platform_folders_item_index = items.size;
 			platform_folders_field.changed.connect(() => {
 				string? error;
@@ -59,11 +59,11 @@ namespace Menus.Concrete
 		}
 				
 		protected override void populate_items(Gee.List<MenuItem> items) { 
-			var platforms_field = new PlatformListField("platforms", "Platforms", null, Data.platforms().get_all_platforms().to_list(), "Platforms Data");
+			var platforms_field = new PlatformListField("platforms", "Platforms", "Add/Edit/Delete platform definitions", Data.platforms().get_all_platforms().to_list(), "Platforms Data");
 			items.add(platforms_field);
-			var programs_field = new ProgramDataListField("programs", "Programs", null, Data.programs().get_all_programs().to_list(), "Programs Data");
+			var programs_field = new ProgramDataListField("programs", "Programs", "Add/Edit/Delete program definitions", Data.programs().get_all_programs().to_list(), "Programs Data");
 			items.add(programs_field);
-			var gamesettings_field = new GameSettingsListField("settings", "Game Settings", null, "Game Settings Data");
+			var gamesettings_field = new GameSettingsListField("settings", "Game Settings", "Edit/Delete all game settings", "Game Settings Data");
 			items.add(gamesettings_field);
 		}
 	}

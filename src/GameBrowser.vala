@@ -264,6 +264,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 	void on_selector_rebuilt(Selector selector) {
 		if (this.selector != selector)
 			return;
+		set_header();
 		selector.ensure_selection(false);
 		update();
 	}
@@ -446,6 +447,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 				case KeySymbol.SLASH:
 					filter_selector();
 					break;
+				case KeySymbol.LALT: // pandora Start
 				case KeySymbol.LCTRL: // pandora Select
 				case KeySymbol.PERIOD:
 					show_main_menu();					
@@ -819,7 +821,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 			var node = platform_folder_selector.selected_node();
 			var folder_node = node as PlatformFolder;
 			if (folder_node != null) {
-				show_menu_overlay(new Menus.Concrete.PlatformFolderMenu(folder_node, folder_node.parent));
+				show_menu_overlay(new Menus.Concrete.PlatformFolderMenu(folder_node));
 				return;
 			}
 			var platform_node = node as PlatformNode;
@@ -864,7 +866,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 	}
 	void show_platform_menu(Platform? platform, PlatformFolder? platform_folder=null) {
 		if (platform != null)
-			show_menu_overlay(new Menus.Concrete.PlatformMenu(platform, platform_folder));
+			show_menu_overlay(new Menus.Concrete.PlatformMenu(platform, null, platform_folder));
 		
 	}
 	void show_menu_overlay(Menus.Menu menu) {

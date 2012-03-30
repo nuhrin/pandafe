@@ -22,7 +22,7 @@ namespace Fields
 		}
 		
 		protected override ListEditor<PlatformFolder> get_list_editor(string? title) {
-			return new PlatformFolderListEditor(id, title ?? "Platform Folders", help, parent, value, n=>n.name);
+			return new PlatformFolderListEditor(id, title ?? "Platform Folders", null, parent, value, n=>n.name);
 		}
 		
 		class PlatformFolderListEditor : ListEditor<PlatformFolder>
