@@ -97,7 +97,7 @@ public class SelectorItemSet : Object
 	public bool all_items_rendered { get { return (items_rendered_count == item_renderings.length); } }
 	public unowned Surface get_item_rendering(int index) {
 		if (index < 0 || index >= item_renderings.length)
-			GLib.error("Index out of range.");
+			GLib.error("Index (%d) out of range.", index);
 
 		if (item_renderings[index] == null)
 			item_renderings[index] = ui.render_text(selector.get_item_name(index));
@@ -106,7 +106,7 @@ public class SelectorItemSet : Object
 	}
 	public Surface get_item_selected_rendering(int index) {
 		if (index < 0 || index >= item_renderings.length)
-			GLib.error("Index out of range.");
+			GLib.error("Index (%d) out of range.", index);
 		
 		return ui.render_text_selected(selector.get_item_full_name(index));
 	}

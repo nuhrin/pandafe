@@ -172,7 +172,6 @@ public abstract class Selector : Layers.Layer
 		index_before_select_first = -1;
 		index_before_select_last = -1;
 
-//~ 		debug("select_display_item(): %d", display_index);
 		ensure_surfaces(display_index);
 		if (surfaces.select_item(display_index, selected_display_index()) == true) {
 			selected_index = get_index_from_display_index(display_index);
@@ -194,7 +193,6 @@ public abstract class Selector : Layers.Layer
 		_filter_match_indexes = new ArrayList<int>();
 		_filter_match_indexes.add_all(items.get_folder_indexes());
 		_filter_index_position_hash = new HashMap<int,int>();
-		//debug("filtering by '%s'", pattern);
 		Gee.List<int> matching_indexes;
 		bool success;
 		success = items.search(pattern, out matching_indexes);
@@ -206,10 +204,16 @@ public abstract class Selector : Layers.Layer
 		for(int index=0; index<_filter_match_indexes.size; index++)
 			_filter_index_position_hash[_filter_match_indexes[index]] = index;
 
-		if (display_index != -1)
-			select_display_item(display_index, false);
+		reset_surface();
+
+		selected_index = -1;
+		int new_index = get_index_from_display_index(display_index);
+		if (new_index != -1)
+			select_item(new_index);
+		else if (display_item_count > 0)
+			select_display_item(0);
 		
-		rebuild();
+		rebuilt();
 		return success;
 	}
 	public void clear_filter() {
@@ -681,6 +685,7 @@ public abstract class Selector : Layers.Layer
 				return;
 			Rect rect = {0, get_offset(display_index)};
 			selector.ui.get_blank_item_surface().blit(null, surface, rect);
+			
 			items.get_item_rendering(get_index_from_display_index(display_index)).blit(null, surface, rect);
 			surface.flip();
 		}
@@ -747,7 +752,7 @@ public abstract class Selector : Layers.Layer
 				return;
 			Rect rect = {0, offset};			
 			for(int display_index=top_index; display_index <= bottom_index; display_index++) {
-				int index = get_index_from_display_index(display_index);
+				int index = get_index_from_display_index(display_index);				
 				if (index == selector.selected_index)
 					items.get_item_selected_rendering(index).blit(null, surface, rect);
 				else

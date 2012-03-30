@@ -693,12 +693,14 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		Rect label_rect = {600 - (int16)label.w, 455};
 		blit_surface(label, null, label_rect);
 		
+		var existing_filter = selector.get_filter_pattern();
+		
 		var entry = new TextEntry("selection_filter", 600, 450, 200, selector.get_filter_pattern());
 		var new_pattern = entry.run();
 		if (new_pattern == null || new_pattern.strip() == "")
 			new_pattern = null;
 		
-		if (new_pattern == current_filter)
+		if (new_pattern == existing_filter)
 			return;		
 		current_filter = new_pattern;
 		
