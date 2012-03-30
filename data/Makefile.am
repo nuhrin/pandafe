@@ -18,11 +18,11 @@ dist_topdata_DATA = \
 
 CLEANFILES = preferences
 EXTRA_DIST = \
-	preferences.in \      
+	preferences.in \
 	$(NULL)
  
-do_subst = sed \        
-	-e 's|[@]pkgdatadir[@]|$(pkgdatadir)|g' \        
+do_subst = sed \
+	-e 's|[@]pkgdatadir[@]|$(pkgdatadir)|g' \
 	$(NULL)
  
 preferences: preferences.in Makefile      
