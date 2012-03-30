@@ -15,15 +15,17 @@ namespace Layers.Controls.Chooser
 		int16 selector_ypos;
 		int16 selector_max_height;
 		ChooserSelector selector;
-		ChooserHeader header;
+		ChooserHeader header;		
+		MenuMessageLayer status;
 
 		protected ChooserBase(string id, string title) {
 			base(id);
 			selector_hash = new HashMap<string, ChooserSelector>();
 			header = add_layer(new ChooserHeader("header")) as ChooserHeader;
 			header.title = title;
+			status = add_layer(new MenuMessageLayer("status")) as MenuMessageLayer;	
 			selector_ypos = (int16)(header.ypos + header.height + @interface.get_monospaced_font_height());
-			selector_max_height = (int16)(@interface.screen_height - selector_ypos - 20);
+			selector_max_height = (int16)status.ypos - selector_ypos;
 		}
 
 		public string? run(string? starting_key, string? secondary_starting_key=null) {
@@ -42,6 +44,11 @@ namespace Layers.Controls.Chooser
 			
 			return get_run_result();
 		}
+				
+		public void message(string? message) {
+			this.status.message = message;
+		}
+		
 		protected virtual string get_first_run_key(string starting_key) { return starting_key; }
 		protected virtual uint get_first_run_selection_index(string starting_key) {
 			return (selector.is_root) ? 0 : 1;
@@ -58,6 +65,8 @@ namespace Layers.Controls.Chooser
 				
 			var new_selector = create_selector(key, SELECTOR_XPOS, selector_ypos, selector_max_height);
 			new_selector.changed.connect(() => on_selector_changed());
+			new_selector.scanning.connect(() => on_selector_scanning());
+			new_selector.scanned.connect(() => on_selector_scanned());
 			selector_hash[key] = new_selector;
 			return new_selector;
 		}
@@ -71,6 +80,9 @@ namespace Layers.Controls.Chooser
 		protected abstract void update_header(ChooserHeader header, ChooserSelector selector);
 		protected virtual void on_selector_changed() {
 		}
+		
+		protected virtual void on_selector_scanning() { }
+		protected virtual void on_selector_scanned() { }
 
 		//
 		// events

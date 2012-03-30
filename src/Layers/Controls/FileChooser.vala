@@ -28,6 +28,9 @@ namespace Layers.Controls
 			if (file_extensions != null)
 				regex_file_filter = get_file_extensions_regex(file_extensions);			
 		}
+	
+		protected override void on_selector_scanning() { this.message("Reading directory..."); }
+		protected override void on_selector_scanned() { this.message(null); }
 
 		protected override string get_first_run_key(string starting_key) { 
 			if (starting_key.has_prefix(root_path) == true) {

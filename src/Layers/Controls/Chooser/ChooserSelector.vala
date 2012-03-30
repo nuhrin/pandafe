@@ -61,6 +61,9 @@ namespace Layers.Controls.Chooser
 		public bool is_folder_selected { get { return items[(int)selected_index].is_folder; } }
 		public bool is_root { get; private set; }
 		
+		public virtual signal void scanning() { }
+		public virtual signal void scanned() { }
+		
 		protected override void draw() {
 			ensure_surface();
 			Rect dest_r = {xpos, ypos};
@@ -76,6 +79,7 @@ namespace Layers.Controls.Chooser
 		protected Gee.List<Item> items { 
 			get {
 				if (_items == null) {
+					scanning();
 					_items = new ArrayList<Item>();
 					populate_items(_items);
 					if (choose_item_name != null)
@@ -88,6 +92,7 @@ namespace Layers.Controls.Chooser
 						if (index > 0)
 							selected_index = (uint)index;
 					}
+					scanned();
 				}
 				return _items;
 			}
