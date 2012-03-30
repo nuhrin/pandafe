@@ -23,6 +23,7 @@ namespace Menus
 			item.finished.connect(() => {
 				if (menu.mo != null)
 					menu.mo.i_release_fields();
+				menu.clear_items();
 			});
 			return item;
 		}
