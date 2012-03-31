@@ -447,7 +447,6 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 				case KeySymbol.SLASH:
 					filter_selector();
 					break;
-				case KeySymbol.LALT: // pandora Start
 				case KeySymbol.LCTRL: // pandora Select
 				case KeySymbol.PERIOD:
 					show_main_menu();					
