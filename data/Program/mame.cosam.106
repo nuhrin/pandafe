@@ -19,11 +19,13 @@ options:
 - type: flag
   name: Skip Gameinfo
   help: !!null 
+  locked: true
   option: -skip_gameinfo
   on-by-default: false
 - type: multiple-choice
   name: Scaling
   help: !!null 
+  locked: false
   option: ! ' '
   choices:
   - name: None
@@ -38,16 +40,12 @@ options:
   - name: 2xy
     option: -s 2
     value: !!null 
-  - name: Fit Height
-    option: -ah 480
-    value: fit
-  - name: Auto Doubling
-    option: -adb
-    value: adb
   default-choice-index: 0
+  include-option-for-default-value: false
 - type: multiple-choice
   name: Effect
   help: !!null 
+  locked: false
   option: ! '-ef '
   choices:
   - name: None
@@ -78,9 +76,11 @@ options:
     option: 8
     value: !!null 
   default-choice-index: 0
+  include-option-for-default-value: false
 - type: multiple-choice
   name: Rotation
   help: !!null 
+  locked: false
   option: ! ' '
   choices:
   - name: None
@@ -93,8 +93,10 @@ options:
     option: -rr
     value: r
   default-choice-index: 0
+  include-option-for-default-value: false
 default-settings:
   extra-arguments: 
+  show-output: false
   clockspeed: 0
   Rotation: n
   Skip Gameinfo: true

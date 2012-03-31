@@ -1,9 +1,38 @@
 app-id-type: exact
 app-id: mednafen-gb
-custom-command: ! "#!/bin/bash\n\ncfg=\".mednafen/mednafen-09x.cfg\"\norigcfg=\"/tmp/mednafe.cfg.orig\"\nif
-  [[ -f $cfg ]]; then\n\tmv $cfg $origcfg \nfi\n\nsource ./mednafen-common.sh\n#export
-  SDL_OMAP_LAYER_SIZE=480x432\nexport SDL_OMAP_LAYER_SIZE=800x480\n\n./mednafen \"$@\"\nresult=$?\n\nif
-  [[ -f $origcfg ]]; then\n\tmv $origcfg $cfg\nfi\nexit $result"
+custom-command: ! '#!/bin/bash
+
+
+  cfg=".mednafen/gb.cfg"
+
+  origcfg=".mednafen/mednafen-09x.cfg"
+
+  tmpcfg="/tmp/mednafe.cfg.orig"
+
+  if [[ -f $origcfg ]]; then mv $origcfg $tmpcfg; fi
+
+  if [[ -f $cfg ]]; then cp $cfg $origcfg; fi
+
+
+
+  source ./mednafen-common.sh
+
+  #export SDL_OMAP_LAYER_SIZE=480x432
+
+  export SDL_OMAP_LAYER_SIZE=800x480
+
+
+  ./mednafen "$@"
+
+  result=$?
+
+
+  mv $origcfg $cfg
+
+  if [[ -f $tmpcfg ]]; then mv $tmpcfg $origcfg; fi
+
+
+  exit $result'
 expected-exit-code: 0
 options:
 - type: grouping
@@ -34,31 +63,31 @@ options:
     - type: flag
       name: Fullscreen
       help: Enable fullscreen mode.
-      locked: false
+      locked: true
       option: -video.fs 1
-      on-by-default: false
+      on-by-default: true
     - type: integer
-      name: Fullscreen Xres
+      name: X Resolution
       help: Fullscreen horizontal resolution.
       locked: false
       option: ! '-gb.xres '
       min-value: 64
       max-value: 65536
-      step: 0
-      default-value: 480
-      include-option-for-default-value: false
+      step: 1
+      default-value: 800
+      include-option-for-default-value: true
     - type: integer
-      name: Fullscreen Yres
+      name: Y Resolution
       help: Fullscreen vertical resolution.
       locked: false
       option: ! '-gb.yres '
       min-value: 64
       max-value: 65536
-      step: 0
-      default-value: 432
-      include-option-for-default-value: false
+      step: 1
+      default-value: 480
+      include-option-for-default-value: true
     - type: double
-      name: Fullscreen Xscale
+      name: X Scale
       help: Scaling factor for the X axis in fullscreen mode.
       locked: false
       option: ! '-gb.xscalefs '
@@ -66,10 +95,10 @@ options:
       max-value: 256
       step: 0.01
       precision: 2
-      default-value: 2
-      include-option-for-default-value: false
+      default-value: 4
+      include-option-for-default-value: true
     - type: double
-      name: Fullscreen Yscale
+      name: Y Scale
       help: Scaling factor for the Y axis in fullscreen mode.
       locked: false
       option: ! '-gb.yscalefs '
@@ -77,47 +106,8 @@ options:
       max-value: 256
       step: 0.01
       precision: 2
-      default-value: 2
-      include-option-for-default-value: false
-    - type: double
-      name: Xscale
-      help: Scaling factor for the X axis.
-      locked: false
-      option: ! '-gb.xscale '
-      min-value: 0.01
-      max-value: 256
-      step: 0.01
-      precision: 2
-      default-value: 3
-      include-option-for-default-value: false
-    - type: double
-      name: Yscale
-      help: Scaling factor for the Y axis.
-      locked: false
-      option: ! '-gb.yscale '
-      min-value: 0.01
-      max-value: 256
-      step: 0.01
-      precision: 2
-      default-value: 3
-      include-option-for-default-value: false
-    - type: multiple-choice
-      name: Stretch
-      help: Stretch to fill screen.
-      locked: false
-      option: ! '-gb.stretch '
-      choices:
-      - name: disabled
-        option: 0
-        value: !!null 
-      - name: full
-        option: full
-        value: !!null 
-      - name: aspect
-        option: aspect
-        value: !!null 
-      default-choice-index: 0
-      include-option-for-default-value: false
+      default-value: 4
+      include-option-for-default-value: true
   - type: flag
     name: Blur
     help: Motion blur. Disables frameskipping.
@@ -147,6 +137,16 @@ options:
     locked: false
     option: -gb.videoip 1
     on-by-default: false
+  - type: integer
+    name: Scanlines
+    help: Enable scanlines with specified opacity (%).
+    locked: false
+    option: ! '-gb.scanlines '
+    min-value: 0
+    max-value: 100
+    step: 1
+    default-value: 0
+    include-option-for-default-value: true
   - type: multiple-choice
     name: Special Scalar
     help: Enable specified special video scalar.
@@ -203,15 +203,22 @@ options:
       value: !!null 
     default-choice-index: 0
     include-option-for-default-value: false
-  - type: integer
-    name: Scanlines
-    help: Enable scanlines with specified opacity (%).
+  - type: multiple-choice
+    name: Stretch
+    help: Stretch to fill screen.
     locked: false
-    option: ! '-gb.scanlines '
-    min-value: 0
-    max-value: 100
-    step: 1
-    default-value: 0
+    option: ! '-gb.stretch '
+    choices:
+    - name: disabled
+      option: 0
+      value: !!null 
+    - name: aspect
+      option: aspect
+      value: !!null 
+    - name: full
+      option: full
+      value: !!null 
+    default-choice-index: 0
     include-option-for-default-value: false
 - type: grouping
   name: Sound
@@ -412,25 +419,39 @@ options:
   option: -cheats 1
   on-by-default: false
 default-settings:
+  extra-arguments: 
+  show-output: false
   clockspeed: 0
+  Video/Blur Accumlulate: false
   Misc/Fast Forward/No Sound: false
+  Video/Screen/Y Scale: 3.00
+  Video/Accumulation Amount: 50
+  Video/Blur: false
   Video/Driver: opengl
+  Video/Screen/Fullscreen: true
+  Video/Screen/X Scale: 3.00
   Sound/Driver: oss
+  Misc/State Rewind/Frames: 600
   Misc/Autofire Frequency: 3
   Video/Interpolation: false
   Sound/Device: default
   Sound/Volume: 100
   Misc/Fast Forward/Toggle: false
-  Misc/Rewind/Compressor: minilzo
   Autosave: false
-  Misc/Fast Forward/Speed: 2
-  Misc/Rewind/Frames: 600
-  Misc/Command Delay: 0
+  Video/Screen/Y Resolution: 480
+  Misc/Fast Forward/Speed: 4.0
+  Misc/Slow Motion/Speed: 0.75
+  Cheats: false
   Sound/Playback Rate: 48000
+  Video/Special Scalar: none
   Sound/Disabled: false
   Sound/No Throttle: false
-  Video/Stretch: false
+  Misc/Slow Motion/Toggle: false
+  Misc/Dangerous Key Delay: 0
+  Video/Screen/X Resolution: 800
+  Video/Stretch: aspect
   Sound/Buffer: 32
   Video/Scanlines: 0
+  Misc/State Rewind/Compressor: minilzo
 name: mednafen-gb
 

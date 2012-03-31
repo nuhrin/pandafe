@@ -1,7 +1,6 @@
 name: Gameboy
 platform-type: rom
-rom-folder-root: !!null
-rom-file-extensions: gb; gbc
+rom-file-extensions: gb gbc zip
 programs:
 - sdlgnuboy
 - mednafen-gb

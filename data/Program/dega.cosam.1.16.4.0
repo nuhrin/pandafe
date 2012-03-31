@@ -19,6 +19,8 @@ custom-command: ! "#!/bin/bash\n\nFBDEV=/dev/fb1\n\n# Get a ROM file name.\nROM=
 expected-exit-code: 0
 options: []
 default-settings:
+  extra-arguments: 
+  show-output: false
   clockspeed: 0
 name: Dega
 

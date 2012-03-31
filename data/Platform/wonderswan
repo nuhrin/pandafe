@@ -1,7 +1,6 @@
 name: Wonderswan
 platform-type: rom
-rom-folder-root: !!null
-rom-file-extensions: wsc
+rom-file-extensions: wsc zip
 programs:
 - mednafen-wswan
 program-settings: {}

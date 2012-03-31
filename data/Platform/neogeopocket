@@ -1,7 +1,6 @@
 name: NeoGeo Pocket
 platform-type: rom
-rom-folder-root: !!null
-rom-file-extensions: zip
+rom-file-extensions: ngp zip
 programs:
 - mednafen-ngp
 program-settings: {}

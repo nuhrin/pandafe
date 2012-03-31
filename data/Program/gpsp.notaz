@@ -1,9 +1,11 @@
 app-id-type: exact
 app-id: gpsp.notaz
 custom-command: !!null 
-expected-exit-code: 256
+expected-exit-code: 0
 options: []
 default-settings:
+  extra-arguments: 
+  show-output: false
   clockspeed: 0
 name: gpSP
 

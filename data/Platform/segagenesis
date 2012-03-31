@@ -1,7 +1,6 @@
 name: Sega Genesis
 platform-type: rom
-rom-folder-root: !!null
-rom-file-extensions: zip
+rom-file-extensions: bin smd zip
 programs:
 - picodrive.notaz.1.80
 program-settings: {}

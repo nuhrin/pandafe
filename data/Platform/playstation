@@ -1,6 +1,5 @@
 name: Playstation
 platform-type: rom
-rom-folder-root: !!null
 rom-file-extensions: bin
 programs:
 - pcsx_rearmed.notaz

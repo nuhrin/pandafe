@@ -1,6 +1,5 @@
 name: NES
 platform-type: rom
-rom-folder-root: !!null
 rom-file-extensions: nes zip
 programs:
 - gpfcegp2x

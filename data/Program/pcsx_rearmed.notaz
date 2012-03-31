@@ -1,15 +1,11 @@
 app-id-type: prefix
 app-id: pcsx_rearmed.notaz
 custom-command: !!null 
-options:
-- option-type: flag
-  name: Enable PSX Out
-  help: !!null 
-  option: -psxout
-  on-by-default: false
+expected-exit-code: 0
+options: []
 default-settings:
   extra-arguments: -cdfile %g
+  show-output: false
   clockspeed: 0
-  Enable PSX Out: false
 name: PCSX ReARMed
 

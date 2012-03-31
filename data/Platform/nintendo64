@@ -1,7 +1,6 @@
 name: Nintendo 64
 platform-type: rom
-rom-folder-root: !!null
-rom-file-extensions: v64; n64
+rom-file-extensions: v64 n64 zip
 programs:
 - mupen64plus-PickleLauncher
 program-settings: {}

@@ -1,9 +1,7 @@
 name: Sega Master System
 platform-type: rom
-rom-folder-root: !!null
-rom-file-extensions: sms
+rom-file-extensions: sms zip
 programs:
-- picodrive.notaz.1.80
 - dega.cosam.1.16.4.0
 - mednafen-sms
 program-settings: {}
