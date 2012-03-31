@@ -616,20 +616,26 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 	
 	void run_game(GameItem game) {
 		status_message.set("running '%s'...".printf(game.unique_name()));				
+		
+		var program = game.get_program();
+		bool show_output = (program != null && program.default_settings.show_output == true);
+		
 		var result = game.run();
 		set_status();
-		if (result.success == false) {
-			if (result.error_message != null && status_message.text_will_fit("Error: " + result.error_message))
+		
+		if (result.success == false || show_output == true) {
+			if (result.error_message != null && status_message.text_will_fit("Error: " + result.error_message)) {
 				status_message.set("Error: " + result.error_message);
-			else {
-				var program = game.get_program();
-				if (result.exit_status != 0 && program != null && program.expected_exit_code != result.exit_status) {
-					var primary_message = (program != null)
-						? "Error running " + program.name
-						: "Error running program";
-					result.show_error_dialog(primary_message, 
-						"\t<i>%s</i>".printf(game.unique_name()));
-				}
+			} else {
+				if (result.exit_status != 0 && program != null && program.expected_exit_code == result.exit_status && show_output == false)
+					return;
+					
+				string program_name = (program != null) ? program.name : "program";
+				string primary_message = (result.success == false)
+					? "Error running " + program_name
+					: program_name + " Output";
+				result.show_result_dialog(primary_message, 
+					"\t<i>%s</i>".printf(game.unique_name()));				
 			}
 		}
 	}

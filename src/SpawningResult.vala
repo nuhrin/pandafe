@@ -54,9 +54,7 @@ public class SpawningResult
 		sb.append_printf("********************************************************************************\n\n");
 		return sb.str;
 	}
-	public void show_error_dialog(string? primary_message=null, string? secondary_message=null) {
-		if (success == true)
-			return;
+	public void show_result_dialog(string? primary_message=null, string? secondary_message=null) {
 		@interface.ensure_gtk_init();
 		
 		string primary = "<b><big>%s</big></b>".printf(primary_message ?? "Spawn error");
@@ -72,7 +70,7 @@ public class SpawningResult
 		var hbox = new HBox(false, 12);
 		hbox.border_width = 5;
 		dialog.vbox.pack_start(hbox, false, false, 0);
-		var image = new Image.from_stock(Stock.DIALOG_ERROR, IconSize.DIALOG);
+		var image = new Image.from_stock((success == true) ? Stock.DIALOG_INFO : Stock.DIALOG_ERROR, IconSize.DIALOG);
 		image.set_alignment(0.5f, 0.0f);
 		var message_vbox = new VBox(false, 12);
 		hbox.pack_start(image, false, false, 0);

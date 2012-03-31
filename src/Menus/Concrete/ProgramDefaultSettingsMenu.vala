@@ -23,6 +23,7 @@ namespace Menus.Concrete
 		ProgramDefaultSettings settings;
 		StringField extra_arguments_field;
 		ClockSpeedField clockspeed_field;
+		BooleanField show_output_field;
 		
 		public ProgramDefaultSettingsMenu(string title_prefix, string program_name, ProgramDefaultSettings settings, OptionSet options, int clockspeed=-1, string? extra_arguments=null) {
 			base(title_prefix + " Settings: " + program_name);
@@ -65,7 +66,11 @@ namespace Menus.Concrete
 					original_settings[option.setting_name] = option.get_setting_value_from_field(field);
 			}
 			original_settings.extra_arguments = extra_arguments_field.value;							
-			original_settings.clockspeed = clockspeed_field.value;
+			original_settings.clockspeed = clockspeed_field.value;	
+			if (show_output_field.value == true)		
+				original_settings.show_output = true;
+			else
+				original_settings.show_output = false;
 			was_saved = true;
 			return true;
 		}
@@ -96,6 +101,9 @@ namespace Menus.Concrete
 			
 			clockspeed_field = new ClockSpeedField("clockspeed", "Clockspeed", null, settings.clockspeed, 150, 1000, 5);
 			items.add(clockspeed_field);
+			show_output_field = new BooleanField("show_output", "Show Output", "Always show output dialog after program is run (useful for debugging)", settings.show_output ?? false);
+			items.add(show_output_field);
+			
 			items.add(new MenuItemSeparator());
 			var reset_index = items.size;
 			items.add(new MenuItem.custom("Reset", "Reset settings to defaults", "", () => {

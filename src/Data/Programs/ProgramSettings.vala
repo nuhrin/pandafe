@@ -25,7 +25,7 @@ namespace Data.Programs
 			return mapping;
 		}
 		protected virtual void build_additional_properties(Yaml.MappingNode mapping, Yaml.NodeBuilder builder) {
-			mapping.set_scalar("clockspeed", builder.build_value(clockspeed));			
+			mapping.set_scalar("clockspeed", builder.build_value(clockspeed));
 		}
 		protected bool apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
 			var mapping = node as Yaml.MappingNode;
@@ -58,22 +58,36 @@ namespace Data.Programs
 	public class ProgramDefaultSettings : ProgramSettings
 	{
 		public string extra_arguments { get; set; }
+		public bool? show_output { get; set; }
 		
 		protected override void merge_override_additional(ProgramSettings settings) {
 			var default_settings = settings as ProgramDefaultSettings;
-			if (default_settings != null || default_settings.extra_arguments != null)
-				extra_arguments = default_settings.extra_arguments;
+			if (default_settings != null) {
+				if(default_settings.extra_arguments != null)
+					extra_arguments = default_settings.extra_arguments;
+				if (default_settings.show_output != null)
+					show_output = default_settings.show_output;
+			}
 			base.merge_override_additional(settings);
 		}
 		
 		protected override void build_additional_properties(Yaml.MappingNode mapping, Yaml.NodeBuilder builder) {
 			if (extra_arguments != null)
 				mapping.set_scalar("extra-arguments", builder.build_value(extra_arguments));
+			if (show_output != null)
+				mapping.set_scalar("show-output", builder.build_value(show_output.to_string()));
 			base.build_additional_properties(mapping, builder);
 		}
 		protected override bool apply_property_value(string key, string value) {
 			if (key == "extra-arguments") {
 				extra_arguments = value;
+				return true;
+			} else if (key == "show-output") {
+				bool flag;
+				if (bool.try_parse(value, out flag) == true)
+					show_output = flag;
+				else
+					show_output = null;
 				return true;
 			}
 			return base.apply_property_value(key, value);
