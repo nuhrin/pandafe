@@ -9,7 +9,6 @@ namespace Data.Pnd
 	
 	public class MountSet
 	{
-		PndData data;
 		string mount_prefix;
 		ArrayList<string> mounted_pnd_ids;
 		HashMap<string, string> mounted_pnd_name_hash;
@@ -19,7 +18,6 @@ namespace Data.Pnd
 			mounted_pnd_ids = new ArrayList<string>();
 			mounted_pnd_name_hash = new HashMap<string, string>();
 			pnd_appdata_path_hash = new HashMap<string, string>();
-			data = Data.pnd_data();
 		}
 		~MountSet() {
 			unmount_all();
@@ -47,7 +45,7 @@ namespace Data.Pnd
 			return UNION_MOUNT_PATH + mounted_pnd_name_hash[pnd_id];
 		}
 		public string? get_appdata_path(string pnd_id) {
-			var pnd = data.get_pnd(pnd_id);
+			var pnd = Data.pnd_data().get_pnd(pnd_id);
 			if (pnd == null || is_pnd_mounted(pnd.pnd_id) == false)
 				return null;
 
@@ -64,14 +62,14 @@ namespace Data.Pnd
 		}
 
 		public bool mount(string unique_id, string pnd_id) {
-			var pnd = data.get_pnd(pnd_id);
+			var pnd = Data.pnd_data().get_pnd(pnd_id);
 			if (pnd == null)
 				return false;
 			if(is_pnd_mounted(pnd.pnd_id) == true)
 				return true;
 
 			var name =  unique_id;
-			var app = data.get_app(unique_id, pnd_id);
+			var app = Data.pnd_data().get_app(unique_id, pnd_id);
 			if (app != null && app.appdata_dirname != null)
 				name = app.appdata_dirname;
 			if (mount_prefix != null)
@@ -96,7 +94,7 @@ namespace Data.Pnd
 		}
 
 		public bool unmount(string pnd_id, owned ForallFunc<string>? pre_unmount_action=null) {
-			var pnd = data.get_pnd(pnd_id);
+			var pnd = Data.pnd_data().get_pnd(pnd_id);
 			if (pnd == null)
 				return false;
 			if(is_pnd_mounted(pnd.pnd_id) == false)

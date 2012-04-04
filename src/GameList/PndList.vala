@@ -8,17 +8,16 @@ namespace Data.GameList
 	{
 		ArrayList<string> main_categories;
 		HashMap<string, NativePlatformCategory> platform_category_hash;
-		PndData pnddata;
 		
 		public PndList() {
 			base(Data.platforms().get_native_platform());
-			pnddata = Data.pnd_data();
 			init_categories();
 		}
 		void init_categories() {					
 			main_categories = new ArrayList<string>();
 			platform_category_hash = new HashMap<string, NativePlatformCategory>();
 			var native_platform = platform as NativePlatform;
+			var pnddata = Data.pnd_data();
 			foreach(var category in native_platform.categories) {
 				if (pnddata.get_category(category.name) != null) {
 					main_categories.add(category.name);
@@ -31,7 +30,7 @@ namespace Data.GameList
 		
 		public override SpawningResult run_game(GameItem game) {
 			var ids = game.id.split("|");
-			var pnd = pnddata.get_pnd(ids[0]);
+			var pnd = Data.pnd_data().get_pnd(ids[0]);
 			if (pnd != null) {
 				var app = pnd.apps.where(a=>a.id == ids[1]).first();
 				if (app != null)
@@ -80,7 +79,7 @@ namespace Data.GameList
 				var native_category = platform_category_hash[folder.id];
 				var excluded_hash = new HashSet<string>();
 				excluded_hash.add_all(native_category.excluded_subcategories);
-				var category = pnddata.get_category(folder.id);
+				var category = Data.pnd_data().get_category(folder.id);
 				if (category != null) {
 					foreach(var subcategory in category.subcategories) {
 						if (excluded_hash.contains(subcategory.name) == false)
@@ -97,11 +96,11 @@ namespace Data.GameList
 			CategoryBase category = null;
 			NativePlatformCategory native_category = null;
 			if (folder.parent == null || folder.parent.id == "") {
-				category = pnddata.get_category(folder.id);
+				category = Data.pnd_data().get_category(folder.id);
 				if (category != null)
 					native_category = platform_category_hash[category.name];
 			} else {
-				var main_category = pnddata.get_category(folder.parent.id);
+				var main_category = Data.pnd_data().get_category(folder.parent.id);
 				if (main_category != null) {
 					native_category = platform_category_hash[main_category.name];
 					category = main_category.get_subcategory(folder.id);
