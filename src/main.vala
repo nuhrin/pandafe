@@ -1,5 +1,6 @@
 using SDL;
 using SDLTTF;
+using SDLImage;
 
 public class MainClass: Object {
 	public static int main (string[] args)
@@ -24,6 +25,8 @@ public class MainClass: Object {
 	static unowned SDL.Screen inititialize_sdl() {
         if (SDL.init(InitFlag.VIDEO) == -1)
 			GLib.error("Error initializing SDL: %s", SDL.get_error());
+		if (SDL.enable_key_repeat() == -1)
+			GLib.error("Error enabling key repeat: %s", SDL.get_error());
 
 		unowned VideoInfo vidinfo = VideoInfo.get();
 		bool needsFullscreenBlip = (vidinfo.current_w == SCREEN_WIDTH && vidinfo.current_h == SCREEN_HEIGHT);
@@ -33,21 +36,30 @@ public class MainClass: Object {
 			// initialize fullscreen to bring in front on xfce panel, etc
 			video_flags = video_flags | SurfaceFlag.FULLSCREEN;
 		}
+		
         unowned SDL.Screen screen = Screen.set_video_mode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_DEPTH, video_flags);
         if (screen == null)
             GLib.error("Error setting video mode %d:%d:%d: %s", SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_DEPTH, SDL.get_error());
-
+		
 		if (SDLTTF.init() == -1)
-			GLib.error("Error initializing SDL_ttf: %s", SDL.get_error());
-			
+			GLib.error("Error initializing SDL_ttf: %s", SDL.get_error());				
+		
+		// show splash screen
+		bool screen_needs_flip = false;
 		var font = new Font(InterfaceHelper.FONT_MONO_DEFAULT, 20);
 		if (font != null) {
 			font.render("Pandafe", {255,255,255}).blit(null, screen, {50,50});
-			screen.flip();
-		}
-
-		if (SDL.enable_key_repeat() == -1)
-			GLib.error("Error enabling key repeat: %s", SDL.get_error());
+			screen_needs_flip = true;
+		}		
+		if (SDLImage.init(0) == -1)
+			GLib.error("Error initializing SDL_image: %s", SDL.get_error());
+		var banner = SDLImage.read_xpm(Banner.BANNER_XPM);
+		if (banner != null) {
+			banner.blit(null, screen, {0, (int16)(screen.h - banner.h)});
+			screen_needs_flip = true;
+		}		
+		if (screen_needs_flip == true)
+			screen.flip();				
 
 		SDL.Cursor.show(0);
 

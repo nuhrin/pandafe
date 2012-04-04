@@ -46,6 +46,10 @@ PKG_CHECK_MODULES(SDL, sdl);
 AC_SUBST(SDL_CFLAGS)
 AC_SUBST(SDL_LIBS)
 
+PKG_CHECK_MODULES(SDL_IMAGE, SDL_image);
+AC_SUBST(SDL_IMAGE_CFLAGS)
+AC_SUBST(SDL_IMAGE_LIBS)
+
 have_sdl_ttf=no
 AC_SEARCH_LIBS([TTF_Init], [SDL_ttf], [have_sdl_ttf=yes])
 if test "x${have_sdl_ttf}" = xyes; then
