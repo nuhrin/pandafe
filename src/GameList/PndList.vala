@@ -35,7 +35,7 @@ namespace Data.GameList
 			if (pnd != null) {
 				var app = pnd.apps.where(a=>a.id == ids[1]).first();
 				if (app != null)
-					return Spawning.spawn_app(app);				
+					return Spawning.spawn_app(app, false);				
 			}
 			return new SpawningResult.error("Unable to run pnd '%s' (%s).".printf(game.name, game.id));
 		}

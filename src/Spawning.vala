@@ -20,8 +20,8 @@ public class Spawning
 		return CUSTOM_COMMAND_SCRIPT_FORMAT.printf(app.id);
 	}
 	
-	public static SpawningResult spawn_app(AppItem app) {
-		return spawn_app_wrapper(app.get_fullpath(), app.appdata_dirname ?? app.id, app.exec_command, app.startdir, app.exec_arguments, app.clockspeed);
+	public static SpawningResult spawn_app(AppItem app, bool treat_non_zero_exit_code_as_error=true) {
+		return spawn_app_wrapper(app.get_fullpath(), app.appdata_dirname ?? app.id, app.exec_command, app.startdir, app.exec_arguments, app.clockspeed, treat_non_zero_exit_code_as_error);
 	}
 	public static SpawningResult spawn_program(Program program, bool premount, ProgramSettings? program_settings=null, string? game_path=null) {
 		return spawn_program_internal(program, premount, program_settings, game_path, null);
@@ -67,7 +67,7 @@ public class Spawning
 			return new SpawningResult.error("No command specified for program '%s'.".printf(program.name));
 
 		if (has_custom_command == false && premount == false) // run the pnd without premount
-			return spawn_app_wrapper(app.get_fullpath(), appdata_dirname ?? unique_id, command, startdir, args, clockspeed, Pandora.Apps.ExecOption.BLOCK);
+			return spawn_app_wrapper(app.get_fullpath(), appdata_dirname ?? unique_id, command, startdir, args, clockspeed);
 
 		// mount the pnd
 		var mountset = Data.pnd_mountset();
@@ -151,13 +151,13 @@ public class Spawning
 		return false;
 	}
 	
-	static SpawningResult spawn_app_wrapper(string fullpath, string unique_id, string command, string? startdir=null, string? args=null, uint clockspeed=0, Pandora.Apps.ExecOption options=Pandora.Apps.ExecOption.NONE) {
+	static SpawningResult spawn_app_wrapper(string fullpath, string unique_id, string command, string? startdir=null, string? args=null, uint clockspeed=0, bool treat_non_zero_exit_code_as_error=true) {
 		string command_line;
 		if (clockspeed == 0) {
-			command_line = Pandora.Apps.get_app_runline(fullpath, unique_id, command, startdir, args, clockspeed, options);
+			command_line = Pandora.Apps.get_app_runline(fullpath, unique_id, command, startdir, args, clockspeed);
 		} else {	
 			command_line = "%s %u %s".printf(get_cpuspeed_wrapper_script_path(), clockspeed,
-				Pandora.Apps.get_app_runline(fullpath, unique_id, command, startdir, args, 0, options));
+				Pandora.Apps.get_app_runline(fullpath, unique_id, command, startdir, args, 0));
 		}
 		
 		try {
@@ -165,7 +165,7 @@ public class Spawning
 			string standard_output;
 			string standard_error;		
 			bool success = Process.spawn_command_line_sync(command_line, out standard_output, out standard_error, out exit_status);
-			if (success == true && exit_status > 0)
+			if (success == true && exit_status > 0 && treat_non_zero_exit_code_as_error == true)
 				success = false;
 			return new SpawningResult(success, command_line, standard_output, standard_error, exit_status);
 		} catch(SpawnError e) {
