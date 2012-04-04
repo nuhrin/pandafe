@@ -152,6 +152,8 @@ public class Spawning
 	}
 	
 	static SpawningResult spawn_app_wrapper(string fullpath, string unique_id, string command, string? startdir=null, string? args=null, uint clockspeed=0, bool treat_non_zero_exit_code_as_error=true) {
+		if (FileUtils.test(fullpath, FileTest.EXISTS) == false)
+			return new SpawningResult.error("pnd not found: " + fullpath);
 		string command_line;
 		if (clockspeed == 0) {
 			command_line = Pandora.Apps.get_app_runline(fullpath, unique_id, command, startdir, args, clockspeed);
