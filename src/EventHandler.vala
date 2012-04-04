@@ -23,6 +23,8 @@ public interface EventHandler : Object
 					@interface.quit_all();
 					break;
 				case EventType.KEYDOWN:
+					if (event.key.keysym.mod == KeyModifier.CAPS)
+						event.key.keysym.mod = KeyModifier.NONE; // CAPSLOCK causes trouble with selection
 					this.on_keydown_event(event.key);
 					break;
 				case EventType.KEYUP:
