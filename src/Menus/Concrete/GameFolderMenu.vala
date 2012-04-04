@@ -19,6 +19,10 @@ namespace Menus.Concrete
 
 		protected override void populate_items(Gee.List<MenuItem> items) { 
 			items.add(new MenuItem.custom("Rescan", "Rescan the folder for game changes", "Scanning folder...", () => {
+				if (platform.platform_type == PlatformType.NATIVE) {
+					this.message("Scanning PNDs...");
+					Data.rescan_pnd_data();
+				}
 				folder.rescan_children(true);
 			}));
 
