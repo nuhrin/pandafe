@@ -693,14 +693,20 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 	}
 
 	void filter_selector() {
-		status_message.clear();
+		status_message.set();
+		
+		var font_height = @interface.get_monospaced_font_height();
+		if (ui.font_height > font_height)
+			font_height = ui.font_height;			
+		int16 entry_ypos = (int16)(@interface.screen_height - font_height - 10);
+		
 		var label = @interface.game_browser_ui.render_text_selected(FILTER_LABEL);
-		Rect label_rect = {600 - (int16)label.w, 455};
+		Rect label_rect = {600 - (int16)label.w, entry_ypos+5};
 		blit_surface(label, null, label_rect);
 		
 		var existing_filter = selector.get_filter_pattern();
 		
-		var entry = new TextEntry("selection_filter", 600, 450, 200, selector.get_filter_pattern());
+		var entry = new TextEntry("selection_filter", 600, entry_ypos, 200, selector.get_filter_pattern());
 		var new_pattern = entry.run();
 		if (new_pattern == null || new_pattern.strip() == "")
 			new_pattern = null;

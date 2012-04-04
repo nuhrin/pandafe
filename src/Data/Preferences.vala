@@ -31,7 +31,7 @@ namespace Data
 		
 		// menu
 		protected void build_menu(MenuBuilder builder) {
-			appearance_field = new GameBrowserAppearanceField("appearance", "Appearance", null, "Game Browser Appearance", appearance, new Data.GameBrowserAppearance.default());
+			appearance_field = new GameBrowserAppearanceField("appearance", "Appearance", "Configure font and colors.", "Game Browser Appearance", appearance, new Data.GameBrowserAppearance.default());
 			builder.add_field(appearance_field);
 			var default_rom_path_field = builder.add_folder("default_rom_path", "Default Rom Path", "Used as starting path when selecting platform roms for the first time.", default_rom_path);
 			default_rom_path_field.changed.connect(() => refreshed(1));
