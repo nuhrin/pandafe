@@ -196,7 +196,11 @@ pandafe_LDADD = \
 	$(VTE_LIBS) \
 	$(NULL)
 
-EXTRA_DIST = $(pandafe_VALASOURCES) pandafe.vala.stamp
+EXTRA_DIST = \
+	$(pandafe_VALASOURCES) \
+	pandafe.vala.stamp \
+	Banner.h \
+	$(NULL)
 
 MAINTAINERCLEANFILES = \
   $(pandafe_VALASOURCES:.vala=.c) \
