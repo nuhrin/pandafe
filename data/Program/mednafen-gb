@@ -46,7 +46,7 @@ options:
     option: 
     choices:
     - name: opengl
-      option: !!null 
+      option: -video.driver opengl
       value: !!null 
     - name: sdl
       option: -video.driver sdl
@@ -55,7 +55,7 @@ options:
       option: -video.driver overlay
       value: !!null 
     default-choice-index: 0
-    include-option-for-default-value: false
+    include-option-for-default-value: true
   - type: grouping
     name: Screen
     help: Screen Options
@@ -108,18 +108,34 @@ options:
       precision: 2
       default-value: 4
       include-option-for-default-value: true
-  - type: flag
+  - type: multiple-choice
     name: Blur
-    help: Motion blur. Disables frameskipping.
+    help: Enable motion blur.
     locked: false
-    option: -gb.tblur 1
-    on-by-default: false
-  - type: flag
-    name: Blur Accumlulate
+    option: ! '-gb.tblur '
+    choices:
+    - name: false
+      option: 0
+      value: !!null 
+    - name: true
+      option: 1
+      value: !!null 
+    default-choice-index: 0
+    include-option-for-default-value: true
+  - type: multiple-choice
+    name: Blur Accumulate
     help: Accumulate color data rather than discarding it.
     locked: false
-    option: -gb.tblur.accum 1
-    on-by-default: false
+    option: ! '-gb.tblur.accum '
+    choices:
+    - name: false
+      option: 0
+      value: !!null 
+    - name: true
+      option: 1
+      value: !!null 
+    default-choice-index: 0
+    include-option-for-default-value: true
   - type: integer
     name: Accumulation Amount
     help: Blur amount in accumulation mode, percentage of buffer to mix with current
@@ -130,13 +146,21 @@ options:
     max-value: 100
     step: 1
     default-value: 50
-    include-option-for-default-value: false
-  - type: flag
+    include-option-for-default-value: true
+  - type: multiple-choice
     name: Interpolation
     help: Use bilinear interpolation.
     locked: false
-    option: -gb.videoip 1
-    on-by-default: false
+    option: ! '-gb.videoip '
+    choices:
+    - name: false
+      option: 0
+      value: !!null 
+    - name: true
+      option: 1
+      value: !!null 
+    default-choice-index: 0
+    include-option-for-default-value: true
   - type: integer
     name: Scanlines
     help: Enable scanlines with specified opacity (%).
@@ -202,7 +226,7 @@ options:
       option: nny4x
       value: !!null 
     default-choice-index: 0
-    include-option-for-default-value: false
+    include-option-for-default-value: true
   - type: multiple-choice
     name: Stretch
     help: Stretch to fill screen.
@@ -219,7 +243,7 @@ options:
       option: full
       value: !!null 
     default-choice-index: 0
-    include-option-for-default-value: false
+    include-option-for-default-value: true
 - type: grouping
   name: Sound
   help: Sound Options
@@ -250,18 +274,34 @@ options:
     locked: true
     option: ! '-sounddevice '
     default-value: default
-  - type: flag
+  - type: multiple-choice
     name: Disabled
     help: Disable sound emulation and output.
     locked: false
-    option: -sound 0
-    on-by-default: false
-  - type: flag
+    option: ! '-sound '
+    choices:
+    - name: false
+      option: 1
+      value: !!null 
+    - name: true
+      option: 0
+      value: !!null 
+    default-choice-index: 0
+    include-option-for-default-value: true
+  - type: multiple-choice
     name: No Throttle
     help: Disable speed throttling used when sound is disabled.
     locked: false
-    option: -nothrottle 1
-    on-by-default: false
+    option: ! '-nothrottle '
+    choices:
+    - name: false
+      option: 0
+      value: !!null 
+    - name: true
+      option: 1
+      value: !!null 
+    default-choice-index: 0
+    include-option-for-default-value: true
   - type: multiple-choice
     name: Playback Rate
     help: !!null 
@@ -281,27 +321,27 @@ options:
       option: 48000
       value: !!null 
     default-choice-index: 3
-    include-option-for-default-value: false
+    include-option-for-default-value: true
   - type: integer
     name: Volume
     help: Sound volume (percentage).
     locked: false
-    option: -soundvol
+    option: ! '-soundvol '
     min-value: 0
     max-value: 150
     step: 1
     default-value: 100
-    include-option-for-default-value: false
+    include-option-for-default-value: true
   - type: integer
     name: Buffer
     help: Sound buffer, in milliseconds.
     locked: false
     option: ! '-soundbufsize '
-    min-value: 0
+    min-value: 150
     max-value: 1000
     step: 1
-    default-value: 32
-    include-option-for-default-value: false
+    default-value: 250
+    include-option-for-default-value: true
 - type: grouping
   name: Misc
   help: Miscellaneous Options
@@ -320,19 +360,35 @@ options:
       step: 0.10000000000000001
       precision: 1
       default-value: 4
-      include-option-for-default-value: false
-    - type: flag
+      include-option-for-default-value: true
+    - type: multiple-choice
       name: Toggle
       help: Treat the fast-forward button as a toggle.
       locked: false
-      option: -fftoggle 1
-      on-by-default: false
-    - type: flag
+      option: ! '-fftoggle '
+      choices:
+      - name: false
+        option: 0
+        value: !!null 
+      - name: true
+        option: 1
+        value: !!null 
+      default-choice-index: 0
+      include-option-for-default-value: true
+    - type: multiple-choice
       name: No Sound
       help: Silence sound output when fast-forwarding.
       locked: false
-      option: -ffnosound 1
-      on-by-default: false
+      option: ! '-ffnosound '
+      choices:
+      - name: false
+        option: 0
+        value: !!null 
+      - name: true
+        option: 1
+        value: !!null 
+      default-choice-index: 0
+      include-option-for-default-value: true
   - type: grouping
     name: Slow Motion
     help: Slow Motion Options
@@ -347,13 +403,21 @@ options:
       step: 0.01
       precision: 2
       default-value: 0.75
-      include-option-for-default-value: false
-    - type: flag
+      include-option-for-default-value: true
+    - type: multiple-choice
       name: Toggle
       help: Treat the SLOW-forward button as a toggle.
       locked: false
-      option: -sftoggle 1
-      on-by-default: false
+      option: ! '-sftoggle '
+      choices:
+      - name: false
+        option: 0
+        value: !!null 
+      - name: true
+        option: 1
+        value: !!null 
+      default-choice-index: 0
+      include-option-for-default-value: true
   - type: grouping
     name: State Rewind
     help: State Rewinding Options
@@ -374,17 +438,17 @@ options:
         option: blz
         value: !!null 
       default-choice-index: 0
-      include-option-for-default-value: false
+      include-option-for-default-value: true
     - type: integer
       name: Frames
       help: Number of frames to keep for rewinding.
       locked: false
-      option: ! '-frames '
+      option: ! '-srwframes '
       min-value: 10
       max-value: 99999
       step: 100
       default-value: 600
-      include-option-for-default-value: false
+      include-option-for-default-value: true
   - type: integer
     name: Autofire Frequency
     help: Auto-fire frequency = GameSystemFrameRateHz / (value + 1)
@@ -394,7 +458,7 @@ options:
     max-value: 1000
     step: 1
     default-value: 3
-    include-option-for-default-value: false
+    include-option-for-default-value: true
   - type: integer
     name: Dangerous Key Delay
     help: Time (ms) a "dangerous" key (power/reset/exit/load state/etc) must be pressed
@@ -405,19 +469,35 @@ options:
     max-value: 5000
     step: 100
     default-value: 0
-    include-option-for-default-value: false
-- type: flag
+    include-option-for-default-value: true
+- type: multiple-choice
   name: Autosave
   help: Automatically save/load state on game close/load.
   locked: false
-  option: -autosave 1
-  on-by-default: false
-- type: flag
+  option: ! '-autosave '
+  choices:
+  - name: false
+    option: 0
+    value: !!null 
+  - name: true
+    option: 1
+    value: !!null 
+  default-choice-index: 0
+  include-option-for-default-value: true
+- type: multiple-choice
   name: Cheats
   help: Enable cheats.
   locked: false
-  option: -cheats 1
-  on-by-default: false
+  option: ! '-cheats '
+  choices:
+  - name: false
+    option: 0
+    value: !!null 
+  - name: true
+    option: 1
+    value: !!null 
+  default-choice-index: 0
+  include-option-for-default-value: true
 default-settings:
   extra-arguments: 
   show-output: false
@@ -442,7 +522,7 @@ default-settings:
   Misc/Fast Forward/Speed: 4.0
   Misc/Slow Motion/Speed: 0.75
   Cheats: false
-  Sound/Playback Rate: 48000
+  Sound/Playback Rate: 22050
   Video/Special Scalar: none
   Sound/Disabled: false
   Sound/No Throttle: false
@@ -450,7 +530,7 @@ default-settings:
   Misc/Dangerous Key Delay: 0
   Video/Screen/X Resolution: 800
   Video/Stretch: aspect
-  Sound/Buffer: 32
+  Sound/Buffer: 250
   Video/Scanlines: 0
   Misc/State Rewind/Compressor: minilzo
 name: mednafen-gb
