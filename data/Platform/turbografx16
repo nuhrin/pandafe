@@ -3,5 +3,7 @@ platform-type: rom
 rom-file-extensions: pce zip
 programs:
 - mednafen-pce
+- Temper
 program-settings: {}
+default-program: mednafen-pce
 

@@ -1,0 +1,10 @@
+app-id-type: exact
+app-id: Temper
+custom-command: op_runfbapp ./temper "$@"
+expected-exit-code: 0
+options: []
+default-settings:
+  extra-arguments: 
+  clockspeed: 500
+name: Temper
+

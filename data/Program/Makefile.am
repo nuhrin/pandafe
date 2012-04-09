@@ -21,6 +21,7 @@ dist_programs_DATA = \
 	picodrive.notaz.1.80 \
 	sdlgnuboy \
 	snes9x.skeezix.alpha \
+	Temper \
 	$(NULL)
 
 $(dist_programs_DATA):
