@@ -133,6 +133,7 @@ pandafe_VALASOURCES = \
 	Layers/ScreenAlphaLayer.vala \
 	Layers/ScreenLayer.vala \
 	Layers/SurfaceLayer.vala \
+	Menus/Concrete/ExitMenu.vala \
 	Menus/Concrete/GameBrowserAppearanceMenu.vala \
 	Menus/Concrete/GameFolderMenu.vala \
 	Menus/Concrete/GameMenu.vala \
@@ -143,6 +144,7 @@ pandafe_VALASOURCES = \
 	Menus/Concrete/PlatformMenu.vala \
 	Menus/Concrete/PlatformProgramSettingsMapMenu.vala \
 	Menus/Concrete/ProgramDefaultSettingsMenu.vala \
+	Menus/Concrete/SwitchGuiMenu.vala \
 	Menus/Fields/BooleanField.vala \
 	Menus/Fields/DoubleField.vala \
 	Menus/Fields/EnumField.vala \

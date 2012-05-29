@@ -12,6 +12,7 @@ namespace Data
 
 		public GameBrowserAppearance appearance { get; set; }
 		public string? default_rom_path { get; set; }
+		public bool show_exit_menu { get; set; }
 		
 		// yaml
 		protected override string generate_id() { return ENTITY_ID; }
@@ -35,6 +36,7 @@ namespace Data
 			builder.add_field(appearance_field);
 			var default_rom_path_field = builder.add_folder("default_rom_path", "Default Rom Path", "Used as starting path when selecting platform roms for the first time.", default_rom_path);
 			default_rom_path_field.changed.connect(() => refreshed(1));
+			builder.add_bool("show_exit_menu", "Show Exit Menu", "Show a menu on exit supporting gui switch and reboot/shutdown.", show_exit_menu);
 		}
 		protected bool save_object(Menus.Menu menu) {
 			Data.save_preferences();

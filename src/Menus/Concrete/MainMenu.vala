@@ -21,13 +21,13 @@ namespace Menus.Concrete
 			}));
 			
 			items.add(new MenuItemSeparator());
-			items.add(new MenuItem.custom("Quit", "Exit Pandafe", "", () => {
-				if (Data.pnd_mountset().has_mounted == true) {
-					message("Unmounting PNDs...");
-					Data.pnd_mountset().unmount_all(name => this.message("Unmounting '%s'...".printf(name)));
-				}
-				@interface.quit_all();
-			}));
+			if (Data.preferences().show_exit_menu == true) {
+				items.add(new MenuBrowserItem("Quit", "Exit Pandafe", new ExitMenu()));
+			} else {
+				items.add(new MenuItem.custom("Quit", "Exit Pandafe", "", () => {
+					@interface.cleanup_and_exit(msg => this.message(msg));
+				}));
+			}
 		}
 	}
 	class ConfigurationMenu : Menu

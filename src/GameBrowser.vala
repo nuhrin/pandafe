@@ -461,7 +461,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 					choose_platform();
 					break;
 				case KeySymbol.ESCAPE:
-					quit_event_loop();
+					do_quit();
 					break;
 				default:
 					break;
@@ -719,6 +719,14 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 			selector.filter(current_filter);
 		else
 			selector.clear_filter();		
+	}
+
+	void do_quit() {
+		if (Data.preferences().show_exit_menu == true) {
+			show_menu_overlay(new Menus.Concrete.ExitMenu());
+		} else {
+			quit_event_loop();
+		}		
 	}
 
 	//
