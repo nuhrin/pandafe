@@ -19,7 +19,6 @@ public class EverythingSelector : Selector {
 			if (_items == null) {
 				loading();
 				_items = get_view_games(view);
-				_items.sort();
 			}
 			return _items;
 		}
@@ -43,6 +42,11 @@ public class EverythingSelector : Selector {
 		if (selected_index < 0)
 			return null;
 		return items[selected_index];
+	}
+	
+	public void game_run_completed() {
+		if (view.view_type == GameBrowserViewType.MOST_PLAYED || view.view_type == GameBrowserViewType.MOST_RECENT)
+			rebuild();
 	}
 	
 	protected override void rebuild_items(int selection_index) {
@@ -70,31 +74,49 @@ public class EverythingSelector : Selector {
 		return items[index].full_name;
 	}
 	
-	Gee.List<GameItem> get_view_games(GameBrowserViewData view) {
-		var games = new ArrayList<GameItem>();
+	Gee.List<GameItem> get_view_games(GameBrowserViewData view) {		
+		// get platforms
 		var platforms = Enumerable.empty<Platform>();
 		switch (view.view_type) {
-			case GameBrowserViewType.FAVORITES:
-			case GameBrowserViewType.ALL_GAMES:
-				var folder_data = Data.platforms().get_platform_folder_data();
-				platforms = (folder_data.folders.size > 0)
-					? folder_data.get_all_platforms()
-					: Data.platforms().get_all_platforms();
-				break;
 			case GameBrowserViewType.PLATFORM_FOLDER:
 				if (view.platform_folder != null)
 					platforms = view.platform_folder.get_all_platforms();
 				break;
 			default:
+				var folder_data = Data.platforms().get_platform_folder_data();
+				platforms = (folder_data.folders.size > 0)
+					? folder_data.get_all_platforms()
+					: Data.platforms().get_all_platforms();
 				break;
 		}
 		
-		foreach(var platform in platforms) {
-			var platform_games = platform.get_root_folder().all_games();
-			if (view.view_type == GameBrowserViewType.FAVORITES)
-				platform_games = platform_games.where(g=>g.is_favorite == true);
-			games.add_all(platform_games.to_list());
-		}	
-		return games;
+		// get platform games
+		var games = Enumerable.empty<GameItem>();
+		foreach(var platform in platforms)
+			games = games.concat(platform.get_root_folder().all_games());			
+		
+		// filter games list
+		bool do_sort = true;
+		switch (view.view_type) {
+			case GameBrowserViewType.FAVORITES:
+				games = games.where(g=>g.is_favorite == true);
+				break;
+			case GameBrowserViewType.MOST_RECENT:
+				games = Data.get_most_recently_played_games(games);
+				do_sort = false;
+				break;
+			case GameBrowserViewType.MOST_PLAYED:
+				games = Data.get_most_frequently_played_games(games);
+				do_sort = false;
+				break;
+			default:
+				break;
+		}
+		
+		var list = games.to_list();
+		if (do_sort == true)
+			list.sort();
+			
+		return list;
 	}
 }

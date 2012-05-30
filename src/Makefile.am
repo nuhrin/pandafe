@@ -33,6 +33,7 @@ pandafe_VALASOURCES = \
 	Data/GameBrowserState.vala \
 	Data/GameBrowserViewData.vala \
 	Data/GameSettings.vala \
+	Data/GamesRunList.vala \
 	Data/Options/DoubleOption.vala \
 	Data/Options/FlagOption.vala \
 	Data/Options/IntegerOption.vala \

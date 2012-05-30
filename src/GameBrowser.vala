@@ -622,21 +622,25 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		var result = game.run();
 		set_status();
 		
-		if (result.success == false || show_output == true) {
+		var successful = (result.success == true || (result.exit_status != 0 && program != null && program.expected_exit_code == result.exit_status));
+		if (successful == true)
+			Data.increment_game_run_count(game);
+		
+		if (successful == false || show_output == true) {
 			if (result.error_message != null && status_message.text_will_fit("Error: " + result.error_message)) {
 				status_message.set("Error: " + result.error_message);
 			} else {
-				if (result.exit_status != 0 && program != null && program.expected_exit_code == result.exit_status && show_output == false)
-					return;
-					
 				string program_name = (program != null) ? program.name : "program";
-				string primary_message = (result.success == false)
+				string primary_message = (successful == false)
 					? "Error running " + program_name
 					: program_name + " Output";
 				result.show_result_dialog(primary_message, 
 					"\t<i>%s</i>".printf(game.unique_name()));				
 			}
 		}
+		
+		if (everything_active)
+			everything_selector.game_run_completed();
 	}
 
 	void go_back() {

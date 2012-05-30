@@ -28,6 +28,17 @@ namespace Data
 	public Favorites favorites() { return Provider.instance().get_favorites(); }
 	public bool save_favorites() { return Provider.instance().save_favorites(); }
 
+	public void increment_game_run_count(GameItem game) {
+		Provider.instance().get_games_run_list().increment_run_count(game);
+		Provider.instance().save_games_run_list();		
+	}	
+	public Enumerable<GameItem> get_most_recently_played_games(Iterable<GameItem> games) {
+		return Provider.instance().get_games_run_list().get_most_recently_played(games);
+	}
+	public Enumerable<GameItem> get_most_frequently_played_games(Iterable<GameItem> games) {
+		return Provider.instance().get_games_run_list().get_most_frequently_played(games);
+	}
+
 	public class Provider
 	{
 		static Provider _instance;
@@ -181,6 +192,32 @@ namespace Data
 			}
 			catch (Error e) {
 				debug("Error while saving favorites: %s", e.message);
+			}
+			return false;
+		}
+		
+		public GamesRunList get_games_run_list() {
+			if (_games_run_list == null) {
+				try {
+					_games_run_list = data_interface.load<GamesRunList>(GamesRunList.ENTITY_ID, "");
+				}
+				catch (Error e) {
+					if ((e is RuntimeError.FILE) == false)
+						debug("Error while retrieving games run list: %s", e.message);
+					_games_run_list = new GamesRunList();
+				}				
+			}
+			return _games_run_list;
+		}
+		GamesRunList _games_run_list;
+		public bool save_games_run_list() {
+			var games_run_list = get_games_run_list();
+			try {
+				data_interface.save(games_run_list, GamesRunList.ENTITY_ID, "");
+				return true;
+			}
+			catch (Error e) {
+				debug("Error while saving games run list: %s", e.message);
 			}
 			return false;
 		}

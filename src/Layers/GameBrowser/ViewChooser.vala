@@ -42,6 +42,8 @@ namespace Layers.GameBrowser
 			var data = new ArrayList<GameBrowserViewData>();
 			data.add(new GameBrowserViewData(GameBrowserViewType.BROWSER));
 			data.add(new GameBrowserViewData(GameBrowserViewType.FAVORITES));
+			data.add(new GameBrowserViewData(GameBrowserViewType.MOST_PLAYED));
+			data.add(new GameBrowserViewData(GameBrowserViewType.MOST_RECENT));
 			data.add(new GameBrowserViewData(GameBrowserViewType.ALL_GAMES));
 			
 //~ 			var folders = Data.platforms().get_platform_folder_data().get_all_folders()

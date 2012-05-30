@@ -5,6 +5,8 @@ namespace Data
 	public enum GameBrowserViewType {
 		BROWSER,
 		FAVORITES,
+		MOST_RECENT,
+		MOST_PLAYED,
 		ALL_GAMES,
 		PLATFORM_FOLDER
 	}
@@ -18,6 +20,12 @@ namespace Data
 					break;
 				case GameBrowserViewType.FAVORITES:
 					_name = "Favorites";
+					break;
+				case GameBrowserViewType.MOST_RECENT:
+					_name = "Most Recent";
+					break;
+				case GameBrowserViewType.MOST_PLAYED:
+					_name = "Most Played";
 					break;
 				case GameBrowserViewType.ALL_GAMES:
 					_name = "All Games";
