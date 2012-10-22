@@ -106,9 +106,11 @@ namespace Menus
 				return add_uint(property.name, GetPropertyLabel(property), null, (uint)value, 0, uint.MAX);
 			if (type.is_a(typeof(Data.Color)))
 				return add_color(property.name, GetPropertyLabel(property), null, (Data.Color)value);
-			var intProp = property as ParamSpecInt;
-			if (intProp != null)
-				return add_int(property.name, GetPropertyLabel(property), null, (int)value, intProp.minimum, intProp.maximum);
+//~ 			var intProp = property as ParamSpecInt;
+//~ 			if (intProp != null)
+//~ 				return add_int(property.name, GetPropertyLabel(property), null, (int)value, intProp.minimum, intProp.maximum);
+			if (type.is_a(typeof(int)))
+				return add_int(property.name, GetPropertyLabel(property), null, (int)value, int.MIN, int.MAX);
 //~ 			var doubleProp = property as ParamSpecDouble;
 //~ 			if (doubleProp != null)
 //~ 				return add_double(property.name, GetPropertyLabel(property), (double)value, doubleProp.minimum, doubleProp.maximum);
