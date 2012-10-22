@@ -3,6 +3,7 @@ NULL =
 AUTOMAKE_OPTIONS = subdir-objects
 
 AM_CPPFLAGS = \
+	$(GEE_CFLAGS) \
 	$(CATAPULT_CFLAGS) \
 	$(PANDORA_GLIB_CFLAGS) \
 	$(SDL_CFLAGS) \
@@ -12,7 +13,11 @@ AM_CPPFLAGS = \
 	-DPACKAGE_DATADIR=\"$(pkgdatadir)\" \
 	$(NULL)
 
-BUILT_SOURCES = pandafe.vala.stamp
+BUILT_SOURCES = \
+	pandafe.submodule-vapi.check \
+	pandafe.vala.stamp \
+	pandafe.submodule-libs.check \
+	$(NULL)
 
 bin_PROGRAMS = \
 	pandafe \
@@ -184,13 +189,22 @@ pandafe_SOURCES = \
 	$(pandafe_VALASOURCES:.vala=.c) \
 	$(NULL)
 
-pandafe.vala.stamp: $(pandafe_VALASOURCES)
-	$(VALA_V)$(VALAC) $(VALAFLAGS) -C --vapidir $(srcdir)/../vapi --pkg catapult --pkg pandora-glib --pkg gee-0.8 --pkg gtk+-2.0 --pkg sdl --pkg sdl-image --pkg sdl-ttf --pkg sdl-gfx  --pkg gtksourceview-2.0 --pkg vte --pkg config --pkg Banner --pkg GdkKeySyms --pkg sdl-keyboard $^
+pandafe.submodule-libs.check:
+	@$(top_srcdir)/scripts/update-stamp-from-dependencies.sh main.c "$(GEE_LTLIB)" "$(CATAPULT_LTLIB)" "$(PANDORA_GLIB_LTLIB)"
+
+pandafe.submodule-vapi.check:
+	@$(top_srcdir)/scripts/update-stamp-from-dependencies.sh main.vala "$(GEE_VAPI)" "$(CATAPULT_VAPI)" "$(PANDORA_GLIB_VAPI)"
+
+pandafe.vala.stamp: $(pandafe_VALASOURCES) 
+	$(VALA_V)$(VALAC) $(VALAFLAGS) -C $(SUBMODULE_VALAFLAGS) --vapidir $(srcdir)/../vapi \
+		--pkg catapult --pkg pandora-glib --pkg gee-0.8 --pkg gtk+-2.0 --pkg sdl --pkg sdl-image --pkg sdl-ttf --pkg sdl-gfx \
+		--pkg gtksourceview-2.0 --pkg vte --pkg config --pkg Banner --pkg GdkKeySyms --pkg sdl-keyboard $^
 	@touch $@
 
 pandafe_LDADD = \
-	$(CATAPULT_LIBS) \
-	$(PANDORA_GLIB_LIBS) \
+	$(GEE_LTLIB) \
+	$(CATAPULT_LTLIB) \
+	$(PANDORA_GLIB_LTLIB) \
 	$(SDL_LIBS) \
 	$(SDL_IMAGE_LIBS) \
 	$(SDL_TTF_LIBS) \

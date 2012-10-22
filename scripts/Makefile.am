@@ -7,7 +7,8 @@ scripts_SCRIPTS = \
 	$(NULL)
 
 dist_scripts_DATA = \
-	cpuspeed_change_exec_wrapper.sh
+	cpuspeed_change_exec_wrapper.sh \
+	update-stamp-from-dependencies.sh \
 	$(NULL)
 
 cpuspeed_change_exec_wrapper.sh: \

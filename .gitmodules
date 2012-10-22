@@ -1,0 +1,9 @@
+[submodule "submodules/libgee"]
+	path = submodules/libgee
+	url = git://git.gnome.org/libgee
+[submodule "submodules/catapult"]
+	path = submodules/catapult
+	url = ssh://localhost/catapult
+[submodule "submodules/pandora-glib"]
+	path = submodules/pandora-glib
+	url = ssh://localhost/pandora-glib

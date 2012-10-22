@@ -1,8 +1,11 @@
 NULL =
 
+ACLOCAL_AMFLAGS = -I m4
+
 SUBDIRS = \
 	data \
 	scripts \
+	submodules \
 	src \
 	vapi \
 	$(NULL)
