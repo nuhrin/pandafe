@@ -7,9 +7,6 @@ test -n "$srcdir" || srcdir=.
 
   # autoreconf
   cd "$srcdir" &&
-  AUTOPOINT='intltoolize --automake --copy' autoreconf -fiv -Wall
-
-  # discard change to libgee/INSTALL by autoreconf, to avoid git tracking module change
-  cd submodules/libgee && git checkout -- INSTALL
+  AUTOPOINT='intltoolize --automake --copy' autoreconf -iv -Wall
 ) || exit
 test -n "$NOCONFIGURE" || "$srcdir/configure" --enable-maintainer-mode "$@"
