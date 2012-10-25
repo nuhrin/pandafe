@@ -6,6 +6,7 @@ SUBDIRS = \
 	data \
 	scripts \
 	submodules \
+	src/gtksourceview \
 	src \
 	vapi \
 	$(NULL)

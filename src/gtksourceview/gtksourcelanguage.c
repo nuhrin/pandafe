@@ -69,6 +69,69 @@ static GtkSourceLanguage *process_language_node (xmlTextReaderPtr	 reader,
 static gboolean		  force_styles		(GtkSourceLanguage	*language);
 
 GtkSourceLanguage *
+_gtk_source_language_new_from_memory (const char* xml, const gchar *filename,
+				    GtkSourceLanguageManager *lm)
+{
+	GtkSourceLanguage *lang = NULL;
+	xmlTextReaderPtr reader = NULL;
+	gint ret;
+
+	g_return_val_if_fail (filename != NULL, NULL);
+	g_return_val_if_fail (lm != NULL, NULL);
+
+	reader = xmlReaderForMemory (xml, strlen(xml), "", NULL, 0);
+
+	if (reader != NULL)
+	{
+        	ret = xmlTextReaderRead (reader);
+
+        	while (ret == 1)
+		{
+			if (xmlTextReaderNodeType (reader) == 1)
+			{
+				xmlChar *name;
+
+				name = xmlTextReaderName (reader);
+
+				if (xmlStrcmp (name, BAD_CAST "language") == 0)
+				{
+					lang = process_language_node (reader, filename);
+					ret = 0;
+				}
+
+				xmlFree (name);
+			}
+
+			if (ret == 1)
+				ret = xmlTextReaderRead (reader);
+		}
+
+		xmlFreeTextReader (reader);
+
+		if (ret != 0)
+		{
+	            g_warning("Failed to parse '%s'", filename);
+		    return NULL;
+		}
+        }
+	else
+	{
+		g_warning("Unable to open '%s'", filename);
+
+    	}
+
+	if (lang != NULL)
+	{
+		lang->priv->language_manager = lm;
+		g_object_add_weak_pointer (G_OBJECT (lm),
+					   (gpointer) &lang->priv->language_manager);
+	}
+
+	return lang;
+}
+
+
+GtkSourceLanguage *
 _gtk_source_language_new_from_file (const gchar              *filename,
 				    GtkSourceLanguageManager *lm)
 {

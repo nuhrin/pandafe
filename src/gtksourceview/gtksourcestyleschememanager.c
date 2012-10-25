@@ -342,47 +342,35 @@ static void
 reload_if_needed (GtkSourceStyleSchemeManager *mgr)
 {
 	GSList *ids = NULL;
-	GSList *files;
-	GSList *l;
 	GHashTable *schemes_hash;
+	GtkSourceStyleScheme *scheme;
+	const char *filename;
 
 	if (!mgr->priv->need_reload)
 		return;
 
 	schemes_hash = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_object_unref);
 
-	files = _gtk_source_view_get_file_list ((gchar **)gtk_source_style_scheme_manager_get_search_path (mgr),
-						SCHEME_FILE_SUFFIX,
-						FALSE);
 
-	for (l = files; l != NULL; l = l->next)
+	filename = _embedded_style_filename();
+
+	scheme = _gtk_source_style_scheme_new_from_file (filename);
+
+	if (scheme != NULL)
 	{
-		GtkSourceStyleScheme *scheme;
-		gchar *filename;
+		const gchar *id = gtk_source_style_scheme_get_id (scheme);
+		GtkSourceStyleScheme *old;
 
-		filename = l->data;
+		old = g_hash_table_lookup (schemes_hash, id);
 
-		scheme = _gtk_source_style_scheme_new_from_file (filename);
+		if (old != NULL)
+			ids = ids_list_remove (ids, id, TRUE);
 
-		if (scheme != NULL)
-		{
-			const gchar *id = gtk_source_style_scheme_get_id (scheme);
-			GtkSourceStyleScheme *old;
-
-			old = g_hash_table_lookup (schemes_hash, id);
-
-			if (old != NULL)
-				ids = ids_list_remove (ids, id, TRUE);
-
-			ids = g_slist_prepend (ids, g_strdup (id));
-			g_hash_table_insert (schemes_hash, g_strdup (id), scheme);
-		}
+		ids = g_slist_prepend (ids, g_strdup (id));
+		g_hash_table_insert (schemes_hash, g_strdup (id), scheme);
 	}
-
+	
 	ids = check_parents (ids, schemes_hash);
-
-	g_slist_foreach (files, (GFunc) g_free, NULL);
-	g_slist_free (files);
 
 	free_schemes (mgr);
 
@@ -579,5 +567,5 @@ gtk_source_style_scheme_manager_get_scheme (GtkSourceStyleSchemeManager *manager
 
 	reload_if_needed (manager);
 
-	return g_hash_table_lookup (manager->priv->schemes_hash, scheme_id);
+	return g_hash_table_lookup (manager->priv->schemes_hash, _embedded_style_id());
 }

@@ -323,7 +323,7 @@ _gtk_source_language_manager_get_rng_file (GtkSourceLanguageManager *lm)
 static void
 ensure_languages (GtkSourceLanguageManager *lm)
 {
-	GSList *filenames, *l;
+	GSList *embedded_language_ids, *l;
 	GPtrArray *ids_array = NULL;
 
 	if (lm->priv->language_ids != NULL)
@@ -332,51 +332,40 @@ ensure_languages (GtkSourceLanguageManager *lm)
 	lm->priv->language_ids = g_hash_table_new_full (g_str_hash, g_str_equal,
 							g_free, g_object_unref);
 
-	filenames = _gtk_source_view_get_file_list ((gchar **)gtk_source_language_manager_get_search_path (lm),
-						    LANG_FILE_SUFFIX,
-						    TRUE);
-
-	for (l = filenames; l != NULL; l = l->next)
+	// add embedded languages
+	embedded_language_ids = _embedded_language_ids();
+	for (l = embedded_language_ids; l != NULL; l = l->next) 
 	{
 		GtkSourceLanguage *lang;
-		gchar *filename;
-
-		filename = l->data;
-
-		lang = _gtk_source_language_new_from_file (filename, lm);
-
+		const char* filename;
+		const char* xml;
+		
+		filename = _embedded_language_filename(l->data);
+		xml = _embedded_language_xml(l->data);
+		if (filename == NULL || xml == NULL)
+			continue;
+			
+		lang = _gtk_source_language_new_from_memory(xml, filename, lm);
 		if (lang == NULL)
 		{
 			g_warning ("Error reading language specification file '%s'", filename);
 			continue;
+		
 		}
+		g_hash_table_insert (lm->priv->language_ids, g_strdup (lang->priv->id), lang);
 
-		if (g_hash_table_lookup (lm->priv->language_ids, lang->priv->id) == NULL)
-		{
-			g_hash_table_insert (lm->priv->language_ids,
-					     g_strdup (lang->priv->id),
-					     lang);
+		if (ids_array == NULL)
+			ids_array = g_ptr_array_new ();
 
-			if (ids_array == NULL)
-				ids_array = g_ptr_array_new ();
-
-			g_ptr_array_add (ids_array, g_strdup (lang->priv->id));
-		}
-		else
-		{
-			g_object_unref (lang);
-		}
+		g_ptr_array_add (ids_array, g_strdup (lang->priv->id));
 	}
-
+	
 	if (ids_array != NULL)
 	{
 		/* Ensure the array is NULL terminated */
 		g_ptr_array_add (ids_array, NULL);
 		lm->priv->ids = (gchar **)g_ptr_array_free (ids_array, FALSE);
 	}
-
-	g_slist_foreach (filenames, (GFunc) g_free, NULL);
-	g_slist_free (filenames);
 }
 
 

@@ -85,7 +85,7 @@ namespace Fields
 						
 			// source buffer
 			var manager = new SourceLanguageManager();
-			var language = manager.guess_language(null, MIME_TYPE);
+			var language = manager.get_language("sh");
 			var source_buffer = (language != null)
 				? new SourceBuffer.with_language(language)
 				: new SourceBuffer(null);

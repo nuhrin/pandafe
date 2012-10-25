@@ -1,0 +1,4 @@
+Modified version of gtksourceview-2.10.4, embedding language specs via embedded_*_lang.h.
+
+http://projects.gnome.org/gtksourceview/
+http://git.gnome.org/browse/gtksourceview/tag/?id=GTKSOURCEVIEW_2_10_4

@@ -8,9 +8,11 @@ AM_CPPFLAGS = \
 	$(PANDORA_GLIB_CFLAGS) \
 	$(SDL_CFLAGS) \
 	$(SDL_IMAGE_CFLAGS) \
-	$(GTK_SOURCEVIEW_CFLAGS) \
+	$(GTK_CFLAGS) \
+	$(LIBXML_CFLAGS) \
 	$(VTE_CFLAGS) \
 	-DPACKAGE_DATADIR=\"$(pkgdatadir)\" \
+	-I./gtksourceview \
 	$(NULL)
 
 BUILT_SOURCES = \
@@ -184,9 +186,44 @@ pandafe_VALASOURCES = \
 	Selectors/SelectorItemSet.vala \
 	$(NULL)
 
+gtksourceview_custom_SOURCES = \
+	gtksourceview/embedded_languages.c \
+	gtksourceview/gtksourcebuffer.c \
+	gtksourceview/gtksourceiter.c \
+	gtksourceview/gtksourceview.c \
+	gtksourceview/gtksourceundomanager.c \
+	gtksourceview/gtksourceundomanagerdefault.c \
+	gtksourceview/gtktextregion.c \
+	gtksourceview/gtksourcelanguage.c \
+	gtksourceview/gtksourcelanguagemanager.c \
+	gtksourceview/gtksourcelanguage-parser-1.c \
+	gtksourceview/gtksourcelanguage-parser-2.c \
+	gtksourceview/gtksourceview-i18n.c \
+	gtksourceview/gtksourceview-utils.c \
+	gtksourceview/gtksourcestyle.c \
+	gtksourceview/gtksourcestyleschememanager.c \
+	gtksourceview/gtksourcestylescheme.c \
+	gtksourceview/gtksourceengine.c \
+	gtksourceview/gtksourcecontextengine.c \
+	gtksourceview/gtksourcemark.c \
+	gtksourceview/gtksourceprintcompositor.c \
+	gtksourceview/gtksourcegutter.c \
+	gtksourceview/gtksourcecompletion.c \
+	gtksourceview/gtksourcecompletioninfo.c \
+	gtksourceview/gtksourcecompletionitem.c \
+	gtksourceview/gtksourcecompletionproposal.c \
+	gtksourceview/gtksourcecompletionprovider.c \
+	gtksourceview/gtksourcecompletionmodel.c \
+	gtksourceview/gtksourcecompletionutils.c \
+	gtksourceview/gtksourcecompletioncontext.c \
+	gtksourceview/gtksourceview-marshal.c \
+	gtksourceview/gtksourceview-typebuiltins.c \
+	$(NULL)
+
 pandafe_SOURCES = \
 	pandafe.vala.stamp \
 	$(pandafe_VALASOURCES:.vala=.c) \
+	$(gtksourceview_custom_SOURCES) \
 	$(NULL)
 
 pandafe.submodule-libs.check:
@@ -198,7 +235,7 @@ pandafe.submodule-vapi.check:
 pandafe.vala.stamp: $(pandafe_VALASOURCES) 
 	$(VALA_V)$(VALAC) $(VALAFLAGS) -C $(SUBMODULE_VALAFLAGS) --vapidir $(srcdir)/../vapi \
 		--pkg catapult --pkg pandora-glib --pkg gee-0.8 --pkg gtk+-2.0 --pkg sdl --pkg sdl-image --pkg sdl-ttf --pkg sdl-gfx \
-		--pkg gtksourceview-2.0 --pkg vte --pkg config --pkg Banner --pkg GdkKeySyms --pkg sdl-keyboard $^
+		--pkg gtksourceview-custom --pkg vte --pkg config --pkg Banner --pkg GdkKeySyms --pkg sdl-keyboard $^
 	@touch $@
 
 pandafe_LDADD = \
@@ -209,7 +246,8 @@ pandafe_LDADD = \
 	$(SDL_IMAGE_LIBS) \
 	$(SDL_TTF_LIBS) \
 	$(SDL_GFX_LIBS) \
-	$(GTK_SOURCEVIEW_LIBS) \
+	$(GTK_LIBS) \
+	$(LIBXML_LIBS) \
 	$(VTE_LIBS) \
 	$(NULL)
 

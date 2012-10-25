@@ -13,6 +13,10 @@ PND_APP_ID=pandafe
 AC_SUBST(PND_APP_ID)
 AC_DEFINE_UNQUOTED([PND_APP_ID], "$PND_APP_ID", [The app id to be used in the pnd])
 
+# gtksourceview style to use: classic, cobalt, kate, oblivion, tango
+GTKSOURCEVIEW_STYLE=oblivion 
+AC_SUBST(GTKSOURCEVIEW_STYLE)
+
 LOCAL_CONFIG_DIR=.
 AC_SUBST(LOCAL_CONFIG_DIR)
 AC_DEFINE_UNQUOTED(LOCAL_CONFIG_DIR, "$LOCAL_CONFIG_DIR", [Local configuration directory])
@@ -38,9 +42,19 @@ PKG_CHECK_MODULES(GIO, gio-2.0 >= $GLIB_REQUIRED)
 AC_SUBST(GIO_CFLAGS)
 AC_SUBST(GIO_LIBS)
 
-PKG_CHECK_MODULES(GTK_SOURCEVIEW, gtksourceview-2.0);
-AC_SUBST(GTK_SOURCEVIEW_CFLAGS)
-AC_SUBST(GTK_SOURCEVIEW_LIBS)
+GTK_REQUIRED=2.12.0
+PKG_CHECK_MODULES(GTK, gtk+-2.0 >= GTK_REQUIRED);
+AC_SUBST(GTK_CFLAGS)
+AC_SUBST(GTK_LIBS)
+
+LIBXML_REQUIRED=2.5.0
+PKG_CHECK_MODULES(LIBXML, libxml-2.0 >= $LIBXML_REQUIRED);
+AC_SUBST(LIBXML_CFLAGS)
+AC_SUBST(LIBXML_LIBS)
+
+# Pull glib-genmarshal & co. (for gtksourceview)
+AC_PATH_PROG(GLIB_GENMARSHAL, glib-genmarshal)
+AC_PATH_PROG(GLIB_MKENUMS, glib-mkenums)
 
 PKG_CHECK_MODULES(VTE, vte);
 AC_SUBST(VTE_CFLAGS)
@@ -85,6 +99,8 @@ AC_CONFIG_FILES([
 	scripts/Makefile
 	submodules/Makefile
 	src/Makefile
+	src/gtksourceview/Makefile
+	src/gtksourceview/embedded_languages.c
 	vapi/Makefile
 ])
 AC_OUTPUT

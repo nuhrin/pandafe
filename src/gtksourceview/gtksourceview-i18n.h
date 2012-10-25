@@ -32,6 +32,12 @@
 
 #include <glib.h>
 
+// hacks to workaround inline compilation issues
+#define DATADIR ""
+#define GETTEXT_PACKAGE "gtksourceview"
+
+// /hacks
+
 G_BEGIN_DECLS
 
 #ifdef ENABLE_NLS

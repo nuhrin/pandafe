@@ -138,6 +138,7 @@ static ParserState *parser_state_new           (GtkSourceLanguage      *language
 static void       parser_state_destroy         (ParserState *parser_state);
 
 static gboolean   file_parse                   (gchar                  *filename,
+                                                gchar                  *lang_id,
                                                 GtkSourceLanguage      *language,
                                                 GtkSourceContextData   *ctx_data,
                                                 GHashTable             *defined_regexes,
@@ -580,6 +581,7 @@ add_ref (ParserState               *parser_state,
 			else
 			{
 				file_parse (imported_language->priv->lang_file_name,
+					    imported_language->priv->id,
 					    parser_state->language,
 					    parser_state->ctx_data,
 					    parser_state->defined_regexes,
@@ -894,7 +896,6 @@ handle_language_element (ParserState *parser_state)
 	g_return_if_fail (parser_state->error == NULL);
 
 	lang_version = xmlTextReaderGetAttribute (parser_state->reader, BAD_CAST "version");
-
 	if (lang_version == NULL ||
 	    xmlStrcmp (expected_version, lang_version) != 0)
 	{
@@ -914,7 +915,6 @@ handle_language_element (ParserState *parser_state)
 
 	xmlFree (lang_version);
 }
-
 
 struct ReplaceByIdData {
 	ParserState *parser_state;
@@ -1357,6 +1357,7 @@ parse_language_with_id (ParserState *parser_state,
 	else
 	{
 		file_parse (imported_language->priv->lang_file_name,
+			    imported_language->priv->id,
 			    parser_state->language,
 			    parser_state->ctx_data,
 			    parser_state->defined_regexes,
@@ -1591,6 +1592,7 @@ text_reader_structured_error_func (ParserState *parser_state,
 
 static gboolean
 file_parse (gchar                     *filename,
+	    gchar                     *lang_id,
 	    GtkSourceLanguage         *language,
 	    GtkSourceContextData      *ctx_data,
 	    GHashTable                *defined_regexes,
@@ -1602,23 +1604,19 @@ file_parse (gchar                     *filename,
 	ParserState *parser_state;
 	xmlTextReader *reader = NULL;
 	int ret;
-	int fd = -1;
 	GError *tmp_error = NULL;
-	GtkSourceLanguageManager *lm;
-	const gchar *rng_lang_schema;
+	const char* rng_xml;
+	xmlRelaxNGParserCtxtPtr rng_parse_context;
+	xmlRelaxNGPtr rng_schema;
+	xmlRelaxNGValidCtxtPtr rng_validation_context;
+	const char* xml;
 
 	g_return_val_if_fail (error == NULL || *error == NULL, FALSE);
 
 	DEBUG (g_message ("loading file '%s'", filename));
 
-	/*
-	 * Use fd instead of filename so that it's utf8 safe on w32.
-	 */
-	fd = g_open (filename, O_RDONLY, 0);
-
-	if (fd != -1)
-		reader = xmlReaderForFd (fd, filename, NULL, 0);
-
+	xml = _embedded_language_xml(lang_id);
+	reader = xmlReaderForMemory (xml, strlen(xml), "", NULL, 0);
 	if (reader == NULL)
 	{
 		g_set_error (&tmp_error,
@@ -1628,25 +1626,20 @@ file_parse (gchar                     *filename,
 		goto error;
 	}
 
-	lm = _gtk_source_language_get_language_manager (language);
-	rng_lang_schema = _gtk_source_language_manager_get_rng_file (lm);
-
-	if (rng_lang_schema == NULL)
+	rng_xml = _embedded_language2_rng();
+	rng_parse_context = xmlRelaxNGNewMemParserCtxt (rng_xml, strlen(rng_xml));
+	if (rng_parse_context != NULL) 
 	{
-		g_set_error (&tmp_error,
-			     PARSER_ERROR,
-			     PARSER_ERROR_CANNOT_VALIDATE,
-			     "could not find the RelaxNG schema file");
-		goto error;
+		rng_schema = xmlRelaxNGParse (rng_parse_context);
+		if (rng_schema != NULL) 			
+			rng_validation_context = xmlRelaxNGNewValidCtxt (rng_schema);			
 	}
-
-	if (xmlTextReaderRelaxNGValidate (reader, rng_lang_schema))
+	if (rng_validation_context == NULL || xmlTextReaderRelaxNGValidateCtxt (reader, rng_validation_context, 0))
 	{
 		g_set_error (&tmp_error,
 			     PARSER_ERROR,
 			     PARSER_ERROR_CANNOT_VALIDATE,
-			     "unable to load the RelaxNG schema '%s'",
-			     rng_lang_schema);
+			     "unable to load the RelaxNG schema");
 		goto error;
 	}
 
@@ -1693,13 +1686,9 @@ file_parse (gchar                     *filename,
 	if (tmp_error != NULL)
 		goto error;
 
-	close (fd);
-
 	return TRUE;
 
 error:
-	if (fd != -1)
-		close (fd);
 	g_propagate_error (error, tmp_error);
 	return FALSE;
 }
@@ -1811,7 +1800,7 @@ _gtk_source_language_file_parse_version2 (GtkSourceLanguage       *language,
 						 NULL);
 	replacements = g_queue_new ();
 
-	success = file_parse (filename, language, ctx_data,
+	success = file_parse (filename, language->priv->id, language, ctx_data,
 			      defined_regexes, styles,
 			      loaded_lang_ids, replacements,
 			      &error);

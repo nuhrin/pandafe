@@ -1083,7 +1083,7 @@ parse_style_scheme_element (GtkSourceStyleScheme *scheme,
 }
 
 /**
- * _gtk_source_style_scheme_new_from_file:
+ * _gtk_source_style_scheme_new_from_id:
  * @filename: file to parse.
  *
  * Returns: new #GtkSourceStyleScheme created from file, or
@@ -1094,8 +1094,7 @@ parse_style_scheme_element (GtkSourceStyleScheme *scheme,
 GtkSourceStyleScheme *
 _gtk_source_style_scheme_new_from_file (const gchar *filename)
 {
-	char *text;
-	gsize text_len;
+	const char *xml;
 	xmlDoc *doc;
 	xmlNode *node;
 	GError *error = NULL;
@@ -1103,24 +1102,14 @@ _gtk_source_style_scheme_new_from_file (const gchar *filename)
 
 	g_return_val_if_fail (filename != NULL, NULL);
 
-	if (!g_file_get_contents (filename, &text, &text_len, &error))
-	{
-		gchar *filename_utf8 = g_filename_display_name (filename);
-		g_warning ("could not load style scheme file '%s': %s",
-			   filename_utf8, error->message);
-		g_free (filename_utf8);
-		g_error_free (error);
-		return NULL;
-	}
-
-	doc = xmlParseMemory (text, text_len);
+	xml = _embedded_style_xml();
+	doc = xmlParseMemory (xml, strlen(xml));
 
 	if (!doc)
 	{
 		gchar *filename_utf8 = g_filename_display_name (filename);
 		g_warning ("could not parse scheme file '%s'", filename_utf8);
 		g_free (filename_utf8);
-		g_free (text);
 		return NULL;
 	}
 
@@ -1132,7 +1121,6 @@ _gtk_source_style_scheme_new_from_file (const gchar *filename)
 		g_warning ("could not load scheme file '%s': empty document", filename_utf8);
 		g_free (filename_utf8);
 		xmlFreeDoc (doc);
-		g_free (text);
 		return NULL;
 	}
 
@@ -1153,7 +1141,6 @@ _gtk_source_style_scheme_new_from_file (const gchar *filename)
 	}
 
 	xmlFreeDoc (doc);
-	g_free (text);
 
 	return scheme;
 }
