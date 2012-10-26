@@ -1,5 +1,5 @@
 
-/* Generated data (by glib-mkenums) */
+
 
 #ifndef __GTKSOURCEVIEW_TYPEBUILTINS_H__
 #define __GTKSOURCEVIEW_TYPEBUILTINS_H__ 1
@@ -40,5 +40,5 @@ G_END_DECLS
 
 #endif /* __GTKSOURCEVIEW_TYPEBUILTINS_H__ */
 
-/* Generated data ends here */
+
 

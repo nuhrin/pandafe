@@ -100,6 +100,7 @@ AC_CONFIG_FILES([
 	submodules/Makefile
 	src/Makefile
 	src/gtksourceview/Makefile
+	src/gtksourceview/language-specs/Makefile
 	src/gtksourceview/embedded_languages.c
 	vapi/Makefile
 ])

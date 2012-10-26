@@ -24,11 +24,13 @@
 
 #include <string.h>
 #include <glib.h>
-#include "embedded_language2_rng.h"
-#include "embedded_styles_rng.h"
 #include "embedded_def_lang.h"
 #include "embedded_sh_lang.h"
 #include "embedded_@GTKSOURCEVIEW_STYLE@_xml.h"
+
+const char* _embedded_style_id() { return "@GTKSOURCEVIEW_STYLE@"; }
+const char* _embedded_style_xml() { return embedded_@GTKSOURCEVIEW_STYLE@_xml; }
+const char* _embedded_style_filename() { return "@GTKSOURCEVIEW_STYLE@.xml"; }
 
 static GSList* _language_ids = NULL;
 static GHashTable* _language_id_filename_hash = NULL;
@@ -48,13 +50,6 @@ static _embedded_languages_ensure_data()
 	g_hash_table_insert(_language_id_filename_hash, "sh", "sh.lang");
 	g_hash_table_insert(_language_id_xml_hash, "sh", embedded_sh_lang);
 }
-
-const char* _embedded_style_id() { return "@GTKSOURCEVIEW_STYLE@"; }
-const char* _embedded_style_xml() { return embedded_@GTKSOURCEVIEW_STYLE@_xml; }
-const char* _embedded_style_filename() { return "@GTKSOURCEVIEW_STYLE@.xml"; }
-const char* _embedded_styles_rng() { return embedded_styles_rng; }
-
-const char* _embedded_language2_rng() { return embedded_language2_rng; }
 
 GSList* _embedded_language_ids() 
 {
