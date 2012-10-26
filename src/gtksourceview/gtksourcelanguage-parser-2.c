@@ -1606,9 +1606,9 @@ file_parse (gchar                     *filename,
 	int ret;
 	GError *tmp_error = NULL;
 	const char* rng_xml;
-	xmlRelaxNGParserCtxtPtr rng_parse_context;
-	xmlRelaxNGPtr rng_schema;
-	xmlRelaxNGValidCtxtPtr rng_validation_context;
+	//xmlRelaxNGParserCtxtPtr rng_parse_context;
+	//xmlRelaxNGPtr rng_schema;
+	//xmlRelaxNGValidCtxtPtr rng_validation_context;
 	const char* xml;
 
 	g_return_val_if_fail (error == NULL || *error == NULL, FALSE);
@@ -1626,6 +1626,9 @@ file_parse (gchar                     *filename,
 		goto error;
 	}
 
+/* 
+	// This is not supported on < libxml 2.8.0, which is not available on the pandora atm.
+	// Besides, as everthing is embedded in the local version we don't really need the extra validation.
 	rng_xml = _embedded_language2_rng();
 	rng_parse_context = xmlRelaxNGNewMemParserCtxt (rng_xml, strlen(rng_xml));
 	if (rng_parse_context != NULL) 
@@ -1642,7 +1645,7 @@ file_parse (gchar                     *filename,
 			     "unable to load the RelaxNG schema");
 		goto error;
 	}
-
+*/
 	parser_state = parser_state_new (language, ctx_data,
 					 defined_regexes, styles,
 					 replacements, reader,
