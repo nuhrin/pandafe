@@ -49,7 +49,7 @@ public class InterfaceHelper : Object
 		_highlight_color = Data.Color.parse_sdl(MENU_HIGHLIGHT_COLOR);
 		_highlight_color_rgb = map_rgb(_highlight_color);
 		
-		string mono_font_path = Path.build_filename(Config.PACKAGE_DATADIR, FONT_MONO_PREFERRED);
+		string mono_font_path = Path.build_filename(Build.PACKAGE_DATADIR, FONT_MONO_PREFERRED);
 		if (FileUtils.test(mono_font_path, FileTest.EXISTS) == false)
 			mono_font_path = FONT_MONO_DEFAULT;
 		

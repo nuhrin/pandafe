@@ -53,7 +53,7 @@ namespace Data
 		public Data.Programs.ProgramProvider program_provider { get; private set; }
 		public Provider() {
 			try {
-				data_interface = new DataInterface(Config.LOCAL_CONFIG_DIR);
+				data_interface = new DataInterface(Build.LOCAL_CONFIG_DIR);
 			} catch (Error e) {
 				error("Unable to create DataInterface instance: %s", e.message);
 				//assert_not_reached();

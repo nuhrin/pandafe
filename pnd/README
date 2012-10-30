@@ -1,0 +1,121 @@
+Pandafe
+||||||||||||
+
+Pandafe is a sort of "universal" SDL frontend for Pandora games and emulators. 
+
+It was written especially for the Pandora, with the following goals:
+* browse and run all roms and games from a single program
+* specify commandline options for each game via a menu
+* be fully configurable and extendable via the program itself
+* use only dpad and buttons to do all this (no touching, heh)
+* persist data via yaml, for human reading/writing/sharing
+
+The out-of-the-box configuration supports:
+* Atari Lynx (Handy, mednafen-lynx)
+* Gameboy (GnuBoy, mednafen-gb)
+* Gameboy Advance (gpSP, mednafen-gba)
+* MAME (MAME)
+* NeoGeo Pocket (mednafen-ngp)
+* NES (gpFCE-GP2X, mednafen-nes)
+* Nintendo 64 (Mupen64plus)
+* Playstation (PCSX ReARMed)
+* Sega 32x (PicoDrive)
+* Sega CD (PicoDrive)
+* Sega Game Gear (Dega, mednafen-gg)
+* Sega Genesis (PicoDrive)
+* Sega Master System (Dega, mednafen-sms)
+* Super NES (Snes9x4P)
+* TurboGrafx-16 (mednafen-pce)
+* Wonderswan (mednafen-wswan)
+
+These are the platforms that I enjoy, and those that came easy after 
+configuring mednafen. Most any other rom based app should also be workable, 
+provided it is capable of accepting a game argument via commandline. 
+
+This is my first SDL program of any kind, and also my first of substance 
+written in Vala. I hope you enjoy using it as much as I enjoyed making it.
+No, really. :)
+
+
+Getting Started
+===============
+
+The first time you start Pandafe, you will be presented with the following list:
+  * Nintendo/
+  * Sega/
+  * Other/
+  * Pandora >
+
+These are the "platform folders", a configurable grouping of supported 
+"platforms." Each platform represents a system with a unique set of games 
+(Super NES, Genesis, Pandora, etc).
+
+When you select a platform for the first time you will be prompted to specify 
+the path to your roms for that platform. Once this is done you will be able to 
+browse and run games of that platform.
+
+When you add or remove roms you will need to rescan the platform or the folder 
+you have changed. You can do this via the context menu.
+
+When you add or remove pnds you will need to rescan your pnds. You can do this 
+from the main menu, or from the context menu for the "Pandora" platform.
+
+
+Controls
+========
+
+The interface will hopefully feel reasonably intuitive -- just use the game 
+controls.
+
+Recognized keys and the action they perform:
+------------------------------------------------------------------------------|
+  Key    | Browser Action                | Menu Action                        |
+------------------------------------------------------------------------------|
+| Up     | Select previous item          | Select previous item               |
+| Down   | Select next item              | Select previous item               |
+| Left   | Select previous page          | Select previous field value        |
+| Right  | Select next page              | Select next field value            |
+| Select | Show main menu                | N/A                                |
+| A      | Go back to parent             | Return to parent (Cancel)          |
+| B      | Activate selected item        | Activate selected item             |
+| X      | Select last item              | Select last item / next group      |
+| Y      | Select first item             | Select first item / previous group |
+| L      | Show view chooser             | N/A                                |
+| R      | Show platform chooser         | N/A                                |
+| Space  | Show context menu             | Hide context menu (if applicable)  |
+| Enter  | Activate selected item        | Activate selected item             |
+| Escape | Exit program                  | Return to parent (Cancel)          |
+| ,      | Set list item filter          | N/A                                |
+------------------------------------------------------------------------------/
+In addition, most lists support alphanumeric keys to cycle through items 
+starting with that character.
+
+
+Platforms and Programs
+======================
+
+Platforms define types of games, where they live, and the programs which can 
+be used to run them. Programs descibe pnd apps which can run games, and define 
+how this is accomplished, including commandline options and a custom command 
+where necessary.
+
+Creating new Platforms and Programs, and editing existing ones, is certainly 
+something that deserves more discussion and documentation. But, alas, I've 
+more than run out of time for this documentation sprint.
+
+Some of you will no doubt have little need for more documentation though, 
+and to be honest, you are rather my target audience. :)
+
+
+License
+=======
+(C) 2012 nuhrin	nuhrin@oceanic.to
+
+Pandafe will be released under the GPLv3. Source code is presently unavailable, 
+but this is due only to time constraints.
+
+Credits
+=======
+
+PND icon is from http://www.visualpharm.com/ ("linkware").
+

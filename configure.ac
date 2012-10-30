@@ -13,22 +13,37 @@ PND_APP_ID=pandafe
 AC_SUBST(PND_APP_ID)
 AC_DEFINE_UNQUOTED([PND_APP_ID], "$PND_APP_ID", [The app id to be used in the pnd])
 
+AC_ARG_VAR(PND_MOUNT_DIR, [The PATH the build pnd expects to be mounted under.])
+if test -z "$PND_MOUNT_DIR"; then
+	PND_MOUNT_DIR=/mnt/utmp/$PND_APP_ID
+	AC_SUBST(PND_MOUNT_DIR)	
+fi
+AC_ARG_VAR(PND_BUILD_DIR, [The PATH of the directory the pnd will be built within.])
+if test -z "$PND_BUILD_DIR"; then
+	PND_BUILD_DIR=.
+	AC_SUBST(PND_BUILD_DIR)	
+fi
+
 # gtksourceview style to use: classic, cobalt, kate, oblivion, tango
 GTKSOURCEVIEW_STYLE=oblivion 
 AC_SUBST(GTKSOURCEVIEW_STYLE)
-
-LOCAL_CONFIG_DIR=.
-AC_SUBST(LOCAL_CONFIG_DIR)
-AC_DEFINE_UNQUOTED(LOCAL_CONFIG_DIR, "$LOCAL_CONFIG_DIR", [Local configuration directory])
 
 # Checks for programs.
 AC_PROG_CC
 AM_PROG_CC_C_O
 LT_INIT
 
+AC_PROG_SED
+
+AC_CHECK_PROGS(MAKE_PND_COMMAND, [mksquashfs mkisofs genisoimage], [None])
+AC_SUBST(MAKE_PND_COMMAND)
+
 AM_PROG_VALAC([0.17.3])
 AC_SUBST(VALAC)
 AC_SUBST(VALAFLAGS)
+
+# Split up PACKAGE_VERSION into components, for sake of PXML.xml
+PACKAGE_VERSION_SPLIT
 
 # Configure local submodules
 SUBMODULE_CONFIG
@@ -96,6 +111,9 @@ AC_CONFIG_FILES([
 	data/fonts/Makefile
 	data/Platform/Makefile
 	data/Program/Makefile
+	pnd/Makefile
+	pnd/PXML.xml
+	pnd/previews/Makefile
 	scripts/Makefile
 	submodules/Makefile
 	src/Makefile

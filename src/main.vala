@@ -72,9 +72,9 @@ public class MainClass: Object {
     }
 
 	static void ensure_pandafe_appdata() {
-		if (FileUtils.test(Config.LOCAL_CONFIG_DIR, FileTest.IS_DIR) == false) {
-			if (FileUtils.test(Config.LOCAL_CONFIG_DIR, FileTest.EXISTS) == true)
-				GLib.error("Local config directory '%s' exists but is not a directory.", Config.LOCAL_CONFIG_DIR);
+		if (FileUtils.test(Build.LOCAL_CONFIG_DIR, FileTest.IS_DIR) == false) {
+			if (FileUtils.test(Build.LOCAL_CONFIG_DIR, FileTest.EXISTS) == true)
+				GLib.error("Local config directory '%s' exists but is not a directory.", Build.LOCAL_CONFIG_DIR);
 		}
 		// ensure appdata
 		ensure_appdata_folder("fonts", false);
@@ -89,14 +89,14 @@ public class MainClass: Object {
 			Data.save_preferences();
 	}
 	static void ensure_appdata_folder(string foldername, bool copy_files=true) {
-		string target_path = Path.build_filename(Config.LOCAL_CONFIG_DIR, foldername);
+		string target_path = Path.build_filename(Build.LOCAL_CONFIG_DIR, foldername);
 		if (FileUtils.test(target_path, FileTest.IS_DIR) == true)
 			return;
 		if (FileUtils.test(target_path, FileTest.EXISTS) == true)
 			GLib.error("Local config directory '%s' exists but is not a directory.", target_path);
 
 		// check for source folder in the pkgconfigdir
-		string source_path = Path.build_filename(Config.PACKAGE_DATADIR, foldername);
+		string source_path = Path.build_filename(Build.PACKAGE_DATADIR, foldername);
 		if (FileUtils.test(source_path, FileTest.IS_DIR) == false)
 			return;
 
@@ -128,14 +128,14 @@ public class MainClass: Object {
 		}
 	}
 	static bool ensure_appdata_file(string filename) {
-		string target_path = Path.build_filename(Config.LOCAL_CONFIG_DIR, filename);
+		string target_path = Path.build_filename(Build.LOCAL_CONFIG_DIR, filename);
 		if (FileUtils.test(target_path, FileTest.IS_REGULAR) == true)
 			return true;
 		if (FileUtils.test(target_path, FileTest.EXISTS) == true)
 			GLib.error("Local config file '%s' exists but is not a regular file.", target_path);
 		
 		// check for source file in the pkgconfigdir
-		string source_path = Path.build_filename(Config.PACKAGE_DATADIR, filename);
+		string source_path = Path.build_filename(Build.PACKAGE_DATADIR, filename);
 		if (FileUtils.test(source_path, FileTest.IS_REGULAR) == false)
 			return false;
 		
@@ -154,7 +154,7 @@ public class MainClass: Object {
 	}
 	
 	static void cleanup_cache() {
-		string gamelistcache_path = Path.build_filename(Config.LOCAL_CONFIG_DIR, Data.GameList.GameFolder.YAML_FOLDER_ROOT);
+		string gamelistcache_path = Path.build_filename(Build.LOCAL_CONFIG_DIR, Data.GameList.GameFolder.YAML_FOLDER_ROOT);
 		if (FileUtils.test(gamelistcache_path, FileTest.EXISTS) == true) {
 			try {
 				var platform_ids = Data.platforms().get_all_platforms().select<string>(p=>p.id).to_list();

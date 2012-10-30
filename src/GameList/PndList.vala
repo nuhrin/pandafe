@@ -109,7 +109,7 @@ namespace Data.GameList
 
 			if (category != null) {
 				var excluded_hash = new HashSet<string>();
-				excluded_hash.add(Config.PND_APP_ID);
+				excluded_hash.add(Build.PND_APP_ID);
 				if (native_category != null)
 					excluded_hash.add_all(native_category.excluded_apps);				
 				var title_game_hash = new HashMap<string, GameItem?>();

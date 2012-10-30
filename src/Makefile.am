@@ -11,7 +11,6 @@ AM_CPPFLAGS = \
 	$(GTK_CFLAGS) \
 	$(LIBXML_CFLAGS) \
 	$(VTE_CFLAGS) \
-	-DPACKAGE_DATADIR=\"$(pkgdatadir)\" \
 	-I./gtksourceview \
 	$(NULL)
 
@@ -19,6 +18,7 @@ BUILT_SOURCES = \
 	pandafe.submodule-vapi.check \
 	pandafe.vala.stamp \
 	pandafe.submodule-libs.check \
+	build-info.h \
 	$(NULL)
 
 bin_PROGRAMS = \
@@ -221,9 +221,9 @@ gtksourceview_custom_SOURCES = \
 	$(NULL)
 
 pandafe_SOURCES = \
+	$(gtksourceview_custom_SOURCES) \
 	pandafe.vala.stamp \
 	$(pandafe_VALASOURCES:.vala=.c) \
-	$(gtksourceview_custom_SOURCES) \
 	$(NULL)
 
 pandafe.submodule-libs.check:
@@ -235,8 +235,16 @@ pandafe.submodule-vapi.check:
 pandafe.vala.stamp: $(pandafe_VALASOURCES) 
 	$(VALA_V)$(VALAC) $(VALAFLAGS) -C $(SUBMODULE_VALAFLAGS) --vapidir $(srcdir)/../vapi \
 		--pkg catapult --pkg pandora-glib --pkg gee-0.8 --pkg gtk+-2.0 --pkg sdl --pkg sdl-image --pkg sdl-ttf --pkg sdl-gfx \
-		--pkg gtksourceview-custom --pkg vte --pkg config --pkg Banner --pkg GdkKeySyms --pkg sdl-keyboard $^
+		--pkg gtksourceview-2.0 --pkg vte --pkg build-info --pkg Banner --pkg GdkKeySyms --pkg sdl-keyboard $^
 	@touch $@
+
+build-info.h: 
+	@echo "#define PACKAGE_DATADIR \"$(pkgdatadir)\"" > build-info.h; \
+	LOCAL_CONFIG_DIR=".pandafe"; \
+	if test "x$(prefix)" = "x$(PND_MOUNT_DIR)"; then \
+		LOCAL_CONFIG_DIR="."; \
+	fi; \
+	echo "#define LOCAL_CONFIG_DIR \"$$LOCAL_CONFIG_DIR\"" >> build-info.h
 
 pandafe_LDADD = \
 	$(GEE_LTLIB) \

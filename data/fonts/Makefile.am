@@ -15,5 +15,5 @@ install-data-hook:
 	ln -s /usr/share/fonts/truetype \
 		$(DESTDIR)$(fontsdir)/system
 	rm -f $(DESTDIR)$(fontsdir)/user
-	ln -s /mnt/utmp/$(PND_APP_ID)/fonts \
+	ln -s $(PND_MOUNT_DIR)/fonts \
 		$(DESTDIR)$(fontsdir)/user

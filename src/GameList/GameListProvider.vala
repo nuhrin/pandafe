@@ -60,7 +60,7 @@ namespace Data.GameList
 		void remove_platform_gamelist_cache() {
 			if (platform.id == null)
 				return;
-			string gamelistcache_path = Path.build_filename(Config.LOCAL_CONFIG_DIR, Data.GameList.GameFolder.YAML_FOLDER_ROOT, platform.id);
+			string gamelistcache_path = Path.build_filename(Build.LOCAL_CONFIG_DIR, Data.GameList.GameFolder.YAML_FOLDER_ROOT, platform.id);
 			if (FileUtils.test(gamelistcache_path, FileTest.IS_DIR) == true) {
 				try {
 					var directory = File.new_for_path(gamelistcache_path);

@@ -55,7 +55,7 @@ namespace Menus.Concrete
 		}
 		
 		protected override void populate_items(Gee.List<MenuItem> items) { 
-			font = new FileField("font", "Font", null, "", "ttf", Path.build_filename(Config.PACKAGE_DATADIR, "fonts"));
+			font = new FileField("font", "Font", null, "", "ttf", Path.build_filename(Build.PACKAGE_DATADIR, "fonts"));
 			font_size = new IntegerField("font_size", "Font Size", null, GameBrowserAppearance.DEFAULT_FONT_SIZE, 
 				GameBrowserAppearance.MIN_FONT_SIZE, GameBrowserAppearance.MAX_FONT_SIZE);
 			item_color = new ColorField("item_color", "Item Color");
