@@ -48,14 +48,7 @@ public class MainClass: Object {
 		bool screen_needs_flip = false;
 		var font = new Font(InterfaceHelper.FONT_MONO_DEFAULT, 20);
 		if (font != null) {
-			font.render("Pandafe", {255,255,255}).blit(null, screen, {50,50});
-			screen_needs_flip = true;
-		}		
-		if (SDLImage.init(0) == -1)
-			GLib.error("Error initializing SDL_image: %s", SDL.get_error());
-		var banner = SDLImage.read_xpm(Banner.BANNER_XPM);
-		if (banner != null) {
-			banner.blit(null, screen, {0, (int16)(screen.h - banner.h)});
+			font.render("Pandafe " + Build.BUILD_VERSION, {255,255,255}).blit(null, screen, {50,50});
 			screen_needs_flip = true;
 		}		
 		if (screen_needs_flip == true)
@@ -69,7 +62,7 @@ public class MainClass: Object {
 		}
 
 		return screen;
-    }
+	}
 
 	static void ensure_pandafe_appdata() {
 		if (FileUtils.test(Build.LOCAL_CONFIG_DIR, FileTest.IS_DIR) == false) {

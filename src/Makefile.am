@@ -235,7 +235,7 @@ pandafe.submodule-vapi.check:
 pandafe.vala.stamp: $(pandafe_VALASOURCES) 
 	$(VALA_V)$(VALAC) $(VALAFLAGS) -C $(SUBMODULE_VALAFLAGS) --vapidir $(srcdir)/../vapi \
 		--pkg catapult --pkg pandora-glib --pkg gee-0.8 --pkg gtk+-2.0 --pkg sdl --pkg sdl-image --pkg sdl-ttf --pkg sdl-gfx \
-		--pkg gtksourceview-2.0 --pkg vte --pkg build-info --pkg Banner --pkg GdkKeySyms --pkg sdl-keyboard $^
+		--pkg gtksourceview-2.0 --pkg vte --pkg build-info --pkg GdkKeySyms --pkg sdl-keyboard $^
 	@touch $@
 
 build-info.h: 

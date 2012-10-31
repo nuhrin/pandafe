@@ -8,7 +8,7 @@ namespace Menus.Concrete
 	public class MainMenu : Menu
 	{
 		public MainMenu() {
-			base("Pandafe");
+			base("Pandafe " + Build.BUILD_VERSION);
 			ensure_items();			
 		}
 		protected override void populate_items(Gee.List<MenuItem> items) {
