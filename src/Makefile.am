@@ -262,7 +262,6 @@ pandafe_LDADD = \
 EXTRA_DIST = \
 	$(pandafe_VALASOURCES) \
 	pandafe.vala.stamp \
-	Banner.h \
 	$(NULL)
 
 MAINTAINERCLEANFILES = \
