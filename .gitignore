@@ -35,7 +35,6 @@ data/preferences
 
 pandafe*.tar.*
 
-pnd_build
 PXML.xml
 *.pnd
 

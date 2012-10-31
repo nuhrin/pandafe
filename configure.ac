@@ -9,6 +9,7 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 AM_MAINTAINER_MODE
 
+# PND config and build variables
 PND_APP_ID=pandafe
 AC_SUBST(PND_APP_ID)
 AC_DEFINE_UNQUOTED([PND_APP_ID], "$PND_APP_ID", [The app id to be used in the pnd])
@@ -23,6 +24,8 @@ if test -z "$PND_BUILD_DIR"; then
 	PND_BUILD_DIR=.
 	AC_SUBST(PND_BUILD_DIR)	
 fi
+PND_BUILD_SUBDIR="$PND_BUILD_DIR/${PND_APP_ID}_pnd_build"
+AC_SUBST(PND_BUILD_SUBDIR)
 
 # gtksourceview style to use: classic, cobalt, kate, oblivion, tango
 GTKSOURCEVIEW_STYLE=oblivion 
@@ -41,6 +44,10 @@ AC_SUBST(MAKE_PND_COMMAND)
 AM_PROG_VALAC([0.17.3])
 AC_SUBST(VALAC)
 AC_SUBST(VALAFLAGS)
+
+# Pull glib-genmarshal & co. (for gtksourceview)
+AC_PATH_PROG(GLIB_GENMARSHAL, glib-genmarshal)
+AC_PATH_PROG(GLIB_MKENUMS, glib-mkenums)
 
 # Split up PACKAGE_VERSION into components, for sake of PXML.xml
 PACKAGE_VERSION_SPLIT
@@ -66,10 +73,6 @@ LIBXML_REQUIRED=2.5.0
 PKG_CHECK_MODULES(LIBXML, libxml-2.0 >= $LIBXML_REQUIRED);
 AC_SUBST(LIBXML_CFLAGS)
 AC_SUBST(LIBXML_LIBS)
-
-# Pull glib-genmarshal & co. (for gtksourceview)
-AC_PATH_PROG(GLIB_GENMARSHAL, glib-genmarshal)
-AC_PATH_PROG(GLIB_MKENUMS, glib-mkenums)
 
 PKG_CHECK_MODULES(VTE, vte);
 AC_SUBST(VTE_CFLAGS)
