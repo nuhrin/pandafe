@@ -25,7 +25,7 @@ namespace Data.GameList
 		public virtual string get_unique_id(IGameListNode node) { return get_unique_name(node); }
 
 
-		public void rescan(owned ForallFunc<GameFolder>? pre_scan_action=null) {
+		public void rescan(owned ForEachFunc<GameFolder>? pre_scan_action=null) {
 			remove_platform_gamelist_cache();
 			rescan_init();
 			_root = null;

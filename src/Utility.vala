@@ -1,4 +1,6 @@
 
+public delegate void ForEachFunc<G> (owned G g);
+
 public class Utility
 {
 	public static CompareFunc<string> strcasecmp { get { return _strcasecmp; } }	

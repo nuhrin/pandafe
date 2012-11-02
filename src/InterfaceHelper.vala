@@ -220,7 +220,7 @@ public class InterfaceHelper : Object
 	
 	public signal void quit_all();
 	
-	public void cleanup_and_exit(owned ForallFunc<string> message_action) {
+	public void cleanup_and_exit(owned ForEachFunc<string> message_action) {
 		if (Data.pnd_mountset().has_mounted == true) {
  			message_action("Unmounting PNDs...");
 			Data.pnd_mountset().unmount_all(name => message_action("Unmounting '%s'...".printf(name)));

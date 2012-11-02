@@ -93,7 +93,7 @@ namespace Data.Pnd
 			return true;
 		}
 
-		public bool unmount(string pnd_id, owned ForallFunc<string>? pre_unmount_action=null) {
+		public bool unmount(string pnd_id, owned ForEachFunc<string>? pre_unmount_action=null) {
 			var pnd = Data.pnd_data().get_pnd(pnd_id);
 			if (pnd == null)
 				return false;
@@ -120,7 +120,7 @@ namespace Data.Pnd
 			
 			return true;
 		}
-		public bool unmount_all(owned ForallFunc<string>? pre_unmount_action=null) {
+		public bool unmount_all(owned ForEachFunc<string>? pre_unmount_action=null) {
 			bool error = false;
 			while(mounted_pnd_ids.size > 0) {
 				if (unmount(mounted_pnd_ids[0], (owned)pre_unmount_action) == false)

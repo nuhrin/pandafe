@@ -92,7 +92,7 @@ namespace Data.GameList
 		}
 
 		public signal void rescanned();
-		public void rescan_children(bool recursive=false, owned ForallFunc<GameFolder>? pre_scan_action=null) {
+		public void rescan_children(bool recursive=false, owned ForEachFunc<GameFolder>? pre_scan_action=null) {
 			if (children_loaded == false)
 				load_children_yaml();
 			scan_children(recursive, (owned)pre_scan_action);
@@ -152,7 +152,7 @@ namespace Data.GameList
 			children_loaded = true;
 			return true;
 		}
-		void scan_children(bool recursive, owned ForallFunc<GameFolder>? pre_scan_action=null) {
+		void scan_children(bool recursive, owned ForEachFunc<GameFolder>? pre_scan_action=null) {
 			if (pre_scan_action != null)
 				pre_scan_action(this);
 			platform().folder_scanned(this);

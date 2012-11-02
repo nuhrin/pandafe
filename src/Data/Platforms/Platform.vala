@@ -103,11 +103,11 @@ public class Platform : NamedEntity, MenuObject
 		return root_folder.get_descendant_folder_by_id(unique_id);
 	}
 	
-	public void rebuild_folders(owned ForallFunc<GameFolder>? pre_scan_action=null) {
+	public void rebuild_folders(owned ForEachFunc<GameFolder>? pre_scan_action=null) {
 		reset_provider();
 		rescan((owned)pre_scan_action);
 	}
-	public void rescan(owned ForallFunc<GameFolder>? pre_scan_action=null) {
+	public void rescan(owned ForEachFunc<GameFolder>? pre_scan_action=null) {
 		provider.rescan((owned)pre_scan_action);
 		rescanned();
 	}
