@@ -43,10 +43,10 @@ namespace Data.Options
 				sequence.add(build_option_yaml_node(builder, option));
 			return sequence;
 		}
-		protected bool apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
+		protected void apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
 			var sequence = node as Yaml.SequenceNode;
 			if (sequence == null)
-				return false;
+				return;
 			foreach(var option_mapping in sequence.mappings()) {
 				OptionType option_type = get_option_type_from_mapping(parser, option_mapping);
 				if (option_type != OptionType.NONE) {
@@ -57,12 +57,11 @@ namespace Data.Options
 					}
 				}
 			}
-			return true;
 		}
 		
 		Yaml.Node build_option_yaml_node(Yaml.NodeBuilder builder, Option option) {
 			var mapping = new Yaml.MappingNode();			
-			builder.add_mapping_values(mapping, "type", option.option_type);
+			builder.add_item_to_mapping("type", option.option_type, mapping);
 			option.populate_yaml_mapping(builder, mapping);
 			return mapping;
 		}
@@ -82,13 +81,9 @@ namespace Data.Options
 			foreach(var key in mapping.scalar_keys()) {
 				if (key.value == "type")
 					continue;
-				parser.populate_object_property(mapping, key, option);
+				parser.set_object_property(option, key.value, mapping[key]);
 			}
 			option.post_yaml_load();
-		}
-		
-		protected string get_yaml_tag() { return ""; }
-		protected Yaml.Node? build_unhandled_value_node(Yaml.NodeBuilder builder, Value value) { return null; }
-		protected bool apply_unhandled_value_node(Yaml.Node node, string property_name, Yaml.NodeParser parser) { return false; }
+		}		
 	}
 }

@@ -310,13 +310,12 @@ namespace Data
 		}
 
 		protected override Yaml.Node build_yaml_node(Yaml.NodeBuilder builder) {
-			return new Yaml.ScalarNode(null, null, _spec);
+			return new Yaml.ScalarNode(_spec);
 		}
-		protected override bool apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
+		protected override void apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
 			var scalar = node as Yaml.ScalarNode;
 			if (scalar != null)
 				spec = scalar.value;
-			return true;
 		}
 	}
 }

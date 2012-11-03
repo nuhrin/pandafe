@@ -75,17 +75,17 @@ namespace Data.GameList
 		protected override Yaml.Node build_yaml_node(Yaml.NodeBuilder builder) {
 			var mapping = new Yaml.MappingNode();
 			if (_id != null)
-				builder.add_mapping_values(mapping, "id", _id);
-			builder.add_mapping_values(mapping, "name", _name);
+				builder.add_item_to_mapping("id", _id, mapping);
+			builder.add_item_to_mapping("name", _name, mapping);
 			if (_full_name != null)
-				builder.add_mapping_values(mapping, "full-name", _full_name);
+				builder.add_item_to_mapping("full-name", _full_name, mapping);
 
 			return mapping;
 		}
-		protected override bool apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
+		protected override void apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
 			var mapping = node as Yaml.MappingNode;
 			if (mapping == null)
-				return false;
+				return;
 
  			var keys = mapping.scalar_keys();
 			foreach(var key_node in keys) {
@@ -106,7 +106,6 @@ namespace Data.GameList
 					}
 				}
 			}
-			return true;
 		}
 
 

@@ -23,11 +23,10 @@ namespace Data
 			
 			return base.build_yaml_node(builder);
 		}
-		protected override bool apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
-			bool result = base.apply_yaml_node(node, parser);
+		protected override void apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
+			base.apply_yaml_node(node, parser);
 			if (appearance == null)
 				appearance = new GameBrowserAppearance.default();
-			return result;
 		}
 		
 		// menu

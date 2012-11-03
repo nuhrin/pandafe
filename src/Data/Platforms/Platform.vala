@@ -135,23 +135,23 @@ public class Platform : NamedEntity, MenuObject
 	    foreach(var prop in properties) {
 			if (prop.name == "appearance") {
 				if (appearance != null)
-					builder.add_object_mapping(mapping, this, prop);
+					builder.add_object_property_to_mapping(this, prop.name, mapping);
 			}  else if (prop.name != "default-program")
-				builder.add_object_mapping(mapping, this, prop);
+				builder.add_object_property_to_mapping(this, prop.name, mapping);
 		}
 		if (programs.size > 1) {
 			string default_program_id = (default_program != null) ? default_program.app_id : null;
-			mapping.set_scalar("default-program", new Yaml.ScalarNode(null, null, default_program_id));
+			mapping.set_scalar("default-program", new Yaml.ScalarNode(default_program_id));
 		}
 		return mapping;
 	}
-	protected override bool apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
+	protected override void apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
 		var mapping = node as Yaml.MappingNode;
 		if (mapping != null) {
 			Yaml.ScalarNode default_program_key_node = null;
 			foreach(var key_node in mapping.scalar_keys()) {
 				if (key_node.value != "default-program")
-					parser.populate_object_property(mapping, key_node, this);
+					parser.set_object_property(this, key_node.value, mapping[key_node]);
 				else
 					default_program_key_node = key_node;
 			}
@@ -167,9 +167,7 @@ public class Platform : NamedEntity, MenuObject
 			}
 			if (default_program == null && programs.size > 0)
 				default_program = programs[0];
-			return true;
 		}
-		return false;
 	}
 
 	// menu

@@ -21,16 +21,16 @@ namespace Data.Programs
 		protected Yaml.Node build_yaml_node(Yaml.NodeBuilder builder) {
 			var mapping = new Yaml.MappingNode();
 			build_additional_properties(mapping, builder);
-			builder.populate_mapping<string,string>(mapping, this);
+			builder.populate_mapping_with_map_items(this, mapping);
 			return mapping;
 		}
 		protected virtual void build_additional_properties(Yaml.MappingNode mapping, Yaml.NodeBuilder builder) {
 			mapping.set_scalar("clockspeed", builder.build_value(clockspeed));
 		}
-		protected bool apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
+		protected void apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
 			var mapping = node as Yaml.MappingNode;
 			if (mapping == null)
-				return false;
+				return;
 			foreach(var scalar_key in mapping.scalar_keys()) {
 				var scalar_value = mapping[scalar_key] as Yaml.ScalarNode;
 				if (scalar_value == null)
@@ -39,7 +39,6 @@ namespace Data.Programs
 					continue;
 				this[scalar_key.value] = scalar_value.value;
 			}
-			return true;
 		}
 
 		protected virtual bool apply_property_value(string key, string value) {
@@ -49,10 +48,6 @@ namespace Data.Programs
 			}
 			return false;
 		}
-		
-		protected string get_yaml_tag() { return ""; }
-		protected Yaml.Node? build_unhandled_value_node(Yaml.NodeBuilder builder, Value value) { return null; }
-		protected bool apply_unhandled_value_node(Yaml.Node node, string property_name, Yaml.NodeParser parser) { return false; }
 	}
 	
 	public class ProgramDefaultSettings : ProgramSettings

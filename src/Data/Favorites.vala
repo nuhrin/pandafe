@@ -45,17 +45,16 @@ namespace Data
 			}
 			return sequence;
 		}
-		protected override bool apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
+		protected override void apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
 			var sequence = node as Yaml.SequenceNode;
 			if (sequence == null)
-				return false;
+				return;
 				
 			if (sequence.item_count() > 0) {
 				ensure_hashset();
 				foreach(var id_node in sequence.scalars())
 					_favorite_game_ids.add(id_node.value);
 			}
-			return true;
 		}
 	}
 }

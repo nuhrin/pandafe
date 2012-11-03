@@ -21,25 +21,18 @@ namespace Data.Platforms
 		
 		// yaml
 		protected Yaml.Node build_yaml_node(Yaml.NodeBuilder builder) {
-			var mapping = new Yaml.MappingNode();
-			builder.populate_mapping<string,ProgramDefaultSettings>(mapping, this);
-			return mapping;
+			return builder.populate_mapping_with_map_items(this);
 		}
-		protected bool apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
+		protected void apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
 			var mapping = node as Yaml.MappingNode;
 			if (mapping == null)
-				return false;
+				return;
 			foreach(var scalar_key in mapping.scalar_keys()) {
 				var settings_mapping = mapping[scalar_key] as Yaml.MappingNode;
 				if (settings_mapping == null)
 					continue;
 				this[scalar_key.value] = parser.parse<ProgramDefaultSettings>(settings_mapping, new ProgramDefaultSettings());
 			}
-			return true;
 		}
-
-		protected string get_yaml_tag() { return ""; }
-		protected Yaml.Node? build_unhandled_value_node(Yaml.NodeBuilder builder, Value value) { return null; }
-		protected bool apply_unhandled_value_node(Yaml.Node node, string property_name, Yaml.NodeParser parser) { return false; }	
 	}
 }

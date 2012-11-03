@@ -24,16 +24,11 @@ public class NativePlatform : Platform
 		var mapping = new Yaml.MappingNode();
 		if (appearance != null)
 			mapping.set_scalar("appearance", builder.build_value(appearance));
-		builder.add_mapping_values(mapping, "categories", categories);		
+		builder.add_item_to_mapping("categories", categories, mapping);
 		return mapping;
 	}
-	protected override bool apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
-		var mapping = node as Yaml.MappingNode;
-		if (mapping != null) {
-			parser.populate_object(mapping, this);
-			return true;
-		}
-		return false;
+	protected override void apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
+		parser.populate_object_properties_from_mapping(this, node as Yaml.MappingNode);
 	}
 	
 	// menu

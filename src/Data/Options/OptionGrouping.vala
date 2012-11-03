@@ -62,9 +62,9 @@ namespace Data.Options
 		
 		// yaml
 		internal override void populate_yaml_mapping(Yaml.NodeBuilder builder, Yaml.MappingNode mapping) {
-			builder.add_mapping_values(mapping, "name", name);
-			builder.add_mapping_values(mapping, "help", help);
-			builder.add_mapping_values(mapping, "options", options);
+			builder.add_item_to_mapping("name", name, mapping);
+			builder.add_item_to_mapping("help", help, mapping);
+			builder.add_item_to_mapping("options", options, mapping);
 		}
 		internal override void post_yaml_load() { 
 			set_option_setting_prefix();

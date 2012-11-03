@@ -148,10 +148,10 @@ namespace Data
 				mapping.set_scalar("background-color", builder.build_value(background_color));
 			return mapping;	
 		}
-		protected override bool apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
+		protected override void apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
 			var mapping = node as Yaml.MappingNode;
 			if (mapping == null)
-				return false;
+				return;
 			foreach(var key in mapping.scalar_keys()) {
 				switch(key.value) {
 					case "font":					
@@ -174,7 +174,6 @@ namespace Data
 						break;
 				}
 			}
-			return true;
 		}
 	}
 }

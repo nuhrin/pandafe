@@ -60,8 +60,7 @@ namespace Data
 			}
 			try {				
 				program_provider = new Data.Programs.ProgramProvider(data_interface.root_folder);
-				platform_provider = new Data.Platforms.PlatformProvider(data_interface.root_folder);
-				platform_provider.register_entity_provider<Program>(program_provider);
+				platform_provider = new Data.Platforms.PlatformProvider(data_interface.root_folder, program_provider);				
 				data_interface.register_entity_provider<Platform>(platform_provider);
 				data_interface.register_entity_provider<Program>(program_provider);
 			} catch(Error e) {

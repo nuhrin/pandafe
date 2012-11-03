@@ -118,12 +118,10 @@ namespace Data.Platforms
 			return sequence;
 		}
 		
-		protected override bool apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
+		protected override void apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
 			var sequence = node as Yaml.SequenceNode;
-			if (sequence == null)
-				return false;
-			apply_platform_folder_list_node(null, sequence, parser);
-			return true;
+			if (sequence != null)
+				apply_platform_folder_list_node(null, sequence, parser);
 		}
 		PlatformFolder? apply_platform_folder_node(PlatformFolder? parent, Yaml.MappingNode mapping, Yaml.NodeParser parser) {
 			var name_node = mapping.get_scalar("name");

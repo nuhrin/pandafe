@@ -11,9 +11,10 @@ namespace Data.Platforms
 		public const string PLATFORM_FOLDER_ID = "platform_folders";
 		HashMap<string,Platform> platform_id_hash;
 		Gee.List<Platform> all_platforms;
-		public PlatformProvider(string root_folder) throws RuntimeError
+		public PlatformProvider(string root_folder, Data.Programs.ProgramProvider program_provider) throws RuntimeError
 		{
-			base(root_folder);			
+			base(root_folder);
+			register_entity_provider<Program>(program_provider);
 		}
 		
 		public signal void platform_folders_changed();

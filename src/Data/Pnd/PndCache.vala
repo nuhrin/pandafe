@@ -31,7 +31,7 @@ namespace Data.Pnd
 			}
 			return sequence;
 		}
-		protected override bool apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
+		protected override void apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
 			var sequence = node as Yaml.SequenceNode;
 			var list = new ArrayList<PndItem>();
 			foreach(var childNode in sequence.items()) {
@@ -40,7 +40,6 @@ namespace Data.Pnd
 					list.add(item);
 			}
 			pnd_list = new Enumerable<PndItem>(list);
-			return true;
 		}
 	}
 }

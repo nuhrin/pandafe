@@ -58,7 +58,7 @@ namespace Data.Options
 		
 		// yaml
 		internal virtual void populate_yaml_mapping(Yaml.NodeBuilder builder, Yaml.MappingNode mapping) {
-			builder.populate_object_mapping(mapping, this);
+			builder.populate_mapping_with_object_properties(this, mapping);
 		}
 		internal virtual void post_yaml_load() { }
 	}

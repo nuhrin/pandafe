@@ -43,13 +43,5 @@ namespace Data.Pnd
 			if (pnd == null)
 				error("AppItem '%s' has not been associated with a PndItem.", id);
 		}
-
-		protected override Yaml.Node build_yaml_node(Yaml.NodeBuilder builder) {
-			return builder.build_object_mapping(this);
-		}
-		protected override bool apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
-			parser.populate_object(node as Yaml.MappingNode, this);
-			return true;
-		}
 	}
 }
