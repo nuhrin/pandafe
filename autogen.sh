@@ -2,7 +2,7 @@ test -n "$srcdir" || srcdir=$(dirname "$0")
 test -n "$srcdir" || srcdir=.
 (
   # initialize submodules and tweak libgee to allow autoreconf to complete
-  test -d .git && git submodule update --init &&
+  test -d .git && test ! -e submodules/libgee/.git && git submodule update --init &&
     mkdir -p submodules/libgee/m4 && touch submodules/libgee/ChangeLog
 
   # autoreconf
