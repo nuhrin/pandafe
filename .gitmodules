@@ -6,4 +6,4 @@
 	url = ssh://localhost/catapult
 [submodule "submodules/pandora-glib"]
 	path = submodules/pandora-glib
-	url = ssh://localhost/pandora-glib
+	url = git@github.com:nuhrin/pandora-glib.git
