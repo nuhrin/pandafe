@@ -7,12 +7,16 @@ using Fields;
 
 public class NativePlatform : Platform
 {
-	construct {
+	public NativePlatform() {
+		base(PlatformType.NATIVE);
 		name = "Pandora";
 		categories = new ArrayList<NativePlatformCategory>();
 	}
 
 	public Gee.List<NativePlatformCategory> categories { get; set; }
+
+	public override bool supports_game_settings { get { return false; } }
+	public override Program? get_program(string? program_id=null) { return null; }
 
 	protected override GameListProvider create_provider() { return new PndList(); }
 

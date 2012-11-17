@@ -1,5 +1,6 @@
 using Gee;
 using Catapult;
+using Data.Platforms;
 using Data.Programs;
 
 namespace Data.GameList
@@ -21,6 +22,7 @@ namespace Data.GameList
 		GameFolder _root;
 
 		public abstract SpawningResult run_game(GameItem game);
+		public abstract Program? get_program_for_game(GameItem game);
 		public abstract string get_unique_name(IGameListNode node);
 		public virtual string get_unique_id(IGameListNode node) { return get_unique_name(node); }
 
@@ -44,18 +46,18 @@ namespace Data.GameList
 		protected abstract bool get_children(GameFolder folder, out ArrayList<GameFolder> child_folders, out ArrayList<GameItem> child_games);
 		protected abstract GameFolder create_root_folder();
 
-		protected SpawningResult run_program(Program program, ProgramSettings? program_settings=null, string? game_path=null) {
-			return Spawning.spawn_program(program, false, program_settings, game_path);
-		}
-		protected SpawningResult run_program_with_premount(Program program, ProgramSettings? program_settings=null, string? game_path=null) {
-			return Spawning.spawn_program(program, true, program_settings, game_path);
-		}
-		protected SpawningResult run_platform_program(Platform platform, Program program, ProgramSettings? program_settings=null, string? game_path=null) {
-			return Spawning.spawn_platform_program(platform, program, false, program_settings, game_path);
-		}
-		protected SpawningResult run_platform_program_with_premount(Platform platform, Program program, ProgramSettings? program_settings=null, string? game_path=null) {
-			return Spawning.spawn_platform_program(platform, program, true, program_settings, game_path);
-		}		
+//~ 		protected SpawningResult run_program(Program program, ProgramSettings? program_settings=null, string? game_path=null) {
+//~ 			return Spawning.spawn_program(program, false, program_settings, game_path);
+//~ 		}
+//~ 		protected SpawningResult run_program_with_premount(Program program, ProgramSettings? program_settings=null, string? game_path=null) {
+//~ 			return Spawning.spawn_program(program, true, program_settings, game_path);
+//~ 		}
+//~ 		protected SpawningResult run_platform_program(RomPlatform platform, Program program, ProgramSettings? program_settings=null, string? game_path=null) {
+//~ 			return Spawning.spawn_platform_program(platform, program, false, program_settings, game_path);
+//~ 		}
+//~ 		protected SpawningResult run_platform_program_with_premount(RomPlatform platform, Program program, ProgramSettings? program_settings=null, string? game_path=null) {
+//~ 			return Spawning.spawn_platform_program(platform, program, true, program_settings, game_path);
+//~ 		}		
 
 		void remove_platform_gamelist_cache() {
 			if (platform.id == null)
@@ -66,7 +68,7 @@ namespace Data.GameList
 					var directory = File.new_for_path(gamelistcache_path);
 					Utility.remove_directory_recursive(directory);
 				} catch(GLib.Error e) {
-					debug("error remove platform '%s' gamelist cache: %s", platform.id, e.message);
+					warning("error remove platform '%s' gamelist cache: %s", platform.id, e.message);
 				}
 			}
 		}

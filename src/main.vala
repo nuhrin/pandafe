@@ -117,7 +117,7 @@ public class MainClass: Object {
 		}
 		catch(GLib.Error e)
 		{
-			debug("Error while populating local config directory '%s': %s", target_path, e.message);
+			warning("Error while populating local config directory '%s': %s", target_path, e.message);
 		}
 	}
 	static bool ensure_appdata_file(string filename) {
@@ -141,7 +141,7 @@ public class MainClass: Object {
 		}
 		catch(GLib.Error e)
 		{
-			debug("Error while populating local config file '%s': %s", target_path, e.message);
+			warning("Error while populating local config file '%s': %s", target_path, e.message);
 		}
 		return false;
 	}
@@ -169,7 +169,7 @@ public class MainClass: Object {
 			}
 			catch(GLib.Error e)
 			{
-				debug("Error while cleaning up gamelist cache folder: %s", e.message);
+				warning("Error while cleaning up gamelist cache folder: %s", e.message);
 			}
 		}
 	}

@@ -30,7 +30,7 @@ namespace Data.Pnd
 			try {
 				data_interface.save(cache, CACHED_DATA_ID, CACHED_DATA_FOLDER);
 			} catch (Error e) {
-				debug("Error while saving pnd data cache: %s", e.message);
+				warning("Error while saving pnd data cache: %s", e.message);
 			}
 			Pandora.Apps.clear_pnd_cache();
 			reload_from_cache(cache);

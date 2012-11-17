@@ -32,7 +32,7 @@ namespace Menus.Fields
 			if (rect != null) {
 				var entry = new TextEntry(id + "_entry", rect.x, rect.y, (int16)rect.w, _value, character_mask_regex, value_mask_regex);
 				entry.validation_error.connect(() => {
-					debug("%s is not valid for some reason...", name);
+					warning("%s is not valid for some reason...", name);
 				});
 				change_value(entry.run());
 				selector.update_selected_item_value();

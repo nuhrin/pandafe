@@ -19,6 +19,7 @@ dist_programs_DATA = \
 	mupen64plus-PickleLauncher \
 	pcsx_rearmed.notaz \
 	picodrive.notaz.1.80 \
+	scummvm \
 	sdlgnuboy \
 	snes9x.skeezix.alpha \
 	Temper \

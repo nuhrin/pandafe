@@ -37,6 +37,20 @@ namespace Data.Pnd
 
 		public int compare_to(PndItem other) { return strcmp(pnd_id, other.pnd_id); }
 
+		protected override Yaml.Node build_yaml_node(Yaml.NodeBuilder builder) {
+			var map = new Yaml.MappingNode();
+			builder.add_item_to_mapping("pnd_id", pnd_id, map);
+			builder.add_item_to_mapping("filename", filename, map);
+			builder.add_item_to_mapping("path", path, map);
+			var apps_node = new Yaml.SequenceNode();
+			foreach(var app in apps) {
+				var app_node = builder.build_yaml_object(app);
+				apps_node.add(app_node);
+			}
+			var appsKey = builder.build_value("apps");
+			map[appsKey] = apps_node;
+			return map;
+		}
 		protected override void apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
 			var map = node as Yaml.MappingNode;
 			foreach(var key in map.scalar_keys()) {

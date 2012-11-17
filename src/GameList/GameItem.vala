@@ -1,4 +1,5 @@
 using Catapult;
+using Data.Platforms;
 using Data.Programs;
 
 namespace Data.GameList
@@ -48,28 +49,7 @@ namespace Data.GameList
 		}
 
 		public SpawningResult run() { return provider.run_game(this); }
-
-		public Program? get_program(out ProgramSettings? settings=null) {
-			if (platform().platform_type == PlatformType.NATIVE) {
-				settings = null;
-				return null;
-			}
-			Program program = null;
-			var game_settings = Data.get_game_settings(this);
-			
-			if (game_settings != null && game_settings.selected_program_id != null) {
-				program = platform().get_program(game_settings.selected_program_id) ?? platform().default_program;
-			} else {
-				program = platform().default_program;
-			}
-			
-			if (game_settings != null && game_settings.program_settings.has_key(program.app_id) == true)
-				settings = game_settings.program_settings[program.app_id];
-			else
-				settings = null;
-				
-			return program;
-		}
+		public Program? get_program() { return provider.get_program_for_game(this); }
 
 		// yaml
 		protected override Yaml.Node build_yaml_node(Yaml.NodeBuilder builder) {

@@ -101,7 +101,7 @@ namespace Layers.Controls
 				sb.append(")$");
 				return new Regex(sb.str, REGEX_COMPILE_FLAGS, REGEX_MATCH_FLAGS);
 			} catch(RegexError e) {
-				debug("Error creating file extension regex: %s", e.message);
+				warning("Error creating file extension regex: %s", e.message);
 			}
 			return null;
 		}

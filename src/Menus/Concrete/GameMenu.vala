@@ -22,7 +22,7 @@ namespace Menus.Concrete
 			ensure_items();
 		}
 		protected override void populate_items(Gee.List<MenuItem> items) { 						
-			if (platform.programs.size > 0 && platform.platform_type == PlatformType.ROM) {
+			if (platform.supports_game_settings) {
 				settings_menu = new GameSettingsMenu(game);
 				var settings_menu_item = new MenuBrowserItem("Settings", "Change game settings", settings_menu);
 				settings_menu_item.finished.connect(() => {

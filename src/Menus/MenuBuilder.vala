@@ -117,7 +117,7 @@ namespace Menus
 			if (type.is_object())
 				return add_object(property.name, GetPropertyLabel(property), null, value.get_object());
 
-			debug("unsupported property type: %s", property.value_type.name());
+			warning("unsupported property type: %s", property.value_type.name());
 			return null;
 		}
 	}

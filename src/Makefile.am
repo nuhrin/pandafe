@@ -59,6 +59,8 @@ pandafe_VALASOURCES = \
 	Data/Platforms/PlatformNode.vala \
 	Data/Platforms/PlatformProgramSettingsMap.vala \
 	Data/Platforms/PlatformProvider.vala \
+	Data/Platforms/ProgramPlatform.vala \
+	Data/Platforms/RomPlatform.vala \
 	Data/Pnd/AppIdType.vala \
 	Data/Pnd/AppItem.vala \
 	Data/Pnd/Category.vala \
@@ -76,6 +78,7 @@ pandafe_VALASOURCES = \
 	GameList/GameItem.vala \
 	GameList/GameListProvider.vala \
 	GameList/IGameListNode.vala \
+	GameList/ProgramGameList.vala \
 	GameList/RomList.vala \
 	GameList/PndList.vala \
 	Fields/ColorField.vala \
@@ -96,6 +99,7 @@ pandafe_VALASOURCES = \
 	Fields/PndSelectionField.vala \
 	Fields/ProgramAppIdField.vala \
 	Fields/ProgramDefaultSettingsField.vala \
+	Fields/ProgramField.vala \
 	Fields/ProgramListField.vala \
 	Fields/ProgramOptionsListField.vala \
 	Fields/ProgramSelectionField.vala \

@@ -1,5 +1,6 @@
 using Catapult.Helpers;
 using Data.Pnd;
+using Data.Platforms;
 using Data.Programs;
 
 public class Spawning
@@ -23,13 +24,15 @@ public class Spawning
 	public static SpawningResult spawn_app(AppItem app, bool treat_non_zero_exit_code_as_error=true) {
 		return spawn_app_wrapper(app.get_fullpath(), app.appdata_dirname ?? app.id, app.exec_command, app.startdir, app.exec_arguments, app.clockspeed, treat_non_zero_exit_code_as_error);
 	}
-	public static SpawningResult spawn_program(Program program, bool premount, ProgramSettings? program_settings=null, string? game_path=null) {
-		return spawn_program_internal(program, premount, program_settings, game_path, null);
+	public static SpawningResult spawn_program(Program program, bool premount, ProgramSettings? program_settings=null, string? game_path=null,
+		string? custom_command=null, string? custom_command_script=null) {
+		return spawn_program_internal(program, premount, program_settings, game_path, null, custom_command, custom_command_script);
 	}
-	public static SpawningResult spawn_platform_program(Platform platform, Program program, bool premount, ProgramSettings? program_settings=null, string? game_path=null) {
+	public static SpawningResult spawn_platform_program(RomPlatform platform, Program program, bool premount, ProgramSettings? program_settings=null, string? game_path=null) {
 		return spawn_program_internal(program, premount, program_settings, game_path, platform);
 	}
-	static SpawningResult spawn_program_internal(Program program, bool premount, ProgramSettings? program_settings=null, string? game_path=null, Platform? platform=null) {
+	static SpawningResult spawn_program_internal(Program program, bool premount, ProgramSettings? program_settings=null, string? game_path=null, RomPlatform? platform=null,
+		string? custom_command=null, string? custom_command_script=null) {
 		if (platform != null && platform.get_program(program.app_id) != program)
 			return new SpawningResult.error("Program '%s' not found on platform '%s'.".printf(program.name, platform.name));			
 		
@@ -62,7 +65,7 @@ public class Spawning
 			//debug("args: %s", args);
 		}
 
-		bool has_custom_command = (program.custom_command != null && program.custom_command != "");
+		bool has_custom_command = ((custom_command != null && custom_command_script != null) || (program.custom_command != null && program.custom_command != ""));
 		if (has_custom_command == false && (command == null || command == ""))			
 			return new SpawningResult.error("No command specified for program '%s'.".printf(program.name));
 
@@ -78,7 +81,7 @@ public class Spawning
 
 		// ensure custom_command script, if specified
 		if (has_custom_command == true) {
-			command = get_custom_command_script_name(app);
+			command = custom_command ?? get_custom_command_script_name(app);
 			string appdata_path = mountset.get_appdata_path(app.package_id);
 			if (appdata_path == null)
 				return new SpawningResult.error("appdata path not found for '%s'".printf(mount_id));
@@ -88,7 +91,7 @@ public class Spawning
 			string custom_path = appdata_path + command;
 			if (already_mounted == false || FileUtils.test(custom_path, FileTest.EXISTS) == false) {
 				try {
-					if (FileUtils.set_contents(custom_path, program.custom_command) == true)
+					if (FileUtils.set_contents(custom_path, custom_command_script ?? program.custom_command) == true)
 						FileUtils.chmod(custom_path, 0775);
 				}
 				catch(FileError e) {
@@ -146,7 +149,7 @@ public class Spawning
 		try {
 			return File.new_for_path(linkpath).delete();
 		} catch(Error e) {
-			debug("unable to delete symbolic link '%s': %s", linkpath, e.message);
+			warning("unable to delete symbolic link '%s': %s", linkpath, e.message);
 		}
 		return false;
 	}

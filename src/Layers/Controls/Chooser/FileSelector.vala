@@ -55,7 +55,7 @@ namespace Layers.Controls.Chooser
 			}
 			catch(GLib.Error e)
 			{
-				debug("Error while getting children of '%s': %s", path, e.message);
+				warning("Error while getting children of '%s': %s", path, e.message);
 			}
 		}
 		protected override string? get_initial_selected_item_name() {
@@ -92,7 +92,7 @@ namespace Layers.Controls.Chooser
 				try {
 					match_info.next();
 				} catch(RegexError e) {
-					debug("Error during file extension matching: %s", e.message);
+					warning("Error during file extension matching: %s", e.message);
 					break;
 				}
 			}

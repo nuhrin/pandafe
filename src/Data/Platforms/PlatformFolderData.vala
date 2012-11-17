@@ -128,7 +128,6 @@ namespace Data.Platforms
 			string name = parser.parse<string>(name_node, "");
 			if (name == null || name == "")
 				return null;
-				
 			PlatformFolder folder = (parent != null)
 				? new PlatformFolder(name, parent)
 				: new PlatformFolder.root(name);

@@ -10,21 +10,31 @@ namespace Fields
 {
 	public class CustomCommandField : MenuItemField
 	{
-		const string MIME_TYPE="application/x-shellscript";
+		const string DEFAULT_MIME_TYPE="application/x-shellscript";
+		const string DEFAULT_OPEN_FILE_TITLE="Choose PND script...";
 		const string DEFAULT_VALUE = "#/bin/sh\n";
 		
 		string _title;
+		string? _title_prefix;
+		string? _script_name;
+		string? _mime_type;
+		string? _open_file_title;
 		MountSet mountset;
 		string? mounted_id;
 		string? mounted_path;
 		string _value;
 		string _stock;
 				
-		public CustomCommandField(string id, string name, string? help=null, Program program, string? value=null) {
+		public CustomCommandField(string id, string name, string? help=null, Program? program, string? value=null, string? title_prefix=null) {
 			base(id, name, help);
-			set_program_name(program.name);
+			_title_prefix = title_prefix;
 			_value = value;
-			app = program.get_app();
+			if (program != null) {
+				set_program_name(program.name);
+				app = program.get_app();
+			} else {
+				set_program_name("(Unknown)");
+			}
 			mountset = Data.pnd_mountset();
 		}
 		~CustomCommandField() {
@@ -45,11 +55,28 @@ namespace Fields
 			}
 		}
 		AppItem? _app;
+
 		public void set_program_name(string name) {
-			_title = "Command for " + name;
+			_title = (_title_prefix ?? "Command for ") + name;
+		}
+		public void set_script_name(string script_name) {
+			_script_name = script_name;
+		}
+		public bool is_secondary_command { get; set; }
+		public string mime_type { 
+			owned get { return _mime_type ?? DEFAULT_MIME_TYPE; }
+			set { _mime_type = value; }
+		}
+		public string open_file_title { 
+			owned get { return _open_file_title ?? DEFAULT_OPEN_FILE_TITLE; }
+			set { _open_file_title = value; }
 		}
 		
-		public override string get_value_text() { return (has_value() || app == null) ? "(custom)" : app.exec_command; }
+		public override string get_value_text() { 
+			if (is_secondary_command)
+				return "...";
+			return (has_value() || app == null) ? "(custom)" : app.exec_command; 
+		}
 		public override int get_minimum_menu_value_text_length() { return 0; }
 
 		protected override Value get_field_value() { return _value; }
@@ -62,7 +89,8 @@ namespace Fields
 			if (run_dialog(out contents) == true) {
 				if (contents != null && contents != _value && mounted_path != null && app != null) {
 					// remove custom script, if it already exists, so it will be updated on next run
-					string custom_script_path = Path.build_filename(mounted_path, Spawning.get_custom_command_script_name(app));
+					string script_name = _script_name ?? Spawning.get_custom_command_script_name(app);
+					string custom_script_path = Path.build_filename(mounted_path, script_name);
 					if (FileUtils.test(custom_script_path, FileTest.EXISTS) == true)
 						FileUtils.remove(custom_script_path);
 				}
@@ -94,11 +122,16 @@ namespace Fields
 			sw.set_policy(PolicyType.AUTOMATIC, PolicyType.AUTOMATIC);
 			sw.shadow_type = ShadowType.ETCHED_IN;
 			sw.add(source_view);
-			var frame = new Frame("<b>Custom</b>");
-			var frame_label = frame.label_widget as Label;
-			frame_label.use_markup = true;
-			frame.shadow_type = ShadowType.NONE;
-			frame.add(sw);			
+			Widget buffer_widget = sw;
+			Label frame_label = null;
+			if (is_secondary_command == false) {
+				var frame = new Frame("<b>Custom</b>");
+				frame_label = frame.label_widget as Label;
+				frame_label.use_markup = true;
+				frame.shadow_type = ShadowType.NONE;
+				frame.add(sw);
+				buffer_widget = frame;
+			}
 			var notebook = new Notebook();
 				
 			// dialog
@@ -109,17 +142,17 @@ namespace Fields
 			dialog.set_default_size (@interface.screen_width, @interface.screen_height);
 			
 			ensure_stock_text();
-			bool stock_supported = (_stock != null && app != null);
+			bool stock_supported = (is_secondary_command == false && _stock != null && app != null);
 			bool stock_active = false;
 			
-			if (stock_supported) {
+			if (mounted_path != null) {
 				notebook.show_border = false;
-				notebook.append_page(frame, new Label("Content"));
+				notebook.append_page(buffer_widget, new Label("Content"));
 				notebook.page = 0;
 				
 				dialog.vbox.pack_end(notebook, true, true, 0);
 			} else
-				dialog.vbox.pack_end(frame, true, true, 0);
+				dialog.vbox.pack_end(buffer_widget, true, true, 0);
 			
 						
 			// revert, stock buttons
@@ -152,9 +185,9 @@ namespace Fields
 			var btnOpen = new Button.with_mnemonic("_Open");				
 			if (mounted_path != null) {				
 				btnOpen.clicked.connect(() => {
-					var chooser = new FileChooserDialog("Choose PND script...", dialog, FileChooserAction.OPEN);
+					var chooser = new FileChooserDialog(open_file_title, dialog, FileChooserAction.OPEN);
 					var filter = new FileFilter();
-					filter.add_mime_type(MIME_TYPE);
+					filter.add_mime_type(mime_type);
 					chooser.filter = filter;
 					chooser.set_current_folder(mounted_path);
 					chooser.add_button(Stock.CANCEL, ResponseType.CANCEL);
@@ -297,7 +330,7 @@ namespace Fields
 			try {
 				FileUtils.get_contents(path, out _stock);
 			} catch(FileError e) {
-				debug("Error while loading '%s' contents: %s", path, e.message);
+				warning("Error while loading '%s' contents: %s", path, e.message);
 				_stock = null;
 			}			
 		}

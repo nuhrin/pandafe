@@ -593,16 +593,17 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 	}
 	
 	bool ensure_platform_root_rolder(Platform platform) {
-		if (platform.platform_type != PlatformType.ROM)
+		var rom_platform = platform as RomPlatform;
+		if (rom_platform == null)
 			return true;
 			
-		var rom_folder_root = platform.rom_folder_root;
+		var rom_folder_root = rom_platform.rom_folder_root;
 		if (rom_folder_root == null || rom_folder_root.strip() == "" || FileUtils.test(rom_folder_root, FileTest.IS_DIR) == false) {
 			var chooser = new FolderChooser("rom_folder_chooser", "Choose %s Rom Folder".printf(platform.name));
 			var new_root = chooser.run(Data.preferences().default_rom_path);
 			if (new_root == null)
 				return false;
-			platform.rom_folder_root = new_root;
+			rom_platform.rom_folder_root = new_root;
 			string? error;
 			if (Data.platforms().save_platform(platform, platform.id, out error, f=> status_message.set("Scanning", platform.name, f.unique_name())) == false) {
 				status_message.set(error);

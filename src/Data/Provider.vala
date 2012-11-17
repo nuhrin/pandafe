@@ -75,7 +75,7 @@ namespace Data
 				}
 				catch (Error e) {
 					if ((e is RuntimeError.FILE) == false)
-						debug("Error while retrieving preferences: %s", e.message);
+						warning("Error while retrieving preferences: %s", e.message);
 					_preferences = new Preferences();
 				}				
 			}
@@ -89,7 +89,7 @@ namespace Data
 				return true;
 			}
 			catch (Error e) {
-				debug("Error while saving preferences: %s", e.message);
+				warning("Error while saving preferences: %s", e.message);
 			}
 			return false;
 		}
@@ -101,7 +101,7 @@ namespace Data
 				}
 				catch (Error e) {
 					if ((e is RuntimeError.FILE) == false)
-						debug("Error while retrieving game browser state: %s", e.message);
+						warning("Error while retrieving game browser state: %s", e.message);
 					_browser_state = new GameBrowserState();
 				}
 			}
@@ -115,7 +115,7 @@ namespace Data
 				return true;
 			}
 			catch (Error e) {
-				debug("Error while saving game browser state: %s", e.message);
+				warning("Error while saving game browser state: %s", e.message);
 			}
 			return false;
 		}
@@ -128,7 +128,7 @@ namespace Data
 				}
 				catch (Error e) {
 					if ((e is RuntimeError.FILE) == false)
-						debug("Error while retrieving pnd data: %s", e.message);
+						warning("Error while retrieving pnd data: %s", e.message);
 					return rescan_pnd_data();
 				}
 			}
@@ -154,7 +154,7 @@ namespace Data
 				return data_interface.load<GameSettings>(item.id);
 			} catch(Error e) {
 				if ((e is RuntimeError.FILE) == false)
-					debug("Error while retrieving game settings for '%s': %s", item.id, e.message);
+					warning("Error while retrieving game settings for '%s': %s", item.id, e.message);
 			}
 			return null;
 		}
@@ -164,7 +164,7 @@ namespace Data
 				return true;
 			}
 			catch (Error e) {
-				debug("Error while saving game settings for '%s': %s", id, e.message);
+				warning("Error while saving game settings for '%s': %s", id, e.message);
 			}			
 			return false;
 		}
@@ -176,7 +176,7 @@ namespace Data
 				}
 				catch (Error e) {
 					if ((e is RuntimeError.FILE) == false)
-						debug("Error while retrieving favorites: %s", e.message);
+						warning("Error while retrieving favorites: %s", e.message);
 					_favorites = new Favorites();
 				}				
 			}
@@ -190,7 +190,7 @@ namespace Data
 				return true;
 			}
 			catch (Error e) {
-				debug("Error while saving favorites: %s", e.message);
+				warning("Error while saving favorites: %s", e.message);
 			}
 			return false;
 		}
@@ -202,7 +202,7 @@ namespace Data
 				}
 				catch (Error e) {
 					if ((e is RuntimeError.FILE) == false)
-						debug("Error while retrieving games run list: %s", e.message);
+						warning("Error while retrieving games run list: %s", e.message);
 					_games_run_list = new GamesRunList();
 				}				
 			}
@@ -216,7 +216,7 @@ namespace Data
 				return true;
 			}
 			catch (Error e) {
-				debug("Error while saving games run list: %s", e.message);
+				warning("Error while saving games run list: %s", e.message);
 			}
 			return false;
 		}

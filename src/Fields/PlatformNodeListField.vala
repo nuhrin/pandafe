@@ -45,10 +45,21 @@ namespace Fields
 					return (item != null);
 				}
 				
-				var new_platform = new Platform() {
-					name = "",
-					platform_type = PlatformType.ROM
-				};
+				selector = new StringSelector.from_array("choose_platform_type", 
+					selected_item_rect.x + (int16)selected_item_rect.w, selected_item_rect.y, 250);
+				selector.add_item("Rom Based");
+				selector.add_item("Program Based");
+				selected_index = selector.run();
+				if (selector.was_canceled)
+					return false;				
+				
+				Platform new_platform;
+				if (selected_index == 0)
+					new_platform = new RomPlatform();
+				else
+					new_platform = new ProgramPlatform();
+				new_platform.name = "";
+				
 				if (ObjectMenu.edit("New Platform", new_platform) == false)
 					return false;					
 				item = new PlatformNode(new_platform, folder);				

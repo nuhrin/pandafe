@@ -38,6 +38,7 @@ namespace Data.GameList
 			}
 			return new SpawningResult.error("Unable to run pnd '%s' (%s).".printf(game.name, game.id));
 		}
+		public override Program? get_program_for_game(GameItem game) { return null; }
 		
 		public override string get_unique_name(IGameListNode node) {
 			if (node is GameItem || node.parent == null || node.parent.name == "")

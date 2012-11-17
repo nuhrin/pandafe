@@ -110,7 +110,7 @@ namespace Data.GameList
 			try {
 				Data.data_interface().save(cache, GameFolderCache.YAML_ID, get_yaml_folder());
 			} catch(Error e) {
-				debug("Error saving cache for folder '%s': %s", get_yaml_folder(), e.message);
+				warning("Error saving cache for folder '%s': %s", get_yaml_folder(), e.message);
 			}
 		}
 
@@ -126,7 +126,7 @@ namespace Data.GameList
 			try {
 				cache = Data.data_interface().load<GameFolderCache>(GameFolderCache.YAML_ID, folder_path);
 			} catch(Error e) {
-				//debug("Error loading cache for folder '%s': %s", folder_path, e.message);
+				//warning("Error loading cache for folder '%s': %s", folder_path, e.message);
 			}
 			if (cache == null)
 				return false;

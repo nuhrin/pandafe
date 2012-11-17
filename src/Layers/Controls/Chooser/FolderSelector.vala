@@ -43,7 +43,7 @@ namespace Layers.Controls.Chooser
 			}
 			catch(GLib.Error e)
 			{
-				debug("Error while getting children of '%s': %s", path, e.message);
+				warning("Error while getting children of '%s': %s", path, e.message);
 			}		
 		}
 	}

@@ -40,7 +40,7 @@ namespace Data.Platforms
 					_platform_folders = Data.data_interface().load<PlatformFolderData>(PLATFORM_FOLDER_ID, "");
 				} catch(Error e) {
 					if ((e is RuntimeError.FILE) == false)
-						debug("Error while retrieving platform folder data: %s", e.message);
+						warning("Error while retrieving platform folder data: %s", e.message);
 					_platform_folders = null;
 				}
 				if (_platform_folders == null)
@@ -65,11 +65,11 @@ namespace Data.Platforms
 		public NativePlatform get_native_platform() {
 			if (_native_platform == null) {
 				try {
-					_native_platform = Data.data_interface().load<NativePlatform>(NATIVE_PLATFORM_ID, "");
+					_native_platform = load_native_platform();
 				}
 				catch (Error e) {
 					if ((e is RuntimeError.FILE) == false)
-						debug("Error while retrieving native platform: %s", e.message);
+						warning("Error while retrieving native platform: %s", e.message);
 					_native_platform = null;
 				}
 				if (_native_platform == null) {
@@ -184,16 +184,65 @@ namespace Data.Platforms
 			if (platform_id_hash != null)
 				return;
 			platform_id_hash = new HashMap<string,Platform>();
-			Enumerable<Platform> platforms = null;
+			
+			Enumerable<string> ids;
 			try {
-				platforms = load_all(false);
+				ids = get_ids();
 			} catch(Error e) {
+				ids = Enumerable.empty<string>();
 			}
-			foreach(var platform in platforms) {
+			
+			foreach(var id in ids) {
+				var platform = load_platform(id);
+				if (platform == null)
+					continue;
+
 				platform_id_hash[platform.id] = platform;
 				platform.rescanned.connect(() => platform_rescanned(platform));
 				platform.folder_scanned.connect(folder => platform_folder_scanned(folder));
 			}
+		}
+		Platform? load_platform(string id) 
+		{
+			Yaml.MappingNode mapping;
+			try {
+				mapping = load_document(id).root as Yaml.MappingNode;
+			} catch(RuntimeError e) {
+				message("RuntimeError: %s", e.message);					
+				return null;
+			} catch(YamlError e) {
+				message("YamlError: %s", e.message);
+				return null;
+			}
+			
+			var platformTypeNode = mapping.get_scalar("platform-type");
+			if (platformTypeNode == null)
+				return null;
+			
+			PlatformType platform_type = (PlatformType)parser.parse_value_of_type(platformTypeNode, typeof(PlatformType), PlatformType.NONE);
+			switch(platform_type) {
+				case PlatformType.ROM:
+					var rom_platform = new RomPlatform();
+					apply_yaml_node(rom_platform, mapping);
+					set_id(rom_platform, id);
+					return rom_platform;
+				case PlatformType.PROGRAM:
+					var program_platform = new ProgramPlatform();
+					apply_yaml_node(program_platform, mapping);
+					set_id(program_platform, id);
+					return program_platform;
+				default:
+					break;
+			}
+			
+			return null;
+		}
+		NativePlatform load_native_platform()  throws RuntimeError, YamlError
+		{
+			Yaml.MappingNode mapping = load_document(NATIVE_PLATFORM_ID, "").root as Yaml.MappingNode;
+			var native_platform = new NativePlatform();
+			apply_yaml_node(native_platform, mapping);
+			return native_platform;
 		}
 	}	
 }

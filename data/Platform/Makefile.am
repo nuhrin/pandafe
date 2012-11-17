@@ -15,6 +15,7 @@ dist_platforms_DATA = \
 	segagamegear \
 	segagenesis \
 	segamastersystem \
+	scummvm \
 	supernes \
 	turbografx16 \
 	wonderswan \

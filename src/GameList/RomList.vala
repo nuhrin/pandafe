@@ -1,4 +1,5 @@
 using Gee;
+using Data.Platforms;
 using Data.Programs;
 
 namespace Data.GameList
@@ -12,23 +13,41 @@ namespace Data.GameList
 		string root_folder_path;
 		Regex regex_file_extensions;
 
-		public RomList(Platform platform, string name, string root_folder_path, string file_extensions) {
+		public RomList(RomPlatform platform, string name, string root_folder_path, string file_extensions) {
 			base(platform);
+			rom_platform = platform;
 			root_folder_name = name;
 			this.root_folder_path = root_folder_path;
 			regex_file_extensions = get_file_extensions_regex(file_extensions);
 		}
+		public weak RomPlatform rom_platform { get; private set; }
 
-		public override SpawningResult run_game(GameItem game) {			
-			ProgramSettings? settings = null;
-			var program = game.get_program(out settings);			
-
+		public override SpawningResult run_game(GameItem game) {
+			var game_settings = Data.get_game_settings(game);
+			
+			var program = get_program_from_game_settings(game_settings);
 			if (program == null)				
 				return new SpawningResult.error("No program found to run '%s'.".printf(game.name));			
-
-			return run_platform_program_with_premount(game.platform(), program, settings, get_full_path(game));
+			
+			ProgramSettings? settings = null;
+			if (game_settings != null && game_settings.program_settings.has_key(program.app_id) == true)
+				settings = game_settings.program_settings[program.app_id];						
+			
+			return Spawning.spawn_platform_program(rom_platform, program, true, settings, get_full_path(game));
 		}
-
+		public override Program? get_program_for_game(GameItem game) {
+			return get_program_from_game_settings(Data.get_game_settings(game));
+		}
+		Program? get_program_from_game_settings(GameSettings? game_settings) {
+			Program? program = null;
+			if (game_settings != null && game_settings.selected_program_id != null) {
+				program = rom_platform.get_program(game_settings.selected_program_id) ?? rom_platform.default_program;
+			} else {
+				program = rom_platform.default_program;
+			}
+			return program;			
+		}
+		
 		public override string get_unique_name(IGameListNode node) {
 			return get_relative_path(node);
 		}
@@ -68,7 +87,7 @@ namespace Data.GameList
 			}
 			catch(Error e)
 			{
-				//debug("Error while getting children of '%s': %s", get_full_path(folder), e.message);
+				//warning("Error while getting children of '%s': %s", get_full_path(folder), e.message);
 			}
 			return false;
 		}
@@ -83,7 +102,7 @@ namespace Data.GameList
 					_regex_rom_display_name = new Regex("""(^\d* ?- ?)|(\([\w \.]*\)|\[.*\]| *?)*\.\w*$""", RegexCompileFlags.OPTIMIZE);
 				return _regex_rom_display_name.replace(filename.replace("_", " "), -1, 0, "");
 			} catch (RegexError e) {
-				debug("Regex error while generating rom display name: %s", e.message);
+				warning("Regex error while generating rom display name: %s", e.message);
 			}
 			return filename.replace("_", " ");
 		}
@@ -94,7 +113,7 @@ namespace Data.GameList
 					_regex_rom_full_name = new Regex(""" *?\.\w*$""", RegexCompileFlags.OPTIMIZE);
 				return _regex_rom_full_name.replace(filename.replace("_", " "), -1, 0, "");
 			} catch (RegexError e) {
-				debug("Regex error while generating rom display name: %s", e.message);
+				warning("Regex error while generating rom display name: %s", e.message);
 			}
 			return filename.replace("_", " ");
 		}
@@ -154,7 +173,7 @@ namespace Data.GameList
 				try {
 					match_info.next();
 				} catch(RegexError e) {
-					debug("Error during file extension matching: %s", e.message);
+					warning("Error during file extension matching: %s", e.message);
 					break;
 				}
 			}
@@ -216,7 +235,7 @@ namespace Data.GameList
 				sb.append(")$");
 				return new Regex(sb.str, REGEX_COMPILE_FLAGS, REGEX_MATCH_FLAGS);
 			} catch(RegexError e) {
-				debug("Error creating file extension regex: %s", e.message);
+				warning("Error creating file extension regex: %s", e.message);
 			}
 			return null;
 		}

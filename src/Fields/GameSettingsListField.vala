@@ -66,7 +66,7 @@ namespace Fields
 					Data.data_interface().remove(item.value);
 					return true;
 				} catch(GLib.Error e) {
-					debug(e.message);
+					warning(e.message);
 				}
 				return false;
 			}

@@ -72,7 +72,7 @@ namespace Fields
 				string? error;
 				if (Data.programs().remove_program(item.value, out error) == true)
 					return true;
-				debug(error);				
+				warning(error);				
 				return false;
 			}
 			protected override string? get_cancel_item_text() { return null; }

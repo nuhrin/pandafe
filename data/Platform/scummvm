@@ -1,0 +1,9 @@
+name: ScummVM
+platform-type: program
+program: scummvm
+get-games-script: ! "#/bin/sh\nawk 'BEGIN{ RS=\"\\\\[\" }\n    NF{ \n        gsub(\"\\n\",\"
+  \") #removes new lines\n        print $0\n        # put to array\n        arr[++d]=$0\n}
+  ' scummvm.config | grep 'description=' | sed \\\n    -e 's|\\\\|\\\\\\\\|g' -e 's|\"|\\\\\"|g'
+  \\\n    -e 's|^\\([^]]*\\)\\].*description=\\(.*\\) (.* language=.*|- id: \\1\\n
+  \ name: \"\\2\"|'"
+
