@@ -20,7 +20,7 @@ It was written especially for the Pandora, with the following goals:
   </package>
 
   <application id="pandafe" appdata="pandafe">
-    <exec command="pandafe.sh"/>
+    <exec command="bin/pandafe"/>
     <version major="@PACKAGE_VERSION_MAJOR@" minor="@PACKAGE_VERSION_MINOR@" release="@PACKAGE_VERSION_RELEASE@" build="@PACKAGE_VERSION_BUILD@"/>
     <author name="nuhrin" email="nuhrin@oceanic.to"/>
     <titles>

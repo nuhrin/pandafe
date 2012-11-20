@@ -8,7 +8,6 @@ DATA_FILES = \
 	$(NULL)
 
 SCRIPT_FILES = \
-	pandafe.sh \
 	$(NULL)
 
 EXTRA_DIST = \

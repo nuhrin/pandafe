@@ -69,10 +69,12 @@ public class MainClass: Object {
 			if (FileUtils.test(Build.LOCAL_CONFIG_DIR, FileTest.EXISTS) == true)
 				GLib.error("Local config directory '%s' exists but is not a directory.", Build.LOCAL_CONFIG_DIR);
 		}
+				
 		// ensure appdata
 		ensure_appdata_folder("fonts", false);
-		ensure_appdata_folder("Platform");
-		ensure_appdata_folder("Program");
+		var data_needs_update = determine_data_update_need();
+		ensure_appdata_folder("Platform", true, data_needs_update);
+		ensure_appdata_folder("Program", true, data_needs_update);
 		ensure_appdata_file("native_platform");
 		ensure_appdata_file("platform_folders");
 		
@@ -80,39 +82,69 @@ public class MainClass: Object {
 		// ensure preferences file
 		if (ensure_appdata_file("preferences") == false)
 			Data.save_preferences();
+	}	
+	static bool determine_data_update_need() {
+		string path = Path.build_filename(Build.LOCAL_CONFIG_DIR, ".data-version-last-checked");
+		if (FileUtils.test(path, FileTest.EXISTS) == true) {
+			try {
+				string last_checked_data_version = Build.BUILD_VERSION;
+				if (FileUtils.get_contents(path, out last_checked_data_version) == true) {
+					if (Build.BUILD_VERSION == last_checked_data_version)
+						return false;					
+				}
+			} catch(GLib.Error e) {
+				warning("Error reading %s: %s", path, e.message);
+			}
+		}
+		try {
+			FileUtils.set_contents(path, Build.BUILD_VERSION);
+		} catch(GLib.Error e) {
+			warning("Error writing %s: %s", path, e.message);
+		}
+		return true;
 	}
-	static void ensure_appdata_folder(string foldername, bool copy_files=true) {
-		string target_path = Path.build_filename(Build.LOCAL_CONFIG_DIR, foldername);
-		if (FileUtils.test(target_path, FileTest.IS_DIR) == true)
-			return;
-		if (FileUtils.test(target_path, FileTest.EXISTS) == true)
-			GLib.error("Local config directory '%s' exists but is not a directory.", target_path);
 
+	static void ensure_appdata_folder(string foldername, bool copy_files=true, bool force_update=false) {
+		string target_path = Path.build_filename(Build.LOCAL_CONFIG_DIR, foldername);
+		bool target_path_exists = (FileUtils.test(target_path, FileTest.IS_DIR) == true);
+		if (target_path_exists) {
+			if (force_update == false)
+				return;			
+		} else if (FileUtils.test(target_path, FileTest.EXISTS) == true) {
+			GLib.error("Local config directory '%s' exists but is not a directory.", target_path);
+		}				
+		
 		// check for source folder in the pkgconfigdir
 		string source_path = Path.build_filename(Build.PACKAGE_DATADIR, foldername);
 		if (FileUtils.test(source_path, FileTest.IS_DIR) == false)
 			return;
 
 		// create the target folder
-		try {
-			if (File.new_for_path(target_path).make_directory_with_parents() == false)
-				GLib.error("Local config directory '%s' could not be created.", target_path);
-		} catch(GLib.Error e) {
-			GLib.error("Error creating local config directory '%s': %s", target_path, e.message);
+		if (target_path_exists == false) {
+			try {
+				if (File.new_for_path(target_path).make_directory_with_parents() == false)
+					GLib.error("Local config directory '%s' could not be created.", target_path);
+			} catch(GLib.Error e) {
+				GLib.error("Error creating local config directory '%s': %s", target_path, e.message);
+			}
 		}
-	
+		
 		if (copy_files == false)
 			return;
 			
-		// copy all source folder files to local target folder
+		// copy all source folder files to local target folder, replacing target file if source file is newer
 		try {
-			var enumerator = File.new_for_path(source_path).enumerate_children(FileAttribute.STANDARD_NAME, FileQueryInfoFlags.NONE);
-			FileInfo file_info;
-			while ((file_info = enumerator.next_file()) != null) {
-				var name = file_info.get_name();
+			var enumerator = File.new_for_path(source_path).enumerate_children("%s,%s".printf(FileAttribute.STANDARD_NAME, FileAttribute.TIME_MODIFIED), FileQueryInfoFlags.NONE);
+			FileInfo source_info;
+			while ((source_info = enumerator.next_file()) != null) {
+				var name = source_info.get_name();
 				var source = File.new_for_path(Path.build_filename(source_path, name));
 				var destination = File.new_for_path(Path.build_filename(target_path, name));
-				source.copy(destination, FileCopyFlags.NOFOLLOW_SYMLINKS);
+				var destination_ok = destination.query_exists();
+				if (destination_ok)
+					destination_ok = file_is_newer(destination.query_info(FileAttribute.TIME_MODIFIED, FileQueryInfoFlags.NONE), source_info);
+				if (destination_ok == false)
+					source.copy(destination, FileCopyFlags.NOFOLLOW_SYMLINKS | FileCopyFlags.OVERWRITE);
 			}
 		}
 		catch(GLib.Error e)
@@ -120,6 +152,10 @@ public class MainClass: Object {
 			warning("Error while populating local config directory '%s': %s", target_path, e.message);
 		}
 	}
+	static bool file_is_newer(FileInfo a, FileInfo b) {
+		return (a.get_modification_time().tv_sec > b.get_modification_time().tv_sec);
+	}
+	
 	static bool ensure_appdata_file(string filename) {
 		string target_path = Path.build_filename(Build.LOCAL_CONFIG_DIR, filename);
 		if (FileUtils.test(target_path, FileTest.IS_REGULAR) == true)
@@ -146,6 +182,7 @@ public class MainClass: Object {
 		return false;
 	}
 	
+		
 	static void cleanup_cache() {
 		string gamelistcache_path = Path.build_filename(Build.LOCAL_CONFIG_DIR, Data.GameList.GameFolder.YAML_FOLDER_ROOT);
 		if (FileUtils.test(gamelistcache_path, FileTest.EXISTS) == true) {
