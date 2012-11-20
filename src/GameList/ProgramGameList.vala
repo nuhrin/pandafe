@@ -87,12 +87,7 @@ namespace Data.GameList
 			var parser = new Yaml.NodeParser();				
 			var parsed_games = new ArrayList<GameItem>();
 			foreach(var game_node in sequence.items()) {
-				GameItem? parsed_game = null;
-				try {
-					parsed_game = parser.parse<GameItem?>(game_node, null);
-				} catch(Error e) {
-					warning("Error parsing game node: %s", e.message);
-				}
+				GameItem? parsed_game = parser.parse<GameItem?>(game_node, null);
 				if (parsed_game != null) {
 					GameItem.set_provider(parsed_game, this);
 					GameItem.set_parent(parsed_game, folder);
