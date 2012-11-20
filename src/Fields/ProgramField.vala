@@ -69,8 +69,7 @@ namespace Fields
 					if (selected_app == null)
 						return;
 					var program = Data.programs().get_program_for_app(selected_app.id);
-					bool is_new = (program.id != null);
-					if (ObjectMenu.edit("Edit Program", program) == false && is_new)
+					if (ObjectMenu.edit("Edit Program", program) == false)
 						return;
 					change_value(program);
 					break;
