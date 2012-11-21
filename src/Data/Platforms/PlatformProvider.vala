@@ -176,6 +176,13 @@ namespace Data.Platforms
 			return false;
 		}
 		
+		public void clear_cache() {
+			platform_id_hash = null;
+			all_platforms = null;
+			_platform_folders = null;
+			_native_platform = null;
+		}
+		
 		protected override Entity? get_entity(string entity_id) {
 			return get_platform(entity_id);			
 		}
@@ -202,8 +209,7 @@ namespace Data.Platforms
 				platform.folder_scanned.connect(folder => platform_folder_scanned(folder));
 			}
 		}
-		Platform? load_platform(string id) 
-		{
+		Platform? load_platform(string id)  {
 			Yaml.MappingNode mapping;
 			try {
 				mapping = load_document(id).root as Yaml.MappingNode;

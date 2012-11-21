@@ -5,10 +5,10 @@ using SDLImage;
 public class MainClass: Object {
 	public static int main (string[] args)
 	{
-		ensure_pandafe_appdata();
-
 		unowned SDL.Screen screen = inititialize_sdl();
 		WindowManager.set_caption("Pandafe", "");
+        
+        ensure_pandafe_appdata(screen);        
 		@interface = new InterfaceHelper(screen);
         new GameBrowser().run();
 
@@ -64,7 +64,7 @@ public class MainClass: Object {
 		return screen;
 	}
 
-	static void ensure_pandafe_appdata() {
+	static void ensure_pandafe_appdata(SDL.Screen* screen) {
 		if (FileUtils.test(Build.LOCAL_CONFIG_DIR, FileTest.IS_DIR) == false) {
 			if (FileUtils.test(Build.LOCAL_CONFIG_DIR, FileTest.EXISTS) == true)
 				GLib.error("Local config directory '%s' exists but is not a directory.", Build.LOCAL_CONFIG_DIR);
@@ -73,8 +73,43 @@ public class MainClass: Object {
 		// ensure appdata
 		ensure_appdata_folder("fonts", false);
 		var data_needs_update = determine_data_update_need();
-		ensure_appdata_folder("Platform", true, data_needs_update);
-		ensure_appdata_folder("Program", true, data_needs_update);
+		if (data_needs_update) {
+			var font = new Font(InterfaceHelper.FONT_MONO_DEFAULT, 18);
+			if (font != null) {
+				font.render("Installing new and updated Program/Platform definitions...", {255,255,255}).blit(null, screen, {100,(int16)screen->h-40});
+				screen->flip();
+			}
+			ensure_appdata_folder("Platform", false);
+			// determine local platforms with settings that need merging on update
+			var platforms_to_merge = Data.platforms().get_all_platforms()
+				.of_type<Data.Platforms.RomPlatform>()
+				.where(p=>p.rom_folder_root != null);
+			// save user settings from local platforms
+			var platform_rom_paths = new Gee.HashMap<string,string>();
+			foreach(var platform in platforms_to_merge)
+				platform_rom_paths[platform.id] = platform.rom_folder_root;			
+			Data.platforms().clear_cache();
+
+			// update Platform/Program definitions as appropriate
+			ensure_appdata_folder("Platform", true, true);
+			ensure_appdata_folder("Program", true, true);
+			
+			// merge previously saved user settings
+			foreach(var id in platform_rom_paths.keys) {
+				var platform = Data.platforms().get_platform(id) as Data.Platforms.RomPlatform;
+				if (platform == null)
+					continue;
+				if (platform.rom_folder_root != platform_rom_paths[id]) {
+					platform.rom_folder_root = platform_rom_paths[id];
+					string? error;
+					if (Data.platforms().save_platform(platform, id, out error) == false)
+						warning("Error saving merged platform '%s': %s", id, error);					
+				}
+			}			
+		} else {
+			ensure_appdata_folder("Platform");
+			ensure_appdata_folder("Program");
+		}
 		ensure_appdata_file("native_platform");
 		ensure_appdata_file("platform_folders");
 		
