@@ -30,6 +30,7 @@ pandafe_VALASOURCES = \
 	EventHandler.vala \
 	GameBrowser.vala \
 	GameBrowserUI.vala \
+	GuiInstaller.vala \
 	InterfaceHelper.vala \
 	Spawning.vala \
 	SpawningResult.vala \
@@ -238,7 +239,7 @@ pandafe.submodule-vapi.check:
 
 pandafe.vala.stamp: $(pandafe_VALASOURCES) 
 	$(VALA_V)$(VALAC) $(VALAFLAGS) -C $(SUBMODULE_VALAFLAGS) --vapidir $(srcdir)/../vapi \
-		--pkg catapult --pkg pandora-glib --pkg gee-0.8 --pkg gtk+-2.0 --pkg sdl --pkg sdl-image --pkg sdl-ttf --pkg sdl-gfx \
+		--pkg catapult --pkg pandora-glib --pkg gee-0.8 --pkg gtk+-2.0 --pkg sdl --pkg sdl-image --pkg sdl-ttf --pkg sdl-gfx --pkg posix \
 		--pkg gtksourceview-2.0 --pkg vte --pkg build-info --pkg GdkKeySyms --pkg sdl-keyboard $^
 	@touch $@
 

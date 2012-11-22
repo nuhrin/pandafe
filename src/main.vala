@@ -5,11 +5,14 @@ using SDLImage;
 public class MainClass: Object {
 	public static int main (string[] args)
 	{
+		if (args.length > 1 && args[1] == "--as-gui")
+			was_run_as_gui = true;
+			
 		unowned SDL.Screen screen = inititialize_sdl();
 		WindowManager.set_caption("Pandafe", "");
         
-        ensure_pandafe_appdata(screen);        
-		@interface = new InterfaceHelper(screen);
+        ensure_pandafe_appdata(screen);
+        @interface = new InterfaceHelper(screen);
         new GameBrowser().run();
 
         SDL.quit();
@@ -17,6 +20,7 @@ public class MainClass: Object {
 		cleanup_cache();
  		return 0;
 	}
+	public static bool was_run_as_gui { get; private set; }
 
     const int SCREEN_WIDTH = 800;
     const int SCREEN_HEIGHT = 480;

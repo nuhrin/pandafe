@@ -727,7 +727,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 	}
 
 	void do_quit() {
-		if (Data.preferences().show_exit_menu == true) {
+		if (MainClass.was_run_as_gui == true) {
 			show_menu_overlay(new Menus.Concrete.ExitMenu());
 		} else {
 			quit_event_loop();

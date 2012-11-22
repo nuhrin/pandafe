@@ -12,9 +12,6 @@ namespace Menus.Concrete
 			ensure_items();		
 		}
 		protected override void populate_items(Gee.List<MenuItem> items) {
-			items.add(new MenuItem.custom("Quit", "Exit Pandafe", "", () => {
-				do_quit();
-			}));
 			items.add(new SwitchGuiMenu("Switch Gui", "Switch to another gui"));
 			items.add(new MenuItem.custom("Reboot", "Reboot system now", "Rebooting...", () => {
 				do_quit();
@@ -23,7 +20,10 @@ namespace Menus.Concrete
 			items.add(new MenuItem.custom("Shutdown", "Shutdown system now", "Shutting down...", () => {
 				do_quit();
 				do_shutdown(false);
-			}));	
+			}));
+			items.add(new MenuItem.custom("Logout", "Exit Pandafe", "", () => {
+				do_quit();
+			}));
 		}
 		void do_quit() {
 			@interface.cleanup_and_exit(msg => this.message(msg));

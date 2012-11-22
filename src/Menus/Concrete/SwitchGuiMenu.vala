@@ -34,6 +34,8 @@ namespace Menus.Concrete
 				string[] parts = line.split(";");
 				if (parts.length == 4) {
 					string name = parts[0].strip();
+					if (name == "Pandafe")
+						continue;
 					string desc = parts[1].strip();
 					string start_cmd = parts[2].strip();
 					string stop_cmd = parts[3].strip();
@@ -48,7 +50,6 @@ namespace Menus.Concrete
 		public class GuiMenuItem : MenuItem
 		{
 			const string GUI_LOAD_PATH = "/tmp/gui.load";
-			const string GUI_STOP_PATH = "/tmp/gui.stop";
 			const string GUI_STOPNEW_PATH = "/tmp/gui.stopnew";
 			string start_cmd;
 			string stop_cmd;
@@ -86,15 +87,6 @@ namespace Menus.Concrete
 				
 				// clean up
 				@interface.cleanup_and_exit(msg => menu.message(msg));
-				// /tmp/gui.stop				
-				try {
-					Pid pid;
-					Process.spawn_async(Environment.get_home_dir(), new string[] { GUI_STOP_PATH }, null, 0, null, out pid);
-				} catch(SpawnError e) {
-					menu.error("%s: %s".printf(GUI_STOP_PATH, e.message));
-					return;
-				}
-				// exit, if not already killed by /tmp/gui.stop
 				Process.exit(0);
 			}
 			bool write_file(string path, string contents) {
