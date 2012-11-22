@@ -3,7 +3,7 @@
 	url = git://git.gnome.org/libgee
 [submodule "submodules/catapult"]
 	path = submodules/catapult
-	url = git@github.com:nuhrin/catapult.git
+	url = https://github.com/nuhrin/catapult.git
 [submodule "submodules/pandora-glib"]
 	path = submodules/pandora-glib
-	url = git@github.com:nuhrin/pandora-glib.git
+	url = https://github.com/nuhrin/pandora-glib.git
