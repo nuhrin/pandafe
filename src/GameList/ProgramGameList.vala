@@ -93,6 +93,7 @@ namespace Data.GameList
 				}
 			}			
 			if (parsed_games.size > 0) {
+				parsed_games.sort();
 				child_games = parsed_games;
 				return true;
 			}
