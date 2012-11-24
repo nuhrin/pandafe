@@ -2,6 +2,7 @@ using Fields;
 using Menus.Fields;
 using Data.GameList;
 using Data.Programs;
+using Data.Platforms;
 
 namespace Menus.Concrete
 {
@@ -45,21 +46,25 @@ namespace Menus.Concrete
 			
 			items.add(new MenuItemSeparator());
 			
-			if (game.parent != null)
+			if (platform.platform_type != PlatformType.PROGRAM && game.parent != null)
 				items.add(new GameFolderMenu(game.parent, "Show a menu for the folder containing this game"));
 			
 			if (platform.platform_type == PlatformType.ROM && settings_menu.program != null) {
-				program_name = settings_menu.program.name;
+				program_name = settings_menu.program.name;				
+				var program_menu = new ProgramMenu(settings_menu.program);
 				var program_item_index = items.size;
-				var program_item = new ObjectBrowserItem("Program: " + program_name, "Edit the current program for this game", settings_menu.program);
-				program_item.saved.connect(() => {
+				program_menu.saved.connect(() => {
 					if (settings_menu.program.name != program_name) {
 						program_name = null;
 						refresh(program_item_index);
 					}
 				});
-				items.add(program_item);
-			}			
+				items.add(program_menu);
+			} else if (platform.platform_type == PlatformType.PROGRAM) {
+				var program_platform = platform as ProgramPlatform;
+				var platform_program_menu = new ProgramMenu(program_platform.program, false, "Show a menu for the current platform program");
+				items.add(platform_program_menu);
+			};
 
 			var platform_menu = new PlatformMenu(platform);
 			var platform_item_index = items.size;

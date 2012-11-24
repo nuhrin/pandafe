@@ -47,7 +47,7 @@ namespace Data.GameList
 			if (app == null)
 				return false;
 				
-			// mount pnd
+			// mount pnd, if necessary
 			var mountset = Data.pnd_mountset();
 			bool is_new_mount = (mountset.is_mounted(app.package_id) == false && 
 								 mountset.mount(app.id, app.package_id) == true);
@@ -59,8 +59,6 @@ namespace Data.GameList
 	
 			// run get games script and unmount pnd if appropriate
 			var result = Spawning.spawn_program(program_platform.program, false, null, null, ProgramPlatform.GET_GAMES_SCRIPT_NAME, program_platform.get_games_script);
-			if (is_new_mount)
-				mountset.unmount(app.package_id);
 			
 			// show any error
 			var successful = (result.success == true || (result.exit_status != 0 && program_platform.program.expected_exit_code == result.exit_status));

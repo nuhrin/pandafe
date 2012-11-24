@@ -22,7 +22,17 @@ public class Spawning
 	}
 	
 	public static SpawningResult spawn_app(AppItem app, bool treat_non_zero_exit_code_as_error=true) {
-		return spawn_app_wrapper(app.get_fullpath(), app.appdata_dirname ?? app.id, app.exec_command, app.startdir, app.exec_arguments, app.clockspeed, treat_non_zero_exit_code_as_error);
+		var mountset = Data.pnd_mountset();
+		bool already_mounted = mountset.is_mounted(app.package_id);
+		if (already_mounted == false)
+			return spawn_app_wrapper(app.get_fullpath(), app.appdata_dirname ?? app.id, app.exec_command, app.startdir, app.exec_arguments, app.clockspeed, treat_non_zero_exit_code_as_error);
+		
+		var working_directory = mountset.get_mounted_path(app.package_id);
+		if (app.startdir != null && app.startdir.strip() != "")
+			working_directory = Path.build_filename(working_directory, app.startdir);
+			
+		return spawn_app_wrapper_direct(working_directory, app.exec_command, app.exec_arguments, app.clockspeed, treat_non_zero_exit_code_as_error);
+			
 	}
 	public static SpawningResult spawn_program(Program program, bool premount, ProgramSettings? program_settings=null, string? game_path=null,
 		string? custom_command=null, string? custom_command_script=null) {
@@ -177,7 +187,7 @@ public class Spawning
 			return new SpawningResult.error_with_command_line(e.message, command_line);
 		}
 	}
-	static SpawningResult spawn_app_wrapper_direct(string working_directory, string command, string? args=null, uint clockspeed=0) {
+	static SpawningResult spawn_app_wrapper_direct(string working_directory, string command, string? args=null, uint clockspeed=0, bool treat_non_zero_exit_code_as_error=true) {
 		int exit_status = -1;
 		string standard_output;
 		string standard_error;
@@ -192,7 +202,7 @@ public class Spawning
 				Shell.parse_argv(command_line, out argv);
 				success = Process.spawn_sync(working_directory, argv, null, 0, null, out standard_output, out standard_error, out exit_status);
 			}
-			if (success == true && exit_status > 0)
+			if (success == true && exit_status > 0 && treat_non_zero_exit_code_as_error == true)
 				success = false;
 			return new SpawningResult(success, command_line, standard_output, standard_error, exit_status);
 		} catch(Error e) {

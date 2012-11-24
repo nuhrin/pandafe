@@ -157,6 +157,7 @@ pandafe_VALASOURCES = \
 	Menus/Concrete/PlatformMenu.vala \
 	Menus/Concrete/PlatformProgramSettingsMapMenu.vala \
 	Menus/Concrete/ProgramDefaultSettingsMenu.vala \
+	Menus/Concrete/ProgramMenu.vala \
 	Menus/Concrete/SwitchGuiMenu.vala \
 	Menus/Fields/BooleanField.vala \
 	Menus/Fields/DoubleField.vala \
