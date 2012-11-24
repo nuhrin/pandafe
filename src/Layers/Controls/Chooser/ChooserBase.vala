@@ -19,7 +19,7 @@ namespace Layers.Controls.Chooser
 		MenuMessageLayer status;
 
 		protected ChooserBase(string id, string title) {
-			base(id);
+			base(id, @interface.game_browser_ui.background_color_rgb);
 			selector_hash = new HashMap<string, ChooserSelector>();
 			header = add_layer(new ChooserHeader("header")) as ChooserHeader;
 			header.title = title;
@@ -47,6 +47,21 @@ namespace Layers.Controls.Chooser
 				
 		public void message(string? message) {
 			this.status.message = message;
+		}
+		
+		protected override void draw() {
+			Rect upper_left={header.xpos - 1, header.ypos - 1};
+			Rect upper_right={header.xpos + (int16)header.width + 1, upper_left.y};
+			Rect lower_left={upper_left.x, (int16)@interface.screen_height - 9};
+			Rect lower_right={upper_right.x, lower_left.y};
+			int16 width = upper_right.x - upper_left.x;
+			int16 height = lower_left.y - upper_left.y - 1;
+			draw_rectangle_fill(upper_left.x, upper_left.y, width, height, @interface.black_color);
+			
+			draw_horizontal_line(upper_left.x, upper_right.x, upper_left.y, @interface.white_color);
+			draw_vertical_line(upper_left.x, upper_left.y, lower_left.y, @interface.white_color);
+			draw_vertical_line(upper_right.x, upper_right.y, lower_left.y, @interface.white_color);
+			draw_horizontal_line(lower_left.x, lower_right.x, lower_left.y, @interface.white_color);			
 		}
 		
 		protected virtual string get_first_run_key(string starting_key) { return starting_key; }

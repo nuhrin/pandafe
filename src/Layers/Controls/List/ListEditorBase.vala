@@ -23,7 +23,7 @@ namespace Layers.Controls.List
 		ArrayList<ListItem<G>> _items;
 		
 		protected ListEditorBase(string id, string title, string? help=null, Gee.List<G> list=new ArrayList<G>()) {
-			base(id);
+			base(id, @interface.game_browser_ui.background_color_rgb);
 			_list = list;
 			header = add_layer(new MenuHeaderLayer("header")) as MenuHeaderLayer;
 			header.set_text(null, title, null, false);
@@ -67,6 +67,23 @@ namespace Layers.Controls.List
 			}
 			
 			return false;
+		}
+		
+		protected override void draw() {
+			Rect upper_left={header.xpos - 1, header.ypos - 1};
+			Rect upper_right={header.xpos + (int16)header.width + 1, upper_left.y};
+			Rect lower_left={message.xpos - 1, message.ypos + (int16)message.height + 1};
+			Rect lower_right={message.xpos + (int16)message.width + 1, lower_left.y};
+			int16 header_bottom_y=header.ypos + (int16)header.height;
+			int16 width = upper_right.x - upper_left.x;
+			int16 height = lower_left.y - upper_left.y;
+			draw_rectangle_fill(upper_left.x, upper_left.y, width, height, @interface.black_color);
+			
+			draw_horizontal_line(upper_left.x, upper_right.x, upper_left.y, @interface.white_color);
+			draw_horizontal_line(upper_left.x, upper_right.x, header_bottom_y + 1, @interface.white_color);
+			draw_vertical_line(upper_left.x, upper_left.y, lower_left.y, @interface.white_color);
+			draw_vertical_line(upper_right.x, upper_right.y, lower_left.y, @interface.white_color);
+			draw_horizontal_line(lower_left.x, lower_right.x, lower_left.y, @interface.white_color);			
 		}
 		
 		protected abstract ListItem<G> get_list_item(G item);

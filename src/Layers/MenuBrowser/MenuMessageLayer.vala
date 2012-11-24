@@ -12,7 +12,7 @@ namespace Layers.MenuBrowser
 		
 		public MenuMessageLayer(string id, int16 layer_height=480) {
 			int16 font_height = @interface.get_monospaced_font_height();
-			base(id, 770, font_height + 10, 10, layer_height - font_height - 20);
+			base(id, 760, font_height + 10, 20, layer_height - font_height - 20);
 			font = @interface.get_monospaced_font();
 		}
 		public bool centered { get; set; }
@@ -38,7 +38,7 @@ namespace Layers.MenuBrowser
 		}
 		
 		protected override void draw() {
-			Rect rect = {0, 5};
+			Rect rect = {35, 5};
 			Surface rendered = null;
 
 			if (_error != null && _error != "")

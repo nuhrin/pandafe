@@ -24,7 +24,7 @@ namespace Menus
 		public MenuBrowser(Menu menu) {
 			if (menu.items.size == 0)
 				GLib.error("Menu '%s' has no items.", menu.name);
-			base("menubrowser");
+			base("menubrowser", @interface.game_browser_ui.background_color_rgb);
 			menu_stack = new GLib.Queue<MenuSelector>();
 			header = add_layer(new MenuHeaderLayer("header")) as MenuHeaderLayer;
 			message = add_layer(new MenuMessageLayer("status")) as MenuMessageLayer;
@@ -48,6 +48,23 @@ namespace Menus
 		
 		public Rect get_selector_rect() {
 			return { SELECTOR_XPOS, selector_ypos, (int16)selector.width };
+		}
+
+		protected override void draw() {
+			Rect upper_left={header.xpos - 1, header.ypos - 1};
+			Rect upper_right={header.xpos + (int16)header.width + 1, upper_left.y};
+			Rect lower_left={message.xpos - 1, message.ypos + (int16)message.height + 1};
+			Rect lower_right={message.xpos + (int16)message.width + 1, lower_left.y};
+			int16 header_bottom_y=header.ypos + (int16)header.height;
+			int16 width = upper_right.x - upper_left.x;
+			int16 height = lower_left.y - upper_left.y;
+			draw_rectangle_fill(upper_left.x, upper_left.y, width, height, @interface.black_color);
+			
+			draw_horizontal_line(upper_left.x, upper_right.x, upper_left.y, @interface.white_color);
+			draw_horizontal_line(upper_left.x, upper_right.x, header_bottom_y + 1, @interface.white_color);
+			draw_vertical_line(upper_left.x, upper_left.y, lower_left.y, @interface.white_color);
+			draw_vertical_line(upper_right.x, upper_right.y, lower_left.y, @interface.white_color);
+			draw_horizontal_line(lower_left.x, lower_right.x, lower_left.y, @interface.white_color);			
 		}
 
 		MenuSelector get_selector(Menu menu) {
