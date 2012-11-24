@@ -22,6 +22,13 @@ public abstract class Platform : NamedEntity, MenuObject
 	public PlatformType platform_type { get; private set; }
 	public GameBrowserAppearance? appearance { get; set; }
 	
+	public string platform_type_description() {
+		if (platform_type == PlatformType.PROGRAM)
+			return "Program Platform";
+		else if (platform_type == PlatformType.NATIVE)
+			return "Native Platform";
+		return "Platform";
+	}
 	public abstract bool supports_game_settings { get; }
 	public abstract Program? get_program(string? program_id=null);
 	public GameFolder get_root_folder() { return provider.root_folder; }
