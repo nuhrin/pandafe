@@ -7,6 +7,10 @@ public interface EventHandler : Object
 		drain_events();
 		bool event_loop_done = false;		
 		@interface.quit_all.connect(() => event_loop_done = true);
+		@interface.pandora_keyup_event.connect(() => {
+			if (handle_pandora_keyup_event() == false)
+				event_loop_done = true;
+		});
 		quit_event_loop.connect(() => event_loop_done = true);
 		while(event_loop_done == false) {
 			do_event_loop();
@@ -28,6 +32,11 @@ public interface EventHandler : Object
 					this.on_keydown_event(event.key);
 					break;
 				case EventType.KEYUP:
+					if (event.key.keysym.scancode == 147) { // pandora key
+						if (MainClass.was_run_as_gui == true)
+							@interface.pandora_keyup_event();
+						break;
+					}
 					this.on_keyup_event(event.key);
 					break;
 				default:
@@ -35,6 +44,8 @@ public interface EventHandler : Object
 			}
 		}
 	}
+	
+	protected virtual bool handle_pandora_keyup_event() { return false; }
 	
 	protected void drain_events() {
 		int current_delay;

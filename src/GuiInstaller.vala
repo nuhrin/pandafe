@@ -63,8 +63,17 @@ public class GuiInstaller
 	}
 		
 	const string pandafe_start_format = """#!/bin/bash
+# start window manager, for decorating gtk windows
 xfwm4 &
-/usr/pandora/scripts/pnd_run.sh -p "%s" -b "pandafe" -e "bin/pandafe" -a "--as-gui"
+
+# run pandafe via mount->run->unmount, to avoid pandora key kill (which is unhelpful in this context)
+/usr/pandora/scripts/pnd_run.sh -m -p "%s" -b "pandafe"
+cd /mnt/utmp/pandafe
+bin/pandafe --as-gui
+cd
+/usr/pandora/scripts/pnd_run.sh -u -p "%s" -b "pandafe"
+
+# shudown window manager
 killall -2 xfwm4
 """;
 

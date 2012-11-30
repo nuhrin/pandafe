@@ -219,6 +219,7 @@ public class InterfaceHelper : Object
 	static string[] NULL_ARGS = null;
 	
 	public signal void quit_all();
+	public signal void pandora_keyup_event();
 	
 	public void cleanup_and_exit(owned ForEachFunc<string> message_action) {
 		if (Data.pnd_mountset().has_mounted == true) {

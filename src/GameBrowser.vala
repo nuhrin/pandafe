@@ -469,6 +469,10 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 			return;
 		}
     }
+    bool handle_pandora_keyup_event() {
+		show_menu_overlay(new Menus.Concrete.ExitMenu());
+		return true;
+	}
     bool process_unicode(uint16 unicode) {
 		if (unicode <= uint8.MAX) {
 			char c = (char)unicode;
