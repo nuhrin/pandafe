@@ -90,6 +90,7 @@ namespace Layers.Controls.Chooser
 		//
 		// screen updates
 		void update_chooser() {
+			draw();
 			update_header(header, selector);
 		}
 		protected abstract void update_header(ChooserHeader header, ChooserSelector selector);
