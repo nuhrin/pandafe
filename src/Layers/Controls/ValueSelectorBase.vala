@@ -1,6 +1,6 @@
+using Gee;
 using SDL;
 using SDLTTF;
-using Gee;
 
 namespace Layers.Controls
 {
@@ -9,8 +9,6 @@ namespace Layers.Controls
 		Surface surface;
 		unowned Font font;
 		int16 font_height;
-		int16 xpos;
-		int16 ypos;
 		int16 max_text_width;
 		int max_characters;
 		int16 window_height;
@@ -25,7 +23,9 @@ namespace Layers.Controls
 		uint _selected_index;
 		uint original_index;
 		bool canceled;
-
+		ArrayList<int> cancel_keys;
+		KeySymbol? _cancel_key_pressed;
+		
 		protected ValueSelectorBase(string id, int16 xpos, int16 ypos, int16 max_width, Iterable<G>? items=null, uint selected_index=0) {
 			this.internal(id, xpos, ypos, max_width);			
 			if (items != null)
@@ -48,16 +48,28 @@ namespace Layers.Controls
 			base(id);
 			this.xpos = xpos;
 			this.ypos = ypos;
+			max_height = (int16)@interface.screen_height / 2;
 			item_spacing = @interface.get_monospaced_font_item_spacing();
 			font = @interface.get_monospaced_font();
 			font_height = @interface.get_monospaced_font_height();
 			max_text_width = max_width - 8;
 			max_characters = max_text_width / @interface.get_monospaced_font_width(1);
 			items = new ArrayList<G>();
+			draw_rectangle = true;
+			cancel_keys = new ArrayList<int>();
+			_cancel_key_pressed = null;
 		}
+
+		public int16 xpos { get; set; }
+		public int16 ypos { get; set; }
+		public int height { get { return _height; } }
+		public int width { get { return _width; } }
+		public int16 max_height { get; set; }
+		public bool draw_rectangle { get; set; }
 		
 		public uint item_count { get { return items.size; } }
 		public bool can_select_single_item { get; set; }
+		public bool wrap_selector { get; set; }
 		
 		public uint selected_index {
 			get { return _selected_index; }
@@ -83,6 +95,10 @@ namespace Layers.Controls
 			return get_item_name((int)_selected_index);
 		}
 		public bool was_canceled { get { return canceled; } }
+		public KeySymbol? cancel_key_pressed() { return _cancel_key_pressed; }
+		public void add_cancel_key(KeySymbol cancel_key) {
+			cancel_keys.add(cancel_key);
+		}
 		
 		public void add_item(G item) {
 			items.add(item);
@@ -97,7 +113,7 @@ namespace Layers.Controls
 			foreach(G item in items)
 				add_item(item);
 		}
-				
+
 		public uint run(uchar screen_alpha=128, uint32 rgb_color=0) {
 			ensure_selection();	
 			
@@ -109,7 +125,7 @@ namespace Layers.Controls
 		}
 		public uint run_no_push() {
 			ensure_selection();
-			process_events();			
+			process_events();
 			return _selected_index;
 		}
 		public void ensure_selection() {
@@ -122,6 +138,7 @@ namespace Layers.Controls
 			ensure_surface();
 			update_item_name((int)_selected_index, true);			
 		}
+		public signal void selection_changed();
 		
 		protected abstract string get_item_name(int index);
 		protected G get_item_at(int index) { return items[index]; }
@@ -141,7 +158,8 @@ namespace Layers.Controls
 			blit_surface(surface, source_r, dest_r);
 			
 			// draw rectangle
-			draw_rectangle_outline(xpos, ypos, (int16)_width, height + 5, @interface.white_color);
+			if (draw_rectangle)
+				draw_rectangle_outline(xpos, ypos, (int16)_width, height + 5, @interface.white_color);
 		}
 		
 		void on_keydown_event(KeyboardEvent event) {
@@ -149,6 +167,13 @@ namespace Layers.Controls
 				return;
 
 			if (event.keysym.mod == KeyModifier.NONE) {
+				if (cancel_keys.contains(event.keysym.sym)) {
+					_selected_index = original_index;						
+					canceled = true;
+					_cancel_key_pressed = event.keysym.sym;
+					quit_event_loop();
+					return;
+				}
 				switch(event.keysym.sym) {
 					case KeySymbol.RETURN:
 					case KeySymbol.KP_ENTER:
@@ -197,7 +222,8 @@ namespace Layers.Controls
 
 		void select_previous() {
 			if (_selected_index == 0) {
-				select_item(items.size - 1); // wrap around
+				if (wrap_selector)		
+					select_item(items.size - 1); // wrap around
 				return;
 			}
 			select_item(_selected_index - 1);
@@ -211,7 +237,8 @@ namespace Layers.Controls
 		}
 		void select_next() {
 			if (selected_index == items.size - 1) {
-				select_item(0); // wrap around
+				if (wrap_selector)
+					select_item(0); // wrap around
 				return;
 			}
 			
@@ -233,6 +260,7 @@ namespace Layers.Controls
 			update_item_name((int)_selected_index, false);
 			update_item_name((int)index, true);
 			_selected_index = index;
+			selection_changed();
 			update();
 		}
 		void select_next_starting_with(char c) {
@@ -283,10 +311,10 @@ namespace Layers.Controls
 			select_name_area.fill(null, @interface.white_color_rgb);
 			
 			int screen_height = @interface.screen_height;
-			visible_items = (screen_height / 2) / (font_height + item_spacing);
+			visible_items = (int)max_height / (font_height + item_spacing);
 			if (surface_items < visible_items)
 				visible_items = surface_items;				
-			window_height = (int16)(item_height * visible_items) + (item_spacing * 2);			
+			window_height = (int16)(item_height * visible_items) + (item_spacing * 2);
 
 			// reposition to keep selector on screen, if necessary
 			while (window_height + ypos > screen_height) {

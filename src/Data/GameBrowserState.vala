@@ -35,10 +35,8 @@ namespace Data
 			all_games.filter = filter;
 			if (view == null) {
 				all_games.view_type = GameBrowserViewType.ALL_GAMES;
-				all_games.view_platform_folder = null;
 			} else {
 				all_games.view_type = view.view_type;			
-				all_games.view_platform_folder = (view.platform_folder != null) ? view.platform_folder.path() : null;
 			}
 		}
 		public string? get_current_platform_folder_id() {
@@ -62,16 +60,7 @@ namespace Data
 		public int item_index { get; set; }
 		public string? filter { get; set; }
 		public GameBrowserViewType view_type { get; set; }
-		public string? view_platform_folder { get; set; }
 		public GameBrowserViewData get_view() {
-			if (view_type == GameBrowserViewType.PLATFORM_FOLDER) {
-				if (view_platform_folder != null) {
-					var folder = Data.platforms().get_platform_folder_data().get_folder(view_platform_folder);
-					if (folder != null)
-						return new GameBrowserViewData.folder(folder);
-				}
-				return new GameBrowserViewData(GameBrowserViewType.BROWSER);
-			}
 			return new GameBrowserViewData(view_type);
 		}
 	}

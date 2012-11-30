@@ -28,6 +28,7 @@ namespace Data
 				return false;
 			return _favorite_game_ids.contains(game.id);
 		}
+		public bool is_empty() { return (_favorite_game_ids == null || _favorite_game_ids.size == 0); }
 		
 		void ensure_hashset() {
 			if (_favorite_game_ids == null)

@@ -133,9 +133,9 @@ pandafe_VALASOURCES = \
 	Layers/Controls/ValueSelectorBase.vala \
 	Layers/GameBrowser/HeaderLayer.vala \
 	Layers/GameBrowser/MenuOverlay.vala \
-	Layers/GameBrowser/PlatformChooser.vala \
+	Layers/GameBrowser/PlatformSelectorOverlay.vala \
+	Layers/GameBrowser/SelectorOverlay.vala \
 	Layers/GameBrowser/StatusMessageLayer.vala \
-	Layers/GameBrowser/ViewChooser.vala \
 	Layers/MenuBrowser/ColorDisplayLayer.vala \
 	Layers/MenuBrowser/MenuHeaderLayer.vala \
 	Layers/MenuBrowser/MenuMessageLayer.vala \
@@ -146,6 +146,7 @@ pandafe_VALASOURCES = \
 	Layers/ScreenAlphaLayer.vala \
 	Layers/ScreenLayer.vala \
 	Layers/SurfaceLayer.vala \
+	Menus/Concrete/ChangeViewMenu.vala \
 	Menus/Concrete/ExitMenu.vala \
 	Menus/Concrete/GameBrowserAppearanceMenu.vala \
 	Menus/Concrete/GameFolderMenu.vala \

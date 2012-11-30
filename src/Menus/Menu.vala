@@ -47,7 +47,6 @@ namespace Menus
 		}
 		Layers.Layer? _additional_menu_browser_layer;
 		
-
 		public void add_item(MenuItem item) {
 			ensure_items();
 			var field = item as MenuItemField;
@@ -119,6 +118,9 @@ namespace Menus
 			do_refresh(select_index);
 			refreshed(select_index);
 		}
+		
+		public virtual uint initial_selection_index() { return 0; }
+		public virtual string? initial_help() { return null; }
 		
 		protected virtual bool do_validation() { return true; }
 		protected virtual bool do_cancel() { return true; }

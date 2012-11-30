@@ -38,6 +38,9 @@ namespace Data
 	public Enumerable<GameItem> get_most_frequently_played_games(Iterable<GameItem> games) {
 		return Provider.instance().get_games_run_list().get_most_frequently_played(games);
 	}
+	public bool games_run_list_is_empty() {
+		return (Provider.instance().get_games_run_list().games_run.size == 0);
+	}
 
 	public class Provider
 	{

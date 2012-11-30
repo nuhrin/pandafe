@@ -22,11 +22,12 @@ public class PlatformSelector : Selector
 		return items[selected_index];
 	}
 	
-	public virtual bool select_platform(Platform? platform) {
-		int index = 0;		
+	public virtual bool select_platform(Platform? platform) {		
+		int index = 0;	
 		foreach(var item in items) {
 			if (item == platform)
 				return select_item(index);
+			index++;
 		}
 		return false;			
 	}

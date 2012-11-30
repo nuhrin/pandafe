@@ -43,6 +43,13 @@ public class EverythingSelector : Selector {
 			return null;
 		return items[selected_index];
 	}
+	public bool select_game(GameItem item) {
+		var index = items.index_of(item);
+		if (index == -1 || selected_index == index)
+			return false;			
+		
+		return select_item(index);		
+	}
 	
 	public void game_run_completed() {
 		if (view.view_type == GameBrowserViewType.MOST_PLAYED || view.view_type == GameBrowserViewType.MOST_RECENT)
@@ -76,19 +83,10 @@ public class EverythingSelector : Selector {
 	
 	Gee.List<GameItem> get_view_games(GameBrowserViewData view) {		
 		// get platforms
-		var platforms = Enumerable.empty<Platform>();
-		switch (view.view_type) {
-			case GameBrowserViewType.PLATFORM_FOLDER:
-				if (view.platform_folder != null)
-					platforms = view.platform_folder.get_all_platforms();
-				break;
-			default:
-				var folder_data = Data.platforms().get_platform_folder_data();
-				platforms = (folder_data.folders.size > 0)
-					? folder_data.get_all_platforms()
-					: Data.platforms().get_all_platforms();
-				break;
-		}
+		var folder_data = Data.platforms().get_platform_folder_data();
+		var platforms = (folder_data.folders.size > 0)
+			? folder_data.get_all_platforms()
+			: Data.platforms().get_all_platforms();		
 		
 		// get platform games
 		var games = Enumerable.empty<GameItem>();

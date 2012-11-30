@@ -83,6 +83,7 @@ namespace Data.Platforms
 				}
 				_native_platform.rescanned.connect(() => platform_rescanned(_native_platform));
 				_native_platform.folder_scanned.connect(folder => platform_folder_scanned(folder));
+				set_id(_native_platform, "pandora");
 			}
 			return _native_platform;
 		}

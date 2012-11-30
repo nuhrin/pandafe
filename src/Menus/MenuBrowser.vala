@@ -15,10 +15,10 @@ namespace Menus
 
 		MenuHeaderLayer header;
 		MenuMessageLayer message;
-		int16 selector_ypos;		
+		int16 selector_ypos;
 		int16 selector_max_height;
 		MenuSelector selector;
-		GLib.Queue<MenuSelector> menu_stack;		
+		GLib.Queue<MenuSelector> menu_stack;
 		Layer? additional_layer;
 
 		public MenuBrowser(Menu menu) {
@@ -38,7 +38,10 @@ namespace Menus
 			
 			set_header();			
 			add_additional_layer(selector.menu);
-			selector.select_first();			
+			
+			selector.ensure_initial_selection(false);
+			set_initial_help();
+			
 			process_events();
 			
 			@interface.pop_screen_layer();
@@ -87,7 +90,8 @@ namespace Menus
 			replace_layer(SELECTOR_ID, selector);
 			clear();
 			set_header();
-			message.reset();
+			selector.ensure_initial_selection(false);
+			set_initial_help();
 			add_additional_layer(menu);
 			selector.select_first();
 			menu_changed(menu);
@@ -126,6 +130,13 @@ namespace Menus
 		}
 		void set_header() {
 			header.set_text(null, selector.menu_title, null, false);
+		}
+		void set_initial_help() {
+			message.reset(false);
+			string? help = selector.menu.initial_help();
+			if (help == null)
+				help = selector.selected_item().help;
+			message.help = help;			
 		}
 		void on_selector_changed() {
 			message.help = selector.selected_item().help;
@@ -249,6 +260,7 @@ namespace Menus
 				return;
 			}
 			message.error = null;
+			selected_item.activate(selector);
 			switch(selected_item.action) {				
 				case MenuItemActionType.CANCEL:
 					if (selector.menu.cancel() == true)
@@ -267,7 +279,6 @@ namespace Menus
 						quit_event_loop();
 					break;
 				default:
-					selected_item.activate(selector);
 					break;					
 			}
 

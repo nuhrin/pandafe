@@ -1,3 +1,4 @@
+using Gee;
 using SDL;
 using SDLTTF;
 using Layers.MenuBrowser;
@@ -10,7 +11,7 @@ namespace Layers.GameBrowser
 	{
 		const int SELECTOR_MIN_WIDTH = 150;
 		const int16 SELECTOR_YPOS = 100;
-		const string SELECTOR_ID = "overlay_selector";
+		const string SELECTOR_ID = "menu_overlay_selector";
 
 		const uint8 MAX_NAME_LENGTH = 40;
 		const uint8 MAX_VALUE_LENGTH = 40;
@@ -26,10 +27,16 @@ namespace Layers.GameBrowser
 		Rect lower_right;
 		int16 header_bottom_y;
 		
-		public MenuOverlay(Menus.Menu menu) {
+		ArrayList<int> cancel_keys;
+		KeySymbol? cancel_key_pressed;
+		
+		public MenuOverlay(Menus.Menu menu, KeySymbol cancel_key=KeySymbol.SPACE) {
 			if (menu.items.size == 0)
 				GLib.error("Menu '%s' has no items.", menu.name);
 			base("menubrowser");
+			cancel_keys = new ArrayList<int>();
+			cancel_keys.add(cancel_key);
+			cancel_key_pressed = null;
 			menu_stack = new GLib.Queue<MenuSelector>();
 			header = add_layer(new MenuHeaderLayer("header")) as MenuHeaderLayer;
 			message = add_layer(new MenuMessageLayer("status")) as MenuMessageLayer;			
@@ -43,14 +50,20 @@ namespace Layers.GameBrowser
 			header_bottom_y=header.ypos + (int16)header.height;
 		}
 
-		public void run() {
+		public KeySymbol? run() {
 			@interface.push_layer(this);//, 150);
 			
-			set_header();			
-			selector.select_first();			
+			set_header();
+			selector.ensure_initial_selection(false);
+			set_initial_help();
 			process_events();
 			
 			@interface.pop_layer();
+			return cancel_key_pressed;
+		}
+		
+		public void add_cancel_key(KeySymbol key) {
+			cancel_keys.add(key);
 		}
 		
 		public signal void menu_changed(Menus.Menu menu);
@@ -100,8 +113,8 @@ namespace Layers.GameBrowser
 			replace_layer(SELECTOR_ID, selector);
 			clear();
 			set_header();
-			message.reset();
-			selector.select_first();
+			selector.ensure_initial_selection(false);
+			set_initial_help();
 			screen.update(false);
 			update();
 			menu_changed(menu);
@@ -131,6 +144,13 @@ namespace Layers.GameBrowser
 		}
 		void set_header() {
 			header.set_text(null, selector.menu_title, null, false);
+		}
+		void set_initial_help() {
+			message.reset(false);
+			string? help = selector.menu.initial_help();
+			if (help == null)
+				help = selector.selected_item().help;
+			message.help = help;			
 		}
 		void on_selector_changed() {
 			message.help = selector.selected_item().help;
@@ -169,12 +189,25 @@ namespace Layers.GameBrowser
 			}
 
 			if (event.keysym.mod == KeyModifier.NONE) {
+				if (cancel_keys.contains(event.keysym.sym)) {
+					if (selector.menu.cancel() == true) {
+						quit_event_loop();
+						cancel_key_pressed = event.keysym.sym;
+					}
+					return;
+				}
 				switch(event.keysym.sym) {
 					case KeySymbol.UP:
 						select_previous();
 						break;
 					case KeySymbol.DOWN:
 						select_next();
+						break;
+					case KeySymbol.LEFT:
+						select_first();
+						break;
+					case KeySymbol.RIGHT:
+						select_last();
 						break;
 					case KeySymbol.PAGEUP: // pandora Y
 						select_first();
@@ -195,10 +228,6 @@ namespace Layers.GameBrowser
 					case KeySymbol.ESCAPE:
 						go_back();
 						drain_events();
-						break;
-					case KeySymbol.SPACE:
-						if (selector.menu.cancel() == true)
-							quit_event_loop();
 						break;
 					default:
 						break;
@@ -261,9 +290,9 @@ namespace Layers.GameBrowser
 			if (submenu != null) {
 				push_menu(submenu.menu);
 				return;
-			}
-			
+			}			
 			message.error = null;
+			selected_item.activate(selector);			
 			switch(selected_item.action) {				
 				case MenuItemActionType.CANCEL:
 					if (selector.menu.cancel() == true)
@@ -282,7 +311,6 @@ namespace Layers.GameBrowser
 						quit_event_loop();
 					break;
 				default:
-					selected_item.activate(selector);
 					break;					
 			}
 

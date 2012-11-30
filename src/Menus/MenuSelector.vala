@@ -112,6 +112,9 @@ namespace Menus
 			update_item_name((int)selected_index, true);
 			update(flip);
 		}
+		public void ensure_initial_selection(bool flip=true) {
+			select_item(menu.initial_selection_index(), flip);
+		}
 		public bool select_previous(bool flip=true) {
 			if (first_enabled_index == -1)
 				return false;

@@ -36,6 +36,10 @@ namespace Layers.MenuBrowser
 			_help = null;
 			update(flip);
 		}
+		public void update_help(string? help, bool flip=true) {
+			_help = help;
+			update(flip);
+		}
 		
 		protected override void draw() {
 			Rect rect = {35, 5};
