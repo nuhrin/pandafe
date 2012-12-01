@@ -1,3 +1,4 @@
+using Gee;
 using SDL;
 
 public interface EventHandler : Object
@@ -5,18 +6,30 @@ public interface EventHandler : Object
 	protected signal void quit_event_loop();
 	protected void process_events() {
 		drain_events();
-		bool event_loop_done = false;		
-		@interface.quit_all.connect(() => event_loop_done = true);
-		@interface.pandora_keyup_event.connect(() => {
-			if (handle_pandora_keyup_event() == false)
-				event_loop_done = true;
-		});
-		quit_event_loop.connect(() => event_loop_done = true);
+		
+		bool event_loop_done = false;
+		
+		// setup handlers
+		var handlers = new ArrayList<ulong>();		
+		handlers.add(@interface.quit_all.connect(() => event_loop_done = true));
+		handlers.add(@interface.pandora_keyup_event.connect(() => {
+			if (@interface.pandora_keyup_event_handled == true)
+				return;
+			handle_pandora_keyup_event();
+		}));
+		ulong quit_event_loop_handler = quit_event_loop.connect(() => event_loop_done = true);
+		
+		// run event loop
 		while(event_loop_done == false) {
 			do_event_loop();
 			@interface.execute_idle_loop_work();
 		}
 		drain_events();
+		
+		// disconnect handlers
+		foreach(var handler in handlers)
+			@interface.disconnect(handler);
+		this.disconnect(quit_event_loop_handler);
 	}
 	
 	void do_event_loop() {
@@ -34,7 +47,7 @@ public interface EventHandler : Object
 				case EventType.KEYUP:
 					if (event.key.keysym.scancode == 147) { // pandora key
 						if (MainClass.was_run_as_gui == true)
-							@interface.pandora_keyup_event();
+							@interface.pandora_keyup_event();						
 						break;
 					}
 					this.on_keyup_event(event.key);
@@ -44,8 +57,6 @@ public interface EventHandler : Object
 			}
 		}
 	}
-	
-	protected virtual bool handle_pandora_keyup_event() { return false; }
 	
 	protected void drain_events() {
 		int current_delay;
@@ -64,4 +75,5 @@ public interface EventHandler : Object
 	
 	protected abstract void on_keydown_event(KeyboardEvent event);
 	protected virtual void on_keyup_event(KeyboardEvent event) { }
+	protected virtual void handle_pandora_keyup_event() { }	
 }

@@ -474,10 +474,19 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 			return;
 		}
     }
-    bool handle_pandora_keyup_event() {
-		show_menu_overlay(new Menus.Concrete.ExitMenu());
-		return true;
+    void handle_pandora_keyup_event() {
+		var current_overlay = @interface.peek_layer() as MenuOverlay;
+		if (current_overlay != null && current_overlay.current_menu is Menus.Concrete.ExitMenu)
+			return; // already showing the exit menu
+			
+		@interface.pandora_keyup_event_handled = true;
+		new MenuOverlay(new Menus.Concrete.ExitMenu(), null).run(200);
+		var current_layer = @interface.peek_layer();
+		if (current_layer != null)
+			current_layer.update();
+		@interface.pandora_keyup_event_handled = false;
 	}
+	
     bool process_unicode(uint16 unicode) {
 		if (unicode <= uint8.MAX) {
 			char c = (char)unicode;
@@ -1033,7 +1042,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 			show_menu_overlay(new Menus.Concrete.PlatformMenu(platform, null, platform_folder));
 		
 	}
-	void show_menu_overlay(Menus.Menu menu) {
+	void show_menu_overlay(Menus.Menu menu) {		
 		var overlay = new Layers.GameBrowser.MenuOverlay(menu);
 		overlay.add_cancel_key(KeySymbol.RSHIFT); // pandora L
 		overlay.add_cancel_key(KeySymbol.RCTRL); // pandora R
@@ -1042,6 +1051,6 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 			show_change_view_overlay();
 		else if (cancel_key_pressed == KeySymbol.RCTRL)
 			show_change_platform_overlay();
-	}	
+	}
 	
 }

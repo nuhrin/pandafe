@@ -30,12 +30,13 @@ namespace Layers.GameBrowser
 		ArrayList<int> cancel_keys;
 		KeySymbol? cancel_key_pressed;
 		
-		public MenuOverlay(Menus.Menu menu, KeySymbol cancel_key=KeySymbol.SPACE) {
+		public MenuOverlay(Menus.Menu menu, KeySymbol? cancel_key=KeySymbol.SPACE) {
 			if (menu.items.size == 0)
 				GLib.error("Menu '%s' has no items.", menu.name);
-			base("menubrowser");
+			base("menuoverlay_"+menu.name);
 			cancel_keys = new ArrayList<int>();
-			cancel_keys.add(cancel_key);
+			if (cancel_key != null)
+				cancel_keys.add(cancel_key);
 			cancel_key_pressed = null;
 			menu_stack = new GLib.Queue<MenuSelector>();
 			header = add_layer(new MenuHeaderLayer("header")) as MenuHeaderLayer;
@@ -50,8 +51,8 @@ namespace Layers.GameBrowser
 			header_bottom_y=header.ypos + (int16)header.height;
 		}
 
-		public KeySymbol? run() {
-			@interface.push_layer(this);//, 150);
+		public KeySymbol? run(uchar screen_alpha=0, uint32 rgb_color=0) {
+			@interface.push_layer(this, screen_alpha, rgb_color);
 			
 			set_header();
 			selector.ensure_initial_selection(false);
@@ -66,6 +67,7 @@ namespace Layers.GameBrowser
 			cancel_keys.add(key);
 		}
 		
+		public Menus.Menu current_menu { get { return selector.menu; } }
 		public signal void menu_changed(Menus.Menu menu);
 		
 		public Rect get_selector_rect() {

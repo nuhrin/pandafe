@@ -220,6 +220,7 @@ public class InterfaceHelper : Object
 	
 	public signal void quit_all();
 	public signal void pandora_keyup_event();
+	public bool pandora_keyup_event_handled { get; set; }
 	
 	public void cleanup_and_exit(owned ForEachFunc<string> message_action) {
 		if (Data.pnd_mountset().has_mounted == true) {
