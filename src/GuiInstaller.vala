@@ -28,7 +28,7 @@ public class GuiInstaller
 	}
 	public static SpawningResult install_pandafe_gui(string pndpath) {
 		string error;
-		string pandafe_start_contents = pandafe_start_format.printf(pndpath);
+		string pandafe_start_contents = pandafe_start_format.printf(pndpath, pndpath);
 		var pandafe_start_file = create_temp_script("pandafe-start", pandafe_start_contents, out error);
 		if (pandafe_start_file == null)
 			return new SpawningResult.error(error);
@@ -91,7 +91,7 @@ xfwm4 &
 # run pandafe via mount->run->unmount, to avoid pandora key kill (which is unhelpful in this context)
 /usr/pandora/scripts/pnd_run.sh -m -p "%s" -b "pandafe"
 cd /mnt/utmp/pandafe
-bin/pandafe --as-gui
+./pandafe.sh --as-gui
 cd
 /usr/pandora/scripts/pnd_run.sh -u -p "%s" -b "pandafe"
 
