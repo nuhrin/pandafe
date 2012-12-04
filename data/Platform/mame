@@ -3,5 +3,3 @@ platform-type: rom
 rom-file-extensions: zip
 programs:
 - mame.cosam.106
-program-settings: {}
-

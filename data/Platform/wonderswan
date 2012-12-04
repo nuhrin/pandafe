@@ -3,5 +3,3 @@ platform-type: rom
 rom-file-extensions: wsc zip
 programs:
 - mednafen-wswan
-program-settings: {}
-

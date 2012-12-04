@@ -4,6 +4,5 @@ rom-file-extensions: sms zip
 programs:
 - dega.cosam.1.16.4.0
 - mednafen-sms
-program-settings: {}
 default-program: mednafen-sms
 

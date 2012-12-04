@@ -3,5 +3,3 @@ platform-type: rom
 rom-file-extensions: bin
 programs:
 - pcsx_rearmed.notaz
-program-settings: {}
-

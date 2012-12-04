@@ -4,6 +4,5 @@ rom-file-extensions: gb gbc zip
 programs:
 - sdlgnuboy
 - mednafen-gb
-program-settings: {}
 default-program: mednafen-gb
 

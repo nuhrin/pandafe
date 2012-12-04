@@ -56,7 +56,7 @@ namespace Data.GameList
 			if (game_settings != null && game_settings.program_settings.has_key(program.app_id) == true)
 				settings = game_settings.program_settings[program.app_id];						
 			
-			return Spawning.spawn_platform_program(rom_platform, program, true, settings, get_full_path(game));
+			return Spawning.spawn_program(program, true, settings, get_full_path(game));
 		}
 		public override Program? get_program_for_game(GameItem game) {
 			return get_program_from_game_settings(Data.get_game_settings(game));
@@ -68,7 +68,7 @@ namespace Data.GameList
 			} else {
 				program = rom_platform.default_program;
 			}
-			return program;			
+			return program;
 		}
 		
 		public override string get_unique_name(IGameListNode node) {

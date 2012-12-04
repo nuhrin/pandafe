@@ -94,7 +94,6 @@ pandafe_VALASOURCES = \
 	Fields/PlatformFolderListField.vala \
 	Fields/PlatformListField.vala \
 	Fields/PlatformNodeListField.vala \
-	Fields/PlatformProgramSettingsMapField.vala \
 	Fields/PndAppField.vala \
 	Fields/PndCategoryField.vala \
 	Fields/PndSelectionField.vala \

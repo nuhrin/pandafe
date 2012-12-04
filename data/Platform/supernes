@@ -3,5 +3,3 @@ platform-type: rom
 rom-file-extensions: zip smc sfc fig 1 2
 programs:
 - snes9x.skeezix.alpha
-program-settings: {}
-

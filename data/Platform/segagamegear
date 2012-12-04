@@ -4,6 +4,5 @@ rom-file-extensions: gg zip
 programs:
 - mednafen-gg
 - dega.cosam.1.16.4.0
-program-settings: {}
 default-program: mednafen-gg
 

@@ -59,16 +59,10 @@ public class Spawning
 	}
 	public static SpawningResult spawn_program(Program program, bool premount, ProgramSettings? program_settings=null, string? game_path=null,
 		string? custom_command=null, string? custom_command_script=null) {
-		return spawn_program_internal(program, premount, program_settings, game_path, null, custom_command, custom_command_script);
+		return spawn_program_internal(program, premount, program_settings, game_path, custom_command, custom_command_script);
 	}
-	public static SpawningResult spawn_platform_program(RomPlatform platform, Program program, bool premount, ProgramSettings? program_settings=null, string? game_path=null) {
-		return spawn_program_internal(program, premount, program_settings, game_path, platform);
-	}
-	static SpawningResult spawn_program_internal(Program program, bool premount, ProgramSettings? program_settings=null, string? game_path=null, RomPlatform? platform=null,
-		string? custom_command=null, string? custom_command_script=null) {
-		if (platform != null && platform.get_program(program.app_id) != program)
-			return new SpawningResult.error("Program '%s' not found on platform '%s'.".printf(program.name, platform.name));			
-		
+	static SpawningResult spawn_program_internal(Program program, bool premount, ProgramSettings? program_settings=null, string? game_path=null,
+		string? custom_command=null, string? custom_command_script=null) {		
 		Data.Pnd.AppItem app = program.get_app();
 		if (app == null)
 			return new SpawningResult.error("No pnd app found for program '%s'.".printf(program.name));		
@@ -77,12 +71,8 @@ public class Spawning
 		string appdata_dirname = app.appdata_dirname;
 		string command = app.exec_command;
 		string startdir = app.startdir;
-		uint clockspeed = (platform != null)
-			? platform.get_program_clockspeed(program, program_settings)
-			: program.get_clockspeed(program_settings);			
-		string args = (platform != null)
-			? platform.get_program_arguments(program, program_settings)
-			: program.get_arguments(program_settings); 
+		uint clockspeed = program.get_clockspeed(program_settings);			
+		string args = program.get_arguments(program_settings); 
 		if (args == null || args == "")
 			args = app.exec_arguments;
 

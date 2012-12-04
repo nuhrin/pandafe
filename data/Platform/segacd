@@ -3,5 +3,3 @@ platform-type: rom
 rom-file-extensions: zip
 programs:
 - picodrive.notaz.1.80
-program-settings: {}
-

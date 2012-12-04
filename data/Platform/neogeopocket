@@ -3,5 +3,3 @@ platform-type: rom
 rom-file-extensions: ngp zip
 programs:
 - mednafen-ngp
-program-settings: {}
-

@@ -4,6 +4,5 @@ rom-file-extensions: nes zip
 programs:
 - gpfcegp2x
 - mednafen-nes
-program-settings: {}
 default-program: mednafen-nes
 

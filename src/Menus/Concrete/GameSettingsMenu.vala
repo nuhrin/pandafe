@@ -79,10 +79,7 @@ namespace Menus.Concrete
 				items.add(program_field);
 			if (program != null) {
 				var default_settings = new ProgramSettings();
-				if (rom_platform != null && rom_platform.program_settings.has_key(program.app_id) == true)
-					default_settings.merge_override(rom_platform.program_settings[program.app_id]);
-				else
-					default_settings.merge_override(program.default_settings);
+				default_settings.merge_override(program.default_settings);
 				var settings = new ProgramSettings();
 				settings.merge_override(default_settings);
 				if (game_settings.program_settings.has_key(program.app_id))

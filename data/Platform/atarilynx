@@ -4,6 +4,5 @@ rom-file-extensions: lnx zip
 programs:
 - handy.cosam.0.5.0.0
 - mednafen-lynx
-program-settings: {}
 default-program: mednafen-lynx
 
