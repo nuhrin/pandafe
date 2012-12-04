@@ -16,14 +16,7 @@ dist_topdata_DATA = \
 	platform_folders \
 	$(NULL)
 
-CLEANFILES = preferences
-EXTRA_DIST = \
-	preferences.in \
-	$(NULL)
- 
 do_subst = sed \
 	-e 's|[@]pkgdatadir[@]|$(pkgdatadir)|g' \
 	$(NULL)
  
-preferences: preferences.in Makefile      
-	$(do_subst) < preferences.in > preferences

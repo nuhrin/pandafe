@@ -31,7 +31,6 @@ stamp-h1
 .version
 
 src/pandafe
-data/preferences
 
 pandafe*.tar.*
 
