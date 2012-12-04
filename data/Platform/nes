@@ -2,6 +2,7 @@ name: NES
 platform-type: rom
 rom-file-extensions: nes zip
 programs:
+- gpfce.notaz
 - gpfcegp2x
 - mednafen-nes
 default-program: mednafen-nes

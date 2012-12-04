@@ -2,6 +2,7 @@ name: Gameboy
 platform-type: rom
 rom-file-extensions: gb gbc zip
 programs:
+- gambatte-qt
 - sdlgnuboy
 - mednafen-gb
 default-program: mednafen-gb
