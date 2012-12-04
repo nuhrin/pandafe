@@ -126,6 +126,11 @@ namespace Data.Programs
 			}
 		}
 		
+		public void clear_cache() {
+			program_id_hash = null;
+			program_app_id_hash = null;
+		}
+		
 		protected override Entity? get_entity(string entity_id) {
 			var program = get_program(entity_id);
 			if (program == null)

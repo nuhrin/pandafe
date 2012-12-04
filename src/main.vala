@@ -103,36 +103,13 @@ public class MainClass: Object {
 		if (data_needs_update) {
 			var font = new Font(InterfaceHelper.FONT_MONO_DEFAULT, 18);
 			if (font != null) {
-				font.render("Installing new and updated Program/Platform definitions...", {255,255,255}).blit(null, screen, {100,(int16)screen->h-40});
+				font.render("Checking for new and updated Program/Platform definitions...", {255,255,255}).blit(null, screen, {100,(int16)screen->h-40});
 				screen->flip();
 			}
-			ensure_appdata_folder("Platform", false);
-			// determine local platforms with settings that need merging on update
-			var platforms_to_merge = Data.platforms().get_all_platforms()
-				.of_type<Data.Platforms.RomPlatform>()
-				.where(p=>p.rom_folder_root != null);
-			// save user settings from local platforms
-			var platform_rom_paths = new Gee.HashMap<string,string>();
-			foreach(var platform in platforms_to_merge)
-				platform_rom_paths[platform.id] = platform.rom_folder_root;			
-			Data.platforms().clear_cache();
-
-			// update Platform/Program definitions as appropriate
-			ensure_appdata_folder("Platform", true, true);
-			ensure_appdata_folder("Program", true, true);
 			
-			// merge previously saved user settings
-			foreach(var id in platform_rom_paths.keys) {
-				var platform = Data.platforms().get_platform(id) as Data.Platforms.RomPlatform;
-				if (platform == null)
-					continue;
-				if (platform.rom_folder_root != platform_rom_paths[id]) {
-					platform.rom_folder_root = platform_rom_paths[id];
-					string? error;
-					if (Data.platforms().save_platform(platform, id, out error) == false)
-						warning("Error saving merged platform '%s': %s", id, error);					
-				}
-			}			
+			update_program_and_platform_definitions();
+			
+			
 		} else {
 			ensure_appdata_folder("Platform");
 			ensure_appdata_folder("Program");
@@ -164,6 +141,63 @@ public class MainClass: Object {
 			warning("Error writing %s: %s", path, e.message);
 		}
 		return true;
+	}
+
+	static void update_program_and_platform_definitions() {
+		ensure_appdata_folder("Program", false);
+		ensure_appdata_folder("Platform", false);
+		
+		// determine local platforms with settings that need merging on update
+		var platforms_to_merge = Data.platforms().get_all_platforms()
+			.of_type<Data.Platforms.RomPlatform>()
+			.where(p=>p.rom_folder_root != null);
+			
+		// save user settings from local platforms
+		var platform_rom_paths = new Gee.HashMap<string,string>();
+		var platform_programs = new Gee.HashMultiMap<string,string>();
+		foreach(var platform in platforms_to_merge) {
+			platform_rom_paths[platform.id] = platform.rom_folder_root;
+			foreach(var program in platform.programs)
+				platform_programs.set(platform.id, program.id);
+		}
+		Data.platforms().clear_cache();
+		Data.programs().clear_cache();
+		
+
+		// update Program/Platform definitions as appropriate
+		ensure_appdata_folder("Program", true, true);
+		ensure_appdata_folder("Platform", true, true);
+		
+		// merge previously saved user settings
+		foreach(var id in platform_rom_paths.keys) {
+			var platform = Data.platforms().get_platform(id) as Data.Platforms.RomPlatform;
+			if (platform == null)
+				continue;
+			bool needs_update = false;
+			if (platform.rom_folder_root != platform_rom_paths[id]) {
+				platform.rom_folder_root = platform_rom_paths[id];
+				needs_update = true;
+			}
+			if (platform_programs.contains(platform.id) == true) {
+				var program_id_set = new Gee.HashSet<string>();
+				program_id_set.add_all(new Catapult.Enumerable<Program>(platform.programs).select<string>(p=>p.id).to_list());
+				foreach(var existing_program_id in platform_programs[platform.id]) {
+					if (program_id_set.contains(existing_program_id) == false) {
+						var program = Data.programs().get_program(existing_program_id);
+						if (program == null)
+							continue;
+						needs_update = true;
+						platform.programs.add(program);
+						program_id_set.add(program.id);
+					}
+				}
+			}
+			if (needs_update) {
+				string? error;
+				if (Data.platforms().save_platform(platform, id, out error) == false)
+					warning("Error saving merged platform '%s': %s", id, error);
+			}
+		}
 	}
 
 	static void ensure_appdata_folder(string foldername, bool copy_files=true, bool force_update=false) {
