@@ -208,8 +208,9 @@ namespace Layers.GameBrowser
 				return;
 
 			// allow menu item to process keyboard
-			if (selector.selected_item().process_keydown_event(event) == true) {
-				redraw_item();
+			if (selector.selected_item().handles_keydown_event(event) == true) {
+				if (selector.selected_item().process_keydown_event(event) == true)
+					redraw_item();					
 				return;
 			}
 

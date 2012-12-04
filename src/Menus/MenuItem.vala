@@ -80,8 +80,10 @@ namespace Menus
 				}
 			}
 		}
-
+		
+		public virtual bool handles_keydown_event(KeyboardEvent event) { return false; }
 		public virtual bool process_keydown_event(KeyboardEvent event) { return false; }
+		public virtual bool handles_keyup_event(KeyboardEvent event) { return false; }
 		public virtual bool process_keyup_event(KeyboardEvent event) { return false; }
 
 		public virtual bool is_menu_item() { return false; }

@@ -75,6 +75,19 @@ namespace Menus.Fields
 		
 		public virtual Surface? get_value_rendering(Font* font) { return null; }
 
+		public override bool handles_keydown_event(KeyboardEvent event) {
+			if (event.keysym.mod == KeyModifier.NONE) {
+				switch(event.keysym.sym) {
+					case KeySymbol.LEFT:
+						return true;
+					case KeySymbol.RIGHT:
+						return true;
+					default:
+						break;
+				}
+			}
+			return false;
+		}
 		public override bool process_keydown_event(KeyboardEvent event) {
 			if (event.keysym.mod == KeyModifier.NONE) {
 				switch(event.keysym.sym) {
