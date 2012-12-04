@@ -12,11 +12,11 @@ It was written especially for the Pandora, with the following goals:
 
 The out-of-the-box configuration supports:
 * Atari Lynx (Handy, mednafen-lynx)
-* Gameboy (GnuBoy, mednafen-gb)
+* Gameboy (GnuBoy, Gambatte, mednafen-gb)
 * Gameboy Advance (gpSP, mednafen-gba)
 * MAME (MAME)
 * NeoGeo Pocket (mednafen-ngp)
-* NES (gpFCE-GP2X, mednafen-nes)
+* NES (GPFCE, gpFCE-GP2X, mednafen-nes)
 * Nintendo 64 (Mupen64plus)
 * Playstation (PCSX ReARMed)
 * Sega 32x (PicoDrive)
@@ -24,6 +24,7 @@ The out-of-the-box configuration supports:
 * Sega Game Gear (Dega, mednafen-gg)
 * Sega Genesis (PicoDrive)
 * Sega Master System (Dega, mednafen-sms)
+* ScummVM (ScummVM)
 * Super NES (Snes9x4P)
 * TurboGrafx-16 (mednafen-pce)
 * Wonderswan (mednafen-wswan)
@@ -80,8 +81,8 @@ Recognized keys and the action they perform:
 | B      | Activate selected item        | Activate selected item             |
 | X      | Select last item              | Select last item / next group      |
 | Y      | Select first item             | Select first item / previous group |
-| L      | Show view chooser             | N/A                                |
-| R      | Show platform chooser         | N/A                                |
+| L      | Change view                   | Change view                        |
+| R      | Change platform               | Change platform                    |
 | Space  | Show context menu             | Hide context menu (if applicable)  |
 | Enter  | Activate selected item        | Activate selected item             |
 | Escape | Exit program                  | Return to parent (Cancel)          |
@@ -109,13 +110,16 @@ and to be honest, you are rather my target audience. :)
 
 License
 =======
-(C) 2012 nuhrin	nuhrin@oceanic.to
+(C) 2012 nuhrin <nuhrin@oceanic.to>
 
-Pandafe will be released under the GPLv3. Source code is presently unavailable, 
-but this is due only to time constraints.
+Pandafe is released under the GPLv3. Source code is available at github:
+https://github.com/nuhrin/pandafe
 
 Credits
 =======
-
 PND icon is from http://www.visualpharm.com/ ("linkware").
 
+The following libraries are used embedded or statically linked:
+* Libgee: https://live.gnome.org/Libgee
+* LibYAML: http://pyyaml.org/wiki/LibYAML
+* GtkSourceView: http://projects.gnome.org/gtksourceview/ 

@@ -1,0 +1,35 @@
+Pandafe 0.2.0
+=============
+* add support for Program-based Platforms, with ScummVM to demonstrate
+* add option to install pandafe as a gui for SwitchGui
+* show exit menu when Pandora key pressed (when run as a Gui)
+* add ProgramMenu, allowing program to be run without game context
+* merge new/updated Platform/Program definitions on first start of new version
+* some interface updates aiming for more visual/behavioral consistency
+* (finally) release source code
+
+Pandafe 0.1.3
+=============
+* remove rebirth competition banner and show program version
+* add "Most Recent" and "Most Played" views
+* add optional exit menu allowing gui switching, reboot, and shutdown
+* add program definition for Temper
+* greatly improved build system (support 'make pnd')
+
+Pandafe 0.1.2
+=============
+* fix crash with libpnd from HF7+
+* update mednafen program definition
+* rescan PNDs when rescanning a native platform folder
+* bug fixes
+
+Pandafe 0.1.1
+=============
+* new release for Pandora Rebirth Competition
+* some documentation
+* updated Platform/Program definitions
+* bug fixes
+
+Pandafe 0.1.0
+=============
+* initial release
