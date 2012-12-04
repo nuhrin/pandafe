@@ -1,7 +1,7 @@
 app-id-type: exact
 app-id: gpsp.notaz
 custom-command: !!null 
-expected-exit-code: 0
+expected-exit-code: 256
 options: []
 default-settings:
   extra-arguments: 
