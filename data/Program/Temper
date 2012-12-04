@@ -5,6 +5,6 @@ expected-exit-code: 0
 options: []
 default-settings:
   extra-arguments: 
-  clockspeed: 500
+  clockspeed: 0
 name: Temper
 

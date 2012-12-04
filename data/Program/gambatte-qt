@@ -1,0 +1,21 @@
+app-id-type: exact
+app-id: gambatte-qt
+custom-command: ! '#!/bin/bash
+
+  TMPFILE=$(mktemp)
+
+  grep -v picklelauncher run.sh > $TMPFILE
+
+  . $TMPFILE
+
+  rm $TMPFILE
+
+
+  scripts/gambatte_qt.sh $@'
+expected-exit-code: 0
+options: []
+default-settings:
+  extra-arguments: 
+  clockspeed: 0
+name: Gambatte
+

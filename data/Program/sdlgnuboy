@@ -1,6 +1,6 @@
 app-id-type: exact
 app-id: sdlgnuboy
-custom-command: ! "#!/bin/bash\n\nrm -R /tmp/gnuboy\n\nARGS=\"$@\"\nROM=${ARGS##*
+custom-command: ! "#!/bin/bash\n\nrm -Rf /tmp/gnuboy\n\nARGS=\"$@\"\nROM=${ARGS##*
   }\nif (( $# > 1 )); then\n\tARGS=${ARGS% *}\nelse\n\tARGS=\"\"\nfi\n\n# run it!\nif
   [ $(echo \"$ROM\" | awk '{ print substr( $0, length($0) - 1, length($0) ) }') =
   \"7z\" ] \nthen\n\t\t./util/7za e -y -o\"/tmp/gnuboy/\" \"$ROM\"\n\t\tFILENAME=$(ls
@@ -10,7 +10,7 @@ custom-command: ! "#!/bin/bash\n\nrm -R /tmp/gnuboy\n\nARGS=\"$@\"\nROM=${ARGS##
   \"$ROM\" \n\t\tFILENAME=$(ls \"/tmp/gnuboy/\")\n\t\t./sdlgnuboy --source gnuboy.rc
   $ARGS \"/tmp/gnuboy/$FILENAME\"\n\t\trm -R /tmp/gnuboy\t\nelse \n\t./sdlgnuboy --source
   gnuboy.rc $ARGS \"$ROM\"\nfi"
-expected-exit-code: 768
+expected-exit-code: 256
 options: []
 default-settings:
   clockspeed: 0

@@ -3,7 +3,9 @@ NULL =
 programsdir=$(pkgdatadir)/Program
 dist_programs_DATA = \
 	dega.cosam.1.16.4.0 \
+	gambatte-qt \
 	gpfcegp2x \
+	gpfce.notaz \
 	gpsp.notaz \
 	handy.cosam.0.5.0.0 \
 	mame.cosam.106 \
