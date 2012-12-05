@@ -107,7 +107,7 @@ namespace Data
 			string? resolved_font = font;
 			if (resolved_font == null && fallback_appearance != null)
 				resolved_font = fallback_appearance.font;
-			if (resolved_font == null)
+			if (resolved_font == null || FileUtils.test(resolved_font, FileTest.EXISTS) == false)
 				resolved_font = get_default_font_path();
 				
 			int resolved_font_size = font_size;

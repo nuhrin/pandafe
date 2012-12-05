@@ -1,5 +1,4 @@
 appearance:
-  font: /usr/local/share/pandafe/fonts/bitwise.ttf
   font-size: 19
   item-color: ! '#178ECB'
   selected-item-color: ! '#FFFFFF'
