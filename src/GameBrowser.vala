@@ -238,14 +238,15 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		clear();
 		set_header(true);
 		Selector new_selector = null;
+		if (selector != null) {
+			foreach(var handler in selector_handlers)
+				selector.disconnect(handler);
+			selector_handlers.clear();
+		}
 		if (this.everything_active == true) {
 			on_selector_loading();		
-			if (everything_selector == null) {
+			if (everything_selector == null)
 				everything_selector = new EverythingSelector(SELECTOR_ID, SELECTOR_XPOS, selector_ypos, current_view_data);
-				everything_selector.changed.connect(() => on_selector_changed());
-				everything_selector.loading.connect(() => on_selector_loading());
-				everything_selector.rebuilt.connect(() => on_selector_rebuilt(everything_selector));
-			}
 			new_selector = everything_selector;
 		} else {
 			if (this.current_folder != null) {
@@ -257,18 +258,20 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 				new_selector = new PlatformFolderSelector.root(SELECTOR_ID, SELECTOR_XPOS, selector_ypos);
 			} else {
 				new_selector = new PlatformSelector(SELECTOR_ID, SELECTOR_XPOS, selector_ypos);
-			}
-			new_selector.changed.connect(() => on_selector_changed());
-			new_selector.loading.connect(() => on_selector_loading());
-			new_selector.rebuilt.connect(() => on_selector_rebuilt(new_selector));
-		}		
+			}			
+		}
+		selector_handlers.add(new_selector.changed.connect(() => on_selector_changed()));
+		selector_handlers.add(new_selector.loading.connect(() => on_selector_loading()));
+		selector_handlers.add(new_selector.rebuilt.connect(() => on_selector_rebuilt(new_selector)));
 		if (this.selector == null)
 			add_layer(new_selector);
 		else
 			replace_layer(SELECTOR_ID, new_selector);
-		
-		this.selector = new_selector;		
+			
+		this.selector = new_selector;
 	}
+	Gee.ArrayList<ulong> selector_handlers = new Gee.ArrayList<ulong>();
+	
 	void on_selector_changed() {
 		if (selector is PlatformFolderSelector)
 			current_platform_folder_index = selector.selected_index;

@@ -194,7 +194,7 @@ public abstract class Selector : Layers.Layer
 	public bool select_display_item(int display_index, bool flip=true) {
 		index_before_select_first = -1;
 		index_before_select_last = -1;
-
+		
 		ensure_surfaces(display_index);
 		if (surfaces.select_item(display_index, selected_display_index()) == true) {
 			selected_index = get_index_from_display_index(display_index);
@@ -315,11 +315,11 @@ public abstract class Selector : Layers.Layer
 	}
 	delegate int TransformIndex(int index);
 	class SelectorSurfaceSet : Object {
-		SelectorItemSet items;
-		Selector selector;
+		weak SelectorItemSet items;
+		weak Selector selector;
 		int16 font_height;
 		
-		TransformIndex get_index_from_display_index;
+		weak TransformIndex get_index_from_display_index;
 		int item_count;
 		int items_per_surface;
 		SelectorSurface? top;
@@ -339,7 +339,7 @@ public abstract class Selector : Layers.Layer
 			this.selector = selector;
 			this.items = selector.items;
 			font_height = selector.ui.font_height;
-			this.get_index_from_display_index = (owned)get_index_from_display_index;
+			this.get_index_from_display_index = get_index_from_display_index;
 
 			surface_count = (item_count + items_per_surface - 1) / items_per_surface;
 			if (surface_count < 1)
@@ -623,7 +623,7 @@ public abstract class Selector : Layers.Layer
 //~ 				debug("creating new surface @index: %d", surface_index);
 			int first_index = surface_index * items_per_surface;
 			return new SelectorSurface(first_index, (is_last) ? item_count - 1 : first_index + items_per_surface - 1,
-				selector, (owned)get_index_from_display_index);
+				selector, get_index_from_display_index);
 		}
 
 		int16 get_surface_window_height(int first, int last) {
@@ -645,10 +645,10 @@ public abstract class Selector : Layers.Layer
 		}
 	}
 	class SelectorSurface : Object {
-		Selector selector;
-		SelectorItemSet items;
+		weak Selector selector;
+		weak SelectorItemSet items;
 		int16 font_height;
-		TransformIndex get_index_from_display_index;
+		weak TransformIndex get_index_from_display_index;
 		Surface surface;
 		int visible_items;
 		int item_spacing;
@@ -665,7 +665,7 @@ public abstract class Selector : Layers.Layer
 			this.selector = selector;
 			this.items = selector.items;
 			font_height = selector.ui.font_height;
-			this.get_index_from_display_index = (owned)get_index_from_display_index;
+			this.get_index_from_display_index = get_index_from_display_index;
 			first_rendered_index = -1;
 			last_rendered_index = -1;
 			visible_items = selector.visible_items;

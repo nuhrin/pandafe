@@ -32,7 +32,7 @@ public class SelectorItemSet : Object
 	const RegexMatchFlags REGEX_MATCH_FLAGS = RegexMatchFlags.NEWLINE_LF;
 
 	GameBrowserUI ui;
-	Selector selector;
+	weak Selector selector;
 	Surface[] item_renderings;
 	int items_rendered_count;
 	int[] item_positions;
