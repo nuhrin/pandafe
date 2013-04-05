@@ -1,0 +1,6 @@
+name: MSX
+platform-type: rom
+rom-file-extensions: msx zip
+programs:
+- openMSX_PND
+

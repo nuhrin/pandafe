@@ -1,0 +1,85 @@
+app-id-type: exact
+app-id: fba-dave18
+custom-command: ! '#!/bin/sh
+
+
+  mkdir -p ./config
+
+  mkdir -p ./config/games
+
+  mkdir -p ./config/ips
+
+  mkdir -p ./config/localisation
+
+  mkdir -p ./config/presets
+
+  mkdir -p ./recordings
+
+  mkdir -p ./roms
+
+  mkdir -p ./savestates
+
+  mkdir -p ./screenshots
+
+  mkdir -p ./support
+
+  mkdir -p ./support/previews
+
+  mkdir -p ./support/titles
+
+  mkdir -p ./support/icons
+
+  mkdir -p ./support/cheats
+
+  mkdir -p ./support/hiscores
+
+  mkdir -p ./support/samples
+
+  mkdir -p ./support/ips
+
+  mkdir -p ./support/neocdz
+
+  mkdir -p ./neocdiso
+
+
+  mv capex.sh capex.sh.off
+
+
+  nub0="$(cat /proc/pandora/nub0/mode)"
+
+  nub1="$(cat /proc/pandora/nub1/mode)"
+
+
+  echo absolute > /proc/pandora/nub0/mode
+
+  echo absolute > /proc/pandora/nub1/mode
+
+
+  export LD_LIBRARY_PATH=./lib
+
+  export SDL_VIDEODRIVER=omapdss
+
+  export SDL_OMAP_LAYER_SIZE=800x480
+
+  export SDL_OMAP_VSYNC=0
+
+  LD_PRELOAD=./lib/libstdc++.so.6 ./fba "$@"
+
+
+  echo $nub0 > /proc/pandora/nub0/mode
+
+  echo $nub1 > /proc/pandora/nub1/mode
+
+
+  ./picorestore
+
+
+  mv capex.sh.off capex.sh'
+expected-exit-code: 0
+options: []
+default-settings:
+  extra-arguments: 
+  show-output: false
+  clockspeed: 0
+name: FBA
+

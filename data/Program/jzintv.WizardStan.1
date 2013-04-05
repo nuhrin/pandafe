@@ -1,0 +1,37 @@
+app-id-type: exact
+app-id: jzintv.WizardStan.1
+custom-command: ! "#! /bin/sh\n\nROMDIR=`cat lastromdir`\nif [ ! -e \"$ROMDIR\" ]\nthen\n\t#TODO:
+  this could better be served jumping to the SD card but I haven't figured that part
+  out yet\n\tROMDIR=\"./\"\nfi\nif [ ! -e \"./grom.bin\" ]\nthen\n\tzenity --question
+  \\\n\t       --text=\"grom.bin not found. Select it?\"\n\tif [ \"$?\" -ne \"0\"
+  ]\n\tthen\n\t\tzenity --error --text=\"Cannot execute without grom.bin\"\n\t\texit
+  1;\n\telse\n\t\tFILE=`zenity --file-selection --title=\"Locate grom.bin\" --filename=\"$ROMDIR/grom.bin\"`\n\t\tcase
+  $? in\n\t\t\t0)\n\t\t\t\tFILENAME=`basename $FILE`;\n\t\t\t\tif [ \"$FILENAME\"
+  != \"grom.bin\" ]\n\t\t\t\tthen\n\t\t\t\t\tzenity --error --text=\"File is not grom.bin\";\n\t\t\t\t\texit
+  1;\n\t\t\t\telse\n\t\t\t\t\tcp \"$FILE\" .\n\t\t\t\t\tROMDIR=`dirname $FILE`/\n\t\t\t\tfi;;\n\t\t\t1)\n\t\t\t\tzenity
+  --error --text=\"Cannot execute without grom.bin\"\n\t\t\t\texit 1;;\n\t\t\t-1)\n\t\t\t\tzenity
+  --error --text=\"Cannot execute without grom.bin\"\n\t\t\t\texit 1;;\n\t\tesac\n\tfi\nfi\nif
+  [ ! -e \"./exec.bin\" ]\nthen\n\tzenity --question \\\n\t       --text=\"exec.bin
+  not found. Select it?\"\n\tif [ \"$?\" -ne \"0\" ]\n\tthen\n\t\tzenity --error --text=\"Cannot
+  execute without exec.bin\"\n\t\texit 1;\n\telse\n\t\tFILE=`zenity --file-selection
+  --title=\"Locate exec.bin\" --filename=\"$ROMDIR/exec.bin\"`\n\t\tcase $? in\n\t\t\t0)\n\t\t\t\tFILENAME=`basename
+  $FILE`;\n\t\t\t\tif [ \"$FILENAME\" != \"exec.bin\" ]\n\t\t\t\tthen\n\t\t\t\t\tzenity
+  --error --text=\"File is not exec.bin\";\n\t\t\t\t\texit 1;\n\t\t\t\telse\n\t\t\t\t\tcp
+  \"$FILE\" .\n\t\t\t\t\tROMDIR=`dirname $FILE`/\n\t\t\t\tfi;;\n\t\t\t1)\n\t\t\t\tzenity
+  --error --text=\"Cannot execute without exec.bin\"\n\t\t\t\texit 1;;\n\t\t\t-1)\n\t\t\t\tzenity
+  --error --text=\"Cannot execute without exec.bin\"\n\t\t\t\texit 1;;\n\t\tesac\n\tfi\nfi\n\nFILE=\"$1\"\n\nROMDIR=`dirname
+  \"$FILE\"`/\necho $ROMDIR > lastromdir\nROMFILE=`basename \"$FILE\"`;\n#BASEFILE=`expr
+  match \"$ROMFILE\" '\\([^.]*\\)\\.'`\nBASEFILE=${ROMFILE%.*}\nKBFILE=\"$ROMDIR/$BASEFILE.kbd\"\nif
+  [ ! -e \"$KBFILE\" ]\nthen\n\tKBFILE=\"./$BASEFILE.kbd\"\n\n\tif [ ! -e \"$KBFILE\"
+  ]\n\tthen\n\t\tKBFILE=\"./default.kbd\"\n\tfi\nfi\nNUB0MODE=`cat /proc/pandora/nub0/mode`\nNUB1MODE=`cat
+  /proc/pandora/nub1/mode`\necho absolute > /proc/pandora/nub0/mode\necho absolute
+  > /proc/pandora/nub1/mode\n./jzintv \"$FILE\" --kbdhackfile=\"$KBFILE\"\necho $NUB0MODE
+  > /proc/pandora/nub0/mode\necho $NUB1MODE > /proc/pandora/nub1/mode"
+expected-exit-code: 0
+options: []
+default-settings:
+  extra-arguments: 
+  show-output: false
+  clockspeed: 0
+name: jzIntv
+

@@ -1,0 +1,8 @@
+name: Arcade
+platform-type: rom
+rom-file-extensions: .zip
+programs:
+- fba-dave18
+- mame.cosam.106
+default-program: fba-dave18
+

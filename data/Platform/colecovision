@@ -1,0 +1,6 @@
+name: Colecovision
+platform-type: rom
+rom-file-extensions: bin col rom
+programs:
+- colem.skeezix
+

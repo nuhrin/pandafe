@@ -1,0 +1,17 @@
+app-id-type: exact
+app-id: gngeopnd-pepone
+custom-command: ! "#!/bin/sh\n\nmkdir -p conf roms save\nif [ ! -f ./conf/gngeorc
+  ] ; then\n    echo \"effect none\" >> ./conf/gngeorc\n    #echo \"hwsurface false\"
+  >> ./conf/gngeorc\n    echo \"fullscreen true\" >> ./conf/gngeorc\n    echo \"autoframeskip
+  false\"\n    echo \"vsync true\"\nfi\n\nROMDIR=\"$(dirname $1)\"\nROMFILE=\"$(basename
+  $1)\"\nROMNAME=\"${ROMFILE%.*}\"\nshift\n\nexport SDL_VIDEODRIVER=omapdss\n#export
+  SDL_OMAP_LAYER_SIZE=640x480\nexport SDL_OMAP_VSYNC=1\nsudo -n /usr/pandora/scripts/op_lcdrate.sh
+  60\n\n./gngeo --rompath=\"$ROMDIR\" $ROMNAME \"$@\""
+expected-exit-code: 0
+options: []
+default-settings:
+  extra-arguments: 
+  show-output: false
+  clockspeed: 0
+name: Gngeo
+

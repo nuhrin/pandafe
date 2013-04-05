@@ -1,0 +1,6 @@
+name: Atari 2600
+platform-type: rom
+rom-file-extensions: bin zip
+programs:
+- stella
+

@@ -2,10 +2,16 @@ NULL =
 
 platformsdir=$(pkgdatadir)/Platform
 dist_platforms_DATA = \
+	arcade \
+	atari2600 \
 	atarilynx \
+	colecovision \
+	commodore64 \
 	gameboy \
 	gameboyadvance \
-	mame \
+	intellivision \
+	msx \
+	neogeo \
 	neogeopocket \
 	nes \
 	nintendo64 \

@@ -1,0 +1,6 @@
+name: Commodore 64
+platform-type: rom
+rom-file-extensions: x64 d64 t64 tap
+programs:
+- vicex64.pickle
+

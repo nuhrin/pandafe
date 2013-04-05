@@ -1,0 +1,6 @@
+name: Intellivision
+platform-type: rom
+rom-file-extensions: bin rom int
+programs:
+- jzintv.WizardStan.1
+

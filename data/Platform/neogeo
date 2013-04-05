@@ -1,0 +1,8 @@
+name: NeoGeo
+platform-type: rom
+rom-file-extensions: zip
+programs:
+- gngeopnd-pepone
+- fba-dave18
+default-program: gngeopnd-pepone
+

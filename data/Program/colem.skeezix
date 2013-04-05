@@ -1,0 +1,16 @@
+app-id-type: exact
+app-id: colem.skeezix
+custom-command: ! "#!/bin/sh\n\n# extra libs\nLD_LIBRARY_PATH=${LD_LIBRARY_PATH}:.\nexport
+  LD_LIBRARY_PATH\n\nif [[ ! -e COLECO.ROM ]]; then\n    zenity --warning --text=\"Place
+  COLECO.ROM in /pandora/appdata/colem.skeezix\"\n    exit 1\nfi\n\n#FILENAME=`zenity
+  --file-selection --title=\"Select a Colecovision ROM\"`\n\n# start in background\n./colem
+  \"$@\" &\n# make fullscreen and hide cursor\nxdotool key alt+F11\nxdotool mousemove
+  900 500\n# wait for colem\nwait %1"
+expected-exit-code: 0
+options: []
+default-settings:
+  extra-arguments: 
+  show-output: false
+  clockspeed: 0
+name: Colem
+

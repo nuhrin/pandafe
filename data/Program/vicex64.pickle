@@ -1,0 +1,11 @@
+app-id-type: exact
+app-id: vicex64.pickle
+custom-command: ! "#!/bin/sh\nif [[ ! -e ./.vice/sdl-vicerc ]]; then\n    mkdir .vice\n
+  \   cp sdl-vicerc .vice/\nfi\n./x64 -directory data/C64:data/DRIVES \"$@\""
+expected-exit-code: 0
+options: []
+default-settings:
+  extra-arguments: 
+  clockspeed: 0
+name: Vice x64
+

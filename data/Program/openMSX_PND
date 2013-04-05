@@ -1,0 +1,13 @@
+app-id-type: exact
+app-id: openMSX_PND
+custom-command: ! "#!/bin/sh\n\nexport OPENMSX_SYSTEM_DATA=./\nexport HOME=./\nexport
+  OPENMSX_USER_DATA=./\n\n# Set folders\nmkdir -p ./systemroms\nmkdir -p ./software\n\nif
+  ! test -f pandafe.tcl; then\n  cat omsxcmd.tcl | grep -v ^main_menu_open > pandafe.tcl\nfi\n\n./openmsx.bin
+  -script pandafe.tcl \"$@\""
+expected-exit-code: 0
+options: []
+default-settings:
+  extra-arguments: 
+  clockspeed: 0
+name: openMSX
+

@@ -1,0 +1,15 @@
+app-id-type: exact
+app-id: stella
+custom-command: ! "#!/bin/bash\n\nif ! [[ -e ./.asoundrc ]]; then\n  ln -s $HOME/.asoundrc
+  ./.asoundrc\nfi\n\nif ! [[ -d ./.stella ]]; then\n  cp -r ./misc/.stella/ .\nfi\n\ncp
+  .stella/stellarc .stella/stellarc.bak\n\nexport HOME=$(pwd)\n./stella -uselauncher
+  0 -fullscreen 1 \"$@\"\nresult=$?\n\nmv .stella/stellarc.bak  .stella/stellarc\n\nexit
+  $result"
+expected-exit-code: 0
+options: []
+default-settings:
+  extra-arguments: 
+  show-output: false
+  clockspeed: 0
+name: Stella
+
