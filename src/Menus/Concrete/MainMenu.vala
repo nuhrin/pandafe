@@ -69,6 +69,7 @@ namespace Menus.Concrete
 			var platform_folders_item_index = items.size;
 			platform_folders_field.changed.connect(() => {
 				string? error;
+				Data.platforms().get_platform_folder_data().folders = platform_folders_field.value;
 				if (Data.platforms().save_platform_folder_data(out error) == true)
 					refresh(platform_folders_item_index);
 				else
