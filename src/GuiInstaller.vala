@@ -85,19 +85,54 @@ public class GuiInstaller
 	}
 		
 	const string pandafe_start_format = """#!/bin/bash
+PND="%s"
+
+NOT_FOUND_TEXT=$(cat <<TEXTEND
+Pandafe was not found where expected:
+        <i>$PND</i>
+
+possible causes:
+* the sd card containing the pnd is not inserted
+* the sd card is in a different slot than at install time
+* the pnd has been moved to a different path
+
+possible solutions:
+* insert the sd card into the expected slot
+* re-run Pandafe from a different gui, then
+  uninstall and reinstall this gui
+TEXTEND
+)
+
+function pnd_not_found_dialog() {
+        zenity --question --title "Pandafe GUI: PND NOT FOUND" --cancel-label="Switch GUI" --ok-label="Retry" --text="$NOT_FOUND_TEXT" --width=520 
+}
+
+function run_pandafe() {
+        if [[ ! -f "$PND" ]]; then
+                pnd_not_found_dialog   
+                if [[ $? ==  "0" ]]; then
+                        run_pandafe
+                else
+                        /usr/pandora/scripts/op_switchgui.sh
+                fi
+                return
+        fi
+
+	# run pandafe via mount->run->unmount, to avoid pandora key kill (which is unhelpful in this context)
+	/usr/pandora/scripts/pnd_run.sh -m -p "$PND" -b "pandafe"
+	cd /mnt/utmp/pandafe
+	./pandafe.sh --as-gui
+	cd
+	/usr/pandora/scripts/pnd_run.sh -u -p "$PND" -b "pandafe"
+}
+
 # start window manager, for decorating gtk windows
 xfwm4 &
 
-# run pandafe via mount->run->unmount, to avoid pandora key kill (which is unhelpful in this context)
-/usr/pandora/scripts/pnd_run.sh -m -p "%s" -b "pandafe"
-cd /mnt/utmp/pandafe
-./pandafe.sh --as-gui
-cd
-/usr/pandora/scripts/pnd_run.sh -u -p "%s" -b "pandafe"
+run_pandafe
 
 # shudown window manager
-killall -2 xfwm4
-""";
+killall -2 xfwm4""";
 
 const string check_pandafe_gui_sh = """#!/bin/bash
 GUICONF="/etc/pandora/conf/gui.conf"
