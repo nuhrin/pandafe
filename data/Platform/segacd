@@ -1,5 +1,5 @@
 name: Sega CD
 platform-type: rom
-rom-file-extensions: zip
+rom-file-extensions: zip cue
 programs:
 - picodrive.notaz.1.80

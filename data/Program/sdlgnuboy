@@ -1,9 +1,8 @@
 app-id-type: exact
 app-id: sdlgnuboy
-custom-command: ! "#!/bin/bash\n\nrm -Rf /tmp/gnuboy\n\nARGS=\"$@\"\nROM=${ARGS##*
-  }\nif (( $# > 1 )); then\n\tARGS=${ARGS% *}\nelse\n\tARGS=\"\"\nfi\n\n# run it!\nif
-  [ $(echo \"$ROM\" | awk '{ print substr( $0, length($0) - 1, length($0) ) }') =
-  \"7z\" ] \nthen\n\t\t./util/7za e -y -o\"/tmp/gnuboy/\" \"$ROM\"\n\t\tFILENAME=$(ls
+custom-command: ! "#!/bin/bash\n\nrm -Rf /tmp/gnuboy\n\nARGS=\"${@:1:$# - 1}\"\nROM=\"${@:$#}\"\n\n#
+  run it!\nif [ $(echo \"$ROM\" | awk '{ print substr( $0, length($0) - 1, length($0)
+  ) }') = \"7z\" ] \nthen\n\t\t./util/7za e -y -o\"/tmp/gnuboy/\" \"$ROM\"\n\t\tFILENAME=$(ls
   \"/tmp/gnuboy/\")\n\t\t./sdlgnuboy --source gnuboy.rc $ARGS \"/tmp/gnuboy/$FILENAME\"\n\t\trm
   \"/tmp/gnuboy/*\"\nfi\nif [ $(echo \"$ROM\" | awk '{ print substr( $0, length($0)
   - 2, length($0) ) }') = \"zip\" ]\nthen\n        ./util/7za e -y -o\"/tmp/gnuboy/\"

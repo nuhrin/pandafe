@@ -7,7 +7,7 @@ custom-command: ! "#!/bin/sh\n\nexport OPENMSX_SYSTEM_DATA=./\nexport HOME=./\ne
 expected-exit-code: 0
 options: []
 default-settings:
-  extra-arguments: 
+  extra-arguments: -cart %g
   clockspeed: 0
 name: openMSX
 

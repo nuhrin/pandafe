@@ -5,5 +5,5 @@ programs:
 - gpfce.notaz
 - gpfcegp2x
 - mednafen-nes
-default-program: mednafen-nes
+default-program: gpfce.notaz
 

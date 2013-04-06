@@ -3,7 +3,7 @@ app-id: gpfce.notaz
 custom-command: ! '#!/bin/sh
 
 
-  ./fceu $@
+  ./fceu "$@"
 
 
   sudo -n /usr/pandora/scripts/op_lcdrate.sh 60'
