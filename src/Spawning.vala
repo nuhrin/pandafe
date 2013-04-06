@@ -76,16 +76,11 @@ public class Spawning
 		if (args == null || args == "")
 			args = app.exec_arguments;
 
-		string game_path_link = null;
 		if (game_path != null) {
-			if (invalid_file_chars.match(game_path) == true)
-				// if game path contains spaces, use a temp symlink without spaces to workaround libpnd issues
-				game_path_link = get_game_symlink_path(game_path);
 			if (args != null && args.index_of("%g") != -1)
-				args = args.replace("%g", game_path_link ?? game_path);
+				args = args.replace("%g", "\"%s\"".printf(game_path));
 			else
-				args = "%s %s".printf((args ?? ""), game_path_link ?? game_path);
-			//debug("args: %s", args);
+				args = "%s \"%s\"".printf((args ?? ""), game_path);
 		}
 
 		bool has_custom_command = ((custom_command != null && custom_command_script != null) || (program.custom_command != null && program.custom_command != ""));
@@ -123,58 +118,11 @@ public class Spawning
 			}
 		}
 		// run the pnd
-		if (game_path_link != null) {
-			string? symlink_error;
-			if (create_game_symlink(game_path_link, game_path, out symlink_error) == false)
-				return new SpawningResult.error("game setup: " + symlink_error);			
-		}				
-		//Pandora.Apps.set_pndrun_path(get_custom_pndrun_path());
-		//var result = spawn_app_wrapper(app.get_fullpath(), mount_id, command, startdir, args, clockspeed, Pandora.Apps.ExecOption.BLOCK);
-		//Pandora.Apps.unset_pndrun_path();
 		var working_directory = mountset.get_mounted_path(app.package_id);
 		if (has_custom_command == false && startdir != null && startdir.strip() != "")
 			working_directory = Path.build_filename(working_directory, startdir);
-		var result = spawn_app_wrapper_direct(working_directory, command, args, clockspeed);
-		if (game_path_link != null)
-			delete_game_symlink(game_path_link);
 		
-		return result;
-	}
-
-	static string? get_game_symlink_path(string game_path) {
-		return "%s%c%s".printf(TMP_PATH, Path.DIR_SEPARATOR, invalid_file_chars.replace(File.new_for_path(game_path).get_basename(), "_"));
-	}
-	static bool create_game_symlink(string linkpath, string game_path, out string? error) {
-		error = null;
-		try {
-			if (FileUtils.test(TMP_PATH, FileTest.EXISTS) == false) {
-				if (File.new_for_path(TMP_PATH).make_directory_with_parents() == false) {
-					error = "unable to create directory '%s'".printf(TMP_PATH);
-					return false;
-				}
-			}
-			var linkfile = File.new_for_path(linkpath);
-			if (FileUtils.test(linkpath, FileTest.EXISTS) == true)
-				linkfile.delete();
-
-			if (linkfile.make_symbolic_link(game_path) == false) {
-				error = "unable to create symbolic link '%s' => '%s'".printf(linkpath, game_path);
-				return false;
-			}
-			return true;
-		}
-		catch (Error e) {
-			error = "unable to create symbolic link '%s' => '%s': %s".printf(linkpath, game_path, e.message);
-		}
-		return false;
-	}
-	static bool delete_game_symlink(string linkpath) {
-		try {
-			return File.new_for_path(linkpath).delete();
-		} catch(Error e) {
-			warning("unable to delete symbolic link '%s': %s", linkpath, e.message);
-		}
-		return false;
+		return spawn_app_wrapper_direct(working_directory, command, args, clockspeed);		
 	}
 	
 	static SpawningResult spawn_app_wrapper(string fullpath, string unique_id, string command, string? startdir=null, string? args=null, uint clockspeed=0, bool treat_non_zero_exit_code_as_error=true) {
