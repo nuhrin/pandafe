@@ -1,6 +1,6 @@
 name: Playstation
 platform-type: rom
-rom-file-extensions: cue
+rom-file-extensions: cue iso
 programs:
 - pcsx_rearmed.notaz
 
