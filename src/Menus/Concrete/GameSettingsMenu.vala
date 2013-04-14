@@ -44,7 +44,7 @@ namespace Menus.Concrete
 		HashMap<Option,MenuItemField> field_hash;
 		
 		public GameSettingsMenu(GameItem game) {
-			var platform = game.platform();			
+			var platform = game.platform;			
 			this.custom(game.id, game.full_name, platform, Data.get_game_settings(game) ?? new GameSettings() { platform = platform.id });
 		}
 		public GameSettingsMenu.custom(string game_id, string game_name, Platform platform, GameSettings settings) {

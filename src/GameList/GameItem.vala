@@ -30,25 +30,25 @@ namespace Data.GameList
 	public class GameItem : YamlObject, Gee.Comparable<IGameListNode>, IGameListNode
 	{
 		string _name;
-		GameListProvider _provider;
+		Platform _platform;
 		GameFolder _parent;
 		string? _id;
 		string? _full_name;
 
-		public static GameItem create(string name, GameListProvider provider, GameFolder parent, string? id=null, string? full_name=null) {
+		public static GameItem create(string name, Platform platform, GameFolder parent, string? id=null, string? full_name=null) {
 			GameItem game = new GameItem();
 			game._name = name;
-			game._provider = provider;
+			game._platform = platform;
 			game._parent = parent;
 			game._id = id;
 			game._full_name = full_name;
 			return game;
 		}
-		public static void set_provider(GameItem game, GameListProvider provider) { game._provider = provider; }
+		public static void set_platform(GameItem game, Platform platform) { game._platform = platform; }
 		public static void set_parent(GameItem game, GameFolder parent) { game._parent = parent; }
 		public static void set_full_name(GameItem game, string full_name) { game._full_name = full_name; }
 
-		protected GameListProvider provider { get { return _provider; } }
+		public Platform platform { get { return _platform; } }
 		public GameFolder? parent { get { return _parent; } }
 
 		public string id { get { return (_id != null) ? _id : _name; } }
@@ -71,8 +71,8 @@ namespace Data.GameList
 			}
 		}
 
-		public SpawningResult run() { return provider.run_game(this); }
-		public Program? get_program() { return provider.get_program_for_game(this); }
+		public SpawningResult run() { return platform.run_game(this); }
+		public Program? get_program() { return platform.get_program_for_game(this); }
 
 		// yaml
 		protected override Yaml.Node build_yaml_node(Yaml.NodeBuilder builder) {

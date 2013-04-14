@@ -183,8 +183,8 @@ namespace Data.Platforms
 				}
 			}
 			
-			// rebuild platform folders
-			platform.rebuild_folders((owned)pre_scan_action);
+			// rebuild platform data and rescan
+			platform.rebuild((owned)pre_scan_action);
 			return true;
 		}
 		public bool remove_platform(Platform platform, out string? error) {

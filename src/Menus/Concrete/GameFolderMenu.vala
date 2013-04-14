@@ -36,7 +36,7 @@ namespace Menus.Concrete
 			base(name, help);
 			this.title = "Game " + name;
 			this.folder = folder;			
-			platform = folder.platform();
+			platform = folder.platform;
 			ensure_items();
 		}
 

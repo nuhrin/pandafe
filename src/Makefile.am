@@ -77,11 +77,7 @@ pandafe_VALASOURCES = \
 	GameList/GameFolder.vala \
 	GameList/GameFolderCache.vala \
 	GameList/GameItem.vala \
-	GameList/GameListProvider.vala \
 	GameList/IGameListNode.vala \
-	GameList/ProgramGameList.vala \
-	GameList/RomList.vala \
-	GameList/PndList.vala \
 	Fields/ColorField.vala \
 	Fields/ClockSpeedField.vala \
 	Fields/CustomCommandField.vala \

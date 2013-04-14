@@ -32,24 +32,24 @@ namespace Data.GameList
 
 		string? _id;
 		string _name;
-		GameListProvider _provider;
+		Platform _platform;
 		GameFolder? _parent;
 		ArrayList<GameFolder> _child_folders;
 		ArrayList<GameItem> _child_games;
 		bool children_loaded = false;
 
-		public GameFolder(string name, GameListProvider provider, GameFolder? parent) {
+		public GameFolder(string name, Platform platform, GameFolder? parent) {
 			_name = name;
-			_provider = provider;
+			_platform = platform;
 			_parent = parent;
 		}
-		public GameFolder.root(string name, GameListProvider provider, string? id=null) {
+		public GameFolder.root(string name, Platform platform, string? id=null) {
 			_name = name;
-			_provider = provider;
+			_platform = platform;
 			_id = id;
 		}
 
-		protected GameListProvider provider { get { return _provider; } }
+		protected Platform platform { get { return _platform; } }
 		public GameFolder? parent { get { return _parent; } }
 
 		public string id { get { return (_id != null) ? _id : _name; } }
@@ -175,7 +175,7 @@ namespace Data.GameList
 			} else {
 				_child_folders = new ArrayList<GameFolder>();
 				foreach(var subfolder in cache.subfolders) {
-					_child_folders.add(new GameFolder(subfolder, _provider, this));
+					_child_folders.add(new GameFolder(subfolder, _platform, this));
 				}
 			}
 			if (cache.games.size == 0) {
@@ -183,7 +183,7 @@ namespace Data.GameList
 			} else {
 				_child_games = cache.games;
 				foreach(var game in _child_games) {
-					GameItem.set_provider(game, _provider);
+					GameItem.set_platform(game, _platform);
 					GameItem.set_parent(game, this);
 				}
 			}
@@ -194,10 +194,10 @@ namespace Data.GameList
 		void scan_children(bool recursive, owned ForEachFunc<GameFolder>? pre_scan_action=null) {
 			if (pre_scan_action != null)
 				pre_scan_action(this);
-			platform().folder_scanned(this);
+			platform.folder_scanned(this);
 			
 			ArrayList<GameItem> games;
-			provider.scan_children(this, out _child_folders, out games);
+			platform.get_children(this, out _child_folders, out games);
 
 			// note: any transient GameItem settings (only in cache) need to be remapped here to the newly scanned items
 			_child_games = games;
@@ -215,7 +215,7 @@ namespace Data.GameList
 		string get_yaml_folder() {
 			if (_yaml_folder == null) {
 				_yaml_folder = (_parent == null)
-					? Path.build_filename(YAML_FOLDER_ROOT, provider.platform.id)
+					? Path.build_filename(YAML_FOLDER_ROOT, platform.id)
 					: Path.build_filename(_parent.get_yaml_folder(), name);
 			}
 			return _yaml_folder;

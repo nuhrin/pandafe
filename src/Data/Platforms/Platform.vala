@@ -52,10 +52,76 @@ public abstract class Platform : NamedEntity, MenuObject
 			return "Native Platform";
 		return "Platform";
 	}
-	public abstract bool supports_game_settings { get; }
+	
+	// game launching
+	public abstract SpawningResult run_game(GameItem game);
 	public abstract Program? get_program(string? program_id=null);
-	public GameFolder get_root_folder() { return provider.root_folder; }
-	public GameFolder? get_folder(string unique_name) {
+	public abstract Program? get_program_for_game(GameItem game);
+	public abstract bool supports_game_settings { get; }
+	
+	// runtime data
+	protected void ensure_runtime_data() {
+		if (initialized == true)
+			return;
+		initialize_runtime_data();
+		initialized = true;
+	}
+	protected abstract void initialize_runtime_data();
+	protected bool initialized { get; private set; }
+	
+	// scanning
+	public void rebuild(owned ForEachFunc<GameFolder>? pre_scan_action=null) {
+		initialize_runtime_data();
+		initialized = true;
+		rescan((owned)pre_scan_action);
+	}
+	public void rescan(owned ForEachFunc<GameFolder>? pre_scan_action=null) {
+		remove_platform_gamelist_cache();
+		rescan_init();
+		get_root_folder().rescan_children(true, (owned)pre_scan_action);
+		rescanned();
+	}
+	public signal void rescanned();
+	public signal void folder_scanned(GameFolder folder);
+	protected virtual void rescan_init() { }		
+	void remove_platform_gamelist_cache() {
+		if (this.id == null)
+			return;
+		string gamelistcache_path = Path.build_filename(Build.LOCAL_CONFIG_DIR, Data.GameList.GameFolder.YAML_FOLDER_ROOT, this.id);
+		if (FileUtils.test(gamelistcache_path, FileTest.IS_DIR) == true) {
+			try {
+				var directory = File.new_for_path(gamelistcache_path);
+				Utility.remove_directory_recursive(directory);
+			} catch(GLib.Error e) {
+				warning("error remove platform '%s' gamelist cache: %s", this.id, e.message);
+			}
+		}
+	}
+
+	// game list
+	public abstract GameFolder get_root_folder();
+	public virtual string get_nearest_folder_path(string folder_path) {
+		if (folder_path == null)
+			return "";
+		string[] parts = folder_path.strip().split("/");
+		if (parts.length == 0)
+			return "";
+		var folder = get_root_folder();
+		foreach(var part in parts) {
+			bool found = false;
+			foreach(var child in folder.child_folders()) {
+				if (child.name == part){
+					found = true;
+					folder = child;
+					break;
+				}
+			}
+			if (found == false)
+				break;
+		}
+		return folder.unique_name();
+	}
+	public virtual GameFolder? get_folder(string unique_name) {
 		if (unique_name == null || unique_name == "")
 			return null;
 
@@ -71,29 +137,10 @@ public abstract class Platform : NamedEntity, MenuObject
 
 		return root_folder.get_descendant_folder_by_id(unique_id);
 	}
+	public abstract string get_unique_node_name(IGameListNode node);
+	public virtual string get_unique_node_id(IGameListNode node) { return get_unique_node_name(node); }	
+	public abstract bool get_children(GameFolder folder, out ArrayList<GameFolder> child_folders, out ArrayList<GameItem> child_games);
 	
-	public void rebuild_folders(owned ForEachFunc<GameFolder>? pre_scan_action=null) {
-		reset_provider();
-		rescan((owned)pre_scan_action);
-	}
-	public void rescan(owned ForEachFunc<GameFolder>? pre_scan_action=null) {
-		provider.rescan((owned)pre_scan_action);
-		rescanned();
-	}
-	public signal void rescanned();
-	public signal void folder_scanned(GameFolder folder);
-	
-	protected GameListProvider provider {
-		get {
-			if (_provider == null)
-				_provider = create_provider();
-			return _provider;
-		}
-	}	
-	GameListProvider _provider;	
-	protected void reset_provider() { _provider = null; }
-	protected abstract GameListProvider create_provider();
-
 	// yaml
 	protected override Yaml.Node build_yaml_node(Yaml.NodeBuilder builder) {
 		var mapping = new Yaml.MappingNode();

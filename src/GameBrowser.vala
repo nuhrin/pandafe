@@ -54,7 +54,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
     int current_platform_folder_index;
     Platform? current_platform;
     string current_filter;
-	GameFolder? current_folder;
+	string? current_folder;
 
     public GameBrowser() {
 		base("gamebrowser", @interface.game_browser_ui.background_color_rgb);
@@ -171,9 +171,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		if (current_platform == null) {
 			current_folder = null;			
 		} else {
-			current_folder = current_platform.get_folder(state.get_current_platform_folder_id() ?? "");
-			if (current_folder == null)
-				current_folder = current_platform.get_root_folder();
+			current_folder = current_platform.get_nearest_folder_path(state.get_current_platform_folder_id() ?? "");			
 		}
 		change_selector();
 		int item_index = -1;
@@ -200,7 +198,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		if (platform_list_active)
 			state.current_platform_folder = "(list)";
 		if (current_platform != null)
-			state.apply_platform_state(current_platform, (current_folder != null) ? current_folder.unique_name() : null, selector.selected_index, selector.get_filter_pattern());
+			state.apply_platform_state(current_platform, current_folder, selector.selected_index, selector.get_filter_pattern());
 		if (everything_selector != null)
 			state.apply_all_games_state(everything_active, everything_selector.selected_index, everything_selector.get_filter_pattern(), current_view_data);
 		else
@@ -218,7 +216,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 				left = everything_selector.view_name;
 				var game = everything_selector.selected_game();
 				if (game != null) {
-					center = game.platform().name;
+					center = game.platform.name;
 					if (game.parent.parent != null)
 						right = game.parent.unique_name().strip();
 				}
@@ -226,7 +224,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		}
 		else if (current_platform != null) {
 			left = current_platform.name;
-			right = current_folder.unique_name().strip();
+			right = current_folder ?? "";
 		} else {
 			left = "Platforms";
 			if (current_platform_folder != null)
@@ -250,8 +248,11 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 			new_selector = everything_selector;
 		} else {
 			if (this.current_folder != null) {
-				on_selector_loading();		
-				new_selector = new GameFolderSelector(this.current_folder, SELECTOR_ID, SELECTOR_XPOS, selector_ypos);				
+				on_selector_loading();
+				var folder = current_platform.get_folder(current_folder);
+				if (folder == null)
+					folder = current_platform.get_root_folder();
+				new_selector = new GameFolderSelector(folder, SELECTOR_ID, SELECTOR_XPOS, selector_ypos);				
 			} else if (this.current_platform_folder != null) {
 				new_selector = new PlatformFolderSelector(this.current_platform_folder, SELECTOR_ID, SELECTOR_XPOS, selector_ypos);
 			} else if (platform_list_active == false && this.platform_folder_data.folders.size > 0) {
@@ -302,7 +303,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 	void game_folder_scanned(GameFolder folder) {
 		if (@interface.peek_layer() != null)
 			return; // another layer has focus, don't bother reporting scan
-		status_message.set("Scanning", folder.platform().name, folder.unique_name());
+		status_message.set("Scanning", folder.platform.name, folder.unique_name());
 	}
 	void platform_folders_changed() {
 		if (current_platform_folder == null) {
@@ -393,28 +394,19 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 	}
 	void platform_rescanned(Platform platform) {
 		if (current_platform != null && current_platform == platform && current_folder != null) {
-			var existing_folder = current_folder;
-			var new_folder = current_platform.get_folder_by_id(existing_folder.unique_id());
-			while (new_folder == null && existing_folder.parent != null) {
-				existing_folder = existing_folder.parent;
-				new_folder = current_platform.get_folder(existing_folder.unique_id());
-			}
-			if (new_folder == null)
-				new_folder = current_platform.get_root_folder();
-			current_folder = new_folder;
-			if (everything_active) {
-				var gfs = existing_selector as GameFolderSelector;
-				if (gfs != null)
-					gfs.folder = current_folder;
-			} else {
-				var gfs = selector as GameFolderSelector;
-				if (gfs != null) {
-					gfs.folder = current_folder;					
-				} else {
-					change_selector();
-					selector.select_first();
-				}
-			}
+			current_folder = current_platform.get_nearest_folder_path(current_folder);
+			GameFolderSelector gfs = (everything_active)
+				? existing_selector as GameFolderSelector
+				: selector as GameFolderSelector;
+			if (gfs != null) {
+				var new_folder = current_platform.get_folder(current_folder);
+				if (new_folder == null)
+					new_folder = current_platform.get_root_folder();
+				gfs.folder = new_folder;
+			} else if (everything_active == false) {
+				change_selector();
+				selector.select_first();
+			}			
 		} else if (current_platform_folder != null) {
 			foreach(var platform_node in current_platform_folder.platforms) {
 				if (platform_node.platform == platform) {
@@ -589,7 +581,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 				if (ensure_platform_root_rolder(platform_node.platform) == false)
 					return;
 				current_platform = platform_node.platform;
-				current_folder = current_platform.get_root_folder();
+				current_folder = "";
 				change_selector();
 				var state = Data.browser_state();
 				state.current_platform = current_platform.id;
@@ -607,7 +599,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 			if (ensure_platform_root_rolder(selected_platform) == false)
 				return;
 			current_platform = selected_platform;
-			current_folder = current_platform.get_root_folder();
+			current_folder = "";
 			change_selector();
 			var state = Data.browser_state();
 			state.current_platform = current_platform.id;
@@ -623,7 +615,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 			var item = game_selector.selected_item();
 			var folder = item as GameFolder;
 			if (folder != null) {
-				current_folder = folder;
+				current_folder = folder.unique_name();
 				change_selector();
 				if (current_filter != null)
 					selector.filter(current_filter);
@@ -710,8 +702,8 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		}
 		var game_selector = selector as GameFolderSelector;
 		if (game_selector != null) {
-			if (current_folder.parent == null) {
-				Data.browser_state().apply_platform_state(current_platform, current_folder.unique_name(),
+			if (game_selector.folder.parent == null) {
+				Data.browser_state().apply_platform_state(current_platform, current_folder,
 					selector.selected_index, selector.get_filter_pattern());
 				current_folder = null;
 				current_filter = null;
@@ -725,17 +717,17 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 					selector.select_item_starting_with(platform.name);
 				return;
 			}
-			var current_name = current_folder.unique_name();
-			current_folder = current_folder.parent;
+			var previous_folder = current_folder;
+			current_folder = game_selector.folder.parent.unique_name();
 			change_selector();
-			if (current_filter != null)
-				selector.filter(current_filter);
 			int index=0;
-			foreach(var subfolder in current_folder.child_folders()) {
-				if (subfolder.unique_name() == current_name)
+			foreach(var subfolder in (selector as GameFolderSelector).folder.child_folders()) {
+				if (subfolder.unique_name() == previous_folder)
 					break;
 				index++;
 			}
+			if (current_filter != null)
+				selector.filter(current_filter);
 			selector.select_item(index);			
 			return;
 		}
@@ -794,9 +786,9 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		if (everything_active == true && everything_selector != null) {
 			var selected_game = everything_selector.selected_game();
 			if (selected_game != null) {
-				active_platform = selected_game.platform();
-				active_folder = selected_game.parent;
-				active_folder_item_index = active_folder.index_of(selected_game);
+				active_platform = selected_game.platform;
+				active_folder = selected_game.parent.unique_name();
+				active_folder_item_index = selected_game.parent.index_of(selected_game);
 			}
 		}
 		
@@ -836,11 +828,11 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 				if (active_platform == null)
 					return null;
 				if (active_folder == null && active_platform != null)
-					active_folder = active_platform.get_root_folder();
+					active_folder = "";
 				
 				if (current_platform != null && current_folder != null) {
-					Data.browser_state().apply_platform_state(current_platform, current_folder.unique_name(),
-					selector.selected_index, selector.get_filter_pattern());
+					Data.browser_state().apply_platform_state(current_platform, current_folder,
+						selector.selected_index, selector.get_filter_pattern());
 				}
 				
 				current_platform_folder = null;
@@ -868,7 +860,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 				current_folder = active_folder;
 				Data.browser_state().current_platform = current_platform.id;
 				if (current_folder != null)
-					Data.browser_state().apply_platform_state(current_platform, current_folder.unique_name(), active_folder_item_index, null);
+					Data.browser_state().apply_platform_state(current_platform, current_folder, active_folder_item_index, null);
 				
 				apply_platform_state();
 				selector.update();
@@ -956,7 +948,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		if (everything_active == true && everything_selector != null) {
 			var selected_game = everything_selector.selected_game();
 			if (selected_game != null)
-				active_platform = selected_game.platform();
+				active_platform = selected_game.platform;
 		}
 						
 		var platform_overlay = new PlatformSelectorOverlay(active_platform);
@@ -973,8 +965,8 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		everything_active = false;		
 		
 		if (current_platform != null && current_folder != null) {
-			Data.browser_state().apply_platform_state(current_platform, current_folder.unique_name(),
-					selector.selected_index, selector.get_filter_pattern());
+			Data.browser_state().apply_platform_state(current_platform, current_folder,
+				selector.selected_index, selector.get_filter_pattern());
 		}
 				
 		current_platform_folder = null;

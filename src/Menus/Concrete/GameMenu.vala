@@ -38,7 +38,7 @@ namespace Menus.Concrete
 		public GameMenu(GameItem game) {
 			base("Game: " + game.full_name);
 			this.game = game;
-			platform = game.platform();
+			platform = game.platform;
 			ensure_items();		
 		}
 		protected override void do_refresh(uint select_index) {
