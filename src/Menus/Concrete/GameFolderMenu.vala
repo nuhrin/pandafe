@@ -46,7 +46,7 @@ namespace Menus.Concrete
 					this.message("Scanning PNDs...");
 					Data.rescan_pnd_data();
 				}
-				folder.rescan_children(true);
+				folder.rescan_children();
 			}));
 
 			items.add(new MenuItemSeparator());

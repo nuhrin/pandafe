@@ -48,6 +48,8 @@ namespace Data
 	public GameSettings? get_game_settings(GameItem game) { return Provider.instance().get_game_settings(game); }
 	public bool save_game_settings(GameSettings settings, GameItem game) { return Provider.instance().save_game_settings(settings, game.id); }
 
+	public AllGames all_games() { return Provider.instance().get_all_games_interface(); }
+	
 	public Favorites favorites() { return Provider.instance().get_favorites(); }
 	public bool save_favorites() { return Provider.instance().save_favorites(); }
 
@@ -194,6 +196,13 @@ namespace Data
 			}			
 			return false;
 		}
+		
+		public AllGames get_all_games_interface() {
+			if (_all_games == null)
+				_all_games = new AllGames();
+			return _all_games;
+		}
+		AllGames _all_games;
 		
 		public Favorites get_favorites() {
 			if (_favorites == null) {

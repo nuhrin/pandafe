@@ -42,6 +42,12 @@ pandafe_VALASOURCES = \
 	Data/GameBrowserViewData.vala \
 	Data/GameSettings.vala \
 	Data/GamesRunList.vala \
+	Data/GameList/AllGames.vala \
+	Data/GameList/AllGamesCache.vala \
+	Data/GameList/GameFolder.vala \
+	Data/GameList/GameFolderCache.vala \
+	Data/GameList/GameItem.vala \
+	Data/GameList/IGameListNode.vala \
 	Data/Options/DoubleOption.vala \
 	Data/Options/FlagOption.vala \
 	Data/Options/IntegerOption.vala \
@@ -74,10 +80,6 @@ pandafe_VALASOURCES = \
 	Data/Programs/ProgramProvider.vala \
 	Data/Programs/ProgramSettings.vala \
 	Data/Provider.vala \
-	GameList/GameFolder.vala \
-	GameList/GameFolderCache.vala \
-	GameList/GameItem.vala \
-	GameList/IGameListNode.vala \
 	Fields/ColorField.vala \
 	Fields/ClockSpeedField.vala \
 	Fields/CustomCommandField.vala \

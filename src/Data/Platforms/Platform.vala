@@ -78,7 +78,7 @@ public abstract class Platform : NamedEntity, MenuObject
 	public void rescan(owned ForEachFunc<GameFolder>? pre_scan_action=null) {
 		remove_platform_gamelist_cache();
 		rescan_init();
-		get_root_folder().rescan_children(true, (owned)pre_scan_action);
+		get_root_folder().rescan_children((owned)pre_scan_action);
 		rescanned();
 	}
 	public signal void rescanned();

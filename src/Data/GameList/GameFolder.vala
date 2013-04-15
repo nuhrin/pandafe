@@ -66,6 +66,7 @@ namespace Data.GameList
 		}
 		
 		public int index_of(IGameListNode child_node) {
+			ensure_children();
 			var child_folder = child_node as GameFolder;
 			if (child_folder != null && _child_folders != null)
 				return _child_folders.index_of(child_folder);
@@ -131,10 +132,11 @@ namespace Data.GameList
 		}
 
 		public signal void rescanned();
-		public void rescan_children(bool recursive=false, owned ForEachFunc<GameFolder>? pre_scan_action=null) {
+		public void rescan_children(owned ForEachFunc<GameFolder>? pre_scan_action=null) {
 			if (children_loaded == false)
 				load_children_yaml();
-			scan_children(recursive, (owned)pre_scan_action);
+			scan_children(true, (owned)pre_scan_action);
+			Data.all_games().update_cache_for_folder(this);
 		}
 		public void update_cache() {
 			var cache = new GameFolderCache();

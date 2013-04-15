@@ -31,9 +31,11 @@ using Data.GameList;
 public class EverythingSelector : Selector {
 
 	GameBrowserViewData view;
+	
 	public EverythingSelector(string id, int16 xpos, int16 ypos, GameBrowserViewData? view) {
 		base(id, xpos, ypos);		
 		this.view = view ?? new GameBrowserViewData(GameBrowserViewType.ALL_GAMES);
+		Data.all_games().cache_updated.connect(() => rebuild());
 		Data.favorites().changed.connect(() => favorites_changed());
 	}
 
@@ -105,16 +107,7 @@ public class EverythingSelector : Selector {
 	}
 	
 	Gee.List<GameItem> get_view_games(GameBrowserViewData view) {		
-		// get platforms
-		var folder_data = Data.platforms().get_platform_folder_data();
-		var platforms = (folder_data.folders.size > 0)
-			? folder_data.get_all_platforms()
-			: Data.platforms().get_all_platforms();		
-		
-		// get platform games
-		var games = Enumerable.empty<GameItem>();
-		foreach(var platform in platforms)
-			games = games.concat(platform.get_root_folder().all_games());			
+		var games = Data.all_games().load();
 		
 		// filter games list
 		bool do_sort = true;
