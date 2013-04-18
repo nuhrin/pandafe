@@ -54,7 +54,7 @@ namespace Layers.GameBrowser
 		KeySymbol? cancel_key_pressed;
 		
 		public MenuOverlay(Menus.Menu menu, KeySymbol? cancel_key=KeySymbol.SPACE) {
-			if (menu.items.size == 0)
+			if (menu.item_count == 0)
 				GLib.error("Menu '%s' has no items.", menu.name);
 			base("menuoverlay_"+menu.name);
 			cancel_keys = new ArrayList<int>();
@@ -75,6 +75,7 @@ namespace Layers.GameBrowser
 		}
 
 		public KeySymbol? run(uchar screen_alpha=0, uint32 rgb_color=0) {
+			connect_selector_signals();
 			@interface.push_layer(this, screen_alpha, rgb_color);
 			
 			set_header();
@@ -83,6 +84,9 @@ namespace Layers.GameBrowser
 			process_events();
 			
 			@interface.pop_layer();
+			disconnect_selector_signals();
+			while (menu_stack.length > 0)
+				selector = menu_stack.pop_head();
 			return cancel_key_pressed;
 		}
 		
@@ -115,16 +119,30 @@ namespace Layers.GameBrowser
 
 		MenuSelector get_selector(Menus.Menu menu) {
 			var new_selector = new MenuSelector(SELECTOR_ID, 0, 0, menu, selector_max_height, MAX_NAME_LENGTH, MAX_VALUE_LENGTH);	
-			update_selector_pos(new_selector);		
-			new_selector.changed.connect(() => on_selector_changed());
-			new_selector.refreshed.connect(() => update_selector_pos(new_selector));
-			menu.message.connect((message) => on_message(message));
-			menu.error.connect((error) => on_error(error));
-			menu.field_error.connect((field, index, error) => on_field_error(field, index, error));
-			menu.clear_error.connect(() => clear_error());
-			menu.refreshed.connect(() => refresh_menu(menu));
+			update_selector_pos(new_selector);					
 			return new_selector;
 		}
+		void connect_selector_signals() {
+			selector_handlers.add(selector.changed.connect(() => on_selector_changed()));
+			selector_handlers.add(selector.refreshed.connect(() => update_selector_pos(selector)));
+			menu_handlers.add(selector.menu.message.connect((message) => on_message(message)));
+			menu_handlers.add(selector.menu.error.connect((error) => on_error(error)));
+			menu_handlers.add(selector.menu.field_error.connect((field, index, error) => on_field_error(field, index, error)));
+			menu_handlers.add(selector.menu.clear_error.connect(() => clear_error()));
+			menu_handlers.add(selector.menu.refreshed.connect(() => refresh_menu(selector.menu)));			
+		}
+		void disconnect_selector_signals() {
+			foreach(var handler in menu_handlers)
+				selector.menu.disconnect(handler);
+			menu_handlers.clear();
+				
+			foreach(var handler in selector_handlers)
+				selector.disconnect(handler);
+			selector_handlers.clear();			
+		}
+		Gee.ArrayList<ulong> selector_handlers = new Gee.ArrayList<ulong>();
+		Gee.ArrayList<ulong> menu_handlers = new Gee.ArrayList<ulong>();
+	
 		void update_selector_pos(MenuSelector selector) {
 			selector.xpos = (int16)(@interface.screen_width - 25 - ((selector.width < SELECTOR_MIN_WIDTH) ? SELECTOR_MIN_WIDTH : selector.width));
 			selector.ypos = SELECTOR_YPOS;			
@@ -133,8 +151,10 @@ namespace Layers.GameBrowser
 		//
 		// screen updates
 		void push_menu(Menus.Menu menu) {
+			disconnect_selector_signals();
 			menu_stack.push_head(selector);
 			selector = get_selector(menu);
+			connect_selector_signals();
 			replace_layer(SELECTOR_ID, selector);
 			clear();
 			set_header();
@@ -149,8 +169,10 @@ namespace Layers.GameBrowser
 				quit_event_loop();
 				return;
 			}
+			disconnect_selector_signals();
 			selector = menu_stack.pop_head();
-			replace_layer(SELECTOR_ID, selector);
+			connect_selector_signals();
+			replace_layer(SELECTOR_ID, selector);			
 			clear();
 			set_header();
 			message.reset();

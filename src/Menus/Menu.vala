@@ -31,7 +31,7 @@ namespace Menus
 	public class Menu : MenuItem
 	{
 		string? _title;
-		Menu? _parent;
+		weak Menu? _parent;
 		ArrayList<MenuItem> _items;
 		HashMap<string, MenuItemField> _field_id_hash;
 		HashMap<string, int> _field_index_hash;
@@ -51,14 +51,34 @@ namespace Menus
 			}
 			set { _title = value; }
 		}
-		public Gee.List<MenuItem> items { 
-			owned get {
+		public uint item_count {
+			get {
 				ensure_items();
-				return _items.read_only_view;
+				return _items.size;
 			}
 		}
+		public bool item_enabled(uint index) { 
+			var item = item_at(index);
+			if (item != null)
+				return item.enabled;
+			return false;
+		}
+		public MenuItem? item_at(uint index) {
+			ensure_items();
+			if (index >= _items.size)
+				return null;
+			return _items[(int)index];
+		}
+		public MenuItemField? field_at(uint index) {
+			var item = item_at(index);
+			return item as MenuItemField;			
+		}
+		public Enumerable<MenuItem> items() { 
+			ensure_items();
+			return new Enumerable<MenuItem>(_items);
+		}
 		public Enumerable<MenuItemField> fields() {
-			return new Enumerable<MenuItem>(items).of_type<MenuItemField>();
+			return items().of_type<MenuItemField>();
 		}
 
 		public Layers.Layer? additional_menu_browser_layer { 
@@ -75,9 +95,10 @@ namespace Menus
 			var field = item as MenuItemField;
 			if (field != null) {
 				ensure_field_hash();
-				_field_id_hash[field.id] = field;
-				_field_index_hash[field.id] = _items.size;				
-				field.error.connect((error) => throw_field_error(field, error));
+				string field_id = field.id;
+				_field_id_hash[field_id] = field;
+				_field_index_hash[field_id] = _items.size;
+				field.error.connect((error) => throw_field_error(field_id, error));
 				field.error_cleared.connect(() => clear_error());
 				field.message.connect((message) => this.message(message));
 			}
@@ -117,9 +138,10 @@ namespace Menus
 			}
 			if (do_cancel() == false)
 				return false;
-				
+						
 			cancelled();
 			finished();
+			clear_items();
 			return true;
 		}
 		public bool save() { 
@@ -132,13 +154,17 @@ namespace Menus
 				
 			if (do_save() == false)
 				return false;
-				
+						
 			saved();
 			finished();
+			clear_items();
 			return true;
 		}
 		public void refresh(uint select_index) {
-			do_refresh(select_index);
+			if (do_refresh(select_index) == false)
+				return;
+			clear_items();
+			ensure_items();
 			refreshed(select_index);
 		}
 		
@@ -148,20 +174,28 @@ namespace Menus
 		protected virtual bool do_validation() { return true; }
 		protected virtual bool do_cancel() { return true; }
 		protected virtual bool do_save() { return true; }
-		protected virtual void do_refresh(uint select_index) {  }
-
-		protected void throw_field_error(MenuItemField field, string error) {
+		protected virtual bool do_refresh(uint select_index) { return true; }
+		protected virtual void cleanup() { }
+		
+		protected void throw_field_error(string field_id, string error) {
 			ensure_items();
-			if (_field_index_hash != null && _field_index_hash.has_key(field.id))
-				field_error(field, _field_index_hash[field.id], error);			
+			if (_field_index_hash != null && _field_index_hash.has_key(field_id)) {
+				var field = _field_id_hash[field_id];
+				field_error(field, _field_index_hash[field.id], error);
+			}
 		}
 
 		protected virtual void populate_items(Gee.List<MenuItem> items) { }
-		protected void clear_items() {
-			if (_items != null)
-				_items = null;
+		void clear_items() {
+			if (_items == null)
+				return;
+			disconnect_all_item_handlers();
+			cleanup();
+			_field_id_hash = null;
+			_field_index_hash = null;
+			_items = null;
 		}
-		protected void ensure_items() {
+		void ensure_items() {
 			if (_items != null)
 				return;
 				
@@ -169,16 +203,18 @@ namespace Menus
 			populate_items(_items);
 			bool has_field = false;
 			for(int index=0; index<_items.size; index++) {
-				var field = _items[index] as MenuItemField;
+				var item = _items[index];
+				var field = item as MenuItemField;
 				if (field == null)
 					continue;
 				if (has_field == false) {
 					ensure_field_hash();
 					has_field = true;
 				}
-				_field_id_hash[field.id] = field;
-				_field_index_hash[field.id] = index;
-				field.error.connect((error) => throw_field_error(field, error));
+				string field_id = field.id;
+				_field_id_hash[field_id] = field;
+				_field_index_hash[field_id] = index;
+				field.error.connect((error) => throw_field_error(field_id, error));
 				field.error_cleared.connect(() => clear_error());
 				field.message.connect((message) => this.message(message));
 			}
@@ -193,5 +229,30 @@ namespace Menus
 		protected virtual Layers.Layer? build_additional_menu_browser_layer() { return null; }
 		
 		public override bool is_menu_item() { return true; }
+
+		protected void field_connect(MenuItemField field, owned SignalConnect<MenuItemField> connect) {
+			_field_signal_handlers[field] = connect(field);	
+		}
+		protected void item_connect(MenuItem item, owned SignalConnect<MenuItem> connect) {
+			_field_signal_handlers[item] = connect(item);	
+		}
+		protected void field_disconnect_handlers(MenuItemField field) {
+			item_disconnect_handlers(field);
+		}
+		protected void item_disconnect_handlers(MenuItem item) {
+			if (_field_signal_handlers.contains(item) == false)
+				return;
+			foreach(var handler in _field_signal_handlers[item])
+				item.disconnect(handler);
+			_field_signal_handlers.remove_all(item);
+		}
+		void disconnect_all_item_handlers() {
+			foreach(var item in _field_signal_handlers.get_all_keys()) {
+				foreach(var handler in _field_signal_handlers[item])
+					item.disconnect(handler);
+			}
+			_field_signal_handlers.clear();
+		}
+		HashMultiMap<MenuItem, ulong> _field_signal_handlers = new HashMultiMap<MenuItem, ulong>();
 	}
 }

@@ -32,7 +32,6 @@ namespace Menus.Concrete
 	{
 		public MainMenu() {
 			base("Pandafe " + Build.BUILD_VERSION);
-			ensure_items();			
 		}
 		protected override void populate_items(Gee.List<MenuItem> items) {
 			items.add(new MenuBrowserItem("Config", "Show configuration menu", new ConfigurationMenu()));
@@ -57,24 +56,20 @@ namespace Menus.Concrete
 	{		
 		public ConfigurationMenu() { 
 			base("Pandafe Configuration");
-			ensure_items();
 		}
-		protected override void do_refresh(uint select_index) {
-			clear_items();
-			ensure_items();
-		}
+
 		protected override void populate_items(Gee.List<MenuItem> items) { 			
 			items.add(ObjectMenu.get_browser_item("Preferences", "Pandafe Preferences", "Edit preferences", Data.preferences()));
 			var platform_folders_field = new PlatformFolderListField.root("folders", "Platforms", "Edit platform folders", Data.platforms().get_platform_folder_data().folders);
 			var platform_folders_item_index = items.size;
-			platform_folders_field.changed.connect(() => {
+			field_connect(platform_folders_field, (f)=> f.changed.connect(() => {
 				string? error;
 				Data.platforms().get_platform_folder_data().folders = platform_folders_field.value;
 				if (Data.platforms().save_platform_folder_data(out error) == true)
 					refresh(platform_folders_item_index);
 				else
 					this.error(error);
-			});
+			}));
 			items.add(platform_folders_field);
 			
 			if (MainClass.was_run_as_gui)
@@ -128,7 +123,6 @@ namespace Menus.Concrete
 	{
 		public DataMenu() { 
 			base("Pandafe Data Management");
-			ensure_items();
 		}
 				
 		protected override void populate_items(Gee.List<MenuItem> items) { 

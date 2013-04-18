@@ -34,7 +34,6 @@ namespace Menus.Concrete
 			base("%s: %s".printf(name ?? "Folder", platform_folder.name), help);
 			title = "Platform Folder: " + platform_folder.name;
 			this.platform_folder = platform_folder;
-			ensure_items();		
 		}
 		
 		protected override void populate_items(Gee.List<MenuItem> items) { 

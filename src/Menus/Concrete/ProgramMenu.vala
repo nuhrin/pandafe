@@ -35,7 +35,6 @@ namespace Menus.Concrete
 			base("Program: " + program.name, help ?? "Show a menu for the current program");
 			this.program = program;
 			this.allow_edit = allow_edit;
-			ensure_items();		
 		}
 		
 		protected override void populate_items(Gee.List<MenuItem> items) { 

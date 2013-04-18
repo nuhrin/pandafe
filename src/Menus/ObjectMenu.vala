@@ -32,50 +32,35 @@ namespace Menus
 	{		
 		Object obj;
 		MenuObject mo;
-		
+
 		public static bool edit(string title, Object obj) {
 			var menu = new ObjectMenu(title, null, obj);
-			new MenuBrowser(menu).run();
-			if (menu.mo != null)
-				menu.mo.i_release_fields();
+			new MenuBrowser(menu).run();			
 			return menu.was_saved;
 		}
 		public static MenuBrowserItem get_browser_item(string name, string? title, string? help, Object obj) {
 			var menu = new ObjectMenu(title ?? name, null, obj);
-			var item = new MenuBrowserItem(name, help, menu);
-			item.finished.connect(() => {
-				if (menu.mo != null)
-					menu.mo.i_release_fields();
-				menu.clear_items();
-			});
-			return item;
+			return new MenuBrowserItem(name, help, menu);
 		}
 		
 		ObjectMenu(string name, string? help=null, Object obj) {
 			base(name, help);
 			this.obj = obj;
-			mo = this.obj as MenuObject;
-			if (mo != null)
-				mo.refreshed.connect((select_index) => this.refresh(select_index));
-			
-		}
-		~ObjectMenu() {
-			if (mo != null)
-				mo.i_release_fields();
+			mo = this.obj as MenuObject;			
 		}
 		public bool was_saved { get; private set; }
-		
-		public override bool do_validation() {
+				
+		protected override bool do_validation() {
 			if (mo != null)
 				return mo.i_validate_menu(this);
 			return true;
 		}		
-		public override bool do_cancel() {
+		protected override bool do_cancel() {
 			// revert...
 			was_saved = false;
 			return true;
 		}
-		public override bool do_save() {
+		protected override bool do_save() {
 			if (mo != null) {
 				if (mo.i_apply_menu(this) == true) {
 					if (mo.i_save_object(this) == true) {
@@ -94,6 +79,11 @@ namespace Menus
 			return true;
 		}
 	
+		protected override void cleanup() {
+			if (mo != null)
+				mo.i_release_fields();
+		}
+
 		protected override void populate_items(Gee.List<MenuItem> items) { 
 			var builder = new MenuBuilder();
 			if (mo != null) {

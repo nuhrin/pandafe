@@ -45,7 +45,7 @@ namespace Menus
 		Layer? additional_layer;
 
 		public MenuBrowser(Menu menu) {
-			if (menu.items.size == 0)
+			if (menu.item_count == 0)
 				GLib.error("Menu '%s' has no items.", menu.name);
 			base("menubrowser", @interface.game_browser_ui.background_color_rgb);
 			menu_stack = new GLib.Queue<MenuSelector>();
@@ -57,6 +57,7 @@ namespace Menus
 		}
 
 		public void run() {
+			connect_selector_signals();
 			@interface.push_screen_layer(this);
 			
 			set_header();			
@@ -67,7 +68,8 @@ namespace Menus
 			
 			process_events();
 			
-			@interface.pop_screen_layer();
+			disconnect_selector_signals();			
+			@interface.pop_screen_layer();			
 		}
 		
 		public signal void menu_changed(Menu menu);
@@ -94,22 +96,36 @@ namespace Menus
 		}
 
 		MenuSelector get_selector(Menu menu) {
-			var new_selector = new MenuSelector(SELECTOR_ID, SELECTOR_XPOS, selector_ypos, menu, selector_max_height, MAX_NAME_LENGTH, MAX_VALUE_LENGTH);
-			new_selector.changed.connect(() => on_selector_changed());
-			menu.message.connect((message) => on_message(message));
-			menu.error.connect((error) => on_error(error));
-			menu.field_error.connect((field, index, error) => on_field_error(field, index, error));
-			menu.clear_error.connect(() => clear_error());
-			menu.refreshed.connect(() => refresh_menu(menu));
-			return new_selector;
+			return new MenuSelector(SELECTOR_ID, SELECTOR_XPOS, selector_ypos, menu, selector_max_height, MAX_NAME_LENGTH, MAX_VALUE_LENGTH);			
 		}
+		void connect_selector_signals() {
+			selector_handlers.add(selector.changed.connect(() => on_selector_changed()));
+			menu_handlers.add(selector.menu.message.connect((message) => on_message(message)));
+			menu_handlers.add(selector.menu.error.connect((error) => on_error(error)));
+			menu_handlers.add(selector.menu.field_error.connect((field, index, error) => on_field_error(field, index, error)));
+			menu_handlers.add(selector.menu.clear_error.connect(() => clear_error()));
+			menu_handlers.add(selector.menu.refreshed.connect(() => refresh_menu(selector.menu)));			
+		}
+		void disconnect_selector_signals() {
+			foreach(var handler in menu_handlers)
+				selector.menu.disconnect(handler);
+			menu_handlers.clear();
+				
+			foreach(var handler in selector_handlers)
+				selector.disconnect(handler);
+			selector_handlers.clear();			
+		}
+		Gee.ArrayList<ulong> selector_handlers = new Gee.ArrayList<ulong>();
+		Gee.ArrayList<ulong> menu_handlers = new Gee.ArrayList<ulong>();
 		
 		//
 		// screen updates
 		void push_menu(Menu menu) {
+			disconnect_selector_signals();
 			remove_additional_layer();
 			menu_stack.push_head(selector);
 			selector = get_selector(menu);
+			connect_selector_signals();
 			replace_layer(SELECTOR_ID, selector);
 			clear();
 			set_header();
@@ -124,8 +140,10 @@ namespace Menus
 				quit_event_loop();
 				return;
 			}
+			disconnect_selector_signals();
 			remove_additional_layer();
 			selector = menu_stack.pop_head();
+			connect_selector_signals();
 			replace_layer(SELECTOR_ID, selector);
 			clear();
 			set_header();

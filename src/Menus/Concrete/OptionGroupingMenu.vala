@@ -47,7 +47,6 @@ namespace Menus.Concrete
 			this.program_name = program_name;
 			this.title_prefix = title_prefix;
 			field_hash = new HashMap<Option,MenuItemField>();
-			ensure_items();
 		}
 		
 		public void populate_settings_from_fields(ProgramSettings target_settings) {
@@ -63,11 +62,7 @@ namespace Menus.Concrete
 					target_settings[option.setting_name] = option.get_setting_value_from_field(field);
 			}
 		}
-		
-		protected override void do_refresh(uint select_index) {
-			clear_items();
-			ensure_items();
-		}
+				
 		protected override void populate_items(Gee.List<MenuItem> items) {
 			foreach(var option in options) {
 				var grouping = option as OptionGrouping;
@@ -96,6 +91,10 @@ namespace Menus.Concrete
 				refresh(reset_index);
 			}));
 			items.add(new MenuItem.cancel_item("Return"));
+		}
+		
+		protected override void cleanup() {
+			field_hash.clear();
 		}
 	}
 }

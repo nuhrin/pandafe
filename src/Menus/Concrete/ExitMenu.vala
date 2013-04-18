@@ -32,7 +32,6 @@ namespace Menus.Concrete
 	{	
 		public ExitMenu() {
 			base("Exit", "");
-			ensure_items();		
 		}
 		protected override void populate_items(Gee.List<MenuItem> items) {
 			items.add(new SwitchGuiMenu("Switch Gui", "Switch to another gui"));

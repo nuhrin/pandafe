@@ -40,9 +40,7 @@ namespace Menus.Concrete
 			this.appearance = appearance;
 			this.default_appearance = default_appearance;
 			ui = appearance.create_ui(default_appearance);
-			ensure_items();
 		}
-		
 	
 		protected override bool do_save() {
 			bool has_color_change = false;
@@ -111,6 +109,13 @@ namespace Menus.Concrete
 			item_color.changed.connect(on_color_change);
 			selected_item_color.changed.connect(on_color_change);
 			background_color.changed.connect(on_color_change);
+		}
+		protected override void cleanup() {
+			font = null;
+			font_size = null;
+			item_color = null;
+			selected_item_color = null;
+			background_color = null;
 		}
 		
 		void initialize(GameBrowserUI ui) {

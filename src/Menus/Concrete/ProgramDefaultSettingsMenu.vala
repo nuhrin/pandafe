@@ -47,6 +47,8 @@ namespace Menus.Concrete
 		StringField extra_arguments_field;
 		ClockSpeedField clockspeed_field;
 		BooleanField show_output_field;
+		int clockspeed;
+		string? extra_arguments;
 		
 		public ProgramDefaultSettingsMenu(string title_prefix, string program_name, ProgramDefaultSettings settings, OptionSet options, int clockspeed=-1, string? extra_arguments=null) {
 			base(title_prefix + " Settings: " + program_name);
@@ -58,21 +60,11 @@ namespace Menus.Concrete
 			effective.merge_override(settings);
 			this.settings = effective;
 			field_hash = new HashMap<Option,MenuItemField>();
-			ensure_items();		
-			if (clockspeed >= 0)
-				set_clockspeed(clockspeed);
-			if (extra_arguments != null)
-				set_extra_arguments(extra_arguments);
+			this.clockspeed = clockspeed;
+			this.extra_arguments = extra_arguments;
 		}
 				
 		public bool was_saved { get; private set; }
-		
-		void set_clockspeed(uint clockspeed) {
-			clockspeed_field.value = clockspeed;
-		}
-		void set_extra_arguments(string extra_arguments) {
-			extra_arguments_field.value = extra_arguments;
-		}
 		
 		protected override bool do_cancel() {
 			was_saved = false;
@@ -97,11 +89,7 @@ namespace Menus.Concrete
 			was_saved = true;
 			return true;
 		}
-		protected override void do_refresh(uint select_index) {
-			clear_items();
-			ensure_items();
-		}
-
+		
 		protected override void populate_items(Gee.List<MenuItem> items) {
 			foreach(var option in options) {
 				var grouping = option as OptionGrouping;
@@ -120,9 +108,13 @@ namespace Menus.Concrete
 			}
 			string name = (options.size > 0) ? "Extra Arguments" : "Arguments";
 			extra_arguments_field = new StringField("extra_arguments", name, null, settings.extra_arguments ?? "");
+			if (this.extra_arguments != null)
+				extra_arguments_field.value = this.extra_arguments;
 			items.add(extra_arguments_field);
 			
 			clockspeed_field = new ClockSpeedField("clockspeed", "Clockspeed", null, settings.clockspeed, 150, 1000, 5);
+			if (this.clockspeed > 0)
+				clockspeed_field.value = this.clockspeed;
 			items.add(clockspeed_field);
 			show_output_field = new BooleanField("show_output", "Show Output", "Always show output dialog after program is run (useful for debugging)", settings.show_output ?? false);
 			items.add(show_output_field);
@@ -135,6 +127,13 @@ namespace Menus.Concrete
 			}));
 			items.add(new MenuItem.cancel_item());
 			items.add(new MenuItem.save_item());
+		}
+		
+		protected override void cleanup() {
+			field_hash = null;
+			extra_arguments_field = null;
+			clockspeed_field = null;
+			show_output_field = null;
 		}
 	}
 }

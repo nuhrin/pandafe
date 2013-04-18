@@ -39,24 +39,20 @@ namespace Menus.Concrete
 			base("Game: " + game.full_name);
 			this.game = game;
 			platform = game.platform;
-			ensure_items();		
 		}
-		protected override void do_refresh(uint select_index) {
-			clear_items();
-			ensure_items();
-		}
+
 		protected override void populate_items(Gee.List<MenuItem> items) { 						
 			if (platform.supports_game_settings) {
 				settings_menu = new GameSettingsMenu(game);
 				var settings_menu_item = new MenuBrowserItem("Settings", "Change game settings", settings_menu);
-				settings_menu_item.finished.connect(() => {
+				item_connect(settings_menu_item, (item)=> ((MenuBrowserItem)item).finished.connect(() => {
 					if (settings_menu.program_changed == true) {
 						refresh(0);
 					} else {
 						settings_menu = new GameSettingsMenu(game);
 						settings_menu_item.set_menu(settings_menu);
 					}
-				});
+				}));
 				items.add(settings_menu_item);
 			}
 			

@@ -31,12 +31,12 @@ namespace Menus.Concrete
 	{	
 		Platform platform;
 		PlatformFolder? platform_folder;
+		
 		public PlatformMenu(Platform platform, string? help=null, PlatformFolder? platform_folder=null) {
 			base("Platform: " + platform.name, help ?? "Show a menu for the current platform");
 			title = "%s: %s".printf(platform.platform_type_description(), platform.name);
 			this.platform = platform;
 			this.platform_folder = platform_folder;
-			ensure_items();		
 		}
 		
 		protected override void populate_items(Gee.List<MenuItem> items) { 

@@ -50,7 +50,6 @@ namespace Menus.Concrete
 			this.programs = programs;			
 			original_map = program_settings;
 			settings_map = new PlatformProgramSettingsMap.clone(program_settings);
-			ensure_items();		
 		}
 				
 		public bool was_saved { get; private set; }

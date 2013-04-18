@@ -22,6 +22,7 @@
  */
 
 public delegate void ForEachFunc<G> (owned G g);
+public delegate ulong SignalConnect<G> (G g);
 
 public class Utility
 {

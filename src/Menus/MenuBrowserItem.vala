@@ -21,6 +21,7 @@
  *      nuhrin <nuhrin@oceanic.to>
  */
 
+using Gee;
 using SDL;
 
 namespace Menus
@@ -28,20 +29,26 @@ namespace Menus
 	public class MenuBrowserItem : SubMenuItem, MenuItem
 	{	
 		Menu _menu;
+		ArrayList<ulong> handlers;
+		
 		public MenuBrowserItem(string name, string? help=null, Menu menu) {
 			base(name, help);
 			set_menu(menu);
+			handlers = new ArrayList<ulong>();
 		}
 		public Menu menu { get { return _menu; } }
-		public void set_menu(Menu menu) {
-				_menu = menu;
-				_menu.cancelled.connect(() => cancelled());
-				_menu.saved.connect(() => saved());
-				_menu.finished.connect(() => finished());
-		}		
+		public void set_menu(Menu menu) { _menu = menu; }		
 		
 		public override void activate(MenuSelector selector) { 
+			handlers.add(_menu.cancelled.connect(() => cancelled()));
+			handlers.add(_menu.saved.connect(() => saved()));
+			handlers.add(_menu.finished.connect(() => finished()));
+
 			new MenuBrowser(menu).run();
+			
+			foreach(var handler in handlers)
+				_menu.disconnect(handler);
+			handlers.clear();
 		}
 		
 		public override bool is_menu_item() { return true; }

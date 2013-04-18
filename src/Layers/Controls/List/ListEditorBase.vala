@@ -61,7 +61,7 @@ namespace Layers.Controls.List
 			if (save_text != null)
 				menu.add_item(new Menus.MenuItem.save_item(save_text));
 			selector_ypos = header.ypos + (int16)header.height + @interface.get_monospaced_font_height();
-			int16 menu_selector_max_height = (int16)((@interface.get_monospaced_font_height() + @interface.get_monospaced_font_item_spacing()) * menu.items.size);
+			int16 menu_selector_max_height = (int16)((@interface.get_monospaced_font_height() + @interface.get_monospaced_font_item_spacing()) * menu.item_count);
 			menu_selector_ypos = message.ypos - menu_selector_max_height;
 			menu_selector = add_layer(new MenuSelector("list_menu_selector", MENU_SELECTOR_XPOS, menu_selector_ypos, menu, menu_selector_max_height, 100, 0)) as MenuSelector;
 			menu_selector.wrap_selector = false;

@@ -37,7 +37,6 @@ namespace Menus.Concrete
 			this.title = "Game " + name;
 			this.folder = folder;			
 			platform = folder.platform;
-			ensure_items();
 		}
 
 		protected override void populate_items(Gee.List<MenuItem> items) { 

@@ -54,29 +54,23 @@ namespace Menus.Concrete
 			game_settings = settings;
 			this.platform = platform;
 			rom_platform = platform as RomPlatform;
-			program = platform.get_program(game_settings.selected_program_id);
-			
-			if (rom_platform != null) {
-				program_field = new GameProgramSelectionField("program", "Program", "Change the program to use for this game", rom_platform.programs, program);
-				program_field.changed.connect(()=> {
-					program = program_field.selected_program;
-					program_changed = true;
-					refresh(0);
-				});
-				if (rom_platform.programs.size < 2)
-					program_field.enabled = false;
-			}
+			program = platform.get_program(game_settings.selected_program_id);						
 		}
 		public Program? program { get; private set; }
 		public bool program_changed { get; private set; }
-				
-		protected override void do_refresh(uint select_index) {
-			clear_items();
-			ensure_items();
-		}
+		
 		protected override void populate_items(Gee.List<MenuItem> items) {
-			if (program_field != null)
+			if (rom_platform != null) {
+				program_field = new GameProgramSelectionField("program", "Program", "Change the program to use for this game", rom_platform.programs, program);
+				field_connect(program_field, (f)=> f.changed.connect(()=> {
+					program = program_field.selected_program;
+					program_changed = true;
+					refresh(0);
+				}));
+				if (rom_platform.programs.size < 2)
+					program_field.enabled = false;
 				items.add(program_field);
+			}
 			if (program != null) {
 				var default_settings = new ProgramSettings();
 				default_settings.merge_override(program.default_settings);
@@ -116,6 +110,11 @@ namespace Menus.Concrete
 			}));
 			items.add(new MenuItem.cancel_item());
 			items.add(new MenuItem.save_item());
+		}
+		protected override void cleanup() {
+			field_hash = null;
+			program_field = null;			
+			clockspeed_field = null;
 		}
 		protected override bool do_save() {
 			game_settings.selected_program_id = (program != null) ? program.app_id : null;

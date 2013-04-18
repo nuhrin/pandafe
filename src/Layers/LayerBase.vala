@@ -236,8 +236,8 @@ namespace Layers
 			lb._screen = null;
 			lb._parent = null;
 		}		
-		ScreenLayer? _screen;
-		Layer? _parent;
+		weak ScreenLayer? _screen;
+		weak Layer? _parent;
 	
 		class LayerDependencies 
 		{
