@@ -43,9 +43,7 @@ pandafe_VALASOURCES = \
 	Data/GameSettings.vala \
 	Data/GamesRunList.vala \
 	Data/GameList/AllGames.vala \
-	Data/GameList/AllGamesCache.vala \
 	Data/GameList/GameFolder.vala \
-	Data/GameList/GameFolderCache.vala \
 	Data/GameList/GameItem.vala \
 	Data/GameList/IGameListNode.vala \
 	Data/Options/DoubleOption.vala \

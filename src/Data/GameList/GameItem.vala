@@ -27,7 +27,7 @@ using Data.Programs;
 
 namespace Data.GameList
 {
-	public class GameItem : YamlObject, Gee.Comparable<IGameListNode>, IGameListNode
+	public class GameItem : GameListNode, IGameListNode
 	{
 		string _name;
 		Platform _platform;
@@ -75,45 +75,50 @@ namespace Data.GameList
 		public Program? get_program() { return platform.get_program_for_game(this); }
 
 		// yaml
-		protected override Yaml.Node build_yaml_node(Yaml.NodeBuilder builder) {
+		public Yaml.Node to_yaml_node(Yaml.NodeBuilder builder, string id_key="id") {
 			var mapping = new Yaml.MappingNode();
 			if (_id != null)
-				builder.add_item_to_mapping("id", _id, mapping);
+				builder.add_item_to_mapping(id_key, _id, mapping);
 			builder.add_item_to_mapping("name", _name, mapping);
 			if (_full_name != null)
 				builder.add_item_to_mapping("full-name", _full_name, mapping);
 
 			return mapping;
 		}
-		protected override void apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
+		public unowned StringBuilder add_cache_line(StringBuilder sb, string? parent_id) {
+			if (parent_id == null)
+				return sb.append("g||%s||%s||%s\n".printf(_name, _id ?? "", _full_name ?? ""));
+			return sb.append("g||%s||%s||%s||%s\n".printf(parent_id, _name, _id ?? "", _full_name ?? ""));
+		}
+		public static GameItem? from_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
 			var mapping = node as Yaml.MappingNode;
 			if (mapping == null)
-				return;
+				return null;
 
+			var item = new GameItem();
  			var keys = mapping.scalar_keys();
 			foreach(var key_node in keys) {
 				var value_node = mapping[key_node] as Yaml.ScalarNode;
 				if (value_node != null) {
 					switch(key_node.value) {
 						case "id":
-							_id = value_node.value;
+							item._id = value_node.value;
 							break;
 						case "name":
-							_name = value_node.value;
+							item._name = value_node.value;
 							break;
 						case "full-name":
-							_full_name = value_node.value;
+							item._full_name = value_node.value;
 							break;
 						default:
 							break;
 					}
 				}
-			}
-		}
-
-
-		public int compare_to(IGameListNode other) {
-			return Utility.strcasecmp(this.name, other.name);
+			}			
+			if (item._name == null)
+				return null;
+				
+			return item;
 		}
 	}
 }

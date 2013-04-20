@@ -186,7 +186,7 @@ namespace Data.Platforms
 						folder_list.add(subfolder);
 					}
 				}
-				folder_list.sort();
+				folder_list.sort(IGameListNode.compare);
 				child_folders = folder_list;
 				child_games = get_game_items(folder, file_names);
 				return true;
@@ -279,7 +279,7 @@ namespace Data.Platforms
 				}
 				games.add(game);
 			}
-			games.sort();
+			games.sort(IGameListNode.compare);
 			return games;
 		}
 

@@ -280,7 +280,7 @@ public class MainClass: Object {
 	
 		
 	static void cleanup_cache() {
-		string gamelistcache_path = Path.build_filename(Build.LOCAL_CONFIG_DIR, Data.GameList.GameFolder.YAML_FOLDER_ROOT);
+		string gamelistcache_path = Path.build_filename(Build.LOCAL_CONFIG_DIR, Data.GameList.GameFolder.CACHE_FOLDER_ROOT);
 		if (FileUtils.test(gamelistcache_path, FileTest.EXISTS) == true) {
 			try {
 				var platform_ids = Data.platforms().get_all_platforms().select<string>(p=>p.id).to_list();

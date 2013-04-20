@@ -115,7 +115,7 @@ namespace Data.Platforms
 			var parser = new Yaml.NodeParser();				
 			var parsed_games = new ArrayList<GameItem>();
 			foreach(var game_node in sequence.items()) {
-				GameItem? parsed_game = parser.parse<GameItem?>(game_node, null);
+				GameItem? parsed_game = GameItem.from_yaml_node(game_node, parser);
 				if (parsed_game != null) {
 					GameItem.set_platform(parsed_game, this);
 					GameItem.set_parent(parsed_game, folder);
@@ -123,7 +123,7 @@ namespace Data.Platforms
 				}
 			}			
 			if (parsed_games.size > 0) {
-				parsed_games.sort();
+				parsed_games.sort(IGameListNode.compare);
 				child_games = parsed_games;
 				return true;
 			}

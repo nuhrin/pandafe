@@ -23,7 +23,7 @@
 
 namespace Data.GameList
 {
-	public interface IGameListNode : Object, Gee.Comparable<IGameListNode>
+	public interface IGameListNode : GameListNode
 	{
 		public abstract Platform platform { get; }
 		public abstract GameFolder? parent { get; }
@@ -34,5 +34,10 @@ namespace Data.GameList
 
 		public string unique_name() { return platform.get_unique_node_name(this); }
 		public string unique_id() { return platform.get_unique_node_id(this); }
+		
+		public static int compare(IGameListNode a, IGameListNode b) {
+			return Utility.strcasecmp(a.name, b.name);
+		}
 	}
+	public abstract class GameListNode { }
 }

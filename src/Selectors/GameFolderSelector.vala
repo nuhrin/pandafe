@@ -30,25 +30,20 @@ public class GameFolderSelector : Selector
 {
 	GameFolder _folder;
 	Gee.List<IGameListNode> items;
-	ulong rescan_handler;
 	
 	public GameFolderSelector(GameFolder folder, string id, int16 xpos, int16 ypos) {
 		base(id, xpos, ypos);
 		_folder = folder;
-		rescan_handler = _folder.rescanned.connect(() => rebuild());
+		_folder.rescanned.connect(() => rebuild());
 		items = _folder.children().to_list();
-	}
-	~GameFolderSelector() {
-		_folder.disconnect(rescan_handler);
 	}
 
 	public GameFolder folder { 
 		get { return _folder; } 
 		set {
 			if (_folder != value) {
-				_folder.disconnect(rescan_handler);
 				_folder = value;
-				rescan_handler = _folder.rescanned.connect(() => rebuild());
+				_folder.rescanned.connect(() => rebuild());
 			}
 			rebuild();
 		}

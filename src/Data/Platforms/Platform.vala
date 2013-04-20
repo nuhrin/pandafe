@@ -87,7 +87,7 @@ public abstract class Platform : NamedEntity, MenuObject
 	void remove_platform_gamelist_cache() {
 		if (this.id == null)
 			return;
-		string gamelistcache_path = Path.build_filename(Build.LOCAL_CONFIG_DIR, Data.GameList.GameFolder.YAML_FOLDER_ROOT, this.id);
+		string gamelistcache_path = Path.build_filename(Build.LOCAL_CONFIG_DIR, Data.GameList.GameFolder.CACHE_FOLDER_ROOT, this.id);
 		if (FileUtils.test(gamelistcache_path, FileTest.IS_DIR) == true) {
 			try {
 				var directory = File.new_for_path(gamelistcache_path);

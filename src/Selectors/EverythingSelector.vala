@@ -129,7 +129,7 @@ public class EverythingSelector : Selector {
 		
 		var list = games.to_list();
 		if (do_sort == true)
-			list.sort();
+			list.sort(IGameListNode.compare);
 			
 		return list;
 	}

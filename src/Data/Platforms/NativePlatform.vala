@@ -119,7 +119,7 @@ public class NativePlatform : Platform
 				}
 			}
 		}
-		folder_list.sort();
+		folder_list.sort(IGameListNode.compare);
 	}
 	void add_games(GameFolder folder, ArrayList<GameItem> game_list) {
 		if (folder.id == "")
@@ -163,7 +163,7 @@ public class NativePlatform : Platform
 				}
 				game_list.add(game);
 			}
-			game_list.sort();
+			game_list.sort(IGameListNode.compare);
 		}
 	}
 	

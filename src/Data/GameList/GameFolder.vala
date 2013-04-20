@@ -26,10 +26,11 @@ using Catapult;
 
 namespace Data.GameList
 {
-	public class GameFolder : Object, Gee.Comparable<IGameListNode>, IGameListNode
+	public class GameFolder : GameListNode, IGameListNode
 	{
-		public const string YAML_FOLDER_ROOT = "GameListCache";
-
+		public const string CACHE_FOLDER_ROOT = "GameListCache";
+		const string CACHE_FILENAME = "children";
+		
 		string? _id;
 		string _name;
 		Platform _platform;
@@ -133,72 +134,94 @@ namespace Data.GameList
 
 		public signal void rescanned();
 		public void rescan_children(owned ForEachFunc<GameFolder>? pre_scan_action=null) {
-			if (children_loaded == false)
-				load_children_yaml();
 			scan_children(true, (owned)pre_scan_action);
 			Data.all_games().update_cache_for_folder(this);
 		}
 		public void update_cache() {
-			var cache = new GameFolderCache();
-			if (_child_folders != null) {
-				foreach(var subfolder in _child_folders)
-					cache.subfolders.add(subfolder._name);
-			}
-			if (_child_games != null)
-				cache.games = _child_games;
-
 			// attempt to save
 			try {
-				Data.data_interface().save(cache, GameFolderCache.YAML_ID, get_yaml_folder());
+				var sb = new StringBuilder();
+				
+				if (_child_folders != null) {
+					foreach(var subfolder in _child_folders)
+						sb.append("f||%s\n".printf(subfolder.name));
+				}
+				if (_child_games != null) {
+					foreach(var game in _child_games)
+						game.add_cache_line(sb, null);
+				}
+
+				string folder_path = Path.build_filename(Build.LOCAL_CONFIG_DIR, get_cache_folder());
+				if (FileUtils.test(folder_path, FileTest.IS_DIR) == false) {
+					if (File.new_for_path(folder_path).make_directory_with_parents() == false)
+						throw new FileError.FAILED("unable to create cache folder");
+				}
+				if (FileUtils.set_contents(Path.build_filename(folder_path, CACHE_FILENAME), sb.str) == false)
+					throw new FileError.FAILED("unspecified error");
 			} catch(Error e) {
-				warning("Error saving cache for folder '%s': %s", get_yaml_folder(), e.message);
+				warning("Error saving cache for folder '%s': %s", get_cache_folder(), e.message);
 			}
 		}
 
 		void ensure_children() {
 			if (children_loaded == true)
 				return;
-			if (load_children_yaml() == false)
+			
+			if (load_children_cache() == false)
 				scan_children(false);
 		}
-		bool load_children_yaml() {
-			var folder_path = get_yaml_folder();
-			GameFolderCache cache = null;
+		bool load_children_cache() {
+			var folder_path = get_cache_folder();
 			try {
-				cache = Data.data_interface().load<GameFolderCache>(GameFolderCache.YAML_ID, folder_path);
+				string contents;
+				if (FileUtils.get_contents(Path.build_filename(Build.LOCAL_CONFIG_DIR, folder_path, CACHE_FILENAME), out contents) == false)
+					throw new FileError.FAILED("unspecified error");
+					
+				var lines = contents.strip().split("\n");
+
+				var subfolders = new ArrayList<GameFolder>();
+				var games = new ArrayList<GameItem>();
+				
+				foreach(var line in lines) {
+					var parts = line.split("||");
+					if (parts.length < 2 || parts[0].length != 1)
+						throw new FileError.FAILED("invalid cache file format: %s".printf(line));
+					var name = parts[1];
+					if (parts[0] == "f") {
+						// folder
+						subfolders.add(new GameFolder(name, platform, this));
+						continue;
+					}
+					
+					if (parts[0] != "g" || parts.length != 4)
+						throw new FileError.FAILED("invalid game format");					
+					
+					// game
+					var id = parts[2];
+					var full_name = parts[3];
+					if (id == "")
+						id = null;
+					if (full_name == "")
+						full_name = null;
+					games.add(GameItem.create(name, platform, this, id, full_name));
+				}
+							
+				_child_folders =  subfolders;				
+				_child_games = games;
+				
+				children_loaded = true;
+				return true;
 			} catch(Error e) {
 				//warning("Error loading cache for folder '%s': %s", folder_path, e.message);
-			}
-			if (cache == null)
 				return false;
-
-			if (cache.subfolders.size == 0) {
-				_child_folders = null;
-			} else {
-				_child_folders = new ArrayList<GameFolder>();
-				foreach(var subfolder in cache.subfolders) {
-					_child_folders.add(new GameFolder(subfolder, _platform, this));
-				}
 			}
-			if (cache.games.size == 0) {
-				_child_games = null;
-			} else {
-				_child_games = cache.games;
-				foreach(var game in _child_games) {
-					GameItem.set_platform(game, _platform);
-					GameItem.set_parent(game, this);
-				}
-			}
-
-			children_loaded = true;
-			return true;
 		}
 		void scan_children(bool recursive, owned ForEachFunc<GameFolder>? pre_scan_action=null) {
 			if (pre_scan_action != null)
 				pre_scan_action(this);
 			platform.folder_scanned(this);
 			
-			ArrayList<GameItem> games;
+			ArrayList<GameItem> games = null;
 			platform.get_children(this, out _child_folders, out games);
 
 			// note: any transient GameItem settings (only in cache) need to be remapped here to the newly scanned items
@@ -214,14 +237,14 @@ namespace Data.GameList
 			}
 		}
 
-		string get_yaml_folder() {
-			if (_yaml_folder == null) {
-				_yaml_folder = (_parent == null)
-					? Path.build_filename(YAML_FOLDER_ROOT, platform.id)
-					: Path.build_filename(_parent.get_yaml_folder(), name);
+		string get_cache_folder() {
+			if (_cache_folder == null) {
+				_cache_folder = (_parent == null)
+					? Path.build_filename(CACHE_FOLDER_ROOT, platform.id)
+					: Path.build_filename(_parent.get_cache_folder(), name);
 			}
-			return _yaml_folder;
+			return _cache_folder;
 		}
-		string _yaml_folder;
+		string _cache_folder;
 	}
 }
