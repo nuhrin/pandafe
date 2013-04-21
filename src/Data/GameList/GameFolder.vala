@@ -62,23 +62,27 @@ namespace Data.GameList
 			return ((_child_folders != null) ? _child_folders.size : 0) + ((_child_games != null) ? _child_games.size : 0);
 		}
 
-		public int compare_to(IGameListNode other) {
-			return Utility.strcasecmp(this.name, other.name);
-		}
-		
 		public int index_of(IGameListNode child_node) {
 			ensure_children();
-			var child_folder = child_node as GameFolder;
-			if (child_folder != null && _child_folders != null)
-				return _child_folders.index_of(child_folder);
-			var child_game = child_node as GameItem;
-			if (child_game != null && _child_games != null) {
-				int game_index = _child_games.index_of(child_game);
-				if (game_index != -1) {
-					if (_child_folders != null)
-						return _child_folders.size + game_index;
-					return game_index;
+			int index=0;
+			if (_child_folders != null || _child_folders.size > 0) {
+				if (child_node is GameFolder) {				
+					foreach(var folder in _child_folders) {
+						if (folder.id == child_node.id)
+							return index;
+						index++;
+					}
+					return -1;
+				} else {
+					index = _child_folders.size;
 				}
+			}
+			if (child_node is GameItem && _child_games != null && _child_games.size > 0) {
+				foreach(var game in _child_games) {
+					if (game.id  == child_node.id)
+						return index;
+					index++;
+				}				
 			}
 			return -1;
 		}

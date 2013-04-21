@@ -68,12 +68,20 @@ public class EverythingSelector : Selector {
 			return null;
 		return items[selected_index];
 	}
-	public bool select_game(GameItem item) {
-		var index = items.index_of(item);
-		if (index == -1 || selected_index == index)
+	public bool select_game(GameItem game) {
+		int index=0;
+		int found_index=-1;
+		foreach(var item in items) {
+			if (item.id == game.id) {
+				found_index = index;
+				break;
+			}
+			index++;
+		}
+		if (found_index == -1 || selected_index == found_index)
 			return false;			
 		
-		return select_item(index);		
+		return select_item(found_index);		
 	}
 	
 	public void game_run_completed() {
