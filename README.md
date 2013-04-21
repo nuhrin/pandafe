@@ -18,8 +18,6 @@ Download
 Latest pnd is available at:  
 http://repo.openpandora.org/?page=detail&app=package.pandafe
 
-Release tarball(s) can be found in [Downloads](http://github.com/nuhrin/pandafe/downloads).
-
 Compiling from tarball
 ----------------------
 You will need to either compile natively on your pandora or use an appropriate cross-compiler.   
@@ -59,7 +57,7 @@ If installing Vala on the compilation host system is not feasible you can:
 
 ```shell
 $ ./autogen.sh
-$ make dist
+$ make && make dist
 ```
 
 * follow the _Compiling from tarball_ steps above

@@ -1,3 +1,11 @@
+Pandafe 0.2.1
+=============
+* fix some nasty memory leaks
+* improve startup time
+* GuiInstaller: show a message and offer gui switch if Pandafe is not found
+* some new/updated Platforms/Programs, by request
+* bug fixes
+
 Pandafe 0.2.0
 =============
 * add support for Program-based Platforms, with ScummVM to demonstrate
