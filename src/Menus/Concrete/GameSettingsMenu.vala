@@ -112,6 +112,12 @@ namespace Menus.Concrete
 			items.add(new MenuItem.save_item());
 		}
 		protected override void cleanup() {
+			foreach(var field in field_hash.values) {
+				var grouping_field = field as OptionGroupingField;
+				if (grouping_field != null) {
+					grouping_field.cleanup_children();
+				}
+			}
 			field_hash = null;
 			program_field = null;			
 			clockspeed_field = null;

@@ -53,7 +53,9 @@ namespace Menus.Concrete
 			foreach(var option in options) {
 				if (title_prefix == null && option.locked == true)
 					continue;
-				
+				if (field_hash.has_key(option) == false)
+					continue;
+					
 				var field = field_hash[option];
 				var grouping_field = field as OptionGroupingField;
 				if (grouping_field != null)
@@ -62,9 +64,21 @@ namespace Menus.Concrete
 					target_settings[option.setting_name] = option.get_setting_value_from_field(field);
 			}
 		}
-				
+		public void cleanup_children() {
+			foreach(var field in field_hash.values) {
+				var grouping_field = field as OptionGroupingField;
+				if (grouping_field != null) {
+					grouping_field.cleanup_children();
+				}
+			}
+			field_hash.clear();
+		}				
 		protected override void populate_items(Gee.List<MenuItem> items) {
 			foreach(var option in options) {
+				if (field_hash.has_key(option)) {
+					items.add(field_hash[option]);
+					continue;
+				}
 				var grouping = option as OptionGrouping;
 				if (grouping != null) {
 					var field = grouping.get_grouping_field(settings, default_settings, program_name, title_prefix);
@@ -73,12 +87,13 @@ namespace Menus.Concrete
 					continue;
 				}
 				
+				if (title_prefix == null && option.locked == true)
+					continue;
+
 				string? setting = null;
 				if (settings.has_key(option.setting_name) == true)
 					setting = settings[option.setting_name];
 				var field = option.get_setting_field(setting);
-				if (title_prefix == null && option.locked == true)
-					continue;
 				field_hash[option] = field;
 				items.add(field);
 			}
@@ -88,13 +103,10 @@ namespace Menus.Concrete
 				settings.clear();
 				if (default_settings != null)
 					this.settings.merge_override(default_settings);
+				field_hash.clear();
 				refresh(reset_index);
 			}));
 			items.add(new MenuItem.cancel_item("Return"));
-		}
-		
-		protected override void cleanup() {
-			field_hash.clear();
 		}
 	}
 }

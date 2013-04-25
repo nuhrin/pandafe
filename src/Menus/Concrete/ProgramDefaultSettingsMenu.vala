@@ -59,7 +59,6 @@ namespace Menus.Concrete
 			var effective = new ProgramDefaultSettings();
 			effective.merge_override(settings);
 			this.settings = effective;
-			field_hash = new HashMap<Option,MenuItemField>();
 			this.clockspeed = clockspeed;
 			this.extra_arguments = extra_arguments;
 		}
@@ -91,6 +90,7 @@ namespace Menus.Concrete
 		}
 		
 		protected override void populate_items(Gee.List<MenuItem> items) {
+			field_hash = new HashMap<Option,MenuItemField>();
 			foreach(var option in options) {
 				var grouping = option as OptionGrouping;
 				if (grouping != null) {
@@ -130,6 +130,12 @@ namespace Menus.Concrete
 		}
 		
 		protected override void cleanup() {
+			foreach(var field in field_hash.values) {
+				var grouping_field = field as OptionGroupingField;
+				if (grouping_field != null) {
+					grouping_field.cleanup_children();
+				}
+			}
 			field_hash = null;
 			extra_arguments_field = null;
 			clockspeed_field = null;

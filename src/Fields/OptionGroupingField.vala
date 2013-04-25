@@ -54,6 +54,7 @@ namespace Fields
 		public void populate_settings_from_fields(ProgramSettings target_settings) {
 			_menu.populate_settings_from_fields(target_settings);
 		}
+		public void cleanup_children() { _menu.cleanup_children(); }
 		
 		public override string get_value_text() { return ""; }
 		public override int get_minimum_menu_value_text_length() { return 0; }
