@@ -156,9 +156,16 @@ namespace Data.Platforms
 				folder = new GameFolder(part, this, folder);
 				
 			return folder;			
-		}
+		}		
 		public override string get_unique_node_name(IGameListNode node) { return get_relative_path(node); }
 		public override string get_unique_node_id(IGameListNode node) { return get_full_path(node); }
+		public override string get_folder_display_name(GameFolder folder) { return folder.name.replace("_", " "); }
+		public override string get_unique_folder_display_name(GameFolder folder) { return get_unique_node_name(folder).replace("_", " "); }
+		public override string get_folder_display_path(string? folder_path) { 
+			if (folder_path == null)
+				return "";
+			return folder_path.replace("_", " "); 
+		}
 		
 		protected override bool get_children(GameFolder folder, out ArrayList<GameFolder> child_folders, out ArrayList<GameItem> child_games) {
 			ensure_runtime_data();
@@ -182,7 +189,7 @@ namespace Data.Platforms
 					if (type == FileType.REGULAR) {
 						file_names.add(name);
 					} else if (type == FileType.DIRECTORY) {
-						var subfolder = new GameFolder(name.replace("_", " "), this, folder);
+						var subfolder = new GameFolder(name, this, folder);
 						folder_list.add(subfolder);
 					}
 				}

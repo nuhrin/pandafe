@@ -56,6 +56,9 @@ namespace Data.GameList
 		public string id { get { return (_id != null) ? _id : _name; } }
 		public string name { get { return _name; } }
 		public string full_name { get { return _name; } }
+		
+		public string display_name() { return platform.get_folder_display_name(this); }
+		public string unique_display_name() { return platform.get_unique_folder_display_name(this); }
 
 		public int child_count() {
 			ensure_children();

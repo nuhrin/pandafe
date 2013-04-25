@@ -32,7 +32,7 @@ namespace Menus.Concrete
 		GameFolder folder;		
 		Platform platform;
 		public GameFolderMenu(GameFolder folder, string? help=null) {
-			string name = "Folder: " + ((folder.parent != null) ? folder.name : "Root");
+			string name = "Folder: " + ((folder.parent != null) ? folder.display_name() : "Root");
 			base(name, help);
 			this.title = "Game " + name;
 			this.folder = folder;			

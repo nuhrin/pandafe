@@ -136,9 +136,12 @@ public abstract class Platform : NamedEntity, MenuObject
 			return root_folder;
 
 		return root_folder.get_descendant_folder_by_id(unique_id);
-	}
+	}	
 	public abstract string get_unique_node_name(IGameListNode node);
 	public virtual string get_unique_node_id(IGameListNode node) { return get_unique_node_name(node); }	
+	public virtual string get_folder_display_name(GameFolder folder) { return folder.name; }
+	public virtual string get_unique_folder_display_name(GameFolder folder) { return get_unique_node_name(folder); }
+	public virtual string get_folder_display_path(string? folder_path) { return folder_path ?? "";  }
 	public abstract bool get_children(GameFolder folder, out ArrayList<GameFolder> child_folders, out ArrayList<GameItem> child_games);
 	
 	// yaml

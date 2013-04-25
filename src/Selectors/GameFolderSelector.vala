@@ -77,10 +77,16 @@ public class GameFolderSelector : Selector
 	protected override int get_itemcount() { return items.size; }
 	protected override string get_item_name(int index) {
 		var item = items[index];
-		return (item is GameFolder) ? item.name + "/" : item.name;
+		var folder = item as GameFolder;
+		if (folder != null)
+			return folder.display_name() + "/";
+		return item.name;
 	}
 	protected override string get_item_full_name(int index) {
 		var item = items[index];
-		return (item is GameFolder) ? item.name + "/" : item.full_name;
+		var folder = item as GameFolder;
+		if (folder != null)
+			return folder.display_name() + "/";
+		return item.full_name;
 	}
 }

@@ -217,13 +217,13 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 				if (game != null) {
 					center = game.platform.name;
 					if (game.parent.parent != null)
-						right = game.parent.unique_name().strip();
+						right = game.parent.display_name().strip();
 				}
 			}
 		}
 		else if (current_platform != null) {
 			left = current_platform.name;
-			right = current_folder ?? "";
+			right = current_platform.get_folder_display_path(current_folder);
 		} else {
 			left = "Platforms";
 			if (current_platform_folder != null)
