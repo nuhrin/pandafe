@@ -52,7 +52,7 @@ public abstract class Selector : Layers.Layer
 		this.ui.font_updated.connect(update_font);
 		this.ui.colors_updated.connect(reset_surface);		
 	}
-
+	
 	public int16 xpos { get; set; }
 	public int16 ypos { get; set; }
 	
@@ -263,7 +263,7 @@ public abstract class Selector : Layers.Layer
 
 	void ensure_surfaces(int display_index) {		
 		if (surfaces == null)
-			surfaces = new SelectorSurfaceSet(display_item_count, ITEMS_PER_SURFACE, this, get_index_from_display_index);
+			surfaces = new SelectorSurfaceSet(display_item_count, ITEMS_PER_SURFACE, this);
 		surfaces.ensure_surfaces(display_index);
 	}
 
@@ -313,13 +313,10 @@ public abstract class Selector : Layers.Layer
 		public SelectorSurface? surface_two;
 		public Rect rect_two;
 	}
-	delegate int TransformIndex(int index);
 	class SelectorSurfaceSet : Object {
 		weak SelectorItemSet items;
 		weak Selector selector;
-		int16 font_height;
-		
-		weak TransformIndex get_index_from_display_index;
+		int16 font_height;		
 		int item_count;
 		int items_per_surface;
 		SelectorSurface? top;
@@ -333,13 +330,12 @@ public abstract class Selector : Layers.Layer
 		int16 item_spacing;
 		SelectorWindow window;
 
-		public SelectorSurfaceSet(int item_count, int items_per_surface, Selector selector, owned TransformIndex get_index_from_display_index) {
+		public SelectorSurfaceSet(int item_count, int items_per_surface, Selector selector) {
 			this.item_count = item_count;
 			this.items_per_surface = items_per_surface;
 			this.selector = selector;
 			this.items = selector.items;
 			font_height = selector.ui.font_height;
-			this.get_index_from_display_index = get_index_from_display_index;
 
 			surface_count = (item_count + items_per_surface - 1) / items_per_surface;
 			if (surface_count < 1)
@@ -622,8 +618,7 @@ public abstract class Selector : Layers.Layer
 //~ 			else
 //~ 				debug("creating new surface @index: %d", surface_index);
 			int first_index = surface_index * items_per_surface;
-			return new SelectorSurface(first_index, (is_last) ? item_count - 1 : first_index + items_per_surface - 1,
-				selector, get_index_from_display_index);
+			return new SelectorSurface(first_index, (is_last) ? item_count - 1 : first_index + items_per_surface - 1, selector);
 		}
 
 		int16 get_surface_window_height(int first, int last) {
@@ -648,7 +643,6 @@ public abstract class Selector : Layers.Layer
 		weak Selector selector;
 		weak SelectorItemSet items;
 		int16 font_height;
-		weak TransformIndex get_index_from_display_index;
 		Surface surface;
 		int visible_items;
 		int item_spacing;
@@ -659,13 +653,12 @@ public abstract class Selector : Layers.Layer
 		bool all_items_rendered;
 		string idle_function_name;
 
-		public SelectorSurface(int first_index, int last_index, Selector selector, owned TransformIndex get_index_from_display_index) {
+		public SelectorSurface(int first_index, int last_index, Selector selector) {
 			this.first_index = first_index;
 			this.last_index = last_index;
 			this.selector = selector;
 			this.items = selector.items;
 			font_height = selector.ui.font_height;
-			this.get_index_from_display_index = get_index_from_display_index;
 			first_rendered_index = -1;
 			last_rendered_index = -1;
 			visible_items = selector.visible_items;
@@ -697,7 +690,7 @@ public abstract class Selector : Layers.Layer
 			ensure_surface(display_index);
 
 			Rect rect = {0, offset};
-			items.get_item_selected_rendering(get_index_from_display_index(display_index)).blit(null, surface, rect);
+			items.get_item_selected_rendering(selector.get_index_from_display_index(display_index)).blit(null, surface, rect);
 //~ 			debug("selected display_index: %d", display_index);
 			surface.flip();
 
@@ -709,7 +702,7 @@ public abstract class Selector : Layers.Layer
 			Rect rect = {0, get_offset(display_index)};
 			selector.ui.get_blank_item_surface().blit(null, surface, rect);
 			
-			items.get_item_rendering(get_index_from_display_index(display_index)).blit(null, surface, rect);
+			items.get_item_rendering(selector.get_index_from_display_index(display_index)).blit(null, surface, rect);
 			surface.flip();
 		}
 		public void ensure_surface(int display_index) {
@@ -775,7 +768,7 @@ public abstract class Selector : Layers.Layer
 				return;
 			Rect rect = {0, offset};			
 			for(int display_index=top_index; display_index <= bottom_index; display_index++) {
-				int index = get_index_from_display_index(display_index);				
+				int index = selector.get_index_from_display_index(display_index);				
 				if (index == selector.selected_index)
 					items.get_item_selected_rendering(index).blit(null, surface, rect);
 				else
