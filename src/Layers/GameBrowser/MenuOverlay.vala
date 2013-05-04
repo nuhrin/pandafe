@@ -81,6 +81,7 @@ namespace Layers.GameBrowser
 			set_header();
 			selector.ensure_initial_selection(false);
 			set_initial_help();
+			is_initialized = true;
 			
 			@interface.push_layer(this, screen_alpha, rgb_color);			
 			
