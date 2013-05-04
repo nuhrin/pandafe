@@ -49,6 +49,7 @@ namespace Layers.GameBrowser
 		Rect lower_left;
 		Rect lower_right;
 		int16 header_bottom_y;
+		bool is_initialized;
 		
 		ArrayList<int> cancel_keys;
 		KeySymbol? cancel_key_pressed;
@@ -62,8 +63,8 @@ namespace Layers.GameBrowser
 				cancel_keys.add(cancel_key);
 			cancel_key_pressed = null;
 			menu_stack = new GLib.Queue<MenuSelector>();
-			header = add_layer(new MenuHeaderLayer("header")) as MenuHeaderLayer;
-			message = add_layer(new MenuMessageLayer("status")) as MenuMessageLayer;			
+			header = add_layer(new MenuHeaderLayer("menu-header")) as MenuHeaderLayer;
+			message = add_layer(new MenuMessageLayer("menu-status")) as MenuMessageLayer;			
 			message.centered = true;
 			selector_max_height = (int16)(@interface.screen_height - SELECTOR_YPOS - message.height - 10);
 			selector = add_layer(get_selector(menu)) as MenuSelector;
@@ -76,14 +77,16 @@ namespace Layers.GameBrowser
 
 		public KeySymbol? run(uchar screen_alpha=0, uint32 rgb_color=0) {
 			connect_selector_signals();
-			@interface.push_layer(this, screen_alpha, rgb_color);
 			
 			set_header();
 			selector.ensure_initial_selection(false);
 			set_initial_help();
+			
+			@interface.push_layer(this, screen_alpha, rgb_color);			
+			
 			process_events();
 			
-			@interface.pop_layer();
+			@interface.pop_layer(false);
 			disconnect_selector_signals();
 			while (menu_stack.length > 0)
 				selector = menu_stack.pop_head();
@@ -151,6 +154,7 @@ namespace Layers.GameBrowser
 		//
 		// screen updates
 		void push_menu(Menus.Menu menu) {
+			is_initialized = false;
 			disconnect_selector_signals();
 			menu_stack.push_head(selector);
 			selector = get_selector(menu);
@@ -159,9 +163,10 @@ namespace Layers.GameBrowser
 			clear();
 			set_header();
 			selector.ensure_initial_selection(false);
-			set_initial_help();
+			set_initial_help(false);
 			screen.update(false);
 			update();
+			is_initialized = true;
 			menu_changed(menu);
 		}
 		void pop_menu() {
@@ -169,15 +174,18 @@ namespace Layers.GameBrowser
 				quit_event_loop();
 				return;
 			}
+			is_initialized = false;
 			disconnect_selector_signals();
 			selector = menu_stack.pop_head();
 			connect_selector_signals();
 			replace_layer(SELECTOR_ID, selector);			
 			clear();
 			set_header();
-			message.reset();
+			message.reset(false);
+			message.update_help(selector.selected_item().help, false);
 			screen.update(false);
 			update();
+			is_initialized = true;
 			menu_changed(selector.menu);
 		}		
 		void refresh_menu(Menus.Menu menu) {
@@ -192,14 +200,16 @@ namespace Layers.GameBrowser
 		void set_header() {
 			header.set_text(null, selector.menu_title, null, false);
 		}
-		void set_initial_help() {
+		void set_initial_help(bool flip_screen=true) {
 			message.reset(false);
 			string? help = selector.menu.initial_help();
 			if (help == null)
 				help = selector.selected_item().help;
-			message.help = help;			
+			message.update_help(help, flip_screen);
 		}
 		void on_selector_changed() {
+			if (is_initialized == false)
+				return;
 			message.help = selector.selected_item().help;
 		}
 		void on_message(string message) {

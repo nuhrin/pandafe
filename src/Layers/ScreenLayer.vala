@@ -34,6 +34,7 @@ namespace Layers
 		}
 
 		public void flip() {
+//~ 			print("flipped screen: %s\n", id);
 			@interface.screen_flip();
 		}
 		

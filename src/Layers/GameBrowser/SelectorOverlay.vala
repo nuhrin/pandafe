@@ -95,7 +95,7 @@ namespace Layers.GameBrowser
 			
 			var selected_index = selector.run_no_push();
 			
-			@interface.pop_layer();
+			@interface.pop_layer(false);
 			
 			return selected_index;
 		}

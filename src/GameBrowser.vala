@@ -76,9 +76,8 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		mountset.pnd_mounted.connect((name) => {if (@interface.peek_layer() == null) status_message.right = "";});
 		mountset.pnd_unmounting.connect((name) => {if (@interface.peek_layer() == null) status_message.right = "Unmounting '%s'...".printf(name);});
 
-		@interface.push_screen_layer(this);
+		@interface.push_screen_layer(this, false);
 		initialize_from_browser_state();
-		flip();
 		Key.enable_unicode(1);
         
         process_events();
@@ -769,6 +768,10 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 			show_change_platform_overlay();
 		else if (cancel_key_pressed == KeySymbol.SPACE)
 			show_context_menu();
+		else if (cancel_key_pressed == KeySymbol.LCTRL) // pandora Select
+			show_main_menu();
+		else
+			flip();
 	}
 	KeySymbol? choose_view() {
 		Platform? active_platform = current_platform;
@@ -810,7 +813,8 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		var change_view_menu = new Menus.Concrete.ChangeViewMenu(resolved_view_data, active_platform);
 		var overlay = new Layers.GameBrowser.MenuOverlay(change_view_menu, KeySymbol.SPACE);
 		overlay.add_cancel_key(KeySymbol.RCTRL); // pandora R
-		var cancel_key_pressed = overlay.run();		
+		overlay.add_cancel_key(KeySymbol.LCTRL); // pandora Select
+		var cancel_key_pressed = overlay.run();
 		if (cancel_key_pressed != null)
 			return cancel_key_pressed;			
 		var new_view = change_view_menu.selected_view;
@@ -927,12 +931,16 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		}
 		return null;
 	}
-	void show_change_platform_overlay() {		
+	void show_change_platform_overlay() {
 		var cancel_key_pressed = choose_platform();
 		if (cancel_key_pressed == KeySymbol.RSHIFT) // pandora L
 			show_change_view_overlay();
 		else if (cancel_key_pressed == KeySymbol.SPACE)
 			show_context_menu();
+		else if (cancel_key_pressed == KeySymbol.LCTRL) // pandora Select
+			show_main_menu();
+		else
+			flip();
 	}
 	KeySymbol? choose_platform() {
 		var active_platform = current_platform;
@@ -949,6 +957,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 						
 		var platform_overlay = new PlatformSelectorOverlay(active_platform);
 		platform_overlay.add_cancel_key(KeySymbol.RSHIFT); // pandora L
+		platform_overlay.add_cancel_key(KeySymbol.LCTRL); // pandora Select
 		platform_overlay.add_cancel_key(KeySymbol.SPACE);
 		platform_overlay.run();
 		if (platform_overlay.was_canceled)
@@ -989,7 +998,19 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 	//
 	// commands: menus
     void show_main_menu() {
-		show_menu_overlay(new Menus.Concrete.MainMenu());
+		var overlay = new Layers.GameBrowser.MenuOverlay(new Menus.Concrete.MainMenu());
+		overlay.add_cancel_key(KeySymbol.RSHIFT); // pandora L
+		overlay.add_cancel_key(KeySymbol.RCTRL); // pandora R
+		overlay.add_cancel_key(KeySymbol.SPACE);
+		var cancel_key_pressed = overlay.run();
+		if (cancel_key_pressed == KeySymbol.RSHIFT)
+			show_change_view_overlay();
+		else if (cancel_key_pressed == KeySymbol.RCTRL)
+			show_change_platform_overlay();
+		else if (cancel_key_pressed == KeySymbol.SPACE)
+			show_context_menu();
+		else
+			flip();
 	}
 	
 	void show_context_menu() {
@@ -1062,11 +1083,15 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		var overlay = new Layers.GameBrowser.MenuOverlay(menu);
 		overlay.add_cancel_key(KeySymbol.RSHIFT); // pandora L
 		overlay.add_cancel_key(KeySymbol.RCTRL); // pandora R
+		overlay.add_cancel_key(KeySymbol.LCTRL); // pandora Select
 		var cancel_key_pressed = overlay.run();
 		if (cancel_key_pressed == KeySymbol.RSHIFT)
 			show_change_view_overlay();
 		else if (cancel_key_pressed == KeySymbol.RCTRL)
 			show_change_platform_overlay();
-	}
-	
+		else if (cancel_key_pressed == KeySymbol.LCTRL)
+			show_main_menu();
+		else
+			flip();
+	}	
 }

@@ -51,7 +51,8 @@ namespace Layers
 		//
 		// drawing
 		public void update(bool flip_screen=true) {
-			//print("updating '%s' (%d)\n", id, (int)unique_id);
+//~ 			print("updating '%s' (%d) [flip_screen=%s]\n", id, (int)unique_id, flip_screen.to_string());
+//~ 			GLib.Thread.usleep(100000);
 			clear();
 			draw();
 			if (children != null) {
