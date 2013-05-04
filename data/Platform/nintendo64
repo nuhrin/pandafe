@@ -1,5 +1,5 @@
 name: Nintendo 64
 platform-type: rom
-rom-file-extensions: v64 n64 zip
+rom-file-extensions: v64 n64 z64 zip
 programs:
 - mupen64plus-PickleLauncher
