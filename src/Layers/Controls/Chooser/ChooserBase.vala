@@ -111,6 +111,10 @@ namespace Layers.Controls.Chooser
 			selector_hash[key] = new_selector;
 			return new_selector;
 		}
+		protected void uncache_selector(string key) {
+			if (selector_hash.has_key(key) == true)
+				selector_hash.unset(key);
+		}
 		protected abstract ChooserSelector create_selector(string key, int16 xpos, int16 ypos, int16 max_height);
 		
 		//
@@ -223,8 +227,8 @@ namespace Layers.Controls.Chooser
 
 		//
 		// commands: misc
-		protected abstract bool process_activation(ChooserSelector selector);
 		protected virtual bool validate_activation(ChooserSelector selector, out string? error) { error = null; return true; }
+		protected abstract bool process_activation(ChooserSelector selector, out bool cancel);
 		protected abstract string get_selected_key(ChooserSelector selector);
 		protected abstract string get_parent_key(ChooserSelector selector);
 		protected abstract string get_parent_child_name(ChooserSelector selector);
@@ -237,10 +241,13 @@ namespace Layers.Controls.Chooser
 				status.error = error;
 				return;
 			}
-			if (process_activation(selector) == true) {
+			bool cancel;
+			if (process_activation(selector, out cancel) == true) {
 				quit_event_loop();
 				return;
 			}
+			if (cancel == true)
+				return;
 			if (selector.is_go_back_item_selected) {
 				go_back();
 				return;

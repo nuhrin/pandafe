@@ -100,6 +100,32 @@ public abstract class Selector : Layers.Layer
 			blit_surface(window.surface_two.get_surface(), window.rect_two, dest);
 		}
 	}
+	public Rect get_selected_item_rect() {
+		Rect rect = {xpos, ypos};
+		if (display_item_count == 0)
+			return rect;
+		int index = selected_display_index() - get_first_displayed_index();
+		if (index > 0 && index < visible_items / 2)
+			index--;
+		rect.y += (int16)((ui.font_height * index) + (ui.spacing.item_v * index) - ui.spacing.item_v);
+		return rect;
+	}
+	int get_first_displayed_index() {
+		int first_index = get_closest_display_index(0);
+		int last_index = display_item_count - 1;
+		int center_index = selected_display_index();
+		int top_index = center_index - (visible_items / 2);
+		if (top_index < first_index)
+			top_index = first_index;
+		int bottom_index = top_index + visible_items - 1;
+		if (bottom_index > last_index)
+			bottom_index = last_index;
+		if ((bottom_index - top_index) < visible_items - 1)
+			top_index = bottom_index - visible_items + 1;
+		if (bottom_index < visible_items || top_index < first_index)
+			top_index = first_index;
+		return top_index;
+	}
 	public signal void loading();
 	public signal void rebuilt();
 	public void rebuild() {

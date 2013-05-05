@@ -134,7 +134,8 @@ namespace Layers.GameBrowser
 			menu_handlers.add(selector.menu.error.connect((error) => on_error(error)));
 			menu_handlers.add(selector.menu.field_error.connect((field, index, error) => on_field_error(field, index, error)));
 			menu_handlers.add(selector.menu.clear_error.connect(() => clear_error()));
-			menu_handlers.add(selector.menu.refreshed.connect(() => refresh_menu(selector.menu)));			
+			menu_handlers.add(selector.menu.refreshed.connect(() => refresh_menu(selector.menu)));
+			menu_handlers.add(selector.menu.quit.connect(() => quit_event_loop()));
 		}
 		void disconnect_selector_signals() {
 			foreach(var handler in menu_handlers)

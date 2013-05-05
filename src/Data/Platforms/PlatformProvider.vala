@@ -134,6 +134,12 @@ namespace Data.Platforms
 			return null;
 		}
 		
+		public void rescan_folder(GameFolder folder) {
+			platform_folder_scanned(folder);
+			folder.rescan_children();
+			platform_rescanned(folder.platform);
+		}
+		
 		public bool save_platform(Platform platform, string id, out string? error, owned ForEachFunc<GameFolder>? pre_scan_action=null) {
 			if (platform.platform_type == PlatformType.NATIVE)
 				GLib.error("NativePlatform instance cannot be saved in this fashion. Use save_native_platform().");

@@ -1165,10 +1165,10 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 	}
 	void show_game_menu(GameItem? game) {
 		if (game != null)
-			show_menu_overlay(new Menus.Concrete.GameMenu(game));
+			show_menu_overlay(new Menus.Concrete.GameMenu(game, new GameNodeMenuData(selector)));
 	}
 	void show_folder_menu(GameFolder folder) {
-		show_menu_overlay(new Menus.Concrete.GameFolderMenu(folder));
+		show_menu_overlay(new Menus.Concrete.GameFolderMenu(folder, new GameNodeMenuData(selector)));
 	}
 	void show_platform_menu(Platform? platform, PlatformFolder? platform_folder=null) {
 		if (platform != null)

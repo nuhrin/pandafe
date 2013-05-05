@@ -32,22 +32,28 @@ namespace Layers.Controls.Chooser
 	public class FolderSelector : ChooserSelector
 	{
 		const string CURRENT_FOLDER_ITEM_NAME = "(Choose this folder)";
+		const string CREATE_FOLDER_ITEM_NAME = "(Create folder)";
 		
 		public FolderSelector(string id, int16 xpos, int16 ypos, int16 max_height, string path, bool is_root=false) {			
 			base(id, xpos, ypos, max_height, is_root, CURRENT_FOLDER_ITEM_NAME);
 			this.path = path;
 		}
+		public bool allow_folder_creation { get; set; }
 		
 		public string path { get; private set; }						
 		public string selected_folder() { return selected_item(); }
 		public string selected_path() { 
 			if (is_choose_item_selected)
 				return path;
+			if (is_create_item_selected)
+				return Path.build_filename(path, selected_item_secondary_id());			
 			if (is_go_back_item_selected)
 				return Path.get_dirname(path);
 				
 			return Path.build_filename(path, selected_folder());
 		}
+		public bool is_create_item_selected { get { return (selected_item() == CREATE_FOLDER_ITEM_NAME); } }
+		
 		
 		protected override void populate_items(Gee.List<ChooserSelector.Item> items) {			
 			try {
@@ -63,11 +69,13 @@ namespace Layers.Controls.Chooser
 						items.add(create_folder_item(name));
 				}
 				items.sort();
+				if (allow_folder_creation)
+					items.add(create_folder_item(CREATE_FOLDER_ITEM_NAME));
 			}
 			catch(GLib.Error e)
 			{
 				warning("Error while getting children of '%s': %s", path, e.message);
-			}		
+			}
 		}
 	}
 }

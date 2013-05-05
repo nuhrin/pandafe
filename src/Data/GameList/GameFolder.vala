@@ -64,6 +64,15 @@ namespace Data.GameList
 			ensure_children();
 			return ((_child_folders != null) ? _child_folders.size : 0) + ((_child_games != null) ? _child_games.size : 0);
 		}
+		public int depth() {
+			int depth = 0;
+			var node = this;
+			while (node.parent != null) {
+				depth++;
+				node = node.parent;
+			}
+			return depth;
+		}
 
 		public int index_of(IGameListNode child_node) {
 			ensure_children();

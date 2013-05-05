@@ -233,6 +233,21 @@ namespace Layers.Controls.Chooser
 			
 			item.choose_secondary_id(xpos + (int16)_width, ypos + offset - 5, screen_alpha, rgb_color);			
 		}
+		public bool edit_selected_item_secondary_id(uchar screen_alpha=128, uint32 rgb_color=0) {
+			var item = items[(int)selected_index];
+			
+			uint top_index;
+			uint bottom_index;
+			get_display_range(selected_index, out top_index, out bottom_index);			
+			int16 offset = get_offset(selected_index);
+			if ((int)bottom_index > visible_items - 1)
+				offset = offset - get_offset(top_index);
+			
+			return item.edit_secondary_id(xpos, ypos + offset - 5, screen_alpha, rgb_color);
+		}
+		public void unset_selected_item_secondary_id(bool clear_list=false) {
+			items[(int)selected_index].unset_secondary_id(clear_list);
+		}
 		
 		protected abstract void populate_items(Gee.List<Item> items);
 		protected Item create_file_item(string name, string? id=null) { return new Item.file(name, id); }
@@ -359,6 +374,11 @@ namespace Layers.Controls.Chooser
 				}
 				secondary_id_list.add(id);
 			}
+			public void unset_secondary_id(bool clear_list=false) {
+				_secondary_id = null;
+				if (clear_list && secondary_id_list != null)
+					secondary_id_list.clear();
+			}
 			public void choose_secondary_id(int16 xpos, int16 ypos, uchar screen_alpha=128, uint32 rgb_color=0) {
 				if (secondary_id_list == null || secondary_id_list.size < 2)
 					return;
@@ -374,6 +394,15 @@ namespace Layers.Controls.Chooser
 				var new_index = id_selector.run(screen_alpha, rgb_color);
 				if (new_index != id_index)
 					_secondary_id = secondary_id_list[(int)new_index];				
+			}
+			public bool edit_secondary_id(int16 xpos, int16 ypos, uchar screen_alpha=128, uint32 rgb_color=0) {
+				var id_editor = new TextEntry("secondary_id_editor", xpos, ypos, 300, _secondary_id);
+				var new_id = id_editor.run(screen_alpha, rgb_color);
+				if (new_id != null && new_id != _secondary_id) {
+					_secondary_id = new_id;
+					return true;
+				}
+				return false;
 			}
 			
 			public int compare_to(Item other) {

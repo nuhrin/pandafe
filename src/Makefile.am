@@ -66,6 +66,7 @@ pandafe_SOURCES = \
 	Data/GameList/AllGames.vala \
 	Data/GameList/GameFolder.vala \
 	Data/GameList/GameItem.vala \
+	Data/GameList/GameNodeMenuData.vala \
 	Data/GameList/IGameListNode.vala \
 	Data/Options/DoubleOption.vala \
 	Data/Options/FlagOption.vala \
@@ -162,6 +163,7 @@ pandafe_SOURCES = \
 	Layers/SurfaceLayer.vala \
 	Menus/Concrete/ChangeViewMenu.vala \
 	Menus/Concrete/ExitMenu.vala \
+	Menus/Concrete/GameFileMenu.vala \
 	Menus/Concrete/GameFolderMenu.vala \
 	Menus/Concrete/GameMenu.vala \
 	Menus/Concrete/GameSettingsMenu.vala \

@@ -44,6 +44,21 @@ public class Spawning
 		return CUSTOM_COMMAND_SCRIPT_FORMAT.printf(app.id);
 	}
 	
+	public static SpawningResult spawn_command(string command_line, string working_directory) {
+		int exit_status = -1;
+		string standard_output;
+		string standard_error;
+		bool success;
+		try {			
+			string[] argv;
+			Shell.parse_argv(command_line, out argv);
+			success = Process.spawn_sync(working_directory, argv, null, 0, null, out standard_output, out standard_error, out exit_status);
+			return new SpawningResult(success, command_line, standard_output, standard_error, exit_status);
+		} catch(Error e) {
+			return new SpawningResult.error_with_command_line(e.message, command_line);
+		}
+	}
+	
 	public static SpawningResult spawn_app(AppItem app, bool treat_non_zero_exit_code_as_error=true) {
 		var mountset = Data.pnd_mountset();
 		bool already_mounted = mountset.is_mounted(app.package_id);

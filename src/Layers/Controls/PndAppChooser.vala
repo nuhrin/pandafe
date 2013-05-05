@@ -79,7 +79,8 @@ namespace Layers.Controls
 		protected override void update_header(ChooserHeader header, ChooserSelector selector) {
 			header.path = ((PndAppSelector)selector).path;
 		}
-		protected override bool process_activation(ChooserSelector selector) {
+		protected override bool process_activation(ChooserSelector selector, out bool cancel) {
+			cancel = false;
 			var app_selector = (PndAppSelector)selector;
 			path = app_selector.path;
 			if (app_selector.is_folder_selected == false) {

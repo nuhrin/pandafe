@@ -49,7 +49,8 @@ namespace Layers.Controls
 		protected override void update_header(ChooserHeader header, ChooserSelector selector) {
 			header.path = ((PndCategorySelector)selector).path;
 		}
-		protected override bool process_activation(ChooserSelector selector) {
+		protected override bool process_activation(ChooserSelector selector, out bool cancel) {
+			cancel = false;
 			var category_selector = (PndCategorySelector)selector;
 			if (category_selector.is_choose_item_selected) {
 				// choose this category
