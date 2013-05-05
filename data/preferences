@@ -3,4 +3,4 @@ appearance:
   item-color: ! '#178ECB'
   selected-item-color: ! '#FFFFFF'
   background-color: ! '#0F3854'
-default-rom-path: /media/mmcblk0p1/pandora/roms
+default-rom-path: /media/mmcblk0p1

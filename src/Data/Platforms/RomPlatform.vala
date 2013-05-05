@@ -344,6 +344,7 @@ namespace Data.Platforms
 			name_field = builder.add_string("name", "Name", null, this.name);
 			name_field.required = true;
 			var folder_field = builder.add_folder("rom_folder_root", "Rom Folder Root", null, this.rom_folder_root);
+			folder_field.set_fallback_starting_path(Data.preferences().default_rom_path);
 			folder_field.required = true;
 			
 			var exts_field = builder.add_string("rom_file_extensions", "Rom File Extensions", null, this.rom_file_extensions);

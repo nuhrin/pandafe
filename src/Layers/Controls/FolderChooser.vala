@@ -31,17 +31,23 @@ using Layers.MenuBrowser;
 namespace Layers.Controls
 {
 	public class FolderChooser : ChooserBase
-	{				
+	{
+		const string DEFAULT_STARTING_PATH = "/media";
 		const string SELECTOR_ID = "folder_selector";
 		string root_path;
 		string? selected_path;
-
+		string? fallback_starting_path;
+		
 		public FolderChooser(string id, string title, string? root_path=null) {			
 			base(id, title);
 			if (root_path != null && FileUtils.test(root_path, FileTest.IS_DIR) == true)
 				this.root_path = root_path;
 			else
 				this.root_path = "/";			
+		}
+		
+		public void set_fallback_starting_path(string path) { 
+			fallback_starting_path = path;
 		}
 		
 		protected override void on_selector_scanning() { this.message("Reading directory..."); }
@@ -53,7 +59,7 @@ namespace Layers.Controls
 					return get_first_run_key(Path.get_dirname(starting_key));
 				return starting_key;
 			}
-			return root_path;
+			return fallback_starting_path ?? DEFAULT_STARTING_PATH;
 		}
 
 		protected override string? get_run_result() { return selected_path; }
