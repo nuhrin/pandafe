@@ -43,7 +43,7 @@ namespace Menus.Fields
 			set { change_value(value); }
 		}
 
-		public override string get_value_text() { return _value; }
+		public override string get_value_text() { return _value ?? ""; }
 		public override int get_minimum_menu_value_text_length() { return -1; }
 
 		protected override Value get_field_value() { return _value; }
