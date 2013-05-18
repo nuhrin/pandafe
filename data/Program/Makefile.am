@@ -4,6 +4,7 @@ programsdir=$(pkgdatadir)/Program
 dist_programs_DATA = \
 	colem.skeezix \
 	dega.cosam.1.16.4.0 \
+	DraStic \
 	fba-dave18 \
 	gambatte-qt \
 	gngeopnd-pepone \

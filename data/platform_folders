@@ -11,6 +11,7 @@
   - nintendo64
   - gameboy
   - gameboyadvance
+  - nintendods
 - name: Sega
   folders: []
   platforms:

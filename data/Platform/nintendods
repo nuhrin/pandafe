@@ -1,0 +1,6 @@
+name: Nintendo DS
+platform-type: rom
+rom-file-extensions: nds zip
+programs:
+- DraStic
+

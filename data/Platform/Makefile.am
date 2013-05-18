@@ -15,6 +15,7 @@ dist_platforms_DATA = \
 	neogeopocket \
 	nes \
 	nintendo64 \
+	nintendods \
 	playstation \
 	sega32x \
 	segacd \

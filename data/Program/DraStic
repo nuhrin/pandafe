@@ -1,0 +1,12 @@
+app-id-type: exact
+app-id: DraStic
+custom-command: ! 'op_runfbapp ./drastic "$@"
+
+  ofbset -fb /dev/fb1 -pos 0 0 -size 0 0 -mem 0 -en 0'
+expected-exit-code: 0
+options: []
+default-settings:
+  extra-arguments: 
+  clockspeed: 0
+name: DraStic
+
