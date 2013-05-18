@@ -55,7 +55,7 @@ namespace Menus.Concrete
 			GameItem game;
 			GameNodeMenuData menu_data;
 			public RenameItem(GameItem game, GameNodeMenuData menu_data) {
-				base("Rename", "Change the game filename");
+				base("Rename", "Change the filename");
 				this.game = game;
 				this.menu_data = menu_data;
 			}
@@ -100,7 +100,7 @@ namespace Menus.Concrete
 			GameItem game;
 			RomPlatform platform;
 			public MoveItem(GameItem game, RomPlatform platform) {
-				base("Move", "Move the game to a different folder");
+				base("Move", "Move the file to a different folder");
 				this.game = game;
 				this.platform = platform;
 			}
@@ -137,7 +137,7 @@ namespace Menus.Concrete
 		{
 			GameItem game;
 			public DeleteItem(GameItem game) {
-				base("Delete", "Delete the game");
+				base("Delete", "Delete the file");
 				this.game = game;
 			}
 			public override void activate(MenuSelector selector) { 

@@ -22,13 +22,17 @@
  */
 
 using Catapult;
+using Pandora.Config;
 
 namespace Data.Pnd
 {
 	public class AppItem : YamlObject
 	{
+		const uint UNINITIALIZED_SUBAPP_NUMBER = 9999;
 		weak PndItem pnd;
-		public AppItem() { }
+		public AppItem() { 
+			subapp_number = UNINITIALIZED_SUBAPP_NUMBER;
+		}
 		public AppItem.from_app(Pandora.Apps.App app) {
 			id = app.id;
 			appdata_dirname = app.appdata_dirname;
@@ -41,6 +45,7 @@ namespace Data.Pnd
 			main_category = app.main_category ?? "";
 			subcategory1 = app.main_category1 ?? "";
 			subcategory2 = app.main_category2 ?? "";
+			subapp_number = app.subapp_number;
 		}
 		public string id { get; set; }
 		public string appdata_dirname { get; set; }
@@ -53,12 +58,36 @@ namespace Data.Pnd
 		public string main_category { get; set; }
 		public string subcategory1 { get; set; }
 		public string subcategory2 { get; set; }
-
+		public uint subapp_number { get; set;}
+		
 		public string filename { get { ensure_pnd(); return pnd.filename; } }
 		public string package_id { get { ensure_pnd(); return pnd.pnd_id; } }
 		public string get_fullpath() {
 			ensure_pnd();
 			return pnd.get_fullpath();
+		}
+
+		public PndOvrAppFile get_ovr_file() throws KeyFileError, FileError {
+			if (subapp_number == UNINITIALIZED_SUBAPP_NUMBER)
+				throw new FileError.FAILED("Cached pnd app data is missing subapp_number, please rescan.");
+			return Pandora.Config.get_pnd_ovr_app_file(get_fullpath(), subapp_number);
+		}
+		
+		public AppItem read_direct_from_pnd() throws KeyFileError, FileError {
+			ensure_pnd();
+			if (FileUtils.test(pnd.get_fullpath(), FileTest.EXISTS) == false)
+				throw new FileError.FAILED("The pnd file '%s' was not found.".printf(pnd.get_fullpath()));
+			var ovr_path = pnd.get_fullpath().replace(".pnd", ".ovr");
+			FileUtils.rename(ovr_path, ovr_path+".off");
+			var pnd = Data.pnd_data().get_pnd_direct(pnd.path, pnd.filename);
+			FileUtils.rename(ovr_path+".off", ovr_path);
+			if (pnd != null) {
+				foreach(var app in pnd.apps) {
+					if (app.id == this.id)
+						return app;
+				}
+			}
+			throw new KeyFileError.NOT_FOUND("App '%s' was not found in pnd '%s'.", this.id, pnd.get_fullpath());			
 		}
 
 		internal void set_pnd(PndItem pnd) { this.pnd = pnd; }

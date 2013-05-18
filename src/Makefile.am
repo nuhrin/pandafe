@@ -90,6 +90,7 @@ pandafe_SOURCES = \
 	Data/Platforms/RomPlatform.vala \
 	Data/Pnd/AppIdType.vala \
 	Data/Pnd/AppItem.vala \
+	Data/Pnd/AppOverride.vala \
 	Data/Pnd/Category.vala \
 	Data/Pnd/MountSet.vala \
 	Data/Pnd/PndCache.vala \

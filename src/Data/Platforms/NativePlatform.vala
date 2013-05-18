@@ -41,14 +41,18 @@ public class NativePlatform : Platform
 
 	// game launching			
 	public override SpawningResult run_game(GameItem game) {
+		var app = get_game_app(game);
+		if (app != null)
+			return Spawning.spawn_app(app, false);				
+		
+		return new SpawningResult.error("Unable to run pnd '%s' (%s).".printf(game.name, game.id));
+	}
+	public AppItem? get_game_app(GameItem game) {
 		var ids = game.id.split("|");
 		var pnd = Data.pnd_data().get_pnd(ids[0]);
-		if (pnd != null) {
-			var app = pnd.apps.where(a=>a.id == ids[1]).first();
-			if (app != null)
-				return Spawning.spawn_app(app, false);				
-		}
-		return new SpawningResult.error("Unable to run pnd '%s' (%s).".printf(game.name, game.id));
+		if (pnd == null)
+			return null;
+		return pnd.apps.where(a=>a.id == ids[1]).first();				
 	}
 	public override Program? get_program_for_game(GameItem game) { return null; }
 	public override Program? get_program(string? program_id=null) { return null; }

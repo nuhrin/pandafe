@@ -23,6 +23,7 @@
 
 using Gee;
 using Catapult;
+using Pandora.Config;
 
 namespace Data.Pnd
 {
@@ -56,6 +57,10 @@ namespace Data.Pnd
 					return app;
 			}
 			return null;
+		}
+		
+		public PndOvrFile get_ovr_file() throws KeyFileError, FileError {
+			return Pandora.Config.get_pnd_ovr_file(get_fullpath());
 		}
 
 		public int compare_to(PndItem other) { return strcmp(pnd_id, other.pnd_id); }

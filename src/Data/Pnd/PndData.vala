@@ -49,14 +49,21 @@ namespace Data.Pnd
 		public void rescan() {
 			Pandora.Apps.scan_pnds();
 			var cache = new PndCache.from_pnds(Pandora.Apps.get_all_pnds());
-
+			update_cache_file(cache);
+			Pandora.Apps.clear_pnd_cache();
+			reload_from_cache(cache);
+		}
+		public void rebuild() {
+			var cache = new PndCache.from_data(pnd_list);
+			update_cache_file(cache);
+			reload_from_cache(cache);
+		}
+		void update_cache_file(PndCache cache) {
 			try {
 				data_interface.save(cache, CACHED_DATA_ID, CACHED_DATA_FOLDER);
 			} catch (Error e) {
 				warning("Error while saving pnd data cache: %s", e.message);
 			}
-			Pandora.Apps.clear_pnd_cache();
-			reload_from_cache(cache);
 		}
 		void reload_from_cache(PndCache cache) {
 			pnd_list = new ArrayList<PndItem>();
@@ -82,6 +89,12 @@ namespace Data.Pnd
 
 		public Enumerable<PndItem> get_all_pnds() {
 			return new Enumerable<PndItem>(pnd_list);
+		}
+		public PndItem? get_pnd_direct(string path, string filename) {
+			var pnd = Pandora.Apps.get_pnd_direct(path, filename);
+			if (pnd == null)
+				return null;
+			return new PndItem.from_pnd(pnd);
 		}
 		public PndItem? get_pnd(string id) {
 			if (pnd_id_hash.has_key(id) == true)
