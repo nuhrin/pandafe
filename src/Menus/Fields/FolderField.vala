@@ -37,7 +37,6 @@ namespace Menus.Fields
 			_value = path;
 			this.root_path = root_path;
 		}
-
 		public new string? value {
 			get { return _value; }
 			set { change_value(value); }
@@ -46,6 +45,7 @@ namespace Menus.Fields
 		public void set_fallback_starting_path(string? path) {
 			fallback_starting_path = path;
 		}
+		public signal void chooser_closed(string? most_recent_path);
 
 		public override string get_value_text() { return (_value == null) ? "" : Path.get_basename(_value); }
 		public override int get_minimum_menu_value_text_length() { 
@@ -68,6 +68,7 @@ namespace Menus.Fields
 				selector.update_selected_item_value();
 				selector.update();
 			}
+			chooser_closed(chooser.most_recent_path);			
 		}
 		
 		bool change_value(string? new_value) {

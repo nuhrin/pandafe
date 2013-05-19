@@ -46,9 +46,11 @@ namespace Layers.Controls
 				this.root_path = "/";			
 		}
 		
+		
 		public void set_fallback_starting_path(string path) { 
 			fallback_starting_path = path;
 		}
+		public string? most_recent_path { get; private set; }
 		
 		protected override void on_selector_scanning() { this.message("Reading directory..."); }
 		protected override void on_selector_scanned() { this.message(null); }
@@ -70,6 +72,7 @@ namespace Layers.Controls
 		
 		protected override void update_header(ChooserHeader header, ChooserSelector selector) {
 			header.path = ((FolderSelector)selector).path;
+			most_recent_path = header.path;
 		}
 		protected override bool process_activation(ChooserSelector selector) {
 			var folder_selector = (FolderSelector)selector;

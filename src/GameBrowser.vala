@@ -626,7 +626,8 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		var rom_folder_root = rom_platform.rom_folder_root;
 		if (rom_folder_root == null || rom_folder_root.strip() == "" || FileUtils.test(rom_folder_root, FileTest.IS_DIR) == false) {
 			var chooser = new FolderChooser("rom_folder_chooser", "Choose %s Rom Folder".printf(platform.name));
-			var new_root = chooser.run(Data.preferences().default_rom_path);
+			var new_root = chooser.run(Data.preferences().rom_select_path());
+			Data.preferences().update_most_recent_rom_path(chooser.most_recent_path);
 			if (new_root == null)
 				return false;
 			rom_platform.rom_folder_root = new_root;

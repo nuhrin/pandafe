@@ -343,8 +343,8 @@ namespace Data.Platforms
 		protected override void build_menu(MenuBuilder builder) {
 			name_field = builder.add_string("name", "Name", null, this.name);
 			name_field.required = true;
-			var folder_field = builder.add_folder("rom_folder_root", "Rom Folder Root", null, this.rom_folder_root);
-			folder_field.set_fallback_starting_path(Data.preferences().default_rom_path);
+			folder_field = builder.add_folder("rom_folder_root", "Rom Folder Root", null, this.rom_folder_root);
+			folder_field.set_fallback_starting_path(Data.preferences().rom_select_path());
 			folder_field.required = true;
 			
 			var exts_field = builder.add_string("rom_file_extensions", "Rom File Extensions", null, this.rom_file_extensions);
@@ -367,14 +367,19 @@ namespace Data.Platforms
 			programs_field.changed.connect(() => {
 				default_program_field.set_programs(programs_field.value);
 			});
+			folder_field.chooser_closed.connect((most_recent_path) => {
+				Data.preferences().update_most_recent_rom_path(most_recent_path);
+			});
 		}
 		protected override void release_fields() {
 			name_field = null;
+			folder_field = null;
 			programs_field = null;
 			default_program_field = null;
 		}
 		
 		Menus.Fields.StringField name_field;
+		FolderField folder_field;
 		ProgramListField programs_field;
 		ProgramSelectionField default_program_field;
 	}

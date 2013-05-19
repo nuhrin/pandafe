@@ -31,10 +31,20 @@ namespace Data
 {
 	public class Preferences : Entity, MenuObject
 	{		
-		internal const string ENTITY_ID = "preferences";		
+		internal const string ENTITY_ID = "preferences";
+		const string FALLBACK_ROM_SELECT_PATH = "/media/mmcblk0p1/pandora/roms";
 
 		public GameBrowserAppearance appearance { get; set; }
-		public string? default_rom_path { get; set; }
+		public string? default_rom_select_path { get; set; }
+		public string? most_recent_rom_path { get; set; }
+		
+		public string? rom_select_path() { return default_rom_select_path ?? most_recent_rom_path ?? FALLBACK_ROM_SELECT_PATH; }
+		public void update_most_recent_rom_path(string? new_path) {
+			if (new_path == null || default_rom_select_path != null)
+				return;
+			most_recent_rom_path = new_path;
+			Data.save_preferences();
+		}
 		
 		// yaml
 		protected override string generate_id() { return ENTITY_ID; }
@@ -55,10 +65,12 @@ namespace Data
 		protected void build_menu(MenuBuilder builder) {
 			appearance_field = new GameBrowserAppearanceField("appearance", "Appearance", "Configure font and colors.", "Game Browser Appearance", appearance, new Data.GameBrowserAppearance.default());
 			builder.add_field(appearance_field);
-			var default_rom_path_field = builder.add_folder("default_rom_path", "Default Rom Path", "Used as starting path when selecting platform roms for the first time.", default_rom_path);
+			var default_rom_path_field = builder.add_folder("default_rom_select_path", "Default Rom Path", "Used as starting path when selecting platform roms for the first time.", default_rom_select_path);
 			default_rom_path_field.changed.connect(() => refreshed(1));			
 		}
 		protected bool save_object(Menus.Menu menu) {
+			if (default_rom_select_path != null)
+				most_recent_rom_path = null;
 			Data.save_preferences();
 			if (appearance_field.has_changes() == true)
 				@interface.game_browser_ui.set_appearance(appearance);
