@@ -69,7 +69,10 @@ namespace Data.Platforms
 			} else {
 				program = default_program;
 			}
-			return program;
+			if (program != null && program.get_app() != null)
+				return program;
+				
+			return get_first_program_with_app();
 		}
 		public override Program? get_program(string? program_id=null) {
 			if (program_id == null || (default_program != null && default_program.app_id == program_id))
@@ -82,6 +85,15 @@ namespace Data.Platforms
 			
 			return null;
 		}
+		public Program? get_first_program_with_app() {
+			foreach(var program in programs) {
+				if (program.get_app() != null)
+					return program;
+			}
+			
+			return null;
+		}
+		
 		public override bool supports_game_settings { get { return (programs.size > 0); } }
 		
 		// runtime data

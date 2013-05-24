@@ -54,7 +54,9 @@ namespace Menus.Concrete
 			game_settings = settings;
 			this.platform = platform;
 			rom_platform = platform as RomPlatform;
-			program = platform.get_program(game_settings.selected_program_id);						
+			program = platform.get_program(game_settings.selected_program_id);
+			if (program == null || (rom_platform != null && program.get_app() == null))
+				program = rom_platform.get_first_program_with_app();
 		}
 		public Program? program { get; private set; }
 		public bool program_changed { get; private set; }
@@ -126,6 +128,12 @@ namespace Menus.Concrete
 			game_settings.selected_program_id = (program != null) ? program.app_id : null;
 				
 			if (program != null) {
+				
+				if (program.get_app() == null) {
+					error("No pnd app found for program '%s'.".printf(program.name));
+					return false;
+				}
+				
 				var settings = new ProgramSettings();
 				foreach(var option in program.options) {
 					if (option.locked == true)
