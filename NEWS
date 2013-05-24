@@ -1,3 +1,10 @@
+Pandafe 0.2.2
+=============
+* add Nintendo DS / DraStic
+* auto assign platform to next known program if preferred program not installed
+* update rom path chooser to remember most recent path (if default not set)
+* bug fixes
+
 Pandafe 0.2.1
 =============
 * fix some nasty memory leaks

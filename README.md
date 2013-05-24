@@ -61,3 +61,7 @@ $ make && make dist
 ```
 
 * follow the _Compiling from tarball_ steps above
+
+Acknowledgements
+----------------
+Interaction design & testing by Stefan Nowak (porg).
