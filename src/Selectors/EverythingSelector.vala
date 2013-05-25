@@ -56,7 +56,13 @@ public class EverythingSelector : Selector {
 		if (this.view.equals(view) == true)
 			return;
 		this.view = view;
-		rebuild();
+		var filter = get_filter_pattern();
+		if (filter == null) {
+			rebuild();
+		} else {
+			clear_filter();
+			this.filter(filter);
+		}			
 	}
 	void favorites_changed() {
 		if (view.view_type == GameBrowserViewType.FAVORITES)

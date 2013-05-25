@@ -204,14 +204,14 @@ public abstract class Selector : Layers.Layer
 		return false;
 	}
 	public void ensure_selection(bool flip=true) {
-		if (selected_index >= 0 || display_item_count == 0) {
+		if (selected_display_index() >= 0 || display_item_count == 0) {
 			update(flip);
 			return;
 		}
-		select_item(0, flip);
+		select_display_item(0, flip);
 	}
 
-	public bool filter(string pattern) {
+	public bool filter(string pattern, bool flip=true) {
 		_filter = pattern;
 		_filter_match_indexes = new ArrayList<int>();
 		_filter_match_indexes.add_all(items.get_folder_indexes());
@@ -232,9 +232,9 @@ public abstract class Selector : Layers.Layer
 		selected_index = -1;
 		int new_index = get_index_from_display_index(display_index);
 		if (new_index != -1)
-			select_item(new_index);
+			select_item(new_index, flip);
 		else if (display_item_count > 0)
-			select_display_item(0);
+			select_display_item(0, flip);
 		
 		rebuilt();
 		return success;
