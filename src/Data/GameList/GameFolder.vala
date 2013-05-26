@@ -149,9 +149,9 @@ namespace Data.GameList
 		}
 
 		public signal void rescanned();
-		public void rescan_children(owned ForEachFunc<GameFolder>? pre_scan_action=null) {
+		public void rescan_children(owned ForEachFunc<GameFolder>? pre_scan_action=null, string? new_selection_id=null) {
 			scan_children(true, (owned)pre_scan_action);
-			Data.all_games().update_cache_for_folder(this);
+			Data.all_games().update_cache_for_folder(this, new_selection_id);
 		}
 		public void update_cache() {
 			// attempt to save

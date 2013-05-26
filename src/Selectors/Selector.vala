@@ -128,16 +128,16 @@ public abstract class Selector : Layers.Layer
 	}
 	public signal void loading();
 	public signal void rebuilt();
-	public void rebuild() {
+	public void rebuild(string? new_selection_id=null) {
 		reset_surface();
 		_items = null;
 		_item_count = -1;
 		int index = selected_index;
 		selected_index = -1;
-		rebuild_items(index);
+		rebuild_items(index, new_selection_id);
 		rebuilt();
 	}
-	protected abstract void	rebuild_items(int selection_index);
+	protected abstract void	rebuild_items(int selection_index, string? new_selection_id);
 
 	public bool has_previous { get { return selected_display_index() > 0; } }
 	public bool has_next { get { return selected_display_index() < display_item_count - 1; } }

@@ -38,12 +38,12 @@ namespace Data.GameList
 			return rebuild();
 		}
 		
-		public signal void cache_updated();
-		public void update_cache_for_folder(GameFolder folder) {
-			rebuild();
+		public signal void cache_updated(string? new_selection_id);
+		public void update_cache_for_folder(GameFolder folder, string? new_selection_id) {
+			rebuild(new_selection_id);
 		}
 		
-		Enumerable<GameItem> rebuild() {
+		Enumerable<GameItem> rebuild(string? new_selection_id=null) {
 			var folder_data = Data.platforms().get_platform_folder_data();
 			var platforms = (folder_data.folders.size > 0)
 				? folder_data.get_all_platforms()
@@ -54,7 +54,7 @@ namespace Data.GameList
 				games = games.concat(platform.get_root_folder().all_games());
 			
 			var list = games.to_list();
-			save_cache(list);
+			save_cache(list, new_selection_id);
 
 			return new Enumerable<GameItem>(list);
 		}
@@ -127,7 +127,7 @@ namespace Data.GameList
 			return false;
 		}
 		
-		void save_cache(Gee.List<GameItem> games) {
+		void save_cache(Gee.List<GameItem> games, string? new_selection_id=null) {
 			// attempt to save
 			try {
 				var sb = new StringBuilder();
@@ -139,7 +139,7 @@ namespace Data.GameList
 				}
 				if (FileUtils.set_contents(Path.build_filename(RuntimeEnvironment.user_config_dir(), GameFolder.CACHE_FOLDER_ROOT, CACHE_FILENAME), sb.str) == false)
 					throw new FileError.FAILED("unspecified error");
-				cache_updated();
+				cache_updated(new_selection_id);
 			} catch(Error e) {
 				warning("Error saving all games cache: %s", e.message);
 			}

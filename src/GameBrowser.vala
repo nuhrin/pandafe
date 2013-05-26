@@ -68,7 +68,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		platform_folder_data = Data.platforms().get_platform_folder_data();
 		
 		var pp = Data.platforms();
-		pp.platform_rescanned.connect((p) => platform_rescanned(p));
+		pp.platform_rescanned.connect((platform, new_selection_id) => platform_rescanned(platform, new_selection_id));
 		pp.platform_folders_changed.connect(() => platform_folders_changed());
 		pp.platform_folder_scanned.connect((f) => game_folder_scanned(f));
 		var mountset = Data.pnd_mountset();
@@ -425,7 +425,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 			}			
 		}
 	}
-	void platform_rescanned(Platform platform) {
+	void platform_rescanned(Platform platform, string? new_selection_id) {
 		if (everything_active) {
 			return; // handled by AllGames.cache_updated() signal
 		}
@@ -437,7 +437,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 				var new_folder = current_platform.get_folder(current_folder);
 				if (new_folder == null)
 					new_folder = current_platform.get_root_folder();
-				gfs.folder = new_folder;
+				gfs.set_folder(new_folder, new_selection_id);
 			} else {
 				change_selector();
 				selector.ensure_selection();

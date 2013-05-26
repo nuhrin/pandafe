@@ -41,7 +41,7 @@ namespace Data.Platforms
 		}
 		
 		public signal void platform_folders_changed();
-		public signal void platform_rescanned(Platform platform);
+		public signal void platform_rescanned(Platform platform, string? new_selection_id);
 		public signal void platform_folder_scanned(GameFolder folder);
 		
 		public Enumerable<Platform> get_all_platforms() {
@@ -104,7 +104,7 @@ namespace Data.Platforms
 					catch (Error e) {
 					}
 				}
-				_native_platform.rescanned.connect(() => platform_rescanned(_native_platform));
+				_native_platform.rescanned.connect(() => platform_rescanned(_native_platform, null));
 				_native_platform.folder_scanned.connect(folder => platform_folder_scanned(folder));
 				set_id(_native_platform, "pandora");
 			}
@@ -134,10 +134,10 @@ namespace Data.Platforms
 			return null;
 		}
 		
-		public void rescan_folder(GameFolder folder) {
+		public void rescan_folder(GameFolder folder, string? new_selection_id=null) {
 			platform_folder_scanned(folder);
-			folder.rescan_children();
-			platform_rescanned(folder.platform);
+			folder.rescan_children(null, new_selection_id);
+			platform_rescanned(folder.platform, new_selection_id);
 		}
 		
 		public bool save_platform(Platform platform, string id, out string? error, owned ForEachFunc<GameFolder>? pre_scan_action=null) {
@@ -171,7 +171,7 @@ namespace Data.Platforms
 
 			if (original_id == null) {
 				// newly saved
-				platform.rescanned.connect(() => platform_rescanned(platform));
+				platform.rescanned.connect(() => platform_rescanned(platform, null));
 				platform.folder_scanned.connect(folder => platform_folder_scanned(folder));
 			} else if (platform_id_hash.has_key(original_id) == true) {
 				platform_id_hash.unset(original_id);
@@ -235,7 +235,7 @@ namespace Data.Platforms
 					continue;
 
 				platform_id_hash[platform.id] = platform;
-				platform.rescanned.connect(() => platform_rescanned(platform));
+				platform.rescanned.connect(() => platform_rescanned(platform, null));
 				platform.folder_scanned.connect(folder => platform_folder_scanned(folder));
 			}
 		}

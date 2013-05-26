@@ -35,7 +35,7 @@ public class EverythingSelector : Selector {
 	public EverythingSelector(string id, int16 xpos, int16 ypos, int16 ymax, GameBrowserViewData? view) {
 		base(id, xpos, ypos, ymax);
 		this.view = view ?? new GameBrowserViewData(GameBrowserViewType.ALL_GAMES);
-		Data.all_games().cache_updated.connect(() => rebuild());
+		Data.all_games().cache_updated.connect((new_selection_id) => rebuild(new_selection_id));
 		Data.favorites().changed.connect(() => favorites_changed());
 	}
 
@@ -95,15 +95,17 @@ public class EverythingSelector : Selector {
 			rebuild();
 	}
 	
-	protected override void rebuild_items(int selection_index) {
-		var node = (selection_index != -1) ? items[selection_index] : null;
-		var previous_selection_id = (node != null) ? node.unique_id() : null;
+	protected override void rebuild_items(int selection_index, string? new_selection_id) {
+		var selection_id = new_selection_id;
+		if (selection_id == null && selection_index != -1)
+			selection_id = items[selection_index].unique_id();
+		
 		_items = null;
 		int new_index = -1;
-		if (previous_selection_id != null) {
+		if (selection_id != null) {
 			for(int index=0;index<items.size;index++) {
 				var item = items[index];
-				if (item.unique_id() == previous_selection_id) {
+				if (item.unique_id() == selection_id) {
 					new_index = index;
 					break;
 				}

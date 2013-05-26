@@ -87,7 +87,7 @@ namespace Menus.Concrete
 						selector.menu.error("Unable to rename file");
 						return;
 					}
-					Data.platforms().rescan_folder(game.parent);
+					Data.platforms().rescan_folder(game.parent, new_file);
 					selector.menu.quit();
 				} catch(GLib.Error e) {
 					selector.menu.error(e.message);
@@ -122,7 +122,7 @@ namespace Menus.Concrete
 							var scan_target_node = game.parent;
 							while(new_folder_depth <= scan_target_node.depth() && scan_target_node.parent != null)
 								scan_target_node = scan_target_node.parent;
-							Data.platforms().rescan_folder(scan_target_node);
+							Data.platforms().rescan_folder(scan_target_node, new_file.get_path());
 							selector.menu.quit();
 						} else {
 							selector.menu.error("Unable to move '%s'.".printf(game.id));
