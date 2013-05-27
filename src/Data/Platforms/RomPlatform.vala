@@ -47,6 +47,9 @@ namespace Data.Platforms
 		
 		// game launching
 		public override SpawningResult run_game(GameItem game) {
+			if (FileUtils.test(game.unique_id(), FileTest.IS_REGULAR) == false) 
+				return new SpawningResult.error("file not found: %s".printf(game.unique_id()));
+			
 			var game_settings = Data.get_game_settings(game);
 			
 			var program = get_program_from_game_settings(game_settings);
