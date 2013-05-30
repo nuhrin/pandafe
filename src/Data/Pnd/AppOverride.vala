@@ -126,7 +126,10 @@ namespace Data.Pnd
 			clockspeed_field.default_value = app_direct.clockspeed;
 			builder.add_field(clockspeed_field);
 			
-			appdata_field = builder.add_string("appdata", "Appdata Dirname", null, appdata ?? app_direct.appdata_dirname ?? app.package_id);			
+			appdata_field = builder.add_string("appdata", "Appdata Dirname", null, appdata ?? app_direct.appdata_dirname ?? app.package_id);
+			
+			category_field = builder.add_string("main_category", "Main Category", null, main_category);
+			subcategory_field = builder.add_string("sub_category", "Sub Category", null, sub_category);
 			
 			initialize_fields();
 		}
@@ -138,6 +141,14 @@ namespace Data.Pnd
 			appdata_field.changed.connect(() => {
 				if (appdata_field.value == null || appdata_field.value.strip() == "")
 					appdata_field.value = app_direct.appdata_dirname ?? app.package_id;
+			});
+			category_field.changed.connect(() => {
+				if (category_field.value == null || category_field.value.strip() == "")
+					category_field.value = app_direct.main_category;
+			});
+			subcategory_field.changed.connect(() => {
+				if ((subcategory_field.value == null || subcategory_field.value.strip() == "") && app_direct.subcategory1 != "")
+					subcategory_field.value = app_direct.subcategory1;
 			});
 		}
 		protected bool apply_changed_field(Menus.Menu menu, MenuItemField field) {
@@ -161,10 +172,12 @@ namespace Data.Pnd
 		protected void release_fields(bool was_saved) { 
 			title_field = null;
 			appdata_field = null;
+			category_field = null;
+			subcategory_field = null;
 		}
 		StringField title_field;
 		StringField appdata_field;
-		
-		//public class AppMainCategoryField : 
+		StringField category_field;
+		StringField subcategory_field;		
 	}
 }
