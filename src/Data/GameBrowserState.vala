@@ -34,6 +34,7 @@ namespace Data
 		construct {
 			platform_state = new HashMap<string, GameBrowserPlatformState>();
 			all_games = new AllGamesState();
+			category_state = new CategoryState();
 		}
 
 		public string? current_platform_folder { get; set; } 
@@ -41,6 +42,7 @@ namespace Data
 		public string? current_platform { get; set; }
 		protected Map<string, GameBrowserPlatformState> platform_state { get; set; }
 		public AllGamesState all_games { get; set; }
+		public CategoryState category_state { get; set; }
 		public void apply_platform_state(Platform platform, string? folder_id, int item_index, string? filter) {
 			var ps = new GameBrowserPlatformState();
 			if (folder_id != null)
@@ -61,6 +63,14 @@ namespace Data
 			} else {
 				all_games.view_type = view.view_type;			
 			}
+		}
+		public void apply_category_state(bool active, string? active_category_path, int item_index, string? filter) {
+			if (category_state == null)
+				category_state = new CategoryState();
+			category_state.active = active;
+			category_state.category_path = active_category_path;
+			category_state.item_index = item_index;
+			category_state.filter = filter;			
 		}
 		public string? get_current_platform_folder_id() {
 			if (current_platform == null || platform_state.has_key(current_platform) == false)
@@ -85,6 +95,15 @@ namespace Data
 		public GameBrowserViewType view_type { get; set; }
 		public GameBrowserViewData get_view() {
 			return new GameBrowserViewData(view_type);
+		}
+	}
+	public class CategoryState : Object {
+		public bool active { get; set; }
+		public string? category_path { get; set; }
+		public int item_index { get; set; }
+		public string? filter { get; set; }
+		public GameBrowserViewData get_view() {
+			return new GameBrowserViewData(GameBrowserViewType.CATEGORY);
 		}
 	}
 	public class GameBrowserPlatformState : Object {

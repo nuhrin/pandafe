@@ -30,6 +30,7 @@ namespace Data
 		FAVORITES,
 		MOST_RECENT,
 		MOST_PLAYED,
+		CATEGORY,
 		PLATFORM,
 		PLATFORM_LIST,
 		PLATFORM_FOLDER
@@ -60,6 +61,10 @@ namespace Data
 					_name = "Most Played";
 					_help = "Show games played, ordered by play count";
 					_involves_everything = true;
+					break;
+				case GameBrowserViewType.CATEGORY:
+					_name = "Category";
+					_help = "Show games for the current category";
 					break;
 				case GameBrowserViewType.PLATFORM:
 					_name = "Platform";

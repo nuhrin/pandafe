@@ -28,8 +28,8 @@ using Catapult;
 using Data;
 using Data.GameList;
 
-public class EverythingSelector : Selector {
-
+public class EverythingSelector : Selector 
+{
 	GameBrowserViewData view;
 	
 	public EverythingSelector(string id, int16 xpos, int16 ypos, int16 ymax, GameBrowserViewData? view) {
