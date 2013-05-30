@@ -22,6 +22,7 @@
  */
 
 using Catapult;
+using Catapult.Helpers;
 using Pandora.Config;
 
 namespace Data.Pnd
@@ -56,7 +57,14 @@ namespace Data.Pnd
 		public string? exec_arguments { get; set; }
 		public string? startdir { get; set; }
 		public string main_category { get; set; }
-		public string subcategory1 { get; set; }
+		public string subcategory1 { 
+			get { return _subcategory1; }
+			set { 
+				_subcategory1 = value;
+				_subcategory_display_name = null;
+			}
+		}
+		string _subcategory1;
 		public string subcategory2 { get; set; }
 		public uint subapp_number { get; set;}
 		
@@ -67,6 +75,20 @@ namespace Data.Pnd
 			return pnd.get_fullpath();
 		}
 
+		public string subcategory_display_name { 
+			get { 
+				if (_subcategory_display_name == null) {
+					if (_game_suffix_regex == null)
+						_game_suffix_regex = new RegexHelper("""Game$""");
+						
+					_subcategory_display_name = _game_suffix_regex.replace(subcategory1, "");
+				}
+				return _subcategory_display_name;
+			}
+		}
+		string _subcategory_display_name;
+		static RegexHelper _game_suffix_regex = null;
+		
 		public PndOvrAppFile get_ovr_file() throws KeyFileError, FileError {
 			if (subapp_number == UNINITIALIZED_SUBAPP_NUMBER)
 				throw new FileError.FAILED("Cached pnd app data is missing subapp_number, please rescan.");

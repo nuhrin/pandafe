@@ -280,7 +280,7 @@ namespace Data.Pnd
 						category.add_app(app);
 					} else {
 						if (subcategory1 != "") {
-							var sub1 = category.ensure_subcategory(subcategory1);
+							var sub1 = category.ensure_subcategory(app.subcategory_display_name);
 							sub1.add_app(app);
 						}
 						if (subcategory2 != "") {
