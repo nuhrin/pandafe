@@ -164,7 +164,6 @@ pandafe_SOURCES = \
 	Layers/SurfaceLayer.vala \
 	Menus/Concrete/ChangeViewMenu.vala \
 	Menus/Concrete/ExitMenu.vala \
-	Menus/Concrete/GameFileMenu.vala \
 	Menus/Concrete/GameFolderMenu.vala \
 	Menus/Concrete/GameMenu.vala \
 	Menus/Concrete/GameSettingsMenu.vala \
@@ -175,6 +174,7 @@ pandafe_SOURCES = \
 	Menus/Concrete/PlatformProgramSettingsMapMenu.vala \
 	Menus/Concrete/ProgramDefaultSettingsMenu.vala \
 	Menus/Concrete/ProgramMenu.vala \
+	Menus/Concrete/RomFileMenu.vala \
 	Menus/Concrete/SwitchGuiMenu.vala \
 	Menus/Fields/BooleanField.vala \
 	Menus/Fields/DoubleField.vala \

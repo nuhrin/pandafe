@@ -68,7 +68,7 @@ namespace Menus.Concrete
 			items.add(new MenuItemSeparator());
 			
 			if (platform.platform_type == PlatformType.ROM) {
-				items.add(new GameFileMenu(game, menu_data));
+				items.add(new RomFileMenu(game, menu_data));
 				items.add(new MenuItemSeparator());
 			} else if (platform.platform_type == PlatformType.NATIVE) {
 				var ovr_item_index = items.size;

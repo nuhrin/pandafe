@@ -29,16 +29,16 @@ using Layers.Controls;
 
 namespace Menus.Concrete
 {
-	public class GameFileMenu : Menu  
+	public class RomFileMenu : Menu  
 	{	
 		GameItem game;
 		GameNodeMenuData menu_data;
 		RomPlatform platform;
-		public GameFileMenu(GameItem game, GameNodeMenuData menu_data, string? help=null) {
+		public RomFileMenu(GameItem game, GameNodeMenuData menu_data, string? help=null) {
 			if (game.platform.platform_type != PlatformType.ROM)
-				GLib.error("GameFileMenu is only applicable to games from Rom Based Platforms");
-			base("Manage File", help);
-			this.title = "Manage File: " + game.id;
+				GLib.error("RomFileMenu is only applicable to games from Rom Based Platforms");
+			base("Manage Rom", help);
+			this.title = "Manage Rom: " + game.id;
 			this.game = game;
 			this.menu_data = menu_data;
 			platform = game.platform as RomPlatform;
@@ -55,7 +55,7 @@ namespace Menus.Concrete
 			GameItem game;
 			GameNodeMenuData menu_data;
 			public RenameItem(GameItem game, GameNodeMenuData menu_data) {
-				base("Rename", "Change the filename");
+				base("Rename", "Change the rom filename");
 				this.game = game;
 				this.menu_data = menu_data;
 			}
