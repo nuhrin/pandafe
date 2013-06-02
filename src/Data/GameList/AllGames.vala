@@ -51,7 +51,7 @@ namespace Data.GameList
 			
 			var games = Enumerable.empty<GameItem>();
 			foreach(var platform in platforms)
-				games = games.concat(platform.get_root_folder().all_games());
+				games = games.concat(platform.all_games());
 			
 			var list = games.to_list();
 			save_cache(list, new_selection_id);
@@ -122,7 +122,6 @@ namespace Data.GameList
 				return true;
 			} catch(Error e) {
 				games = null;
-				//GLib.error("Error saving all games cache: %s", e.message);
 			}
 			return false;
 		}
@@ -160,6 +159,6 @@ namespace Data.GameList
 		}
 		void add_folder_line(string parent_id, string name, StringBuilder sb) {
 			sb.append("f||%s||%s\n".printf(parent_id, name));
-		}			
+		}
 	}
 }

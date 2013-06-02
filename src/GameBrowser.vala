@@ -280,7 +280,14 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 			}			
 		} else if (current_platform != null) {
 			left = current_platform.name;
-			right = current_platform.get_folder_display_path(current_folder);
+			var gps = selector as GamePlatformSelector;
+			if (gps != null) {
+				var game = gps.selected_game();
+				if (game != null)
+					right = game.parent.unique_display_name().strip();
+			} else {
+				right = current_platform.get_folder_display_path(current_folder);
+			}
 		} else {
 			left = "Platforms";
 			if (current_platform_folder != null)
@@ -312,10 +319,14 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		} else {
 			if (this.current_folder != null) {
 				on_selector_loading();
-				var folder = current_platform.get_folder(current_folder);
-				if (folder == null)
-					folder = current_platform.get_root_folder();
-				new_selector = new GameFolderSelector(folder, SELECTOR_ID, selector_xpos, selector_ypos, selector_ymax);	
+				if (Data.preferences().show_platform_game_folders == true) {
+					var folder = current_platform.get_folder(current_folder);
+					if (folder == null)
+						folder = current_platform.get_root_folder();
+					new_selector = new GameFolderSelector(folder, SELECTOR_ID, selector_xpos, selector_ypos, selector_ymax);
+				} else {
+					new_selector = new GamePlatformSelector(SELECTOR_ID, selector_xpos, selector_ypos, selector_ymax, current_platform);
+				}
 			} else if (this.current_platform_folder != null) {
 				new_selector = new PlatformFolderSelector(this.current_platform_folder, SELECTOR_ID, selector_xpos, selector_ypos, selector_ymax);
 			} else if (platform_list_active == false && this.platform_folder_data.folders.size > 0) {
@@ -340,7 +351,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 	void on_selector_changed() {
 		if (selector is PlatformFolderSelector)
 			current_platform_folder_index = selector.selected_index;
-		if (everything_active == true || category_active == true)
+		if (everything_active == true || category_active == true || Data.preferences().show_platform_game_folders == false)
 			set_header();
 		set_status(false);
 	}
@@ -471,8 +482,15 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		}
 		
 		if (current_platform != null && current_platform == platform && current_folder != null) {
+			
+			var gps = selector as GamePlatformSelector;
+			if (gps != null) {
+				gps.rebuild(new_selection_id);
+				return;
+			}
+			
 			current_folder = current_platform.get_nearest_folder_path(current_folder);
-			GameFolderSelector gfs = selector as GameFolderSelector;
+			var gfs = selector as GameFolderSelector;
 			if (gfs != null) {
 				var new_folder = current_platform.get_folder(current_folder);
 				if (new_folder == null)
@@ -709,9 +727,17 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 			return;
 		}
 
-		var game_selector = selector as GameFolderSelector;
-		if (game_selector != null) {
-			var item = game_selector.selected_item();
+		var gps = selector as GamePlatformSelector;
+		if (gps != null) {
+			var game = gps.selected_game();
+			if (game != null)
+				run_game(game);
+			return;
+		}
+		
+		var gsf = selector as GameFolderSelector;
+		if (gsf != null) {
+			var item = gsf.selected_item();
 			var folder = item as GameFolder;
 			if (folder != null) {
 				var filter = selector.get_filter_pattern();
@@ -801,9 +827,24 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 			selector.select_item(index);
 			return;
 		}
-		var game_selector = selector as GameFolderSelector;
-		if (game_selector != null) {
-			if (game_selector.folder.parent == null) {
+		var gps = selector as GamePlatformSelector;
+		if (gps != null) {
+			Data.browser_state().apply_platform_state(current_platform, current_folder,
+					selector.selected_index, selector.get_filter_pattern());
+			current_folder = null;
+			var platform = current_platform;
+			current_platform = null;
+			change_selector();
+			var platform_selector = selector as PlatformSelector;
+			if (platform_selector != null)
+				platform_selector.select_platform(platform);
+			else
+				selector.select_item_starting_with(platform.name);
+			return;
+		}
+		var gfs = selector as GameFolderSelector;
+		if (gfs != null) {
+			if (gfs.folder.parent == null) {
 				Data.browser_state().apply_platform_state(current_platform, current_folder,
 					selector.selected_index, selector.get_filter_pattern());
 				current_folder = null;
@@ -818,11 +859,11 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 				return;
 			}
 			var previous_folder = current_folder;
-			current_folder = game_selector.folder.parent.unique_name();
+			current_folder = gfs.folder.parent.unique_name();
 			var filter = selector.get_filter_pattern();
 			change_selector();
 			int index=0;
-			foreach(var subfolder in (selector as GameFolderSelector).folder.child_folders()) {
+			foreach(var subfolder in gfs.folder.child_folders()) {
 				if (subfolder.unique_name() == previous_folder)
 					break;
 				index++;
@@ -940,9 +981,14 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 				active_folder_item_index = selected_game.parent.index_of(selected_game);
 			}
 		}
-		var game_selector = selector as GameFolderSelector;
-		if (game_selector != null)
-			selected_game = game_selector.selected_item() as GameItem;
+		var gps = selector as GamePlatformSelector;
+		if (gps != null) {
+			selected_game = gps.selected_game();
+		} else {
+			var gfs = selector as GameFolderSelector;
+			if (gfs != null)
+				selected_game = gfs.selected_item() as GameItem;
+		}
 		if (selected_game != null)
 			active_category = selected_game.parent.unique_display_name();
 		if (active_category == "")
@@ -985,7 +1031,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 			if (new_view.view_type == GameBrowserViewType.PLATFORM) {
 				if (active_platform == null || (ensure_platform_root_rolder(active_platform) == false))
 					return null;
-				if (active_folder == null && active_platform != null)
+				if ((active_folder == null && active_platform != null) || Data.preferences().show_platform_game_folders == false)
 					active_folder = "";
 				
 				if (current_platform != null && current_folder != null) {
@@ -995,7 +1041,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 				
 				current_platform_folder = null;
 				current_platform_folder_index = 0;
-				if (platform_folder_data.folders.size > 0 && platform_list_active == false) {					
+				if (platform_folder_data.folders.size > 0 && platform_list_active == false) {
 					current_platform_folder = platform_folder_data.get_folder_with_platform(active_platform);
 					if (current_platform_folder != null) {
 						int found_platform_index = current_platform_folder.index_of_platform(active_platform);			
@@ -1016,12 +1062,18 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 				
 				current_platform = active_platform;
 				current_folder = active_folder;
-				Data.browser_state().current_platform = current_platform.id;
-				if (current_folder != null)
-					Data.browser_state().apply_platform_state(current_platform, current_folder, active_folder_item_index, null);
-				
-				apply_platform_state();
-				selector.update();
+				if (Data.preferences().show_platform_game_folders == true) {
+					Data.browser_state().current_platform = current_platform.id;
+					if (current_folder != null)
+						Data.browser_state().apply_platform_state(current_platform, current_folder, active_folder_item_index, null);
+					
+					apply_platform_state();
+					selector.update();
+				} else {
+					change_selector();
+					if (selected_game == null || (selector as GamePlatformSelector).select_game(selected_game) == false);
+						selector.ensure_selection();
+				}
 			}					
 			else if (new_view.view_type == GameBrowserViewType.PLATFORM_LIST) {
 				platform_list_active = true;
@@ -1125,22 +1177,41 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 			flip();
 	}
 	KeySymbol? choose_platform() {
+		GameItem? selected_game = null;
 		var active_platform = current_platform;
 		var active_folder = current_folder;
 		int active_folder_item_index = 0;
 		if (everything_active == true) {
-			var selected_game = (selector as EverythingSelector).selected_game();
+			selected_game = (selector as EverythingSelector).selected_game();
 			if (selected_game != null) {
 				active_platform = selected_game.platform;
 				active_folder = selected_game.parent.unique_name();
 				active_folder_item_index = selected_game.parent.index_of(selected_game);
 			}
 		} else if (category_active == true) {
-			var selected_game = (selector as GameCategorySelector).selected_game();
+			selected_game = (selector as GameCategorySelector).selected_game();
 			if (selected_game != null) {
 				active_platform = selected_game.platform;
 				active_folder = selected_game.parent.unique_name();
 				active_folder_item_index = selected_game.parent.index_of(selected_game);
+			}
+		}
+		
+		if (active_platform == null && everything_active == false && category_active == false) {
+			var pfs = selector as PlatformFolderSelector;
+			if (pfs != null) {
+				var platform_node = pfs.selected_node() as PlatformNode;
+				if (platform_node != null)
+					active_platform = platform_node.platform;
+				else {
+					var folder_node = pfs.selected_node() as PlatformFolder;
+					if (folder_node != null)
+						active_platform = folder_node.get_all_platforms().first();
+				}
+			} else {
+				var ps = selector as PlatformSelector;
+				if (ps != null)
+					active_platform = ps.selected_platform();
 			}
 		}
 						
@@ -1179,11 +1250,19 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		}
 		
 		current_platform = new_platform;
-		Data.browser_state().current_platform = current_platform.id;
-		if (new_platform == active_platform)
-			Data.browser_state().apply_platform_state(current_platform, active_folder, active_folder_item_index, null);		
- 		apply_platform_state();
- 		selector.update();
+		if (Data.preferences().show_platform_game_folders == false) {
+			Data.browser_state().current_platform = current_platform.id;
+			if (new_platform == active_platform)
+				Data.browser_state().apply_platform_state(current_platform, active_folder, active_folder_item_index, null);		
+			apply_platform_state();
+			selector.update();
+		} else {
+			current_folder = active_folder;
+			change_selector();
+			selector.update();
+			if (selected_game == null || (selector as GamePlatformSelector).select_game(selected_game) == false);
+				selector.ensure_selection();
+		}
  		return null;
 	}
 
@@ -1258,9 +1337,17 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 			return;
 		}
 		
-		var game_selector = selector as GameFolderSelector;
-		if (game_selector != null) {
-			var item = game_selector.selected_item();
+		var gps = selector as GamePlatformSelector;
+		if (gps != null) {
+			var game = gps.selected_game();
+			if (game != null)
+				show_game_menu(game);
+			return;
+		}
+		
+		var gfs = selector as GameFolderSelector;
+		if (gfs != null) {
+			var item = gfs.selected_item();
 			if (item == null && current_platform != null) {
 				show_platform_menu(current_platform);
 				return;

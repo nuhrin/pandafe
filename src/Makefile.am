@@ -208,6 +208,7 @@ pandafe_SOURCES = \
 	Selectors/EverythingSelector.vala \
 	Selectors/GameCategorySelector.vala \
 	Selectors/GameFolderSelector.vala \
+	Selectors/GamePlatformSelector.vala \
 	Selectors/PlatformFolderSelector.vala \
 	Selectors/PlatformSelector.vala \
 	Selectors/Selector.vala \

@@ -37,6 +37,7 @@ namespace Data
 		public Appearance appearance { get; set; }
 		public string? default_rom_select_path { get; set; }
 		public string? most_recent_rom_path { get; set; }
+		public bool show_platform_game_folders { get; set; }
 		
 		public string? rom_select_path() { return default_rom_select_path ?? most_recent_rom_path ?? FALLBACK_ROM_SELECT_PATH; }
 		public void update_most_recent_rom_path(string? new_path) {
@@ -73,7 +74,9 @@ namespace Data
 //~ 				//@interface.peek_layer().update();
 //~ 			});
 			builder.add_field(appearance_field);			
-			builder.add_folder("default_rom_select_path", "Default Rom Path", "Used as starting path when selecting platform roms for the first time.", default_rom_select_path);
+			var default_rom_path_field = builder.add_folder("default_rom_select_path", "Default Rom Path", "Used as starting path when selecting platform roms for the first time.", default_rom_select_path);
+			default_rom_path_field.changed.connect(() => refresh(1));			
+			builder.add_bool("show_platform_game_folders", "Show Platform Game Folders", "Browse platform games using nested folder lists (vs a single flat one).", show_platform_game_folders);
 		}
 		protected bool save_object(Menus.Menu menu) {
 			if (default_rom_select_path != null)
