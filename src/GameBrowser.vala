@@ -328,7 +328,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 							selector.ensure_selection();
 						} else {
 							change_selector();
-							selector.select_first();
+							selector.ensure_selection();
 						}
 					}
 				} else {
@@ -345,7 +345,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 						selector.rebuild();
 					} else {
 						change_selector();
-						selector.select_first();
+						selector.ensure_selection();
 					}
 				}
 			} else {
@@ -411,18 +411,16 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 				gfs.folder = new_folder;
 			} else {
 				change_selector();
-				selector.select_first();
+				selector.ensure_selection();
 			}			
 		} else if (current_platform_folder != null) {
 			foreach(var platform_node in current_platform_folder.platforms) {
 				if (platform_node.platform == platform) {
-					int index = selector.selected_index;
 					selector.rebuild();
-					selector.select_item(index);
 					break;
 				}				
 			}
-		}		
+		}
 	}
 		
 	//

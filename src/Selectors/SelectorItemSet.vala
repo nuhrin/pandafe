@@ -71,6 +71,9 @@ public class SelectorItemSet : Object
 		ui.font_updated.connect(flush_renderings);
 		ui.colors_updated.connect(flush_renderings);
 	}
+	~SelectorItemSet() {
+		@interface.disconnect_idle_function("selector_item_set");
+	}
 
 	public Gee.List<int> get_folder_indexes() { return folder_item_indexes; }
 
