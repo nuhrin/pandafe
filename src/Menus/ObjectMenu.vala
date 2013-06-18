@@ -81,7 +81,7 @@ namespace Menus
 	
 		protected override void cleanup() {
 			if (mo != null)
-				mo.i_release_fields();
+				mo.i_release_fields(was_saved);
 		}
 
 		protected override void populate_items(Gee.List<MenuItem> items) { 

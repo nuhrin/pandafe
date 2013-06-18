@@ -23,7 +23,6 @@
 
 using Gee;
 using Catapult;
-using Fields;
 using Menus.Fields;
 
 namespace Menus
@@ -59,9 +58,6 @@ namespace Menus
 		}
 		public BooleanField add_bool(string id, string name, string? help=null, bool value=false, string true_value="true", string false_value="false") {
 			return (BooleanField)add_field(new BooleanField(id, name, help, value, true_value, false_value));
-		}
-		public ColorField add_color(string id, string name, string? help=null, Data.Color? color=null) {
-			return (ColorField)add_field(new ColorField(id, name, help, color));
 		}
 		public DoubleField add_double(string id, string name, string? help=null, double value, double min_value, double max_value, double step=0.1, uint precision=1) {
 			return (DoubleField)add_field(new DoubleField(id, name, help, value, min_value, max_value, step, precision));
@@ -127,8 +123,6 @@ namespace Menus
 //~ 				return add_flags(property.name, GetPropertyLabel(property), value);
 			if (type.is_a(typeof(uint)))
 				return add_uint(property.name, GetPropertyLabel(property), null, (uint)value, 0, uint.MAX);
-			if (type.is_a(typeof(Data.Color)))
-				return add_color(property.name, GetPropertyLabel(property), null, (Data.Color)value);
 //~ 			var intProp = property as ParamSpecInt;
 //~ 			if (intProp != null)
 //~ 				return add_int(property.name, GetPropertyLabel(property), null, (int)value, intProp.minimum, intProp.maximum);

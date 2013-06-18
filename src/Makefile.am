@@ -130,11 +130,8 @@ pandafe_SOURCES = \
 	Layers/GameBrowser/PlatformSelectorOverlay.vala \
 	Layers/GameBrowser/SelectorOverlay.vala \
 	Layers/GameBrowser/StatusMessageLayer.vala \
-	Layers/MenuBrowser/ColorDisplayLayer.vala \
 	Layers/MenuBrowser/MenuHeaderLayer.vala \
 	Layers/MenuBrowser/MenuMessageLayer.vala \
-	Layers/Preview/BrowserPreview.vala \
-	Layers/Preview/PreviewSelector.vala \
 	Layers/Layer.vala \
 	Layers/LayerBase.vala \
 	Layers/ScreenAlphaLayer.vala \

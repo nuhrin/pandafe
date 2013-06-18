@@ -35,7 +35,7 @@ namespace Layers.GameBrowser
 		const int SELECTOR_MIN_WIDTH = 150;
 		const int16 SELECTOR_YPOS = 100;
 		const string SELECTOR_ID = "menu_overlay_selector";
-
+		const int16 HEADER_FOOTER_REVEAL_OFFSET = 100;
 		const uint8 MAX_NAME_LENGTH = 40;
 		const uint8 MAX_VALUE_LENGTH = 40;
 		
@@ -50,6 +50,7 @@ namespace Layers.GameBrowser
 		Rect lower_right;
 		int16 header_bottom_y;
 		bool is_initialized;
+		bool needs_header_footer_reveal;
 		
 		ArrayList<int> cancel_keys;
 		KeySymbol? cancel_key_pressed;
@@ -89,8 +90,10 @@ namespace Layers.GameBrowser
 			
 			@interface.pop_layer(false);
 			disconnect_selector_signals();
-			while (menu_stack.length > 0)
+			while (menu_stack.length > 0) {
 				selector = menu_stack.pop_head();
+				selector.menu.cancel(true);
+			}
 			return cancel_key_pressed;
 		}
 		
@@ -206,6 +209,24 @@ namespace Layers.GameBrowser
 			}
 		}
 		void set_header() {
+			var do_header_footer_reveal = (selector.menu.get_metadata("header_footer_reveal") == "true");
+			if (do_header_footer_reveal) {
+				if (needs_header_footer_reveal == false) {
+					header.resize(header.width - (int)HEADER_FOOTER_REVEAL_OFFSET, -1, header.xpos + HEADER_FOOTER_REVEAL_OFFSET, -1);
+					message.resize(message.width - (int)HEADER_FOOTER_REVEAL_OFFSET, -1, message.xpos + HEADER_FOOTER_REVEAL_OFFSET, -1);
+					upper_left.x += HEADER_FOOTER_REVEAL_OFFSET;
+					lower_left.x += HEADER_FOOTER_REVEAL_OFFSET;
+					needs_header_footer_reveal = true;
+				}
+			} else {
+				if (needs_header_footer_reveal == true) {
+					header.resize(header.width + (int)HEADER_FOOTER_REVEAL_OFFSET, -1, header.xpos - HEADER_FOOTER_REVEAL_OFFSET, -1);
+					message.resize(message.width + (int)HEADER_FOOTER_REVEAL_OFFSET, -1, message.xpos - HEADER_FOOTER_REVEAL_OFFSET, -1);					
+					upper_left.x -= HEADER_FOOTER_REVEAL_OFFSET;
+					lower_left.x -= HEADER_FOOTER_REVEAL_OFFSET;
+					needs_header_footer_reveal = false;
+				}
+			}
 			header.set_text(null, selector.menu_title, null, false);
 		}
 		void set_initial_help(bool flip_screen=true) {

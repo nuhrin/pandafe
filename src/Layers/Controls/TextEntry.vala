@@ -21,6 +21,7 @@
  *      nuhrin <nuhrin@oceanic.to>
  */
 
+using Gee;
 using SDL;
 using SDLTTF;
 
@@ -88,8 +89,14 @@ namespace Layers.Controls
 		public bool has_valid_value { get { return _is_valid_value; } }
 		
 		public signal void text_changed(string text);
-		public signal void validation_error();
+		public signal void validation_error(string? error=null);
 		public signal void error_cleared();
+
+		public void add_validator(owned Predicate<string> is_valid, string error_if_invalid) {
+			if (_validators == null)
+				_validators = new ArrayList<Validator>();
+			_validators.add(new Validator((owned)is_valid, error_if_invalid));
+		}
 
 		protected unowned string get_current_text_value() { return text; }
 		protected void change_text(string new_text) {
@@ -110,6 +117,18 @@ namespace Layers.Controls
 				switch(event.keysym.sym) {
 					case KeySymbol.RETURN:
 					case KeySymbol.KP_ENTER:
+						if (_validators != null) {
+							if (_is_valid_value == true) {
+								foreach(var validator in _validators) {
+									if (validator.is_valid(text) == false) {
+										_is_valid_value = false;
+										validation_error(validator.error);
+										_error_thrown = true;
+										return;
+									}
+								}
+							}
+						}
 						if (has_valid_value == false) {
 							validation_error();
 							_error_thrown = true;
@@ -204,15 +223,14 @@ namespace Layers.Controls
 				on_text_changed();
 				this.text_changed(new_text);
 			}
-			_is_valid_value = is_valid_value();
+			_is_valid_value = is_valid_value();			
 			if (_is_valid_value == false) {
 				validation_error();
 				_error_thrown = true;
-			}
-			else if (_error_thrown == true) {
+			} else if (_error_thrown == true) {
 				_error_thrown = false;
 				error_cleared();
-			}
+			}			
 			update();
 		}
 		void set_text(string? new_text=null) {
@@ -294,5 +312,17 @@ namespace Layers.Controls
 			}
 			this.value_mask_regex = existing;
 		}
+		
+		class Validator {
+			Predicate<string> predicate;
+			string _error;
+			public Validator(owned Predicate<string> is_valid, string error_if_invalid) {
+				predicate = (owned)is_valid;
+				_error = error_if_invalid;
+			}
+			public bool is_valid(string value) { return predicate(value); }
+			public unowned string error { get { return _error; } }
+		}
+		ArrayList<Validator> _validators;
 	}
 }

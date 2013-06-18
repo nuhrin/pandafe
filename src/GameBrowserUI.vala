@@ -27,7 +27,7 @@ using SDLTTF;
 public class GameBrowserUI
 {
 	const int FONT_SIZE = 16;
-	public const int16 SELECTOR_WITDH = 680;
+	public const int16 SELECTOR_WITDH = 710;
 
 	Data.Preferences preferences;
 	Font _font;
@@ -36,18 +36,24 @@ public class GameBrowserUI
 	int16 _font_height;
 	SDL.Color _item_color;
 	SDL.Color _selected_item_color;
+	SDL.Color _selected_item_background_color;
+	uint32 _selected_item_background_color_rgb;
 	SDL.Color _background_color;
 	uint32 _background_color_rgb;
+	SDL.Color _header_footer_color;
 	Surface _blank_item_surface;
+	Surface _blank_selected_item_surface;
 	
-	public GameBrowserUI(string font_path, int font_size, SDL.Color item_color, SDL.Color selected_item_color, SDL.Color background_color) {
+	public GameBrowserUI(string font_path, int font_size, SDL.Color item, SDL.Color selected_item, SDL.Color selected_item_background, SDL.Color background, SDL.Color header_footer) {
 		preferences = Data.preferences();
 		set_font(font_path, font_size);
-		_item_color = item_color;
-		_selected_item_color = selected_item_color;
-		_background_color = background_color;
+		_item_color = item;
+		_selected_item_color = selected_item;
+		_selected_item_background_color = selected_item_background;
+		_selected_item_background_color_rgb = @interface.map_rgb(_selected_item_background_color);
+		_background_color = background;
 		_background_color_rgb = @interface.map_rgb(_background_color);
-		_blank_item_surface = get_blank_background_surface(SELECTOR_WITDH, _font_height);
+		_header_footer_color = header_footer;
 	}
 	public GameBrowserUI.from_preferences() {
 		preferences = Data.preferences();
@@ -61,14 +67,16 @@ public class GameBrowserUI
 	public int16 font_height { get { return _font_height; } }
 	public unowned SDL.Color item_color { get { return _item_color; } }
 	public unowned SDL.Color selected_item_color { get { return _selected_item_color; } }
+	public unowned SDL.Color selected_item_background_color { get { return _selected_item_background_color; } }
 	public unowned SDL.Color background_color { get { return _background_color; } }
 	public uint32 background_color_rgb { get { return _background_color_rgb; } }
+	public unowned SDL.Color header_footer_color { get { return _header_footer_color; } }
 	
 	public signal void font_updated();
 	public signal void colors_updated();
 	
 	public GameBrowserUI clone() {
-		return new GameBrowserUI(_font_path, _font_size, _item_color, _selected_item_color, _background_color);
+		return new GameBrowserUI(_font_path, _font_size, _item_color, _selected_item_color, _selected_item_background_color, _background_color, _header_footer_color);
 	}
 	
 	public void set_font(string font_path, int font_size) {
@@ -81,21 +89,29 @@ public class GameBrowserUI
 		_font_height = (int16)font.height();
 		font_updated();
 	}
-	public void set_colors(SDL.Color item, SDL.Color selected_item, SDL.Color background) {
+	public void set_colors(SDL.Color item, SDL.Color selected_item, SDL.Color selected_item_background, SDL.Color background, SDL.Color header_footer) {
 		_item_color = item;
 		_selected_item_color = selected_item;
+		_selected_item_background_color = selected_item_background;
+		_selected_item_background_color_rgb= @interface.map_rgb(_selected_item_background_color);
 		_background_color = background;
 		_background_color_rgb = @interface.map_rgb(_background_color);
+		_header_footer_color = header_footer;
 		_blank_item_surface = null;
+		_blank_selected_item_surface = null;
 		colors_updated();
 	}
 	public void set_appearance(Data.GameBrowserAppearance appearance, Data.GameBrowserAppearance? fallback_appearance=null) {
 		var ui = appearance.create_ui(fallback_appearance);
-		set_font(ui._font_path, ui._font_size);
+		set_font(ui._font_path, ui._font_size);		
 		_item_color = ui._item_color;
 		_selected_item_color = ui._selected_item_color;
+		_selected_item_background_color = ui._selected_item_background_color;
 		_background_color = ui._background_color;
 		_background_color_rgb = ui._background_color_rgb;
+		_header_footer_color = ui._header_footer_color;
+		_blank_item_surface = null;
+		_blank_selected_item_surface = null;
 		colors_updated();
 	}
 	
@@ -106,13 +122,20 @@ public class GameBrowserUI
 		var appearance = preferences.appearance;
 		set_colors(appearance.item_color.get_sdl_color(),
 				   appearance.selected_item_color.get_sdl_color(),
-				   appearance.background_color.get_sdl_color());
+				   appearance.selected_item_background_color.get_sdl_color(),
+				   appearance.background_color.get_sdl_color(),
+				   appearance.header_footer_color.get_sdl_color());
 	}
 	
 	public unowned Surface get_blank_item_surface() { 
 		if (_blank_item_surface == null)
 			_blank_item_surface = get_blank_background_surface(SELECTOR_WITDH, _font_height);
 		return _blank_item_surface; 
+	}
+	public unowned Surface get_blank_selected_item_surface() { 
+		if (_blank_selected_item_surface == null)
+			_blank_selected_item_surface = @interface.get_blank_surface(SELECTOR_WITDH, _font_height, _selected_item_background_color_rgb);
+		return _blank_selected_item_surface; 
 	}
 	public Surface get_blank_background_surface(int width, int height) {
 		return @interface.get_blank_surface(width, height, _background_color_rgb);
@@ -123,10 +146,10 @@ public class GameBrowserUI
 		return _font.render_shaded(text, _item_color, _background_color);
 	}
 	public Surface render_text_selected(string text) {
-		return _font.render_shaded(text, _selected_item_color, _background_color);
+		return _font.render_shaded(text, _selected_item_color, _selected_item_background_color);
 	}
 
-	public Surface render_text_selected_fast(string text) {
-		return _font.render(text, _selected_item_color);
+	public Surface render_header_footer_text(string text) {
+		return _font.render(text, _header_footer_color);
 	}
 }

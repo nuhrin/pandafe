@@ -62,16 +62,16 @@ namespace Layers.GameBrowser
 		protected override void draw() {
 			Rect rect = {0, 0};
 			if (_left != null && _left != "") {
-				blit_surface(ui.render_text_selected_fast(_left), null, rect);
+				blit_surface(ui.render_header_footer_text(_left), null, rect);
 			}
 			Surface rendered_text;		
 			if (_center != null && _center != "") {
-				rendered_text = ui.render_text_selected_fast(_center);
+				rendered_text = ui.render_header_footer_text(_center);
 				rect.x = (int16)(surface.w/2 - rendered_text.w/2);
 				blit_surface(rendered_text, null, rect);
 			}
 			if (_right != null && _right != "") {
-				rendered_text = ui.render_text_selected_fast(_right);
+				rendered_text = ui.render_header_footer_text(_right);
 				rect.x = (int16)(surface.w - rendered_text.w);
 				blit_surface(rendered_text, null, rect);
 			}		

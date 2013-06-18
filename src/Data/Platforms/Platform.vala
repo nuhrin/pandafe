@@ -194,5 +194,5 @@ public abstract class Platform : NamedEntity, MenuObject
 		}
 		return true;		
 	}	
-	protected virtual void release_fields() { }	
+	protected virtual void release_fields(bool was_saved) { }	
 }

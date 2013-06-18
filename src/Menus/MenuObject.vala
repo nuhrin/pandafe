@@ -51,8 +51,8 @@ namespace Menus
 		protected virtual bool save_object(Menu menu) { return true; }
 		internal bool i_save_object(Menu menu) { return save_object(menu); }
 		
-		protected virtual void release_fields() { }
-		internal void i_release_fields() { release_fields(); }
+		protected virtual void release_fields(bool was_saved) { }
+		internal void i_release_fields(bool was_saved) { release_fields(was_saved); }
 		
 		public virtual signal void refreshed(uint select_index) { }
 	}

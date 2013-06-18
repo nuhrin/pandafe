@@ -57,7 +57,7 @@ namespace Data.Options
 			});
 		}
 		protected override bool is_option_required() { return false; }
-		protected void release_fields() {
+		protected override void release_fields(bool was_saved) {
 			choices_field = null;
 			default_choice_field = null;
 		}

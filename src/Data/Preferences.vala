@@ -64,6 +64,11 @@ namespace Data
 		// menu
 		protected void build_menu(MenuBuilder builder) {
 			appearance_field = new GameBrowserAppearanceField("appearance", "Appearance", "Configure font and colors.", "Game Browser Appearance", appearance, new Data.GameBrowserAppearance.default());
+			appearance_field.selection_changed.connect((appearance) => { 
+				@interface.game_browser_ui.set_appearance(appearance);
+				@interface.peek_layer().update();
+			});
+			appearance_field.finished.connect(() => @interface.game_browser_ui.set_appearance(appearance_field.value));
 			builder.add_field(appearance_field);
 			var default_rom_path_field = builder.add_folder("default_rom_select_path", "Default Rom Path", "Used as starting path when selecting platform roms for the first time.", default_rom_select_path);
 			default_rom_path_field.changed.connect(() => refreshed(1));			
@@ -72,13 +77,13 @@ namespace Data
 			if (default_rom_select_path != null)
 				most_recent_rom_path = null;
 			Data.save_preferences();
-			if (appearance_field.has_changes() == true)
-				@interface.game_browser_ui.set_appearance(appearance);
 			return true;
 		}		
-		protected void release_fields() {
+		protected void release_fields(bool was_saved) {
+			if (appearance_field.has_changes() == true && was_saved == false)
+				@interface.game_browser_ui.set_appearance(appearance);
 			appearance_field = null;
-		}
+		}		
 		GameBrowserAppearanceField appearance_field;
 	}
 }

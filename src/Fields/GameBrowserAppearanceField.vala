@@ -29,22 +29,51 @@ using Layers.Controls;
 
 namespace Fields
 {
-	public class GameBrowserAppearanceField : MenuItemField
+	public class GameBrowserAppearanceField : MenuItemField, SubMenuItem
 	{
-		string? title;
 		GameBrowserAppearance? appearance;
+		GameBrowserAppearance? appearance_edit;
 		GameBrowserAppearance? default_appearance;
+		Menus.Menu _menu;
+		string? title;
+		
 		public GameBrowserAppearanceField(string id, string name, string? help=null, string? menu_title, GameBrowserAppearance? appearance, GameBrowserAppearance? default_appearance=null) {
 			base(id, name, help);
 			this.title = menu_title;
 			this.appearance = appearance;
+			appearance_edit = (appearance != null) ? appearance.copy() : null;
 			this.default_appearance = default_appearance;
 		}
+
+		Menus.Menu create_menu() {
+			var menu = new GameBrowserAppearanceMenu(title ?? "Appearance", appearance_edit, default_appearance);
+			menu.changed.connect((appearance_edit) => selection_changed(appearance_edit));
+			menu.saved.connect(() => {
+				if (appearance_edit != null && default_appearance != null && appearance_edit.matches(default_appearance) == true)
+					change_value(null);
+				else 
+					change_value(appearance_edit);
+				this.saved();
+			});
+			menu.cancelled.connect(() => this.cancelled());
+			menu.finished.connect(() => this.finished());
+			menu.set_metadata("header_footer_reveal", "true");
+			return menu;
+		}
+
 
 		public new GameBrowserAppearance? value {
 			get { return appearance; }
 			set { change_value(value); }
 		}
+		
+		public Menus.Menu menu { 
+			get { 
+				_menu = create_menu();
+				return _menu;
+			}
+		}
+		public signal void selection_changed(GameBrowserAppearance appearance);
 
 		public override string get_value_text() { return ""; }
 		public override int get_minimum_menu_value_text_length() { return 0; }
@@ -76,5 +105,6 @@ namespace Fields
 			changed();
 			return true;
 		}
+		
 	}
 }

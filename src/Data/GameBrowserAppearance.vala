@@ -48,7 +48,9 @@ namespace Data
 			_font_size = DEFAULT_FONT_SIZE;
 			item_color = build_color(DEFAULT_ITEM_COLOR);
 			selected_item_color = build_color(DEFAULT_SELECTED_ITEM_COLOR);
+			selected_item_background_color = build_color(DEFAULT_BACKGROUND_COLOR);
 			background_color = build_color(DEFAULT_BACKGROUND_COLOR);
+			header_footer_color = build_color(DEFAULT_SELECTED_ITEM_COLOR);
 		}
 
 		public string? font { get; set; }
@@ -59,7 +61,9 @@ namespace Data
 		int _font_size;
 		public Data.Color? item_color { get; set; }
 		public Data.Color? selected_item_color { get; set; }
+		public Data.Color? selected_item_background_color { get; set; }
 		public Data.Color? background_color { get; set; }
+		public Data.Color? header_footer_color { get; set; }
 		
 		public GameBrowserAppearance copy() {
 			var copy = new GameBrowserAppearance();
@@ -69,12 +73,16 @@ namespace Data
 				copy.item_color = item_color.copy();
 			if (selected_item_color != null)
 				copy.selected_item_color = selected_item_color.copy();
+			if (selected_item_background_color != null)
+				copy.selected_item_background_color = selected_item_background_color.copy();
 			if (background_color != null)
 				copy.background_color = background_color.copy();
+			if (header_footer_color != null)
+				copy.header_footer_color = header_footer_color.copy();
 			return copy;			
 		}
 		
-		public bool has_data() { return (font != null || item_color != null || selected_item_color != null || background_color != null); }
+		public bool has_data() { return (font != null || item_color != null || selected_item_color != null || selected_item_background_color != null || background_color != null); }
 		public bool matches(GameBrowserAppearance other) {
 			if (font != other.font)
 				return false;
@@ -84,7 +92,11 @@ namespace Data
 				return false;
 			if (color_matches(a=>a.selected_item_color, this, other) == false)
 				return false;
+			if (color_matches(a=>a.selected_item_background_color, this, other) == false)
+				return false;
 			if (color_matches(a=>a.background_color, this, other) == false)
+				return false;
+			if (color_matches(a=>a.header_footer_color, this, other) == false)
 				return false;
 			return true;
 		}
@@ -120,11 +132,15 @@ namespace Data
 			resolve_color(ref item_color, c=>c.item_color, fallback_appearance, DEFAULT_ITEM_COLOR);
 			SDL.Color selected_item_color = {};
 			resolve_color(ref selected_item_color, c=>c.selected_item_color, fallback_appearance, DEFAULT_SELECTED_ITEM_COLOR);
+			SDL.Color selected_item_background_color = {};
+			resolve_color(ref selected_item_background_color, c=>c.selected_item_background_color, fallback_appearance, DEFAULT_BACKGROUND_COLOR);
 			SDL.Color background_color = {};
 			resolve_color(ref background_color, c=>c.background_color, fallback_appearance, DEFAULT_BACKGROUND_COLOR);
-			return new GameBrowserUI(resolved_font, resolved_font_size, item_color, selected_item_color, background_color);
+			SDL.Color header_footer_color = {};
+			resolve_color(ref header_footer_color, c=>c.header_footer_color, fallback_appearance, DEFAULT_SELECTED_ITEM_COLOR);
+			return new GameBrowserUI(resolved_font, resolved_font_size, item_color, selected_item_color, selected_item_background_color, background_color, header_footer_color);
 		}
-		string get_default_font_path() {
+		public static string get_default_font_path() {
 			string path = Path.build_filename(RuntimeEnvironment.system_data_dir(), DEFAULT_FONT_PREFERRED);
 			if (FileUtils.test(path, FileTest.EXISTS) == false)
 				path = DEFAULT_FONT;
@@ -167,8 +183,12 @@ namespace Data
 				mapping.set_scalar("item-color", builder.build_value(item_color));
 			if (selected_item_color != null)
 				mapping.set_scalar("selected-item-color", builder.build_value(selected_item_color));
+			if (selected_item_background_color != null)
+				mapping.set_scalar("selected-item-background-color", builder.build_value(selected_item_background_color));			
 			if (background_color != null)
 				mapping.set_scalar("background-color", builder.build_value(background_color));
+			if (header_footer_color != null)
+				mapping.set_scalar("header-footer-color", builder.build_value(header_footer_color));
 			return mapping;	
 		}
 		protected override void apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
@@ -191,9 +211,17 @@ namespace Data
 						selected_item_color = build_color(DEFAULT_SELECTED_ITEM_COLOR);
 						selected_item_color.spec = parser.parse<string>(mapping[key], DEFAULT_SELECTED_ITEM_COLOR);
 						break;
+					case "selected-item-background-color":
+						selected_item_background_color = build_color(DEFAULT_BACKGROUND_COLOR);
+						selected_item_background_color.spec = parser.parse<string>(mapping[key], DEFAULT_BACKGROUND_COLOR);
+						break;
 					case "background-color":
 						background_color = build_color(DEFAULT_BACKGROUND_COLOR);
 						background_color.spec = parser.parse<string>(mapping[key], DEFAULT_BACKGROUND_COLOR);
+						break;
+					case "header-footer-color":
+						header_footer_color = build_color(DEFAULT_SELECTED_ITEM_COLOR);
+						header_footer_color.spec = parser.parse<string>(mapping[key], DEFAULT_SELECTED_ITEM_COLOR);
 						break;
 				}
 			}

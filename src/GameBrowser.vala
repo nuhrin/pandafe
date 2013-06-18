@@ -34,7 +34,7 @@ using Menus.Fields;
 
 public class GameBrowser : Layers.ScreenLayer, EventHandler
 {
-	const int16 SELECTOR_XPOS = 75;
+	const int16 SELECTOR_XPOS = 45;
 	const string SELECTOR_ID = "selector";
 	const string FILTER_LABEL = "filter: ";	
 	
@@ -42,6 +42,8 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 
 	HeaderLayer header;
 	StatusMessageLayer status_message;
+	string? static_header_text;
+	string? static_status_test;
 	int16 selector_ypos;
     Selector selector;
     bool everything_active;
@@ -102,6 +104,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		header.set_rgb_color(ui.background_color_rgb);
 		status_message.set_rgb_color(ui.background_color_rgb);
 		this.set_rgb_color(ui.background_color_rgb);
+		update(false);
 	}
 	void update_font() {
 		clear();
@@ -208,6 +211,10 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 	//
 	// layer updates
 	void set_header(bool flip=false) {
+		if (static_header_text != null) {
+			header.set_text(static_header_text, null, null, flip);
+			return;
+		}
 		string left = null;
 		string center = null;
 		string right = null;
@@ -283,6 +290,10 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		set_status(false);
 	}
 	void set_status(bool flip=true) {
+		if (static_status_test != null) {
+			status_message.set(static_status_test, null, null, flip);
+			return;
+		}
 		if (@interface.peek_layer() != null)
 			return; // another layer has focus, don't bother updating status
 		string center = "%d / %d".printf(selector.selected_display_index() + 1, selector.display_item_count);
@@ -763,8 +774,8 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 			font_height = ui.font_height;			
 		int16 entry_ypos = (int16)(@interface.screen_height - font_height - 10);
 		
-		var label = @interface.game_browser_ui.render_text_selected(FILTER_LABEL);
-		Rect label_rect = {600 - (int16)label.w, entry_ypos+5};
+		var label = @interface.game_browser_ui.render_header_footer_text(FILTER_LABEL);
+		Rect label_rect = {600 - (int16)label.w, status_message.ypos};
 		blit_surface(label, null, label_rect);
 		this.add_layer(new Layers.SurfaceLayer.direct("filter_label", label, label_rect.x, label_rect.y));		
 		
@@ -1041,7 +1052,19 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		overlay.add_cancel_key(KeySymbol.RSHIFT); // pandora L
 		overlay.add_cancel_key(KeySymbol.RCTRL); // pandora R
 		overlay.add_cancel_key(KeySymbol.SPACE);
+		
+		static_header_text = "Header";
+		static_status_test = " Footer";
+		set_header(false);
+		set_status(false);		
+		
 		var cancel_key_pressed = overlay.run();
+		
+		static_header_text = null;
+		static_status_test = null;
+		set_header(false);
+		set_status(false);
+		
 		if (cancel_key_pressed == KeySymbol.RSHIFT)
 			show_change_view_overlay();
 		else if (cancel_key_pressed == KeySymbol.RCTRL)

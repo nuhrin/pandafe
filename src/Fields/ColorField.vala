@@ -31,12 +31,15 @@ using Menus.Fields;
 
 namespace Fields
 {
-	public class ColorField : MenuItemField
+	public class ColorField : MenuItemField, SubMenuItem
 	{
 		Data.Color _color;
+		ColorMenu _menu;
+		string _menu_title;
 		
 		public ColorField(string id, string name, string? help=null, Data.Color? color=null) {
 			base(id, name, help);
+			_menu_title = help ?? name;
 			_color = new Data.Color();
 			if (color != null)
 				_color.copy_from(color);
@@ -47,8 +50,14 @@ namespace Fields
 			set { change_value(value); }
 		}
 		
-		public Data.Color? get_edited_color() { return _menu_color; }
-
+		public Menus.Menu menu { 
+			get { 
+				_menu = create_menu(_color);
+				return _menu;
+			}
+		}
+		public signal void selection_changed(Data.Color color);
+				
 		public override string get_value_text() { return _color.spec; }
 		public override int get_minimum_menu_value_text_length() { return 7; } // "#000000"
 //~ 		public override Surface? get_value_rendering(SDLTTF.Font* font) {
@@ -62,15 +71,7 @@ namespace Fields
 		protected override bool has_value() { return true; }
 
 		protected override void activate(Menus.MenuSelector selector) {
-			var copy = _color.copy();
-			show_menu(copy, menu => {
-				if (_color.spec != copy.spec) {
-					_color.copy_from(copy);
-					changed();
-					selector.update();
-				}
-				return true;
-			});			
+			assert_not_reached();	
 		}
 
 		void change_value(Data.Color color) {
@@ -80,79 +81,141 @@ namespace Fields
 			}
 		}
 		
-		void show_menu(Data.Color color, owned Predicate<Menus.Menu> on_save) {
-			_menu_color = color;
-			_menu = new Menus.Menu(name, null, null, (owned)on_save);
-			_red_menu_item = add_uint_field("r", "Red", null, color.red, 255);
-			_green_menu_item = add_uint_field("g", "Green", null, color.green, 255);
-			_blue_menu_item = add_uint_field("b", "Blue", null, _color.blue, 255);
-			_hue_menu_item = add_uint_field("h", "Hue", null, _color.hue, 360);
-			_saturation_menu_item = add_uint_field("s", "Saturation", null, _color.saturation, 100);
-			_value_menu_item = add_uint_field("v", "Value", null, _color.value, 100);
-			_menu.add_item(new Menus.MenuItem.cancel_item());
-			_menu.add_item(new Menus.MenuItem.save_item());
-			watch_rgb_fields();
-			watch_hsv_fields();
-			
-			var browser = new MenuBrowser(_menu);
-			var rect = browser.get_selector_rect();			
-			_color_display = new ColorDisplayLayer("color_display", (int16)(rect.x + rect.w), 60, this);
-			browser.add_layer(_color_display);
-			browser.run();
-			
+		ColorMenu create_menu(Data.Color color) {
+			var menu = new ColorMenu(name, color);
+			menu.title = _menu_title;
+			menu.changed.connect(() => selection_changed(_menu.color));
+			menu.saved.connect(() => {
+				change_value(_menu.color);
+				this.saved();
+			});
+			menu.cancelled.connect(() => {
+				selection_changed(_color);
+				this.cancelled();
+			});
+			menu.finished.connect(() => this.finished());
+			menu.set_metadata("header_footer_reveal", "true");
+			return menu;
 		}
-		UIntField add_uint_field(string id, string name, string? help, uint value, uint max) {
-			UIntField field = new UIntField(id, name, help, value, 0, max);
-			_menu.add_item(field);
-			return field;
-		}
-		Menus.Menu _menu;
-		Data.Color _menu_color;
-		UIntField _red_menu_item;
-		UIntField _green_menu_item;
-		UIntField _blue_menu_item;
-		UIntField _hue_menu_item;
-		UIntField _saturation_menu_item;
-		UIntField _value_menu_item;
-		ColorDisplayLayer _color_display;
-		void watch_rgb_fields() {
-			_red_menu_item.changed.connect(rgb_field_changed);
-			_green_menu_item.changed.connect(rgb_field_changed);
-			_blue_menu_item.changed.connect(rgb_field_changed);
-		}
-		void ignore_rgb_fields() {
-			_red_menu_item.changed.disconnect(rgb_field_changed);
-			_green_menu_item.changed.disconnect(rgb_field_changed);
-			_blue_menu_item.changed.disconnect(rgb_field_changed);
-		}
-		void watch_hsv_fields() {
-			_hue_menu_item.changed.connect(hsv_field_changed);
-			_saturation_menu_item.changed.connect(hsv_field_changed);
-			_value_menu_item.changed.connect(hsv_field_changed);
-		}
-		void ignore_hsv_fields() {
-			_hue_menu_item.changed.disconnect(hsv_field_changed);
-			_saturation_menu_item.changed.disconnect(hsv_field_changed);
-			_value_menu_item.changed.disconnect(hsv_field_changed);
-		}
-		void rgb_field_changed() {
-			_menu_color.set_rgb((uchar)_red_menu_item.value, (uchar)_green_menu_item.value, (uchar)_blue_menu_item.value);
-			ignore_hsv_fields();
-			_hue_menu_item.value = _menu_color.hue;
-			_saturation_menu_item.value = _menu_color.saturation;
-			_value_menu_item.value = _menu_color.value;
-			watch_hsv_fields();
-			_color_display.update();
-		}		
-		void hsv_field_changed() {
-			_menu_color.set_hsv((uint8)_hue_menu_item.value, (uint8)_saturation_menu_item.value, (uint8)_value_menu_item.value);
-			ignore_rgb_fields();
-			_red_menu_item.value = _menu_color.red;
-			_green_menu_item.value = _menu_color.green;
-			_blue_menu_item.value = _menu_color.blue;
-			watch_rgb_fields();
-			_color_display.update();
-		}		
 
+		public class ColorMenu : Menus.Menu {
+			Data.Color _color;
+			public ColorMenu(string name, Data.Color color) {
+				base(name);
+				_color = color.copy();
+			}
+
+			public signal void changed();
+			public Data.Color color { get { return _color; } }
+			
+			protected override void populate_items(Gee.List<Menus.MenuItem> items) { 
+				spec_field = new StringField("spec", "Color Spec", "Hex Code (#xxx or #xxxxxx) or Color Name", _color.spec);
+				spec_field.set_minimum_menu_value_text_length(10);
+				spec_field.add_entry_validator((value) => Data.Color.parse((string?)value, null), "invalid color");
+				items.add(spec_field);
+				items.add(new Menus.MenuItemSeparator());
+				red_field = new UIntField("r", "Red", "0 - 255", _color.red, 0, 255);
+				items.add(red_field);
+				green_field = new UIntField("g", "Green", "0 - 255", _color.green, 0, 255);
+				items.add(green_field);
+				blue_field = new UIntField("b", "Blue", "0 - 255", _color.blue, 0, 255);
+				items.add(blue_field);
+				hue_field = new UIntField("h", "Hue", "0 - 360", _color.hue, 0, 360);
+				items.add(hue_field);
+				saturation_field = new UIntField("s", "Saturation", "0 - 100", _color.saturation, 0, 100);
+				items.add(saturation_field);
+				value_field = new UIntField("v", "Value", "0 - 100", _color.value, 0, 100);
+				items.add(value_field);
+				items.add(new Menus.MenuItemSeparator());
+				items.add(new Menus.MenuItem.cancel_item());
+				items.add(new Menus.MenuItem.save_item());
+				watch_rgb_fields();
+				watch_hsv_fields();		
+				watch_spec_field();	
+			}
+			protected override void cleanup() {
+				ignore_rgb_fields();
+				ignore_hsv_fields();
+				ignore_spec_field();
+				spec_field = null;
+				red_field = null;
+				green_field = null;
+				blue_field = null;
+				hue_field = null;
+				saturation_field = null;
+				value_field = null;
+			}
+			void watch_rgb_fields() {
+				red_field.changed.connect(rgb_field_changed);
+				green_field.changed.connect(rgb_field_changed);
+				blue_field.changed.connect(rgb_field_changed);
+			}
+			void ignore_rgb_fields() {
+				red_field.changed.disconnect(rgb_field_changed);
+				green_field.changed.disconnect(rgb_field_changed);
+				blue_field.changed.disconnect(rgb_field_changed);
+			}
+			void watch_hsv_fields() {
+				hue_field.changed.connect(hsv_field_changed);
+				saturation_field.changed.connect(hsv_field_changed);
+				value_field.changed.connect(hsv_field_changed);
+			}
+			void ignore_hsv_fields() {
+				hue_field.changed.disconnect(hsv_field_changed);
+				saturation_field.changed.disconnect(hsv_field_changed);
+				value_field.changed.disconnect(hsv_field_changed);
+			}
+			void watch_spec_field() {
+				spec_field.changed.connect(spec_field_changed);
+			}
+			void ignore_spec_field() {
+				spec_field.changed.disconnect(spec_field_changed);
+			}
+			void rgb_field_changed() {
+				_color.set_rgb((uchar)red_field.value, (uchar)green_field.value, (uchar)blue_field.value);
+				ignore_hsv_fields();
+				ignore_spec_field();
+				hue_field.value = _color.hue;
+				saturation_field.value = _color.saturation;
+				value_field.value = _color.value;
+				spec_field.value = _color.spec;
+				watch_hsv_fields();
+				watch_spec_field();
+				changed();
+			}		
+			void hsv_field_changed() {
+				_color.set_hsv((uint8)hue_field.value, (uint8)saturation_field.value, (uint8)value_field.value);
+				ignore_rgb_fields();
+				ignore_spec_field();
+				red_field.value = _color.red;
+				green_field.value = _color.green;
+				blue_field.value = _color.blue;
+				spec_field.value = _color.spec;
+				watch_rgb_fields();
+				watch_spec_field();
+				changed();
+			}
+			void spec_field_changed() {
+				_color.spec = spec_field.value;
+				ignore_hsv_fields();
+				ignore_rgb_fields();
+				hue_field.value = _color.hue;
+				saturation_field.value = _color.saturation;
+				value_field.value = _color.value;
+				red_field.value = _color.red;
+				green_field.value = _color.green;
+				blue_field.value = _color.blue;
+				watch_hsv_fields();
+				watch_rgb_fields();
+				changed();
+			}
+			UIntField red_field;
+			UIntField green_field;
+			UIntField blue_field;
+			UIntField hue_field;
+			UIntField saturation_field;
+			UIntField value_field;
+			StringField spec_field;			
+		}		
 	}
 }

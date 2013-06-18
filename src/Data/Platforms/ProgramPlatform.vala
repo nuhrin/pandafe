@@ -169,7 +169,7 @@ namespace Data.Platforms
 				get_games_script_field.set_program_name(name_field.value);				
 			});
 		}
-		protected override void release_fields() {
+		protected override void release_fields(bool was_saved) {
 			name_field = null;
 			program_field = null;
 			get_games_script_field = null;

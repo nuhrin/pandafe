@@ -101,7 +101,7 @@ namespace Data.Platforms
 			}
 			return true;
 		}
-		protected void release_fields() {
+		protected void release_fields(bool was_saved) {
 			folders_field = null;
 			platforms_field = null;
 		}
