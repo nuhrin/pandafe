@@ -46,6 +46,10 @@ namespace Menus.Concrete
 				appearance_edit = new GameBrowserAppearance.default();
 			if (appearance_edit.font == null)
 				appearance_edit.font = GameBrowserAppearance.get_default_font_path();
+			if (appearance_edit.font_size <= 0)
+				appearance_edit.font_size = GameBrowserAppearance.DEFAULT_FONT_SIZE;
+			if (appearance_edit.item_spacing <= 0)
+				appearance_edit.item_spacing = GameBrowserAppearance.DEFAULT_ITEM_SPACING;
 		}
 			
 		public signal void changed(GameBrowserAppearance appearance);
@@ -65,7 +69,8 @@ namespace Menus.Concrete
 			
 			appearance.font = appearance_edit.font;
 			appearance.font_size = appearance_edit.font_size;
-						
+			appearance.item_spacing = appearance_edit.item_spacing;
+			
 			return true;			
 		}
 		
@@ -76,6 +81,8 @@ namespace Menus.Concrete
 			font_size = new IntegerField("font_size", "Font Size", null, GameBrowserAppearance.DEFAULT_FONT_SIZE, 
 				GameBrowserAppearance.MIN_FONT_SIZE, GameBrowserAppearance.MAX_FONT_SIZE);
 			items.add(font_size);
+			item_spacing = new IntegerField("item_spacing", "Item Spacing", null, GameBrowserAppearance.DEFAULT_ITEM_SPACING, 1, 15);
+			items.add(item_spacing);
 			
 			items.add(new MenuItemSeparator());
 			
@@ -96,7 +103,11 @@ namespace Menus.Concrete
 				items.add(new MenuItem.custom("Defaults", "Reset to the default appearance for the current context" , null, () => {
 					if (default_appearance.font != null)
 						font.value = default_appearance.font;
-					font_size.value = default_appearance.font_size;
+					if (default_appearance.font_size >= 0)
+						font_size.value = default_appearance.font_size;
+					if (default_appearance.item_spacing >= 0)
+						item_spacing.value = default_appearance.item_spacing;
+						
 					if (default_appearance.item_color != null)
 						item_color.value = default_appearance.item_color;
 					if (default_appearance.selected_item_color != null)
@@ -117,6 +128,7 @@ namespace Menus.Concrete
 			initialize();
 			font.changed.connect(on_font_change);
 			font_size.changed.connect(on_font_change);
+			item_spacing.changed.connect(on_font_change);
 			item_color.changed.connect(on_color_change);
 			item_color.selection_changed.connect((c) => {
 				appearance_edit.item_color.copy_from(c);
@@ -184,6 +196,7 @@ namespace Menus.Concrete
 		void on_font_change() {
 			appearance_edit.font = font.value;
 			appearance_edit.font_size = font_size.value;
+			appearance_edit.item_spacing = item_spacing.value;
 			changed(appearance_edit);
 		}
 		void on_color_change() {			
@@ -212,6 +225,7 @@ namespace Menus.Concrete
 		
 		FileField font;
 		IntegerField font_size;
+		IntegerField item_spacing;
 		ColorField item_color;
 		ColorField selected_item_color;
 		ColorField selected_item_background_color;

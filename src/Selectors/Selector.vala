@@ -35,16 +35,16 @@ public abstract class Selector : Layers.Layer
 	int index_before_select_first;
 	int index_before_select_last;
 	int visible_items;
-	int16 item_spacing;
 	string _filter;
 	Gee.List<int> _filter_match_indexes;
 	HashMap<int,int> _filter_index_position_hash;
 	
-	protected Selector(string id, int16 xpos, int16 ypos, GameBrowserUI? ui=null) {
+	protected Selector(string id, int16 xpos, int16 ypos, int16 ymax, GameBrowserUI? ui=null) {
 		base(id);
 		this.ui = ui ?? @interface.game_browser_ui;
 		this.xpos = xpos;
 		this.ypos = ypos;
+		this.ymax = ymax;
 		selected_index = -1;
 		index_before_select_first = -1;
 		index_before_select_last = -1;
@@ -55,6 +55,7 @@ public abstract class Selector : Layers.Layer
 	
 	public int16 xpos { get; set; }
 	public int16 ypos { get; set; }
+	public int16 ymax { get; set; }
 	
 	SelectorItemSet items {
 		get {
@@ -255,9 +256,12 @@ public abstract class Selector : Layers.Layer
 		surfaces = null;
 	}
 	void update_font() {
-		item_spacing = ui.font_height / 4;
-		int16 max_height = (int16)@interface.screen_height - (ui.font_height * 2) - 10 - ypos;
-		visible_items = max_height / (ui.font_height + item_spacing);
+		int16 max_height = ymax - ypos;		
+		visible_items = max_height / (ui.font_height + ui.item_spacing);
+		var visible_height = (ui.font_height * visible_items) + (ui.item_spacing * visible_items);
+		var remaining_space = max_height - visible_height + ui.item_spacing;
+		if (remaining_space >= ui.font_height)
+			visible_items += 1;
 		reset_surface();
 	}
 
@@ -345,7 +349,7 @@ public abstract class Selector : Layers.Layer
 			bot_index = -1;
 
 			visible_items = selector.visible_items;
-			item_spacing = selector.item_spacing;
+			item_spacing = selector.ui.item_spacing;
 		}
 		public bool select_item(int new_index, int old_index) {
 			//debug("SelectorSurfaceSet.select_item(%d, %d)", new_index, old_index);
@@ -662,7 +666,7 @@ public abstract class Selector : Layers.Layer
 			first_rendered_index = -1;
 			last_rendered_index = -1;
 			visible_items = selector.visible_items;
-			item_spacing = selector.item_spacing;
+			item_spacing = selector.ui.item_spacing;
 			int surface_items = last_index - first_index + 1;
 			int height = (font_height * surface_items) + (item_spacing * surface_items) + (item_spacing * 2);
 			surface = selector.ui.get_blank_background_surface(GameBrowserUI.SELECTOR_WITDH, height);

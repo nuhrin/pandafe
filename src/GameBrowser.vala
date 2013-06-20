@@ -45,6 +45,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 	string? static_header_text;
 	string? static_status_test;
 	int16 selector_ypos;
+	int16 selector_ymax;
     Selector selector;
     bool everything_active;
     bool platform_list_active;
@@ -116,9 +117,12 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		update_selector_ypos();
 	}
 	void update_selector_ypos() {		
-		selector_ypos = header.ypos + (int16)header.height + (int16)(ui.font_height * 1.5);
-		if (selector != null)
+		selector_ypos = header.ypos + (int16)header.height + (int16)(ui.font_height * 1.3);
+		selector_ymax = status_message.ypos - (int16)(ui.font_height * 1.1);
+		if (selector != null) { 
 			selector.ypos = selector_ypos;
+			selector.ymax = selector_ymax;
+		}
 	}
 	
 	//
@@ -253,7 +257,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 			on_selector_loading();
 			var everything_selector = selector as EverythingSelector;			
 			if (everything_selector == null)
-				everything_selector = new EverythingSelector(SELECTOR_ID, SELECTOR_XPOS, selector_ypos, current_view_data);
+				everything_selector = new EverythingSelector(SELECTOR_ID, SELECTOR_XPOS, selector_ypos, selector_ymax, current_view_data);
 			new_selector = everything_selector;
 		} else {
 			if (this.current_folder != null) {
@@ -261,23 +265,24 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 				var folder = current_platform.get_folder(current_folder);
 				if (folder == null)
 					folder = current_platform.get_root_folder();
-				new_selector = new GameFolderSelector(folder, SELECTOR_ID, SELECTOR_XPOS, selector_ypos);				
+				new_selector = new GameFolderSelector(folder, SELECTOR_ID, SELECTOR_XPOS, selector_ypos, selector_ymax);	
 			} else if (this.current_platform_folder != null) {
-				new_selector = new PlatformFolderSelector(this.current_platform_folder, SELECTOR_ID, SELECTOR_XPOS, selector_ypos);
+				new_selector = new PlatformFolderSelector(this.current_platform_folder, SELECTOR_ID, SELECTOR_XPOS, selector_ypos, selector_ymax);
 			} else if (platform_list_active == false && this.platform_folder_data.folders.size > 0) {
-				new_selector = new PlatformFolderSelector.root(SELECTOR_ID, SELECTOR_XPOS, selector_ypos);
+				new_selector = new PlatformFolderSelector.root(SELECTOR_ID, SELECTOR_XPOS, selector_ypos, selector_ymax);
 			} else {
-				new_selector = new PlatformSelector(SELECTOR_ID, SELECTOR_XPOS, selector_ypos);
+				new_selector = new PlatformSelector(SELECTOR_ID, SELECTOR_XPOS, selector_ypos, selector_ymax);
 			}			
 		}
 		selector_handlers.add(new_selector.changed.connect(() => on_selector_changed()));
 		selector_handlers.add(new_selector.loading.connect(() => on_selector_loading()));
 		selector_handlers.add(new_selector.rebuilt.connect(() => on_selector_rebuilt(new_selector)));
+		
 		if (this.selector == null)
 			add_layer(new_selector);
 		else
 			replace_layer(SELECTOR_ID, new_selector);
-			
+		
 		this.selector = new_selector;
 	}
 	Gee.ArrayList<ulong> selector_handlers = new Gee.ArrayList<ulong>();

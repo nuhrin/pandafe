@@ -32,6 +32,7 @@ namespace Data
 		const string DEFAULT_FONT = "/usr/share/fonts/truetype/DejaVuSansMono.ttf";
 		const string DEFAULT_FONT_PREFERRED = "fonts/bitwise.ttf";
 		public const int DEFAULT_FONT_SIZE = 19;
+		public const int DEFAULT_ITEM_SPACING = 6;
 		public const int MAX_FONT_SIZE = 24;
 		public const int MIN_FONT_SIZE = 10;
 		const string DEFAULT_ITEM_COLOR = "#178ECB";
@@ -46,6 +47,7 @@ namespace Data
 		public GameBrowserAppearance.default() {
 			font = get_default_font_path();
 			_font_size = DEFAULT_FONT_SIZE;
+			item_spacing = DEFAULT_ITEM_SPACING;
 			item_color = build_color(DEFAULT_ITEM_COLOR);
 			selected_item_color = build_color(DEFAULT_SELECTED_ITEM_COLOR);
 			selected_item_background_color = build_color(DEFAULT_BACKGROUND_COLOR);
@@ -59,6 +61,8 @@ namespace Data
 			set { _font_size = normalize_font_size(value); }
 		}
 		int _font_size;
+		public int item_spacing { get; set; }
+		
 		public Data.Color? item_color { get; set; }
 		public Data.Color? selected_item_color { get; set; }
 		public Data.Color? selected_item_background_color { get; set; }
@@ -69,6 +73,7 @@ namespace Data
 			var copy = new GameBrowserAppearance();
 			copy.font = font;
 			copy._font_size = _font_size;
+			copy.item_spacing = item_spacing;
 			if (item_color != null)
 				copy.item_color = item_color.copy();
 			if (selected_item_color != null)
@@ -87,6 +92,8 @@ namespace Data
 			if (font != other.font)
 				return false;
 			if (font_size != other.font_size)
+				return false;
+			if (item_spacing != other.item_spacing)
 				return false;
 			if (color_matches(a=>a.item_color, this, other) == false)
 				return false;
@@ -123,11 +130,17 @@ namespace Data
 				resolved_font = get_default_font_path();
 				
 			int resolved_font_size = font_size;
-			if (resolved_font_size == 0 && fallback_appearance != null)
+			if (resolved_font_size <= 0 && fallback_appearance != null)
 				resolved_font_size = fallback_appearance.font_size;
-			if (resolved_font_size == 0)
+			if (resolved_font_size <= 0)
 				resolved_font_size = DEFAULT_FONT_SIZE;
-				
+			
+			int resolved_item_spacing = item_spacing;
+			if (resolved_item_spacing <= 0 && fallback_appearance != null)
+				resolved_item_spacing = fallback_appearance.item_spacing;
+			if (resolved_item_spacing <= 0)
+				resolved_item_spacing = DEFAULT_ITEM_SPACING;
+			
 			SDL.Color item_color = {};
 			resolve_color(ref item_color, c=>c.item_color, fallback_appearance, DEFAULT_ITEM_COLOR);
 			SDL.Color selected_item_color = {};
@@ -138,7 +151,7 @@ namespace Data
 			resolve_color(ref background_color, c=>c.background_color, fallback_appearance, DEFAULT_BACKGROUND_COLOR);
 			SDL.Color header_footer_color = {};
 			resolve_color(ref header_footer_color, c=>c.header_footer_color, fallback_appearance, DEFAULT_SELECTED_ITEM_COLOR);
-			return new GameBrowserUI(resolved_font, resolved_font_size, item_color, selected_item_color, selected_item_background_color, background_color, header_footer_color);
+			return new GameBrowserUI(resolved_font, resolved_font_size, (int16)resolved_item_spacing, item_color, selected_item_color, selected_item_background_color, background_color, header_footer_color);
 		}
 		public static string get_default_font_path() {
 			string path = Path.build_filename(RuntimeEnvironment.system_data_dir(), DEFAULT_FONT_PREFERRED);
@@ -178,6 +191,7 @@ namespace Data
 			if (font != null) {
 				mapping.set_scalar("font", builder.build_value(font));
 				mapping.set_scalar("font-size", builder.build_value(font_size));
+				mapping.set_scalar("item-spacing", builder.build_value(item_spacing));
 			}
 			if (item_color != null)
 				mapping.set_scalar("item-color", builder.build_value(item_color));
@@ -202,6 +216,9 @@ namespace Data
 						break;
 					case "font-size":
 						font_size = parser.parse<int>(mapping[key], 0);
+						break;
+					case "item-spacing":
+						item_spacing = parser.parse<int>(mapping[key], 0);
 						break;
 					case "item-color":
 						item_color = build_color(DEFAULT_ITEM_COLOR);

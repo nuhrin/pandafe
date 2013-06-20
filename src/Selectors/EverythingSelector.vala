@@ -32,8 +32,8 @@ public class EverythingSelector : Selector {
 
 	GameBrowserViewData view;
 	
-	public EverythingSelector(string id, int16 xpos, int16 ypos, GameBrowserViewData? view) {
-		base(id, xpos, ypos);		
+	public EverythingSelector(string id, int16 xpos, int16 ypos, int16 ymax, GameBrowserViewData? view) {
+		base(id, xpos, ypos, ymax);
 		this.view = view ?? new GameBrowserViewData(GameBrowserViewType.ALL_GAMES);
 		Data.all_games().cache_updated.connect(() => rebuild());
 		Data.favorites().changed.connect(() => favorites_changed());
