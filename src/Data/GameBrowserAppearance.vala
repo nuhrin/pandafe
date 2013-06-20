@@ -49,11 +49,12 @@ namespace Data
 			font = get_default_font_path();
 			_font_size = DEFAULT_FONT_SIZE;
 			item_spacing = DEFAULT_ITEM_SPACING;
+
+			background_color = build_color(DEFAULT_BACKGROUND_COLOR);
 			item_color = build_color(DEFAULT_ITEM_COLOR);
 			selected_item_color = build_color(DEFAULT_SELECTED_ITEM_COLOR);
-			selected_item_background_color = build_color(DEFAULT_BACKGROUND_COLOR);
-			background_color = build_color(DEFAULT_BACKGROUND_COLOR);
-			header_footer_color = build_color(DEFAULT_SELECTED_ITEM_COLOR);
+			selected_item_background_color = build_color(DEFAULT_SELECTED_ITEM_BACKGROUND_COLOR);
+			header_footer_color = build_color(DEFAULT_HEADER_FOOTER_COLOR);
 		}
 
 		public string? font { get; set; }
@@ -64,10 +65,10 @@ namespace Data
 		int _font_size;
 		public int item_spacing { get; set; }
 		
+		public Data.Color? background_color { get; set; }
 		public Data.Color? item_color { get; set; }
 		public Data.Color? selected_item_color { get; set; }
 		public Data.Color? selected_item_background_color { get; set; }
-		public Data.Color? background_color { get; set; }
 		public Data.Color? header_footer_color { get; set; }
 		
 		public GameBrowserAppearance copy() {
@@ -75,14 +76,15 @@ namespace Data
 			copy.font = font;
 			copy._font_size = _font_size;
 			copy.item_spacing = item_spacing;
+
+			if (background_color != null)
+				copy.background_color = background_color.copy();
 			if (item_color != null)
 				copy.item_color = item_color.copy();
 			if (selected_item_color != null)
 				copy.selected_item_color = selected_item_color.copy();
 			if (selected_item_background_color != null)
 				copy.selected_item_background_color = selected_item_background_color.copy();
-			if (background_color != null)
-				copy.background_color = background_color.copy();
 			if (header_footer_color != null)
 				copy.header_footer_color = header_footer_color.copy();
 			return copy;			
@@ -96,16 +98,18 @@ namespace Data
 				return false;
 			if (item_spacing != other.item_spacing)
 				return false;
+
+			if (color_matches(a=>a.background_color, this, other) == false)
+				return false;
 			if (color_matches(a=>a.item_color, this, other) == false)
 				return false;
 			if (color_matches(a=>a.selected_item_color, this, other) == false)
 				return false;
 			if (color_matches(a=>a.selected_item_background_color, this, other) == false)
 				return false;
-			if (color_matches(a=>a.background_color, this, other) == false)
-				return false;
 			if (color_matches(a=>a.header_footer_color, this, other) == false)
 				return false;
+			
 			return true;
 		}
 		static bool color_matches(owned MapFunc<Data.Color?,GameBrowserAppearance> get_color, GameBrowserAppearance a, GameBrowserAppearance b) {
@@ -142,17 +146,22 @@ namespace Data
 			if (resolved_item_spacing <= 0)
 				resolved_item_spacing = DEFAULT_ITEM_SPACING;
 			
-			SDL.Color item_color = {};
-			resolve_color(ref item_color, c=>c.item_color, fallback_appearance, DEFAULT_ITEM_COLOR);
-			SDL.Color selected_item_color = {};
-			resolve_color(ref selected_item_color, c=>c.selected_item_color, fallback_appearance, DEFAULT_SELECTED_ITEM_COLOR);
-			SDL.Color selected_item_background_color = {};
-			resolve_color(ref selected_item_background_color, c=>c.selected_item_background_color, fallback_appearance, DEFAULT_BACKGROUND_COLOR);
-			SDL.Color background_color = {};
-			resolve_color(ref background_color, c=>c.background_color, fallback_appearance, DEFAULT_BACKGROUND_COLOR);
-			SDL.Color header_footer_color = {};
-			resolve_color(ref header_footer_color, c=>c.header_footer_color, fallback_appearance, DEFAULT_SELECTED_ITEM_COLOR);
-			return new GameBrowserUI(resolved_font, resolved_font_size, (int16)resolved_item_spacing, item_color, selected_item_color, selected_item_background_color, background_color, header_footer_color);
+			var background_color = resolve_color(c=>c.background_color, fallback_appearance, DEFAULT_BACKGROUND_COLOR);
+			var item_color = resolve_color(c=>c.item_color, fallback_appearance, DEFAULT_ITEM_COLOR);
+			var selected_item_color = resolve_color(c=>c.selected_item_color, fallback_appearance, DEFAULT_SELECTED_ITEM_COLOR);
+			var selected_item_background_color = resolve_color(c=>c.selected_item_background_color, fallback_appearance);
+			if (selected_item_background_color == null)
+				selected_item_background_color = background_color;
+			var header_footer_color = resolve_color(c=>c.header_footer_color, fallback_appearance);
+			if (header_footer_color == null)
+				header_footer_color = selected_item_color;
+				
+			return new GameBrowserUI(resolved_font, resolved_font_size, (int16)resolved_item_spacing, 
+			                         background_color.get_sdl_color(),
+			                         item_color.get_sdl_color(), 
+			                         selected_item_color.get_sdl_color(), 
+			                         selected_item_background_color.get_sdl_color(), 
+			                         header_footer_color.get_sdl_color());
 		}
 		public static string get_default_font_path() {
 			string path = Path.build_filename(RuntimeEnvironment.system_data_dir(), DEFAULT_FONT_PREFERRED);
@@ -170,14 +179,14 @@ namespace Data
 			return size;
 		}
 		
-		void resolve_color(ref SDL.Color color, owned MapFunc<Data.Color?,GameBrowserAppearance> get_color, GameBrowserAppearance? fallback_appearance, string default_spec) {			
+		Data.Color? resolve_color(owned MapFunc<Data.Color?,GameBrowserAppearance> get_color, GameBrowserAppearance? fallback_appearance, string? default_spec=null) {
 			var resolved_color = get_color(this);
 			if (resolved_color == null && fallback_appearance != null)
 				resolved_color = get_color(fallback_appearance);
-			if (resolved_color == null)
+			if (resolved_color == null && default_spec != null)			
 				resolved_color = build_color(default_spec);
 			
-			color = resolved_color.get_sdl_color();
+			return resolved_color;
 		}
 		Data.Color build_color(string spec) {
 			Data.Color color;
@@ -194,16 +203,18 @@ namespace Data
 				mapping.set_scalar("font-size", builder.build_value(font_size));
 				mapping.set_scalar("item-spacing", builder.build_value(item_spacing));
 			}
+
+			if (background_color != null)
+				mapping.set_scalar("background-color", builder.build_value(background_color));
 			if (item_color != null)
 				mapping.set_scalar("item-color", builder.build_value(item_color));
 			if (selected_item_color != null)
 				mapping.set_scalar("selected-item-color", builder.build_value(selected_item_color));
 			if (selected_item_background_color != null)
 				mapping.set_scalar("selected-item-background-color", builder.build_value(selected_item_background_color));			
-			if (background_color != null)
-				mapping.set_scalar("background-color", builder.build_value(background_color));
 			if (header_footer_color != null)
 				mapping.set_scalar("header-footer-color", builder.build_value(header_footer_color));
+
 			return mapping;	
 		}
 		protected override void apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
@@ -221,28 +232,30 @@ namespace Data
 					case "item-spacing":
 						item_spacing = parser.parse<int>(mapping[key], 0);
 						break;
+					case "background-color":
+						background_color = parse_color(mapping[key], parser);
+						break;
 					case "item-color":
-						item_color = build_color(DEFAULT_ITEM_COLOR);
-						item_color.spec = parser.parse<string>(mapping[key], DEFAULT_ITEM_COLOR);
+						item_color = parse_color(mapping[key], parser);
 						break;
 					case "selected-item-color":
-						selected_item_color = build_color(DEFAULT_SELECTED_ITEM_COLOR);
-						selected_item_color.spec = parser.parse<string>(mapping[key], DEFAULT_SELECTED_ITEM_COLOR);
+						selected_item_color = parse_color(mapping[key], parser);
 						break;
 					case "selected-item-background-color":
-						selected_item_background_color = build_color(DEFAULT_BACKGROUND_COLOR);
-						selected_item_background_color.spec = parser.parse<string>(mapping[key], DEFAULT_BACKGROUND_COLOR);
-						break;
-					case "background-color":
-						background_color = build_color(DEFAULT_BACKGROUND_COLOR);
-						background_color.spec = parser.parse<string>(mapping[key], DEFAULT_BACKGROUND_COLOR);
+						selected_item_background_color = parse_color(mapping[key], parser);
 						break;
 					case "header-footer-color":
-						header_footer_color = build_color(DEFAULT_SELECTED_ITEM_COLOR);
-						header_footer_color.spec = parser.parse<string>(mapping[key], DEFAULT_SELECTED_ITEM_COLOR);
+						header_footer_color = parse_color(mapping[key], parser);
 						break;
 				}
 			}
+		}
+		Data.Color? parse_color(Yaml.Node node, Yaml.NodeParser parser) {
+			var spec = parser.parse<string>(node, "");
+			Data.Color color;
+			if (Data.Color.parse(spec, out color) == true)
+				return color;
+			return null;
 		}
 	}
 }

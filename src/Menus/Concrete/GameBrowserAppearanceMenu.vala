@@ -55,13 +55,13 @@ namespace Menus.Concrete
 		public signal void changed(GameBrowserAppearance appearance);
 		
 		protected override bool do_save() {
+			appearance.background_color.copy_from(appearance_edit.background_color);
 			appearance.item_color.copy_from(appearance_edit.item_color);
 			appearance.selected_item_color.copy_from(appearance_edit.selected_item_color);
 			if (appearance_edit.selected_item_background_color != null && appearance_edit.selected_item_background_color.spec != appearance_edit.background_color.spec)
 				appearance.selected_item_background_color = appearance_edit.selected_item_background_color.copy();
 			else
 				appearance.selected_item_background_color = null;
-			appearance.background_color.copy_from(appearance_edit.background_color);
 			if (appearance_edit.header_footer_color != null && appearance_edit.header_footer_color.spec != appearance_edit.selected_item_color.spec)
 				appearance.header_footer_color = appearance_edit.header_footer_color.copy();
 			else
@@ -108,6 +108,8 @@ namespace Menus.Concrete
 					if (default_appearance.item_spacing >= 0)
 						item_spacing.value = default_appearance.item_spacing;
 						
+					if (default_appearance.background_color != null)
+						background_color.value = default_appearance.background_color;
 					if (default_appearance.item_color != null)
 						item_color.value = default_appearance.item_color;
 					if (default_appearance.selected_item_color != null)
@@ -116,8 +118,6 @@ namespace Menus.Concrete
 						selected_item_background_color.value = default_appearance.selected_item_background_color;
 					else if (default_appearance.background_color != null)
 						selected_item_background_color.value = default_appearance.background_color;
-					if (default_appearance.background_color != null)
-						background_color.value = default_appearance.background_color;
 					if (default_appearance.header_footer_color != null)
 						header_footer_color.value = default_appearance.header_footer_color;
 					refresh(defaults_index);
@@ -129,6 +129,20 @@ namespace Menus.Concrete
 			font.changed.connect(on_font_change);
 			font_size.changed.connect(on_font_change);
 			item_spacing.changed.connect(on_font_change);
+
+			background_color.changed.connect(on_color_change);
+			background_color.selection_changed.connect((c) => {
+				sync_selected_item_background = false;
+				appearance_edit.background_color.copy_from(c);
+				if (background_color.value.spec == selected_item_background_color.value.spec) {
+					if (appearance_edit.selected_item_background_color != null)
+						appearance_edit.selected_item_background_color.copy_from(c);
+					else
+						appearance_edit.selected_item_background_color = c.copy();
+					sync_selected_item_background = true;
+				}
+				changed(appearance_edit);
+			});		
 			item_color.changed.connect(on_color_change);
 			item_color.selection_changed.connect((c) => {
 				appearance_edit.item_color.copy_from(c);
@@ -150,19 +164,6 @@ namespace Menus.Concrete
 					appearance_edit.selected_item_background_color = c.copy();
 				changed(appearance_edit);
 			});
-			background_color.changed.connect(on_color_change);
-			background_color.selection_changed.connect((c) => {
-				sync_selected_item_background = false;
-				appearance_edit.background_color.copy_from(c);
-				if (background_color.value.spec == selected_item_background_color.value.spec) {
-					if (appearance_edit.selected_item_background_color != null)
-						appearance_edit.selected_item_background_color.copy_from(c);
-					else
-						appearance_edit.selected_item_background_color = c.copy();
-					sync_selected_item_background = true;
-				}
-				changed(appearance_edit);
-			});
 			header_footer_color.changed.connect(on_color_change);
 			header_footer_color.selection_changed.connect((c) => {
 				if (appearance_edit.header_footer_color != null)
@@ -176,10 +177,10 @@ namespace Menus.Concrete
 		protected override void cleanup() {
 			font = null;
 			font_size = null;
+			background_color = null;
 			item_color = null;
 			selected_item_color = null;
 			selected_item_background_color = null;
-			background_color = null;
 			header_footer_color = null;
 			sync_selected_item_background = false;
 		}
@@ -187,10 +188,10 @@ namespace Menus.Concrete
 		void initialize() {
 			font.value = appearance_edit.font;
 			font_size.value = appearance_edit.font_size;
+			background_color.value.copy_from(appearance_edit.background_color);
 			item_color.value.copy_from(appearance_edit.item_color);
 			selected_item_color.value.copy_from(appearance_edit.selected_item_color);			
 			selected_item_background_color.value.copy_from(appearance_edit.selected_item_background_color ?? appearance_edit.background_color);
-			background_color.value.copy_from(appearance_edit.background_color);
 			header_footer_color.value.copy_from(appearance_edit.header_footer_color ?? appearance_edit.selected_item_color);
 		}
 		void on_font_change() {
@@ -200,6 +201,7 @@ namespace Menus.Concrete
 			changed(appearance_edit);
 		}
 		void on_color_change() {			
+			appearance_edit.background_color.copy_from(background_color.value);			
 			appearance_edit.item_color.copy_from(item_color.value);
 			appearance_edit.selected_item_color.copy_from(selected_item_color.value);
 			
@@ -213,12 +215,15 @@ namespace Menus.Concrete
 					appearance_edit.selected_item_background_color = selected_item_background_color.value.copy();					
 			}
 			
-			appearance_edit.background_color.copy_from(background_color.value);			
+			if (appearance_edit.header_footer_color != null)
+				appearance_edit.header_footer_color.copy_from(header_footer_color.value);
+			else
+				appearance_edit.header_footer_color = header_footer_color.value.copy();		
 			
 			if (sync_selected_item_background == true) {
-				refresh(5);
+				refresh(4);
 				sync_selected_item_background = false;
-			}			
+			}					
 			
 			changed(appearance_edit);
 		}
