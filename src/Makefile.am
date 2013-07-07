@@ -68,6 +68,7 @@ pandafe_SOURCES = \
 	Data/GameList/GameItem.vala \
 	Data/GameList/GameNodeMenuData.vala \
 	Data/GameList/IGameListNode.vala \
+	Data/GameList/RomFiles.vala \
 	Data/Options/DoubleOption.vala \
 	Data/Options/FlagOption.vala \
 	Data/Options/IntegerOption.vala \

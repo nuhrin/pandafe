@@ -76,6 +76,50 @@ public class Spawning
 		string? custom_command=null, string? custom_command_script=null) {
 		return spawn_program_internal(program, premount, program_settings, game_path, custom_command, custom_command_script);
 	}
+	
+	public static SpawningResult run_temp_script(string filename, string contents, bool as_root=false) {
+		string error;
+		var path = create_temp_script(filename, contents, out error);
+		if (path == null)
+			return new SpawningResult.error(error);
+		
+		string command = (as_root) ? "gksudo " + path : path;
+		int exit_status = -1;
+		string standard_output;
+		string standard_error;
+		bool success;
+		try {			
+			success = Process.spawn_command_line_sync(command, out standard_output, out standard_error, out exit_status);			
+			if (success == true && exit_status > 0)
+				success = false;
+			FileUtils.remove(path);
+			return new SpawningResult(success, command, standard_output, standard_error, exit_status);
+		} catch(Error e) {
+			FileUtils.remove(path);
+			return new SpawningResult.error_with_command_line(e.message, command);
+		}
+	}
+	
+	public static string? create_temp_script(string filename, string contents, out string error) {
+		error = "";
+		var path = Path.build_filename("/tmp", filename);
+		try {
+			if (FileUtils.set_contents(path, contents) == false) {
+				error = @"Unable to write '$path'.";
+				return null;
+			}
+		} catch(FileError e) {
+			error = e.message;
+			return null;
+		}
+		if (Posix.chmod(path, Posix.S_IRUSR | Posix.S_IWUSR | Posix.S_IXUSR | Posix.S_IRGRP | Posix.S_IXGRP | Posix.S_IROTH | Posix.S_IXOTH) == -1) {
+			FileUtils.remove(path);
+			error = @"Unable to make '$path' executable.";
+			return null;
+		}
+		return path;
+	}	
+	
 	static SpawningResult spawn_program_internal(Program program, bool premount, ProgramSettings? program_settings=null, string? game_path=null,
 		string? custom_command=null, string? custom_command_script=null) {		
 		Data.Pnd.AppItem app = program.get_app();
