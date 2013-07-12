@@ -52,6 +52,12 @@ namespace Data.GameList
 
 		protected Platform platform { get { return _platform; } }
 		public GameFolder? parent { get { return _parent; } }
+		public GameFolder root_folder() {
+			var folder = this;
+			while(folder.parent != null)
+				folder = folder.parent;
+			return  folder;
+		}
 
 		public unowned string id { get { if (_id != null) return _id; return _name; } }
 		public unowned string name { get { return _name; } }

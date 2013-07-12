@@ -93,7 +93,7 @@ namespace Menus.Concrete
 			GameItem game;
 			RomPlatform platform;
 			public MoveItem(GameItem game, RomPlatform platform) {
-				base("Move", "Move the rom file(s) to a different folder");
+				base("Change Category", "Move the rom file(s) to a different category folder");
 				this.game = game;
 				this.platform = platform;
 			}
@@ -110,14 +110,56 @@ namespace Menus.Concrete
 					return;
 				}
 				
-				var chooser = new FolderChooser("new_game_folder_chooser", "Select new folder for " + game.id, platform.rom_folder_root);
-				chooser.allow_folder_creation = true;
-				var current_folder = game.parent.unique_id();
-				var new_folder = chooser.run(current_folder);
-				if (new_folder == null || new_folder == current_folder)
+				var rect = selector.get_selected_item_rect();
+				var current_category = game.parent.unique_display_name();
+				if (current_category == "")
+					current_category = null;
+				var category_selector = new Layers.Controls.GameCategorySelector("game_category_selector", rect.x, rect.y, 200, current_category);
+				category_selector.run();
+				if (category_selector.was_canceled == true)
 					return;
-								
+				if (current_category == null && category_selector.no_category_selected == true)
+					return;
+				if (current_category == category_selector.selected_item())
+					return;
+				
+				string? new_category = null;				
+				if (category_selector.no_category_selected == false)
+					new_category = category_selector.selected_item();				
+				
+				if (new_category != null) {
+					var existing_folder = game.parent.root_folder().child_folders()
+						.where(f => f.display_name() == new_category)					
+						.first();
+					if (existing_folder != null)
+						new_category = existing_folder.name;
+				}
+				
+				var new_folder = (new_category == null)
+					? platform.rom_folder_root
+					: Path.build_filename(platform.rom_folder_root, new_category);
+				
+				if (new_folder == game.parent.unique_id())
+					return; // already the same
+				
+				bool newly_created = false;
+				if (FileUtils.test(new_folder, FileTest.IS_DIR) == false) {
+					try {
+						if (File.new_for_path(new_folder).make_directory_with_parents() == false)
+							throw new FileError.FAILED("unable to create directory");
+						newly_created = true;
+					} catch(Error e) {
+						selector.menu.error("%s: %s".printf(new_category, e.message));
+						return;
+					}
+				}
 				if (rom_files.move(new_folder, out error) == false) {
+					if (newly_created == true) {
+						try {
+							File.new_for_path(new_folder).delete();
+						} catch(Error e) {
+						}
+					}
 					selector.menu.error(error);
 					return;
 				}

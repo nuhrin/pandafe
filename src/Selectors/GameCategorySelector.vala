@@ -29,19 +29,17 @@ using Data;
 using Data.GameList;
 
 public class GameCategorySelector : Selector 
-{
-	public const string UNCATEGORIZED_CATEGORY_NAME = "(Uncategorized)";
-	
+{	
 	public GameCategorySelector(string id, int16 xpos, int16 ypos, int16 ymax,string? category_path) {
 		base(id, xpos, ypos, ymax);		
 		this.category_path = category_path;
 		Data.all_games().cache_updated.connect((new_selection_id) => rebuild(new_selection_id));
-		populate_items();
+		rebuild_items(-1, null);
 	}
 
 	string? category_path;
 	ArrayList<SubCategory> subcategories;
-	ArrayList<GameItem> games;
+	Gee.List<GameItem> games;
 		
 	public unowned string? active_category_path { get { return category_path; } }
 	public string? parent_category_path() {
@@ -68,6 +66,7 @@ public class GameCategorySelector : Selector
 		if (this.category_path == category_path)
 			return;
 		this.category_path = category_path;
+		selected_index = -1;
 		var filter = get_filter_pattern();
 		if (filter == null) {
 			rebuild();
@@ -117,7 +116,25 @@ public class GameCategorySelector : Selector
 		if (selection_id == null && selection_index != -1)
 			selection_id = item_unique_id(selection_index);
 		
-		populate_items();
+		Gee.List<string> subcategory_names;
+		Gee.List<GameItem> games;
+		if (Data.all_games().load_category_data(category_path, out subcategory_names, out games) == true) {
+			subcategories = new ArrayList<SubCategory>();			
+			foreach(var name in subcategory_names) {
+				var subcategory = (category_path == null)
+					? new SubCategory(name, name)
+					: new SubCategory(name, "%s/%s".printf(category_path, name));
+				subcategories.add(subcategory);
+			}			
+			if (category_path == null)
+				subcategories.add(new SubCategory(AllGames.UNCATEGORIZED_CATEGORY_NAME, AllGames.UNCATEGORIZED_CATEGORY_NAME));
+			
+			games.sort(IGameListNode.compare);				
+			this.games = games;			
+		} else {
+			subcategories = new ArrayList<SubCategory>();
+			games = Gee.List.empty<GameItem>();			
+		}
 		
 		int new_index = -1;
 		if (selection_id != null) {
@@ -176,70 +193,6 @@ public class GameCategorySelector : Selector
 		return games[index - subcategories.size];
 	}
 	
-	void populate_items() {		
-		var all_games = Data.all_games().load();
-		
-		bool is_root_category = (category_path == null);
-		bool is_uncategorized_category = (category_path == UNCATEGORIZED_CATEGORY_NAME);
-		
-		subcategories = new ArrayList<SubCategory>();
-		games = new ArrayList<GameItem>();
-		
-		var subcategory_path_hash = new HashMap<string, SubCategory>();
-			
-		foreach(var game in all_games) {
-			var folder_path = game.parent.unique_display_name();
-			if (is_root_category) {
-				var top_category = get_top_category(folder_path);
-				if (top_category != null) {
-					if (subcategory_path_hash.has_key(top_category) == false) {
-						var subcategory = new SubCategory(top_category, top_category);
-						subcategories.add(subcategory);
-						subcategory_path_hash[top_category] = subcategory;
-					}					
-				}
-				continue;
-			}
-			if (is_uncategorized_category) {
-				if (folder_path == "")
-					games.add(game);
-				continue;
-			}
-			
-			if (folder_path == category_path) {
-				games.add(game);
-				continue;
-			}
-			
-			if (folder_path.has_prefix(category_path + "/")) {
-				var child_category = get_top_category(folder_path.substring(category_path.length + 1));
-				if (child_category != null) {
-					var child_category_path = "%s/%s".printf(category_path, child_category);
-					if (subcategory_path_hash.has_key(child_category_path) == false) {
-						var subcategory = new SubCategory(child_category, child_category_path);
-						subcategories.add(subcategory);
-						subcategory_path_hash[child_category_path] = subcategory;
-					}
-				}
-			}			
-		}
-
-		subcategories.sort(SubCategory.compare);		
-		if (is_root_category)
-			subcategories.add(new SubCategory(UNCATEGORIZED_CATEGORY_NAME, UNCATEGORIZED_CATEGORY_NAME));
-
-		games.sort(IGameListNode.compare);
-	}
-	string? get_top_category(string category_path) {
-		string category = category_path;
-		int slash_index = category.index_of("/");
-		if (slash_index != -1)
-			category = category.substring(0, slash_index);
-		if (category == "")
-			return null;
-		return category;		
-	}
-	
 	class SubCategory {
 		public SubCategory(string name, string path) {
 			_name = name;
@@ -248,10 +201,6 @@ public class GameCategorySelector : Selector
 		string _name;
 		string _path;
 		public unowned string name { get { return _name; } }
-		public unowned string path { get { return _path; } }
-		
-		public static int compare(SubCategory a, SubCategory b) {
-			return Utility.strcasecmp(a.name, b.name);
-		}
+		public unowned string path { get { return _path; } }		
 	}
 }

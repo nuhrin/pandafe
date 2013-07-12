@@ -141,6 +141,7 @@ pandafe_SOURCES = \
 	Layers/Controls/DoubleEntry.vala \
 	Layers/Controls/FileChooser.vala \
 	Layers/Controls/FolderChooser.vala \
+	Layers/Controls/GameCategorySelector.vala \
 	Layers/Controls/IntegerEntry.vala \
 	Layers/Controls/ListEditor.vala \
 	Layers/Controls/PndAppChooser.vala \

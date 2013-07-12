@@ -189,6 +189,23 @@ namespace Layers.Controls
 			}
 		}
 		
+		protected virtual bool activate(Rect selected_item_rect) {
+			return true;
+		}
+		protected void set_selected_item(G item) {
+			if (items.size == 0)
+				GLib.error("ValueSelector '%s' has no items.", id);
+				
+			items[(int)_selected_index] = item;
+		}
+		Rect get_selected_item_rect() {
+			uint top_index;
+			uint bottom_index;
+			get_display_range(selected_index, out top_index, out bottom_index);
+			var item_offset = (selected_index - top_index);
+			return {xpos, ypos + (int16)((ui.font_height + ui.item_spacing) * item_offset), (int16)width};
+		}
+		
 		void on_keydown_event(KeyboardEvent event) {
 			if (process_unicode(event.keysym.unicode) == false)
 				return;
@@ -205,7 +222,10 @@ namespace Layers.Controls
 					case KeySymbol.RETURN:
 					case KeySymbol.KP_ENTER:
 					case KeySymbol.END:
-						quit_event_loop();
+						if (activate(get_selected_item_rect()) == false)
+							update();							
+						else
+							quit_event_loop();
 						break;
 					case KeySymbol.ESCAPE:
 					case KeySymbol.HOME:

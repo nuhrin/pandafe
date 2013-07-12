@@ -992,7 +992,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		if (selected_game != null)
 			active_category = selected_game.parent.unique_display_name();
 		if (active_category == "")
-			active_category = GameCategorySelector.UNCATEGORIZED_CATEGORY_NAME;
+			active_category = AllGames.UNCATEGORIZED_CATEGORY_NAME;
 			
 		var resolved_view_data = current_view_data;		
 		if (everything_active == false && category_active == false) {
