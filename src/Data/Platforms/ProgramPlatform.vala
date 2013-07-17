@@ -92,11 +92,10 @@ namespace Data.Platforms
 				
 			// mount pnd, if necessary
 			var mountset = Data.pnd_mountset();
-			bool is_new_mount = (mountset.is_mounted(app.package_id) == false && 
-								 mountset.mount(app.id, app.package_id) == true);
-			var mounted_path = mountset.get_mounted_path(app.package_id);
+			bool is_new_mount = (mountset.is_mounted(app) == false && mountset.mount(app) == true);
+			var mounted_path = mountset.get_mounted_path(app);
 			if (mounted_path == null && is_new_mount == true) {
-				mountset.unmount(app.package_id);
+				mountset.unmount(app);
 				return false;
 			}
 	

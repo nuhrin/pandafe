@@ -61,11 +61,11 @@ public class Spawning
 	
 	public static SpawningResult spawn_app(AppItem app, bool treat_non_zero_exit_code_as_error=true) {
 		var mountset = Data.pnd_mountset();
-		bool already_mounted = mountset.is_mounted(app.package_id);
+		bool already_mounted = mountset.is_mounted(app);
 		if (already_mounted == false)
-			return spawn_app_wrapper(app.get_fullpath(), app.appdata_dirname ?? app.id, app.exec_command, app.startdir, app.exec_arguments, app.clockspeed, treat_non_zero_exit_code_as_error);
+			return spawn_app_wrapper(app.get_fullpath(), app.mount_id, app.exec_command, app.startdir, app.exec_arguments, app.clockspeed, treat_non_zero_exit_code_as_error);
 		
-		var working_directory = mountset.get_mounted_path(app.package_id);
+		var working_directory = mountset.get_mounted_path(app);
 		if (app.startdir != null && app.startdir.strip() != "")
 			working_directory = Path.build_filename(working_directory, app.startdir);
 			
@@ -126,8 +126,6 @@ public class Spawning
 		if (app == null)
 			return new SpawningResult.error("No pnd app found for program '%s'.".printf(program.name));		
 		
-		string unique_id = app.id;
-		string appdata_dirname = app.appdata_dirname;
 		string command = app.exec_command;
 		string startdir = app.startdir;
 		uint clockspeed = program.get_clockspeed(program_settings);			
@@ -147,24 +145,23 @@ public class Spawning
 			return new SpawningResult.error("No command specified for program '%s'.".printf(program.name));
 
 		if (has_custom_command == false && premount == false) // run the pnd without premount
-			return spawn_app_wrapper(app.get_fullpath(), appdata_dirname ?? unique_id, command, startdir, args, clockspeed);
+			return spawn_app_wrapper(app.get_fullpath(), app.mount_id, command, startdir, args, clockspeed);
 
 		// mount the pnd
 		var mountset = Data.pnd_mountset();
-		bool already_mounted = mountset.is_mounted(app.package_id);
-		if (already_mounted == false && mountset.mount(unique_id, app.package_id) == false)
-			return new SpawningResult.error("Unable to mount pnd for id '%s'.".printf(unique_id));
-		string mount_id = mountset.get_mount_id(app.package_id);
+		bool already_mounted = mountset.is_mounted(app);
+		if (already_mounted == false && mountset.mount(app) == false)
+			return new SpawningResult.error("Unable to mount app '%s' with id '%s'.".printf(app.title, app.mount_id));
 
 		// ensure custom_command script, if specified
 		if (has_custom_command == true) {
 			command = custom_command ?? get_custom_command_script_name(app);
-			string appdata_path = mountset.get_appdata_path(app.package_id);
+			string appdata_path = mountset.get_mounted_appdata_path(app);
 			if (appdata_path == null)
-				return new SpawningResult.error("appdata path not found for '%s'".printf(mount_id));
+				return new SpawningResult.error("appdata path not found for '%s'".printf(app.mount_id));
 			else if (FileUtils.test(appdata_path, FileTest.EXISTS) == false)
 				return new SpawningResult.error("appdata path does not exist: %s".printf(appdata_path));
-			
+						
 			string custom_path = appdata_path + command;
 			if (already_mounted == false || FileUtils.test(custom_path, FileTest.EXISTS) == false) {
 				try {
@@ -177,7 +174,7 @@ public class Spawning
 			}
 		}
 		// run the pnd
-		var working_directory = mountset.get_mounted_path(app.package_id);
+		var working_directory = mountset.get_mounted_path(app);
 		if (has_custom_command == false && startdir != null && startdir.strip() != "")
 			working_directory = Path.build_filename(working_directory, startdir);
 		

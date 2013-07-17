@@ -114,9 +114,7 @@ pandafe_SOURCES = \
 	Fields/PlatformFolderListField.vala \
 	Fields/PlatformListField.vala \
 	Fields/PlatformNodeListField.vala \
-	Fields/PndAppField.vala \
 	Fields/PndCategoryField.vala \
-	Fields/PndSelectionField.vala \
 	Fields/ProgramAppIdField.vala \
 	Fields/ProgramDefaultSettingsField.vala \
 	Fields/ProgramField.vala \

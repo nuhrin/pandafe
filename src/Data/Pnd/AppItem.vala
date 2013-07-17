@@ -74,6 +74,13 @@ namespace Data.Pnd
 			ensure_pnd();
 			return pnd.get_fullpath();
 		}
+		public unowned string mount_id { 
+			get { 
+				if (appdata_dirname != null)
+					return appdata_dirname;
+				return id; 				 
+			}
+		}
 
 		public string subcategory_display_name { 
 			get { 

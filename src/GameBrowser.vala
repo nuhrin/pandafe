@@ -74,9 +74,9 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		pp.platform_folders_changed.connect(() => platform_folders_changed());
 		pp.platform_folder_scanned.connect((f) => game_folder_scanned(f));
 		var mountset = Data.pnd_mountset();
-		mountset.pnd_mounting.connect((name) => {if (@interface.peek_layer() == null) status_message.right = "Mounting '%s'...".printf(name);});
-		mountset.pnd_mounted.connect((name) => {if (@interface.peek_layer() == null) status_message.right = "";});
-		mountset.pnd_unmounting.connect((name) => {if (@interface.peek_layer() == null) status_message.right = "Unmounting '%s'...".printf(name);});
+		mountset.app_mounting.connect((mount_id) => {if (@interface.peek_layer() == null) status_message.right = "Mounting '%s'...".printf(mount_id);});
+		mountset.app_mounted.connect((mount_id) => {if (@interface.peek_layer() == null) status_message.right = "";});
+		mountset.app_unmounting.connect((mount_id) => {if (@interface.peek_layer() == null) status_message.right = "Unmounting '%s'...".printf(mount_id);});
 
 		@interface.push_screen_layer(this, false);
 		initialize_from_browser_state();

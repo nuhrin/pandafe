@@ -34,6 +34,7 @@ namespace Data.Pnd
 		DataInterface data_interface;
 		ArrayList<PndItem> pnd_list;
 		HashMap<string, PndItem> pnd_id_hash;
+		HashMap<string, PndItem> pnd_path_hash;
 		HashMap<string, AppItem> app_id_hash;
 		HashMap<string, ArrayList<PndItem>> app_id_pnd_list_hash;
 		ArrayList<string> main_category_name_list;
@@ -67,6 +68,7 @@ namespace Data.Pnd
 		}
 		void reload_from_cache(PndCache cache) {
 			pnd_list = new ArrayList<PndItem>();
+			pnd_path_hash = new HashMap<string, PndItem>();
 			pnd_id_hash = new HashMap<string, PndItem>();
 			app_id_hash = new HashMap<string, AppItem>();
 			app_id_pnd_list_hash = new HashMap<string, ArrayList<PndItem>>();
@@ -76,6 +78,7 @@ namespace Data.Pnd
 
 			foreach(var pnd in cache.pnd_list) {
 				pnd_list.add(pnd);
+				pnd_path_hash[pnd.get_fullpath()] = pnd;
 				pnd_id_hash[pnd.pnd_id] = pnd;
 				foreach(var app in pnd.apps) {
 					if (app_id_pnd_list_hash.has_key(app.id) == false)
@@ -96,28 +99,24 @@ namespace Data.Pnd
 				return null;
 			return new PndItem.from_pnd(pnd);
 		}
-		public PndItem? get_pnd(string id) {
+		public PndItem? get_pnd(string pnd_path) {
+			if (pnd_path_hash.has_key(pnd_path) == true)
+				return pnd_path_hash[pnd_path];
+
+			return null;
+		}
+		public PndItem? get_pnd_by_id(string id) {
 			if (pnd_id_hash.has_key(id) == true)
 				return pnd_id_hash[id];
 
 			return null;
 		}
-		public Enumerable<AppItem> get_pnd_apps(string pnd_id) {
-			var pnd = get_pnd(pnd_id);
-			if (pnd != null)
-				return pnd.apps;
-			return Enumerable.empty<AppItem>();
-		}
-		public AppItem? get_app(string id, string? pnd_id=null, AppIdType id_type=AppIdType.EXACT) {
+		
+		public AppItem? get_app(string id, AppIdType id_type=AppIdType.EXACT) {
 			if (id == "")
 				return null;
-			PndItem? pnd = null;
-			if (pnd_id != null)
-				pnd = get_pnd(pnd_id);
 				
 			if (id_type == AppIdType.EXACT) {
-				if (pnd != null)
-					return pnd.get_app(id);
 				if (app_id_hash.has_key(id) == true)
 					return app_id_hash[id];
 				return null;
@@ -132,11 +131,7 @@ namespace Data.Pnd
 				}
 			}
 			
-			Enumerable<AppItem> apps = (pnd != null)
-				? pnd.apps
-				: new Enumerable<AppItem>(app_id_hash.values);
-									
-			foreach(var app in apps) {
+			foreach(var app in app_id_hash.values) {
 				if (regex != null) {
 					if (regex.match(app.id) == true)
 						return app;

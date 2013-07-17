@@ -52,7 +52,7 @@ public class NativePlatform : Platform
 		var pnd = Data.pnd_data().get_pnd(ids[0]);
 		if (pnd == null)
 			return null;
-		return pnd.apps.where(a=>a.id == ids[1]).first();				
+		return pnd.get_app(ids[1]);
 	}
 	public override Program? get_program_for_game(GameItem game) { return null; }
 	public override Program? get_program(string? program_id=null) { return null; }
@@ -153,7 +153,7 @@ public class NativePlatform : Platform
 			foreach(var app in category.apps) {
 				if (excluded_hash.contains(app.id) == true)
 					continue;
-				GameItem game = GameItem.create(app.title, this, folder, "%s|%s".printf(app.package_id, app.id));
+				GameItem game = GameItem.create(app.title, this, folder, "%s|%s".printf(app.get_fullpath(), app.id));
 				if (title_game_hash.has_key(app.title) == true) {
 					var old_game_item = title_game_hash[app.title];
 					if (old_game_item != null) {

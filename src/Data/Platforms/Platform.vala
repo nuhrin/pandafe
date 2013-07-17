@@ -159,7 +159,7 @@ public abstract class Platform : NamedEntity, MenuObject
 	const string CACHE_FILENAME = "everything";
 	public void update_cache_for_folder(GameFolder folder, string? new_selection_id) {
 		save_cache(this.get_root_folder().all_games().to_list(), new_selection_id);
-
+		Data.platforms().platform_rescanned(this, new_selection_id);
 	}
 	bool load_cache(out Gee.List<GameItem> games) {
 		games = null;
@@ -186,7 +186,7 @@ public abstract class Platform : NamedEntity, MenuObject
 				var name = parts[2];
 				if (parts[0] == "f") {
 					// folder
-					if (key == "r") {
+					if (key == "p") {
 						folder = this.get_root_folder();
 						hash[hash.size.to_string()] = folder;
 						continue;
@@ -227,13 +227,15 @@ public abstract class Platform : NamedEntity, MenuObject
 			var sb = new StringBuilder();
 			var hash = new HashMap<GameFolder,string>();
 			
+			if (games.size == 0)
+				add_folder_line("p", this.id, sb);
+			
 			foreach(var game in games) {
 				ensure_folder_store(game.parent, hash, sb);
 				game.add_cache_line(sb, hash[game.parent]);
 			}
 			if (FileUtils.set_contents(Path.build_filename(RuntimeEnvironment.user_config_dir(), GameFolder.CACHE_FOLDER_ROOT, this.id, CACHE_FILENAME), sb.str) == false)
-				throw new FileError.FAILED("unspecified error");
-			Data.platforms().platform_rescanned(this, new_selection_id);
+				throw new FileError.FAILED("unspecified error");			
 		} catch(Error e) {
 			warning("Error saving all games cache: %s", e.message);
 		}
@@ -244,7 +246,7 @@ public abstract class Platform : NamedEntity, MenuObject
 		
 		if (folder.parent == null) {
 			hash[folder] = hash.size.to_string();
-			add_folder_line("r", folder.platform.id, sb);
+			add_folder_line("p", folder.platform.id, sb);
 			return;
 		}
 		

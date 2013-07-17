@@ -314,15 +314,13 @@ namespace Fields
 			if (app == null)
 				return false;
 			
-			bool is_new_mount = (mountset.is_mounted(app.package_id) == false && 
-								 mountset.mount(app.id, app.package_id) == true);
-			
-			mounted_path = mountset.get_mounted_path(app.package_id);
+			bool is_new_mount = (mountset.is_mounted(app) == false && mountset.mount(app) == true);			
+			mounted_path = mountset.get_mounted_path(app);
 			if (mounted_path != null) {
-				mounted_id = app.package_id;
+				mounted_id = app.mount_id;
 				return true;
 			} else if (is_new_mount == true) {
-				mountset.unmount(app.package_id);				
+				mountset.unmount(app);
 			}
 			mounted_path = null;
 			mounted_id = null;
@@ -330,7 +328,7 @@ namespace Fields
 		}
 		void ensure_unmount() {
 			if (mounted_id != null) {
-				mountset.unmount(mounted_id);
+				mountset.unmount(app);
 				mounted_id = null;
 				mounted_path = null;
 				_stock = null;
