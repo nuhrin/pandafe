@@ -39,7 +39,7 @@ namespace Data.Pnd
 			this.app = app;
 			app_direct = app.read_direct_from_pnd();
 			app_ovr = app.get_ovr_file();
-			_title = app.title;
+			title = app.title;
 			clockspeed = app.clockspeed;
 			appdata = app.appdata_dirname;
 			main_category = app.main_category;

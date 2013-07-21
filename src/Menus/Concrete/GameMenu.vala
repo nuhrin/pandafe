@@ -71,20 +71,8 @@ namespace Menus.Concrete
 				items.add(new RomFileMenu(game, menu_data));
 				items.add(new MenuItemSeparator());
 			} else if (platform.platform_type == PlatformType.NATIVE) {
-				var ovr_item_index = items.size;
-				items.add(new MenuItem.custom("Edit OVR", "Edit override information (.ovr)", null, () => {
-					try {
-						var app = (platform as NativePlatform).get_game_app(game);
-						var app_override = new Data.Pnd.AppOverride(app);				
-						if (ObjectMenu.edit("App: " + app.id, app_override) == true) {
-							game.parent.rescan_children();
-							this.title = "Game: " + app.title;
-							refresh(ovr_item_index);
-						}
-					} catch(GLib.Error e) {
-						this.error(e.message);
-					}						
-				}));
+				items.add(new GameAppMenu(game, menu_data));
+				items.add(new MenuItemSeparator());
 			}
 			
 			if (platform.platform_type != PlatformType.PROGRAM && game.parent != null)
