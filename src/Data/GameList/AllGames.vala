@@ -184,8 +184,14 @@ namespace Data.GameList
 								continue;
 							folder = platform.get_root_folder();
 							folder_id_map[folder_index.to_string()] = folder;
-							if (is_uncategorized_category == true || is_root_category == true)
+							if (platform.platform_type == PlatformType.PROGRAM) {
+								if (is_root_category == true)
+									subcategory_set.add(folder.display_name());
+								else if (folder.display_name() == category_path)
+									category_folder_set.add(folder);								
+							} else if (is_uncategorized_category == true || is_root_category == true) {
 								category_folder_set.add(folder);
+							}
 							continue;
 						}
 						if (folder_id_map.has_key(key) == false)
