@@ -150,6 +150,7 @@ pandafe_SOURCES = \
 	Layers/Controls/UIntEntry.vala \
 	Layers/Controls/ValueSelector.vala \
 	Layers/Controls/ValueSelectorBase.vala \
+	Layers/GameBrowser/CategorySelectorOverlay.vala \
 	Layers/GameBrowser/HeaderLayer.vala \
 	Layers/GameBrowser/MenuOverlay.vala \
 	Layers/GameBrowser/PlatformSelectorOverlay.vala \
