@@ -34,7 +34,7 @@ namespace Data
 		internal const string ENTITY_ID = "preferences";
 		const string FALLBACK_ROM_SELECT_PATH = "/media/mmcblk0p1/pandora/roms";
 
-		public GameBrowserAppearance appearance { get; set; }
+		public Appearance appearance { get; set; }
 		public string? default_rom_select_path { get; set; }
 		public string? most_recent_rom_path { get; set; }
 		
@@ -51,27 +51,34 @@ namespace Data
 
 		protected override Yaml.Node build_yaml_node(Yaml.NodeBuilder builder) {
 			if (appearance == null)
-				appearance = new GameBrowserAppearance.default();
+				appearance = new Appearance.default();
 			
 			return base.build_yaml_node(builder);
 		}
 		protected override void apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
 			base.apply_yaml_node(node, parser);
 			if (appearance == null)
-				appearance = new GameBrowserAppearance.default();
+				appearance = new Appearance.default();
 		}
 		
 		// menu
 		protected void build_menu(MenuBuilder builder) {
-			appearance_field = new GameBrowserAppearanceField("appearance", "Appearance", "Configure font and colors.", "Game Browser Appearance", appearance, new Data.GameBrowserAppearance.default());
-			appearance_field.selection_changed.connect((appearance) => { 
-				@interface.game_browser_ui.set_appearance(appearance);
-				@interface.peek_layer().update();
+			appearance_field = new AppearanceField("appearance", "Appearance", "Configure font and colors", appearance);
+			appearance_field.game_browser_font_changed.connect((a) => @interface.game_browser_ui.update_fonts(a));
+			appearance_field.game_browser_color_changed.connect((a) => @interface.game_browser_ui.update_colors(a));
+			appearance_field.menu_font_changed.connect((a) => @interface.menu_ui.update_fonts(a));
+			appearance_field.menu_color_changed.connect((a) => @interface.menu_ui.update_colors(a));
+			appearance_field.appearance_changed.connect((a) => {
+				@interface.game_browser_ui.update_appearance(a.game_browser);
+				@interface.menu_ui.update_appearance(a.menu);
 			});
-			appearance_field.finished.connect(() => @interface.game_browser_ui.set_appearance(appearance_field.value));
-			builder.add_field(appearance_field);
+//~ 			appearance_field.menu_appearance_changed.connect((ma) => {
+//~ 				@interface.menu_ui.set_appearance(ma);
+//~ 				//@interface.peek_layer().update();
+//~ 			});
+			builder.add_field(appearance_field);			
 			var default_rom_path_field = builder.add_folder("default_rom_select_path", "Default Rom Path", "Used as starting path when selecting platform roms for the first time.", default_rom_select_path);
-			default_rom_path_field.changed.connect(() => refreshed(1));			
+			default_rom_path_field.changed.connect(() => refresh(1));			
 		}
 		protected bool save_object(Menus.Menu menu) {
 			if (default_rom_select_path != null)
@@ -80,10 +87,12 @@ namespace Data
 			return true;
 		}		
 		protected void release_fields(bool was_saved) {
-			if (appearance_field.has_changes() == true && was_saved == false)
-				@interface.game_browser_ui.set_appearance(appearance);
+ 			if (appearance_field.has_changes() == true && was_saved == false) {
+ 				@interface.game_browser_ui.update_appearance(appearance.game_browser);
+ 				@interface.menu_ui.update_appearance(appearance.menu);
+			}
 			appearance_field = null;
 		}		
-		GameBrowserAppearanceField appearance_field;
+		AppearanceField appearance_field;
 	}
 }

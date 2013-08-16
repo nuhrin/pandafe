@@ -29,9 +29,8 @@ namespace Layers.Controls
 {
 	public abstract class ValueSelectorBase<G> : Layers.Layer, EventHandler
 	{
+		Menus.MenuUI ui;
 		Surface surface;
-		unowned Font font;
-		int16 font_height;
 		int16 max_text_width;
 		int max_characters;
 		int16 window_height;
@@ -39,7 +38,6 @@ namespace Layers.Controls
 		int _width;
 		Surface blank_name_area;
 		Surface select_name_area;
-		int16 item_spacing;
 		int visible_items;
 		
 		ArrayList<G> items;
@@ -69,14 +67,12 @@ namespace Layers.Controls
 		}
 		ValueSelectorBase.internal(string id, int16 xpos, int16 ypos, int16 max_width) {
 			base(id);
+			ui = @interface.menu_ui;
 			this.xpos = xpos;
 			this.ypos = ypos;
 			max_height = (int16)@interface.screen_height / 2;
-			item_spacing = @interface.get_monospaced_font_item_spacing();
-			font = @interface.get_monospaced_font();
-			font_height = @interface.get_monospaced_font_height();
 			max_text_width = max_width - 8;
-			max_characters = max_text_width / @interface.get_monospaced_font_width(1);
+			max_characters = max_text_width / ui.font_width();
 			items = new ArrayList<G>();
 			draw_rectangle = true;
 			cancel_keys = new ArrayList<int>();
@@ -144,7 +140,7 @@ namespace Layers.Controls
 			process_events();
 			@interface.pop_layer();
 			
-			return _selected_index;
+			return _selected_index;	
 		}
 		public uint run_no_push() {
 			ensure_selection();
@@ -170,19 +166,26 @@ namespace Layers.Controls
 			if (surface == null)
 				return;
 			
-			// draw selector			
-			Rect dest_r = {xpos + 4, ypos + 5};
 			uint top_index;
 			uint bottom_index;
 			get_display_range(selected_index, out top_index, out bottom_index);
 			var items = (bottom_index - top_index) + 1;
-			var height = (int16)((font_height * items) + (item_spacing * items));
+			var height = (int16)((ui.font_height * items) + (ui.item_spacing * items) - ui.item_spacing);
 			Rect source_r = {0, get_offset(top_index), (int16)_width, height};
-			blit_surface(surface, source_r, dest_r);
-			
-			// draw rectangle
-			if (draw_rectangle)
-				draw_rectangle_outline(xpos, ypos, (int16)_width, height + 5, @interface.white_color);
+												
+			if (draw_rectangle){
+				var outer_width = (int16)_width + (ui.value_control_spacing * 2);
+				var outer_height = height + (ui.value_control_spacing * 2);
+				// draw padding rectangle
+				draw_rectangle_fill(xpos, ypos, outer_width, outer_height, ui.background_color);
+				// draw selector
+				blit_surface(surface, source_r, {xpos + ui.value_control_spacing, ypos + ui.value_control_spacing});
+				// draw border 			
+				draw_rectangle_outline(xpos, ypos, outer_width, outer_height, ui.item_color);
+			} else {
+				// draw selector
+				blit_surface(surface, source_r, {xpos, ypos});
+			}
 		}
 		
 		void on_keydown_event(KeyboardEvent event) {
@@ -305,18 +308,18 @@ namespace Layers.Controls
 			if (surface != null)
 				return;
 			update_selector_attributes();
-			surface = @interface.get_blank_surface(_width, _height);
+			surface = ui.get_blank_background_surface(_width, _height);
 
 			Rect rect = {0, 0};
 			for(int index=0; index < items.size; index++) {
 				render_item(index).blit(null, surface, rect);
-				rect.y = (int16)(rect.y + font_height + item_spacing);
+				rect.y = (int16)(rect.y + ui.font_height + ui.item_spacing);
 			}
 		}
 		void update_selector_attributes() {
-			int16 item_height = font_height + item_spacing;
+			int16 item_height = ui.font_height + ui.item_spacing;
 			int surface_items = items.size;
-			_height = (item_height * surface_items) + (item_spacing * 2);
+			_height = (item_height * surface_items);
 			
 			int max_name_chars = 0;
 			for(int index=0; index<items.size; index++) {
@@ -326,18 +329,17 @@ namespace Layers.Controls
 			}
 			if (max_name_chars < max_characters)
 				max_characters = max_name_chars;
-			int name_area_width = @interface.get_monospaced_font_width(max_characters);
-			_width = name_area_width + 8;//@interface.get_monospaced_font_width(2);
+			int name_area_width = ui.font_width(max_characters);
+			_width = name_area_width;
 
-			blank_name_area = @interface.get_blank_surface(name_area_width, font_height);
-			select_name_area = @interface.get_blank_surface(name_area_width, font_height);
-			select_name_area.fill(null, @interface.white_color_rgb);
+			blank_name_area = ui.get_blank_item_surface(name_area_width);
+			select_name_area = ui.get_blank_selected_item_surface(name_area_width);
 			
 			int screen_height = @interface.screen_height;
-			visible_items = (int)max_height / (font_height + item_spacing);
+			visible_items = (int)max_height / (ui.font_height + ui.item_spacing);
 			if (surface_items < visible_items)
 				visible_items = surface_items;				
-			window_height = (int16)(item_height * visible_items) + (item_spacing * 2);
+			window_height = (int16)(item_height * visible_items) + (ui.value_control_spacing * 2);
 
 			// reposition to keep selector on screen, if necessary
 			while (window_height + ypos > screen_height) {
@@ -352,16 +354,16 @@ namespace Layers.Controls
 		}
 
 		Surface render_item(int index) {
-			return font.render_shaded(get_display_name(index), @interface.white_color, @interface.black_color);
+			return ui.render_text(get_display_name(index));
 		}
 		void update_item_name(int index, bool selected=false) {
 			Rect rect = {0, get_offset(index)};
 			if (selected == true) {
 				select_name_area.blit(null, surface, rect);
-				font.render_shaded(get_display_name(index), @interface.black_color, @interface.white_color).blit(null, surface, rect);
+				ui.render_text_selected(get_display_name(index)).blit(null, surface, rect);
 			} else {
 				blank_name_area.blit(null, surface, rect);
-				font.render_shaded(get_display_name(index), @interface.white_color, @interface.black_color).blit(null, surface, rect);
+				ui.render_text(get_display_name(index)).blit(null, surface, rect);
 			}
 		}
 		string get_display_name(int index) {
@@ -371,7 +373,7 @@ namespace Layers.Controls
 			return name;
 		}
 		int16 get_offset(uint index) {
-			return (int16)((font_height * index) + (item_spacing * index));
+			return (int16)((ui.font_height * index) + (ui.item_spacing * index));
 		}
 		void get_display_range(uint center_index, out uint top_index, out uint bottom_index) {
 			int top = (int)center_index - (visible_items / 2);

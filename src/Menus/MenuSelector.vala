@@ -30,44 +30,43 @@ namespace Menus
 {
 	public class MenuSelector : Layers.Layer
 	{
+		MenuUI ui;
 		Menu _menu;
-		uint8 max_name_length;
-		uint8 max_value_length;
 		Surface surface;
-		unowned Font font;
-		int16 font_height;
 		int _height;
 		int _width;
-		uint8 max_name_length_real;
-		uint8 max_value_length_real;
-		int16 x_pos_value;
+		int16 max_height;
+		int16 max_width;
+		uint8 max_name_length;
+		uint8 max_value_length;
+		int16 value_x_pos;
 		string field_item_format;
 		string menu_item_format;
 		Surface blank_name_area;
 		Surface select_name_area;
 		Surface blank_value_area;
 
-		bool has_field;
 		int visible_items;
-		int16 item_spacing;
 		int index_before_select_first;
 		int index_before_select_last;
 		int first_enabled_index;
 		int last_enabled_index;
 		int enabled_item_count;
 
-		public MenuSelector(string id, int16 xpos, int16 ypos, Menu menu, int16 max_height, uint8 max_name_length, uint8 max_value_length) {
-			base(id);
+		public MenuSelector(string id, int16 xpos, int16 ypos, Menu menu, int16 max_height, int16 max_width, uint8 max_name_length=0) {
+			base(id);			
 			this.xpos = xpos;
 			this.ypos = ypos;
 			this._menu = menu;
+			this.max_height = max_height;
+			this.max_width = max_width;
 			this.max_name_length = max_name_length;
-			this.max_value_length = max_value_length;
-			font = @interface.get_monospaced_font();
-			font_height = @interface.get_monospaced_font_height();
-			item_spacing = @interface.get_monospaced_font_item_spacing();			
-			visible_items = @interface.get_monospaced_font_selector_visible_items(max_height);
+			
+			ui = @interface.menu_ui;
+			ui.colors_updated.connect(update_colors);
+			ui.appearance_updated.connect(update_colors);
 			ensure_surface();
+			
 			index_before_select_first = -1;
 			index_before_select_last = -1;
 			
@@ -81,7 +80,7 @@ namespace Menus
 			
 			menu.refreshed.connect((index) => refresh(index));
 			
-			wrap_selector = true;
+			wrap_selector = true;			
 		}
 		public unowned string menu_title { get { return _menu.title; } }
 		public Menu menu { get { return _menu; } }
@@ -97,6 +96,19 @@ namespace Menus
 		public uint selected_index { get; private set; }
 		public MenuItem selected_item() { return menu.item_at(selected_index); }
 
+		public Rect get_selected_item_rect() {
+			uint top_index;
+			uint bottom_index;
+			get_display_range(selected_index, out top_index, out bottom_index);
+			int16 offset = get_offset(selected_index);
+			if ((int)bottom_index > visible_items - 1)
+				offset = offset - get_offset(top_index);
+
+			Rect rect = {xpos - ui.item_spacing, ypos + offset - @ui.item_spacing};
+			rect.w = (int16)blank_name_area.w;
+			rect.h = (int16)blank_name_area.h;
+			return rect;
+		}
 		public Rect? get_selected_item_value_entry_rect() {
 			var field = selected_item() as MenuItemField;
 			if (field == null)
@@ -108,10 +120,20 @@ namespace Menus
 			if ((int)bottom_index > visible_items - 1)
 				offset = offset - get_offset(top_index);
 			
-			Rect rect = {xpos + x_pos_value - 4, ypos + offset - 5};
+			Rect rect = {xpos + value_x_pos - ui.value_control_spacing, ypos + offset - ui.value_control_spacing};
 			rect.w = (int16)blank_value_area.w;
 			rect.h = (int16)blank_value_area.h;
 			return rect;
+		}
+
+		public void recreate(int16 max_height) {
+			this.max_height = max_height;
+			surface = null;
+			ensure_surface();
+			select_item_no_update((int)selected_index);
+		}
+		void update_colors() {
+			surface = null;		
 		}
 
 		protected override void draw() {
@@ -122,9 +144,11 @@ namespace Menus
 			uint bottom_index;
 			get_display_range(selected_index, out top_index, out bottom_index);
 			var items = (bottom_index - top_index) + 1;
-			var height = (int16)((font_height * items) + (item_spacing * items));
+			var height = (int16)((ui.font_height * items) + (ui.item_spacing * items));
 			Rect source_r = {0, get_offset(top_index), (int16)_width, height};
 			blit_surface(surface, source_r, dest_r);
+			
+			draw_rectangle_outline(xpos, ypos, (int16)_width, (int16)_height, ui.item_color);
 		}
 
 		public void hide_selection(bool flip=true) {
@@ -267,13 +291,15 @@ namespace Menus
 		void ensure_surface() {
 			if (surface != null)
 				return;
+			if (selected_index >= menu.item_count)
+				selected_index = menu.item_count - 1;
 			update_selector_attributes();
-			surface = @interface.get_blank_surface(_width, _height);
+			surface = ui.get_blank_background_surface(_width, _height);
 			
 			first_enabled_index = -1;
 			last_enabled_index = -1;
 			enabled_item_count = 0;
-			Rect rect = {0, 0};
+			Rect rect = {ui.font_width(), 0};
 			for(uint index=0; index < item_count; index++) {
 				if (menu.item_enabled(index) == true) {
 					if (first_enabled_index == -1)
@@ -281,105 +307,154 @@ namespace Menus
 					last_enabled_index = (int)index;
 					enabled_item_count++;
 				}
+				
 				render_item(index).blit(null, surface, rect);
-				rect.y = (int16)(rect.y + font_height + item_spacing);
+				rect.y = (int16)(rect.y + ui.font_height + ui.item_spacing);
 			}
 		}
 		
 		void update_selector_attributes() {
 			int surface_items = (int)menu.item_count;
-			_height = (font_height * surface_items) + (item_spacing * surface_items) + (item_spacing * 2);
-
+			visible_items = ui.get_selector_visible_items(max_height);
+			_height = (ui.font_height * surface_items) + (ui.item_spacing * surface_items) + (ui.item_spacing * 2);
+			
 			int max_name_chars = 0;
-			int max_value_chars = 0;			
+			int max_value_chars = 0;		
+			bool has_field = false;
+			bool has_menu_item = false;
+			bool has_unlimited_value_field = false;
 			foreach(var item in menu.items()) {
 				if (item.name.length > max_name_chars)
 					max_name_chars = item.name.length;
+				if (item.is_menu_item()) {
+					has_menu_item = true;
+					continue;
+				}
 				var field = item as MenuItemField;
 				if (field != null) {
 					has_field = true;
-					if (max_value_chars == -1)
-						continue;
 					int field_value_max = field.get_minimum_menu_value_text_length();
 					if (field_value_max == -1)
-						max_value_chars = -1;
+						has_unlimited_value_field = true;
 					else if (field_value_max > max_value_chars)
 						max_value_chars = field_value_max;
 				}				
 			}
-			if (max_value_chars > 0)
-				max_value_chars++; // for line padding
 			if (max_name_chars > uint8.MAX)
 				max_name_chars = uint8.MAX;
 			if (max_value_chars > uint8.MAX)
-				max_value_chars = uint8.MAX;			
-			max_name_length_real = (max_name_chars < max_name_length) ? (uint8)max_name_chars : max_name_length;
-			max_value_length_real = (max_value_chars != -1 && max_value_chars < max_name_length) ? (uint8)max_value_chars : max_value_length;
-			int name_area_width = @interface.get_monospaced_font_width(max_name_length_real);
-			int value_area_width = @interface.get_monospaced_font_width(max_value_length_real);
-			x_pos_value = @interface.get_monospaced_font_width(max_name_length_real + 3); // +3 for " : " before value
-			_width = (has_field == false)
-				? @interface.get_monospaced_font_width(max_name_length_real + 2) // +2 for submenu " >"
-				: x_pos_value + value_area_width;
-
-			blank_name_area = @interface.get_blank_surface(name_area_width, font_height);
-			select_name_area = @interface.get_blank_surface(name_area_width, font_height);
-			select_name_area.fill(null, @interface.white_color_rgb);
-			blank_value_area = @interface.get_blank_surface(value_area_width, font_height);
-
-			field_item_format = "%-" + max_name_length_real.to_string() + "s : %s";
-			menu_item_format = "%-" + max_name_length_real.to_string() + "s >";
+				max_value_chars = uint8.MAX;
+			
+			if (max_name_length == 0 || max_name_chars < max_name_length)
+				max_name_length = (uint8)max_name_chars;
+			max_value_length = 0;
+			
+			uint8 max_total_length = (uint8)(max_width / ui.font_width());
+			
+			uint8 item_padding_length = 2; // spacing around name;
+			if (has_menu_item)
+				item_padding_length = 3; // for spacing plus ">" suffix
+			if (has_field)
+				item_padding_length = 4; // for spacing plus ": "
+			if (max_name_length + item_padding_length > max_total_length)
+				max_name_length = max_total_length - item_padding_length;
+			if (max_name_length < 0)
+				max_name_length = 3; // ensure room for at least 3 chars of name
+					
+			
+			if (has_field == false)  {
+				value_x_pos = -1;
+				blank_value_area = null;			
+				_width = ui.font_width(max_name_length + item_padding_length);
+			} else {
+				if (max_total_length < 10) {
+					// ensure room for " xxx : xxx" at minimum
+					max_width = ui.font_width(10);
+					max_name_length = 3;
+					max_total_length = 10;
+				}
+				value_x_pos = ui.font_width(max_name_length + item_padding_length);
+				max_value_length = (uint8)((max_width - value_x_pos) / ui.font_width());
+				if ((has_unlimited_value_field == true && max_value_chars > max_value_length) ||
+				    (has_unlimited_value_field == false && max_value_chars < max_value_length))
+					max_value_length = (uint8)max_value_chars;
+				if (max_value_length < 3 && max_value_length != max_value_chars) {
+					// ensure at least 3 chars of value (unless less are requested)
+					max_name_length = max_name_length - (3 - max_value_length);
+					value_x_pos = ui.font_width(max_name_length + item_padding_length);
+					max_value_length = 3; 
+				}
+				while(max_name_length + item_padding_length + max_value_length > max_total_length) {
+					if (max_value_length > max_name_length && max_value_length > 3) {
+						max_value_length--;						
+					} else {
+						max_name_length--;
+						value_x_pos = ui.font_width(max_name_length + item_padding_length);
+					}
+				}
+				int value_area_width = ui.font_width(max_value_length + 1); // +1 for padding
+				blank_value_area = ui.get_blank_item_surface(value_area_width);
+				_width = value_x_pos + value_area_width;
+			}
+			
+			int name_area_width = ui.font_width(max_name_length + 2); // +2 for padding			
+			blank_name_area = ui.get_blank_item_surface(name_area_width);
+			select_name_area = ui.get_blank_selected_item_surface(name_area_width);
+			field_item_format = "%-" + max_name_length.to_string() + "s : %s";
+			menu_item_format = "%-" + max_name_length.to_string() + "s >";
 		}
 
 		Surface render_item(uint index) {
 			var item = menu.item_at(index);
-			unowned SDL.Color render_color = get_render_color(item);
+			
 			var text = item.name;
 			if (item.name.strip() == "")
 				text = " ";
+			if (text.length > max_name_length)
+				text = text.substring(0, max_name_length);
 			if (item.is_menu_item())
-				return font.render_shaded(menu_item_format.printf(text), render_color, @interface.black_color);
-			var field = item as MenuItemField;
-			if (field != null)
-				return font.render_shaded(field_item_format.printf(text, field.get_value_text()), @render_color, @interface.black_color);
+				text = menu_item_format.printf(text);
+			else {
+				var field = item as MenuItemField;
+				if (field != null && (field is MenuItemFieldSeparator) == false) {
+					var val = field.get_value_text();
+					if (val.length > max_value_length)
+						val = val.substring(0, max_value_length);
+					text = field_item_format.printf(text, val);
+				}
+			}
 			
-			return font.render_shaded(text, render_color, @interface.black_color);
+			return ui.render_text(text, item.enabled);
 		}
 		void update_item_name(uint index, bool selected=false) {
 			Rect rect = {0, get_offset(index)};
 			var item = menu.item_at(index);
-			unowned SDL.Color render_color = get_render_color(item, selected);
+			var name = item.name;
+			if (name.length > max_name_length)
+				name = name.substring(0, max_name_length);
 			if (selected == true) {
 				select_name_area.blit(null, surface, rect);
-				font.render_shaded(item.name, render_color, @interface.white_color).blit(null, surface, rect);
+				rect.x += ui.font_width();
+				ui.render_text_selected(name).blit(null, surface, rect);
 			} else {
 				blank_name_area.blit(null, surface, rect);
-				font.render_shaded(item.name, render_color, @interface.black_color).blit(null, surface, rect);
+				rect.x += ui.font_width();
+				ui.render_text(name, item.enabled).blit(null, surface, rect);
 			}
 		}
 		void update_item_value(uint index) {
 			var field = menu.field_at(index);
 			if (field == null)
 				return;
-			Rect rect = {x_pos_value, get_offset(index)};
+			var val = field.get_value_text();
+			if (val.length > max_value_length)
+				val = val.substring(0, max_value_length);
+			Rect rect = {value_x_pos, get_offset(index)};
 			blank_value_area.blit(null, surface, rect);
-			Surface? value_surface = field.get_value_rendering(font);
-			if (value_surface == null)
-				value_surface = font.render_shaded(field.get_value_text(), get_render_color(field), @interface.black_color);
-			value_surface.blit(null, surface, rect);
-		}
-		unowned SDL.Color get_render_color(MenuItem item, bool selected=false) {
-			if (item.enabled == true) {
-				if (selected == false)
-					return @interface.white_color;
-				else
-					return @interface.black_color;
-			} else {
-				return @interface.grey_color;
-			}
+			ui.render_text(val, field.enabled).blit(null, surface, rect);
 		}
 		int16 get_offset(uint index) {
-			return (int16)((font_height * index) + (item_spacing * index));
+			return (int16)((ui.font_height * index) + (ui.item_spacing * index));
 		}
 		void get_display_range(uint center_index, out uint top_index, out uint bottom_index) {
 			int top = (int)center_index - (visible_items / 2);

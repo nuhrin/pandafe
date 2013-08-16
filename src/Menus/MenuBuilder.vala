@@ -56,6 +56,8 @@ namespace Menus
 			_fields.add(field);
 			return field;
 		}
+		public void add_separator() { add_field(new MenuItemFieldSeparator()); }
+		
 		public BooleanField add_bool(string id, string name, string? help=null, bool value=false, string true_value="true", string false_value="false") {
 			return (BooleanField)add_field(new BooleanField(id, name, help, value, true_value, false_value));
 		}

@@ -33,10 +33,10 @@ namespace Layers.GameBrowser
 		string? _center;
 		string? _right;
 				
-		public HeaderLayer(string id, int16 ypos=20, GameBrowserUI? ui=null) {
-			GameBrowserUI resolved_ui = (GameBrowserUI)ui ?? @interface.game_browser_ui;
-			base(id, 760, resolved_ui.font_height, 20, ypos, resolved_ui.background_color_rgb);
-			this.ui = resolved_ui;			
+		public HeaderLayer(string id, int16 ypos=20) {
+			var ui = @interface.game_browser_ui;
+			base(id, 760, ui.font_height, 20, ypos, ui.background_color_rgb);
+			this.ui = @interface.game_browser_ui;
 		}
 
 		public string? left {

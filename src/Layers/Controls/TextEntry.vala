@@ -31,9 +31,8 @@ namespace Layers.Controls
 	{
 		const string DEFAULT_CHARACTER_MASK = "[[:alnum:][:punct:] ]";
 		
+		Menus.MenuUI ui;
 		Surface blank_textarea;
-		unowned Font font;
-		int16 font_height;
 		int16 x;
 		int16 y;
 		int16 max_text_width;
@@ -51,24 +50,24 @@ namespace Layers.Controls
 		bool _error_thrown;
 		
 		public TextEntry(string id, int16 x, int16 y, int16 width, string? value=null, string? character_mask_regex=null, string? value_mask_regex=null) {
-			base(id, width, @interface.get_monospaced_font_height() + 10, x, y);
-			font = @interface.get_monospaced_font();
-			font_height = @interface.get_monospaced_font_height();
+			var ui = @interface.menu_ui;
+			base(id, width, ui.font_height + (ui.value_control_spacing * 2), x, y, ui.background_color_rgb);
+			this.ui = ui;
 			this.x = x;
 			this.y = y;
-			blank_textarea = @interface.get_blank_surface(width - 6, font_height + 6);
-			max_text_width = width - 8;
-			char_width = (int16)font.render_shaded(" ", @interface.black_color, @interface.black_color).w;
+			blank_textarea = ui.get_blank_background_surface(width - ui.value_control_spacing, ui.font_height + ui.value_control_spacing);
+			max_text_width = width - (ui.value_control_spacing * 2);
+			char_width = ui.font_width();
 			max_characters = max_text_width / char_width;
-			cursor_y = 5 + (font_height / 3) * 2;
-			cursor_height = font_height / 3;
+			cursor_y = ui.value_control_spacing + (ui.font_height / 3) * 2;
+			cursor_height = ui.font_height / 3;
 			cursor_pos = (value != null) ? value.length : 0;
 			
 			initialize_character_mask_regex(character_mask_regex);
 			initialize_value_mask_regex(value_mask_regex);
 			
 			//this.text = value ?? "";
-			@interface.draw_rectangle_outline(0, 0, (int16)surface.w-2, (int16)surface.h-2, {255, 255, 255}, 255, surface);			
+			@interface.draw_rectangle_outline(0, 0, (int16)surface.w-1, (int16)surface.h-1, ui.item_color, 255, surface);			
 			set_text(value ?? "");
 			_is_valid_value = is_valid_value();
 			original_text = (has_valid_value) ? value : "";
@@ -268,12 +267,12 @@ namespace Layers.Controls
 			blank_textarea.blit(null, surface, textarea_rect);
 
 			// render text
-			Rect text_rect = {4, 5, max_text_width};
-			font.render_shaded(resolved_text, @interface.white_color, @interface.black_color).blit(null, surface, text_rect);
+			Rect text_rect = {ui.value_control_spacing, ui.value_control_spacing, max_text_width};
+			ui.render_text(resolved_text).blit(null, surface, text_rect);
 
 			// render cursor
-			int16 cursor_x = (int16)(relative_cursor_pos*char_width) + 4;
-			@interface.draw_rectangle_fill(cursor_x, cursor_y, char_width, cursor_height, @interface.highlight_color, 200, surface);
+			int16 cursor_x = (int16)(relative_cursor_pos*char_width) + ui.value_control_spacing;
+			@interface.draw_rectangle_fill(cursor_x, cursor_y, char_width, cursor_height, ui.text_cursor_color, 200, surface);
 
 			surface.flip();
 		}

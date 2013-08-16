@@ -129,7 +129,7 @@ namespace Menus
 		public signal void clear_error();
 		public signal void cancelled();
 		public signal void saved();
-		public signal void refreshed(uint selected_index);
+		public virtual signal void refreshed(uint selected_index) { }
 		public signal void finished();
 		
 		public bool validate() {
@@ -244,7 +244,10 @@ namespace Menus
 		public override bool is_menu_item() { return true; }
 
 		protected void field_connect(MenuItemField field, owned SignalConnect<MenuItemField> connect) {
-			_field_signal_handlers[field] = connect(field);	
+			field_connect_handler(field, connect(field));
+		}
+		protected void field_connect_handler(MenuItemField field, ulong handler) {
+			_field_signal_handlers[field] = handler;
 		}
 		protected void item_connect(MenuItem item, owned SignalConnect<MenuItem> connect) {
 			_field_signal_handlers[item] = connect(item);	

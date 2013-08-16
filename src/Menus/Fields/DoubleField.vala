@@ -83,7 +83,7 @@ namespace Menus.Fields
 					max_length = min_value_length;
 				if (max_length < 8)
 					max_length = 8;
-				int16 width = @interface.get_monospaced_font_width((uint)max_length + 2);
+				int16 width = @interface.menu_ui.font_width((uint)max_length + 2);
 				if (width > rect.w)
 					width = (int16)rect.w;
 				var entry = new DoubleEntry(id + "_entry", rect.x, rect.y, width, _value, min_value, max_value, step, precision);

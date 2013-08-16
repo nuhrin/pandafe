@@ -1,6 +1,6 @@
-/* MenuBrowserItem.vala
+/* MenuBrowserFieldItem.vala
  * 
- * Copyright (C) 2012 nuhrin
+ * Copyright (C) 2013 nuhrin
  * 
  * This file is part of Pandafe.
  * 
@@ -24,27 +24,40 @@
 using Gee;
 using SDL;
 
-namespace Menus
+namespace Menus.Fields
 {
-	public class MenuBrowserItem : SubMenuItem, MenuItem
-	{	
+	public class ObjectBrowserField : MenuItemField, SubMenuItem
+	{
+		Object _obj;
 		Menu _menu;
 		MenuItemActivationAction? activate_action;
 		ArrayList<ulong> handlers;
 		
-		public MenuBrowserItem(string name, string? help=null, Menu menu, owned MenuItemActivationAction? action=null) {
-			base(name, help);
-			set_menu(menu);
+		public ObjectBrowserField(string id, string name, string? title, string? help=null, Object obj, owned MenuItemActivationAction? action=null) {
+			base(id, name, help);
+			_obj = obj;
+			_menu = new ObjectMenu(title ?? name, null, obj);
 			this.activate_action = (owned)action;
-			handlers = new ArrayList<ulong>();
+			handlers = new ArrayList<ulong>();	
+		}
+		public new Object value {
+			owned get { return _obj; }
 		}
 		public Menu menu { get { return _menu; } }
-		public void set_menu(Menu menu) { _menu = menu; }		
 
 		public void on_activation() {
 			if (activate_action != null)
 				activate_action();
 		}
+
+		public override string get_value_text() { return ""; }
+		public override int get_minimum_menu_value_text_length() { return 0; }
+		
+		protected override Value get_field_value() { return _obj; }
+		protected override void set_field_value(Value value) { }
+		protected override bool has_value() { return true; }
+		protected override bool is_menu_item() { return true; }
+
 		
 		public override void activate(MenuSelector selector) { 
 			on_activation();
@@ -60,6 +73,5 @@ namespace Menus
 			handlers.clear();
 		}
 		
-		public override bool is_menu_item() { return true; }
 	}
 }

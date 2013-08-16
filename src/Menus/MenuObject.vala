@@ -54,6 +54,13 @@ namespace Menus
 		protected virtual void release_fields(bool was_saved) { }
 		internal void i_release_fields(bool was_saved) { release_fields(was_saved); }
 		
-		public virtual signal void refreshed(uint select_index) { }
+		protected void refresh(uint select_index) { i_refreshed(select_index); }
+		internal signal void i_refreshed(uint selected_index);
+		
+		protected void field_connect(MenuItemField field, owned SignalConnect<MenuItemField> connect) { i_field_connected(field, connect(field)); }
+		internal signal void i_field_connected(MenuItemField field, ulong handler);
+		
+		protected virtual bool suppress_default_actions() { return false; }
+		internal bool i_suppress_default_actions() { return suppress_default_actions(); }
 	}
 }

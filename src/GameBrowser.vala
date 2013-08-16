@@ -69,6 +69,10 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		
 		ui.colors_updated.connect(update_colors);
 		ui.font_updated.connect(update_font);
+		ui.appearance_updated.connect(() => {
+			update_colors();
+			update_font();
+		});
 		var pp = Data.platforms();
 		pp.platform_rescanned.connect((p) => platform_rescanned(p));
 		pp.platform_folders_changed.connect(() => platform_folders_changed());
@@ -115,6 +119,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		status_message = new StatusMessageLayer("status-message");
 		replace_layer(status_message.id, status_message);
 		update_selector_ypos();
+		update(false);
 	}
 	void update_selector_ypos() {		
 		selector_ypos = header.ypos + (int16)header.height + (int16)(ui.font_height * 1.3);
@@ -774,7 +779,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 	void filter_selector() {		
 		status_message.set();
 	
-		var font_height = @interface.get_monospaced_font_height();
+		var font_height = @interface.menu_ui.font_height;
 		if (ui.font_height > font_height)
 			font_height = ui.font_height;			
 		int16 entry_ypos = (int16)(@interface.screen_height - font_height - 10);

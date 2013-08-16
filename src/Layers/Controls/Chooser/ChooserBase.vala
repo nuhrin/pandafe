@@ -34,6 +34,7 @@ namespace Layers.Controls.Chooser
 		const int16 SELECTOR_XPOS = 100;
 		const int16 SELECTOR_YPOS = 70;
 
+		Menus.MenuUI ui;
 		HashMap<string, ChooserSelector> selector_hash;
 		int16 selector_ypos;
 		int16 selector_max_height;
@@ -43,11 +44,12 @@ namespace Layers.Controls.Chooser
 
 		protected ChooserBase(string id, string title) {
 			base(id, @interface.game_browser_ui.background_color_rgb);
+			ui = @interface.menu_ui;
 			selector_hash = new HashMap<string, ChooserSelector>();
 			header = add_layer(new ChooserHeader("header")) as ChooserHeader;
 			header.title = title;
 			status = add_layer(new MenuMessageLayer("status")) as MenuMessageLayer;	
-			selector_ypos = (int16)(header.ypos + header.height + @interface.get_monospaced_font_height());
+			selector_ypos = (int16)(header.ypos + header.height + ui.font_height);
 			selector_max_height = (int16)status.ypos - selector_ypos;
 		}
 
@@ -79,12 +81,12 @@ namespace Layers.Controls.Chooser
 			Rect lower_right={upper_right.x, lower_left.y};
 			int16 width = upper_right.x - upper_left.x;
 			int16 height = lower_left.y - upper_left.y - 1;
-			draw_rectangle_fill(upper_left.x, upper_left.y, width, height, @interface.black_color);
+			draw_rectangle_fill(upper_left.x, upper_left.y, width, height, ui.background_color);
 			
-			draw_horizontal_line(upper_left.x, upper_right.x, upper_left.y, @interface.white_color);
-			draw_vertical_line(upper_left.x, upper_left.y, lower_left.y, @interface.white_color);
-			draw_vertical_line(upper_right.x, upper_right.y, lower_left.y, @interface.white_color);
-			draw_horizontal_line(lower_left.x, lower_right.x, lower_left.y, @interface.white_color);			
+			draw_horizontal_line(upper_left.x, upper_right.x, upper_left.y, ui.item_color);
+			draw_vertical_line(upper_left.x, upper_left.y, lower_left.y, ui.item_color);
+			draw_vertical_line(upper_right.x, upper_right.y, lower_left.y, ui.item_color);
+			draw_horizontal_line(lower_left.x, lower_right.x, lower_left.y, ui.item_color);			
 		}
 		
 		protected virtual string get_first_run_key(string starting_key) { return starting_key; }

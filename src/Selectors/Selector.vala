@@ -39,9 +39,9 @@ public abstract class Selector : Layers.Layer
 	Gee.List<int> _filter_match_indexes;
 	HashMap<int,int> _filter_index_position_hash;
 	
-	protected Selector(string id, int16 xpos, int16 ypos, int16 ymax, GameBrowserUI? ui=null) {
+	protected Selector(string id, int16 xpos, int16 ypos, int16 ymax) {
 		base(id);
-		this.ui = ui ?? @interface.game_browser_ui;
+		this.ui = @interface.game_browser_ui;
 		this.xpos = xpos;
 		this.ypos = ypos;
 		this.ymax = ymax;
@@ -50,7 +50,8 @@ public abstract class Selector : Layers.Layer
 		index_before_select_last = -1;
 		update_font();
 		this.ui.font_updated.connect(update_font);
-		this.ui.colors_updated.connect(reset_surface);		
+		this.ui.colors_updated.connect(reset_surface);
+		this.ui.appearance_updated.connect(update_font);
 	}
 	
 	public int16 xpos { get; set; }
@@ -60,7 +61,7 @@ public abstract class Selector : Layers.Layer
 	SelectorItemSet items {
 		get {
 			if (_items == null)
-				_items = new SelectorItemSet(this, ui);			
+				_items = new SelectorItemSet(this);
 
 			return _items;
 		}

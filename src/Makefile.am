@@ -36,11 +36,15 @@ pandafe_SOURCES = \
 	Utility.vala \
 	Data/Color.vala \
 	Data/Favorites.vala \
-	Data/GameBrowserAppearance.vala \
 	Data/GameBrowserState.vala \
 	Data/GameBrowserViewData.vala \
 	Data/GameSettings.vala \
 	Data/GamesRunList.vala \
+	Data/Appearances/Appearance.vala \
+	Data/Appearances/AppearanceInfo.vala \
+	Data/Appearances/AppearanceProvider.vala \
+	Data/Appearances/GameBrowserAppearance.vala \
+	Data/Appearances/MenuAppearance.vala \
 	Data/GameList/AllGames.vala \
 	Data/GameList/GameFolder.vala \
 	Data/GameList/GameItem.vala \
@@ -77,10 +81,10 @@ pandafe_SOURCES = \
 	Data/Programs/ProgramProvider.vala \
 	Data/Programs/ProgramSettings.vala \
 	Data/Provider.vala \
+	Fields/AppearanceField.vala \
 	Fields/ColorField.vala \
 	Fields/ClockSpeedField.vala \
 	Fields/CustomCommandField.vala \
-	Fields/GameBrowserAppearanceField.vala \
 	Fields/GameSettingsListField.vala \
 	Fields/NativePlatformCategoryAppListField.vala \
 	Fields/NativePlatformCategoryListField.vala \
@@ -112,6 +116,7 @@ pandafe_SOURCES = \
 	Layers/Controls/List/ListItemActionType.vala \
 	Layers/Controls/List/ListItemSelector.vala \
 	Layers/Controls/List/StringListItem.vala \
+	Layers/Controls/DeletionConfirmation.vala \
 	Layers/Controls/DoubleEntry.vala \
 	Layers/Controls/FileChooser.vala \
 	Layers/Controls/FolderChooser.vala \
@@ -139,7 +144,6 @@ pandafe_SOURCES = \
 	Layers/SurfaceLayer.vala \
 	Menus/Concrete/ChangeViewMenu.vala \
 	Menus/Concrete/ExitMenu.vala \
-	Menus/Concrete/GameBrowserAppearanceMenu.vala \
 	Menus/Concrete/GameFolderMenu.vala \
 	Menus/Concrete/GameMenu.vala \
 	Menus/Concrete/GameSettingsMenu.vala \
@@ -158,12 +162,15 @@ pandafe_SOURCES = \
 	Menus/Fields/FolderField.vala \
 	Menus/Fields/IntegerField.vala \
 	Menus/Fields/ListField.vala \
+	Menus/Fields/ObjectBrowserField.vala \
 	Menus/Fields/ObjectField.vala \
 	Menus/Fields/MenuItemField.vala \
+	Menus/Fields/MenuItemFieldSeparator.vala \
 	Menus/Fields/StringField.vala \
 	Menus/Fields/StringListField.vala \
 	Menus/Fields/StringSelectionField.vala \
 	Menus/Fields/UIntField.vala \
+	Menus/Fields/ValueSelectionField.vala \
 	Menus/Menu.vala \
 	Menus/MenuBrowser.vala \
 	Menus/MenuBrowserItem.vala \
@@ -173,6 +180,7 @@ pandafe_SOURCES = \
 	Menus/MenuItemActionType.vala \
 	Menus/MenuObject.vala \
 	Menus/MenuSelector.vala \
+	Menus/MenuUI.vala \
 	Menus/ObjectBrowserItem.vala \
 	Menus/ObjectMenu.vala \
 	Menus/SubMenuItem.vala \

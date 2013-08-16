@@ -24,6 +24,7 @@
 using Gee;
 using Catapult;
 using Data;
+using Data.Appearances;
 using Data.GameList;
 using Data.Programs;
 using Data.Platforms;

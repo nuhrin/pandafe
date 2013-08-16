@@ -28,14 +28,15 @@ namespace Layers.MenuBrowser
 {
 	public class MenuHeaderLayer : SurfaceLayer
 	{
-		unowned Font font;
+		Menus.MenuUI ui;
 		string? _left;
 		string? _center;
 		string? _right;
 		
 		public MenuHeaderLayer(string id) {
-			base(id, 760, @interface.get_monospaced_font_height() + 10, 20, 15);
-			font = @interface.get_monospaced_font();
+			var ui = @interface.menu_ui;
+			base(id, 760, ui.font_height + 10, 20, 15, ui.background_color_rgb);
+			this.ui = ui;
 		}
 
 		public string? left {
@@ -61,16 +62,16 @@ namespace Layers.MenuBrowser
 		protected override void draw() {
 			Rect rect = {0, 5};
 			if (_left != null && _left != "") {
-				blit_surface(font.render(_left, @interface.white_color), null, rect);
+				blit_surface(ui.render_text(_left), null, rect);
 			}
 			Surface rendered_text;		
 			if (_center != null && _center != "") {
-				rendered_text = font.render(_center, @interface.white_color);
+				rendered_text = ui.render_text(_center);
 				rect.x = (int16)(surface.w/2 - rendered_text.w/2);
 				blit_surface(rendered_text, null, rect);
 			}
 			if (_right != null && _right != "") {
-				rendered_text = font.render(_right, @interface.white_color);
+				rendered_text = ui.render_text(_right);
 				rect.x = (int16)(surface.w - rendered_text.w);
 				blit_surface(rendered_text, null, rect);
 			}		

@@ -31,6 +31,7 @@ namespace Layers.GameBrowser
 {
 	public class SelectorOverlay<G> : Layer
 	{
+		Menus.MenuUI ui;
 		const int SELECTOR_MIN_WIDTH = 150;
 		const int16 SELECTOR_YPOS = 95;
 		const string SELECTOR_ID = "selector_overlay_selector";
@@ -48,6 +49,7 @@ namespace Layers.GameBrowser
 		
 		public SelectorOverlay(string title, string? help, owned MapFunc<string, G> getItemName, Iterable<G>? items=null, uint selected_index=0) {
 			base("selector_overlay");
+			ui = @interface.menu_ui;
 			header = add_layer(new MenuHeaderLayer("header")) as MenuHeaderLayer;
 			header.set_text(null, title, null, false);
 			message = add_layer(new MenuMessageLayer("status")) as MenuMessageLayer;			
@@ -108,20 +110,20 @@ namespace Layers.GameBrowser
 			int16 box_left_x = selector.xpos - 20;
 			int16 width = (int16)@interface.screen_width - selector.xpos;
 			int16 height = (int16)(@interface.screen_height - header.height - message.height);
-			draw_rectangle_fill(box_left_x, 20, width, height, @interface.black_color);
+			draw_rectangle_fill(box_left_x, 20, width, height, ui.background_color);
 			
-			draw_horizontal_line(upper_left.x, upper_right.x, upper_left.y, @interface.white_color);
-			draw_vertical_line(upper_left.x, upper_left.y, header_bottom_y + 1, @interface.white_color);
-			draw_horizontal_line(upper_left.x, box_left_x, header_bottom_y + 1, @interface.white_color);
-			draw_vertical_line(box_left_x, header_bottom_y + 1, message.ypos - 1, @interface.white_color);
-			draw_vertical_line(upper_right.x, upper_right.y, lower_right.y, @interface.white_color);
-			draw_horizontal_line(lower_left.x, box_left_x, message.ypos - 1, @interface.white_color);
-			draw_vertical_line(lower_left.x, message.ypos - 1, lower_left.y, @interface.white_color);
-			draw_horizontal_line(lower_left.x, lower_right.x, lower_left.y, @interface.white_color);
+			draw_horizontal_line(upper_left.x, upper_right.x, upper_left.y, ui.item_color);
+			draw_vertical_line(upper_left.x, upper_left.y, header_bottom_y + 1, ui.item_color);
+			draw_horizontal_line(upper_left.x, box_left_x, header_bottom_y + 1, ui.item_color);
+			draw_vertical_line(box_left_x, header_bottom_y + 1, message.ypos - 1, ui.item_color);
+			draw_vertical_line(upper_right.x, upper_right.y, lower_right.y, ui.item_color);
+			draw_horizontal_line(lower_left.x, box_left_x, message.ypos - 1, ui.item_color);
+			draw_vertical_line(lower_left.x, message.ypos - 1, lower_left.y, ui.item_color);
+			draw_horizontal_line(lower_left.x, lower_right.x, lower_left.y, ui.item_color);
 		}
 		
 		ValueSelector<G> get_selector(owned MapFunc<string, G> getItemName, Iterable<G>? items=null, uint selected_index) {
-			int16 max_width = @interface.get_monospaced_font_width(MAX_NAME_LENGTH) + 8;
+			int16 max_width = ui.font_width(MAX_NAME_LENGTH) + 8;
 			var selector = new ValueSelector<G>(SELECTOR_ID, 0, 0, max_width, (owned)getItemName, items, selected_index);
 			selector.draw_rectangle = false;
 			selector.xpos = (int16)(@interface.screen_width - 75 - ((selector.width < SELECTOR_MIN_WIDTH) ? SELECTOR_MIN_WIDTH : selector.width));

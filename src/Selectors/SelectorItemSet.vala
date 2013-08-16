@@ -41,8 +41,8 @@ public class SelectorItemSet : Object
 	int first_rendered_item;
 	int last_rendered_item;
 		
-	public SelectorItemSet(Selector selector, GameBrowserUI? ui=null) {
-		this.ui = ui ?? @interface.game_browser_ui;
+	public SelectorItemSet(Selector selector) {
+		this.ui = @interface.game_browser_ui;
 		this.selector = selector;
 
 		flush_renderings();
@@ -70,6 +70,7 @@ public class SelectorItemSet : Object
 		@interface.connect_idle_function("selector_item_set", rendering_iteration);
 		ui.font_updated.connect(flush_renderings);
 		ui.colors_updated.connect(flush_renderings);
+		ui.appearance_updated.connect(flush_renderings);
 	}
 	~SelectorItemSet() {
 		@interface.disconnect_idle_function("selector_item_set");

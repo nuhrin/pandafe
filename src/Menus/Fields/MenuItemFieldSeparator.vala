@@ -1,6 +1,6 @@
-/* MenuItemSeparator.vala
+/* MenuItemFieldSeparator.vala
  * 
- * Copyright (C) 2012 nuhrin
+ * Copyright (C) 2013 nuhrin
  * 
  * This file is part of Pandafe.
  * 
@@ -23,17 +23,28 @@
 
 using SDL;
 
-namespace Menus
+namespace Menus.Fields
 {
-	public class MenuItemSeparator : MenuItem
+	public class MenuItemFieldSeparator : MenuItemField
 	{
-		public MenuItemSeparator() {
-			base("");
+		public MenuItemFieldSeparator() {
+			base("", "");
 		}
+		
+		public override string get_value_text() { return ""; }
+		public override int get_minimum_menu_value_text_length() { return 0; }
+		
+		public override bool handles_keydown_event(KeyboardEvent event) { return false; }
+		public override bool process_keydown_event(KeyboardEvent event) { return false; }
 		
 		public override void activate(MenuSelector selector) { }
 		
+		protected override Value get_field_value() { return ""; }
+		protected override void set_field_value(Value value) { }
+		protected override bool has_value() { return false; }		
+		
 		protected override bool is_initially_enabled() { return false; }
 		protected override bool can_change_enabled_state() { return false; }
+		
 	}
 }

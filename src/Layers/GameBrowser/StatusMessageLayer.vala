@@ -32,10 +32,10 @@ namespace Layers.GameBrowser
 		string? _center;
 		string? _right;
 		
-		public StatusMessageLayer(string id, GameBrowserUI? ui=null, int16 layer_height=480) {
-			GameBrowserUI resolved_ui = ui ?? @interface.game_browser_ui;
-			base(id, 780, resolved_ui.font_height, 10, layer_height - resolved_ui.font_height - 10, resolved_ui.background_color_rgb);
-			this.ui = resolved_ui;
+		public StatusMessageLayer(string id, int16 layer_height=480) {
+			var ui = @interface.game_browser_ui;
+			base(id, 780, ui.font_height, 10, layer_height - ui.font_height - 10, ui.background_color_rgb);
+			this.ui = ui;
 		}
 		
 		public string? left {

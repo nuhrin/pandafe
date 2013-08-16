@@ -28,15 +28,15 @@ namespace Layers.MenuBrowser
 {
 	public class MenuMessageLayer : SurfaceLayer
 	{
-		unowned Font font;
+		Menus.MenuUI ui;
 		string? _error;
 		string? _message;
 		string? _help;
 		
 		public MenuMessageLayer(string id, int16 layer_height=480) {
-			int16 font_height = @interface.get_monospaced_font_height();
-			base(id, 760, font_height + 10, 20, layer_height - font_height - 20);
-			font = @interface.get_monospaced_font();
+			var ui = @interface.menu_ui;
+			base(id, 760, ui.font_height + 10, 20, layer_height - ui.font_height - 20, ui.background_color_rgb);
+			this.ui = ui;
 		}
 		public bool centered { get; set; }
 
@@ -63,29 +63,34 @@ namespace Layers.MenuBrowser
 			_help = help;
 			update(flip);
 		}
+		public void set_text(string? error, string? message, string? help) {
+			_error = error;
+			_message = message;
+			_help = help;
+			update(false);
+		}
 		
 		protected override void draw() {
 			Rect rect = {35, 5};
 			Surface rendered = null;
 
 			if (_error != null && _error != "")
-				rendered = font.render(_error, @interface.white_color);
+				rendered = ui.render_text(_error);
 			else if (_message != null && _message != "")
-				rendered = font.render(_message, @interface.white_color);
+				rendered = ui.render_text(_message);
 			else if (_help != null && _help != "")
-				rendered = font.render(_help, @interface.white_color);
+				rendered = ui.render_text(_help);
 			
 			if (rendered == null)
 				return;
 			
 			if (rendered.w > width) {
-				unowned Font small_font = @interface.get_monospaced_small_font();
 				if (_error != null && _error != "")
-					rendered = small_font.render(_error, @interface.white_color);
+					rendered = ui.render_text_small(_error);
 				else if (_message != null && _message != "")
-					rendered = small_font.render(_message, @interface.white_color);
+					rendered = ui.render_text_small(_message);
 				else if (_help != null && _help != "")
-					rendered = small_font.render(_help, @interface.white_color);				
+					rendered = ui.render_text_small(_help);				
 			}
 			
 			if (centered == true)

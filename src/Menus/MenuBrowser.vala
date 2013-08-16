@@ -33,9 +33,9 @@ namespace Menus
 		const int16 SELECTOR_XPOS = 100;
 		const string SELECTOR_ID = "selector";
 
-		const uint8 MAX_NAME_LENGTH = 40;
-		const uint8 MAX_VALUE_LENGTH = 40;
+		const uint8 MAX_NAME_LENGTH = 30;
 
+		Menus.MenuUI ui;
 		MenuHeaderLayer header;
 		MenuMessageLayer message;
 		int16 selector_ypos;
@@ -48,10 +48,11 @@ namespace Menus
 			if (menu.item_count == 0)
 				GLib.error("Menu '%s' has no items.", menu.name);
 			base("menubrowser", @interface.game_browser_ui.background_color_rgb);
+			ui = @interface.menu_ui;
 			menu_stack = new GLib.Queue<MenuSelector>();
 			header = add_layer(new MenuHeaderLayer("header")) as MenuHeaderLayer;
 			message = add_layer(new MenuMessageLayer("status")) as MenuMessageLayer;
-			selector_ypos = header.ypos + (int16)header.height + @interface.get_monospaced_font_height();
+			selector_ypos = header.ypos + (int16)header.height + ui.font_height;
 			selector_max_height = message.ypos - selector_ypos;
 			selector = add_layer(get_selector(menu)) as MenuSelector;
 		}
@@ -86,17 +87,18 @@ namespace Menus
 			int16 header_bottom_y=header.ypos + (int16)header.height;
 			int16 width = upper_right.x - upper_left.x;
 			int16 height = lower_left.y - upper_left.y;
-			draw_rectangle_fill(upper_left.x, upper_left.y, width, height, @interface.black_color);
+			draw_rectangle_fill(upper_left.x, upper_left.y, width, height, ui.background_color);
 			
-			draw_horizontal_line(upper_left.x, upper_right.x, upper_left.y, @interface.white_color);
-			draw_horizontal_line(upper_left.x, upper_right.x, header_bottom_y + 1, @interface.white_color);
-			draw_vertical_line(upper_left.x, upper_left.y, lower_left.y, @interface.white_color);
-			draw_vertical_line(upper_right.x, upper_right.y, lower_left.y, @interface.white_color);
-			draw_horizontal_line(lower_left.x, lower_right.x, lower_left.y, @interface.white_color);			
+			draw_horizontal_line(upper_left.x, upper_right.x, upper_left.y, ui.item_color);
+			draw_horizontal_line(upper_left.x, upper_right.x, header_bottom_y + 1, ui.item_color);
+			draw_vertical_line(upper_left.x, upper_left.y, lower_left.y, ui.item_color);
+			draw_vertical_line(upper_right.x, upper_right.y, lower_left.y, ui.item_color);
+			draw_horizontal_line(lower_left.x, lower_right.x, lower_left.y, ui.item_color);			
 		}
 
 		MenuSelector get_selector(Menu menu) {
-			return new MenuSelector(SELECTOR_ID, SELECTOR_XPOS, selector_ypos, menu, selector_max_height, MAX_NAME_LENGTH, MAX_VALUE_LENGTH);			
+			int16 max_width = (int16)(header.xpos + header.width - SELECTOR_XPOS - ui.font_width());
+			return new MenuSelector(SELECTOR_ID, SELECTOR_XPOS, selector_ypos, menu, selector_max_height, max_width, MAX_NAME_LENGTH);			
 		}
 		void connect_selector_signals() {
 			selector_handlers.add(selector.changed.connect(() => on_selector_changed()));

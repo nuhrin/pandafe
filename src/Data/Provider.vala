@@ -33,6 +33,7 @@ namespace Data
 
 	public Data.Platforms.PlatformProvider platforms() { return Provider.instance().platform_provider; }
 	public Data.Programs.ProgramProvider programs() { return Provider.instance().program_provider; }
+	public Data.Appearances.AppearanceProvider appearances() { return Provider.instance().appearance_provider; }
 
 	public Preferences preferences() { return Provider.instance().get_preferences(); }
 	public bool save_preferences() { return Provider.instance().save_preferences(); }
@@ -79,6 +80,7 @@ namespace Data
 		public DataInterface data_interface { get; private set; }
 		public Data.Platforms.PlatformProvider platform_provider { get; private set; }
 		public Data.Programs.ProgramProvider program_provider { get; private set; }
+		public Data.Appearances.AppearanceProvider appearance_provider { get; private set; }
 		public Provider() {
 			try {
 				data_interface = new DataInterface(RuntimeEnvironment.user_config_dir());
@@ -89,8 +91,10 @@ namespace Data
 			try {				
 				program_provider = new Data.Programs.ProgramProvider(data_interface.root_folder);
 				platform_provider = new Data.Platforms.PlatformProvider(data_interface.root_folder, program_provider);				
+				appearance_provider = new Data.Appearances.AppearanceProvider(data_interface.root_folder);
 				data_interface.register_entity_provider<Platform>(platform_provider);
 				data_interface.register_entity_provider<Program>(program_provider);
+				data_interface.register_entity_provider<Appearance>(appearance_provider);
 			} catch(Error e) {
 				error("Unable to create ProgramProvider instance: %s", e.message);
 			}

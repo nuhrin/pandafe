@@ -28,15 +28,14 @@ namespace Layers.MenuBrowser
 {
 	public class ChooserHeader : SurfaceLayer
 	{
-		unowned Font font;
-		unowned Font font_small;
+		Menus.MenuUI ui;
 		string? _title;
 		string? _path;
 		
-		public ChooserHeader(string id) {			
-			base(id, 760, @interface.get_monospaced_font_height() + @interface.get_monospaced_small_font_height() + 25, 20, 15);
-			font = @interface.get_monospaced_font();
-			font_small = @interface.get_monospaced_small_font();
+		public ChooserHeader(string id) {
+			var ui = @interface.menu_ui;
+			base(id, 760, ui.font_height + ui.small_font_height + 25, 20, 15, ui.background_color_rgb);
+			this.ui = ui;
 		}
 
 		public string? title {
@@ -58,15 +57,15 @@ namespace Layers.MenuBrowser
 			Rect rect = {0, 5};			
 			Surface rendered_text;		
 			if (_title != null && _title != "") {
-				rendered_text = font.render(_title, @interface.white_color);
+				rendered_text = ui.render_text(_title);
 				rect.x = (int16)(surface.w/2 - rendered_text.w/2);
 				blit_surface(rendered_text, null, rect);
 			}
-			draw_horizontal_line(0, (int16)width, @interface.get_monospaced_font_height() + 11, @interface.white_color);
+			draw_horizontal_line(0, (int16)width, ui.font_height + 11, ui.item_color);
 			if (_path != null && _path != "") {
 				rect.x = 10;
-				rect.y += 20 + @interface.get_monospaced_font_height();
-				rendered_text = font_small.render(_path, @interface.white_color);
+				rect.y += 20 + ui.font_height;
+				rendered_text = ui.render_text_small(_path);
 				if (rendered_text.w > surface.w)
 					blit_surface(rendered_text, {(int16)(rendered_text.w - surface.w),0, (int16)surface.w, (int16)rendered_text.h}, rect);
 				else

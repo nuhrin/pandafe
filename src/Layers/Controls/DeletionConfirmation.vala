@@ -1,4 +1,4 @@
-/* MenuItemSeparator.vala
+/* DeletionConfirmation.vala
  * 
  * Copyright (C) 2012 nuhrin
  * 
@@ -21,19 +21,24 @@
  *      nuhrin <nuhrin@oceanic.to>
  */
 
-using SDL;
-
-namespace Menus
+namespace Layers.Controls
 {
-	public class MenuItemSeparator : MenuItem
+	public class DeleteConfirmation : StringSelector
 	{
-		public MenuItemSeparator() {
-			base("");
+		const string CANCEL_TEXT = ".. cancel";
+		const string CONFIRM_TEXT = "!! Confirm";
+		public DeleteConfirmation(string id, int16 xpos, int16 ypos)
+		{
+			base(id, xpos, ypos, 200);
+			for(int index=0;index<7;index++)
+				add_item(CANCEL_TEXT);
+			add_item(CONFIRM_TEXT);
+			add_item(CANCEL_TEXT);
+			add_item(CANCEL_TEXT);
 		}
-		
-		public override void activate(MenuSelector selector) { }
-		
-		protected override bool is_initially_enabled() { return false; }
-		protected override bool can_change_enabled_state() { return false; }
+		public new bool run(uchar screen_alpha=128, uint32 rgb_color=0) {
+			base.run(screen_alpha, rgb_color);
+			return (selected_item() == CONFIRM_TEXT);
+		}
 	}
 }

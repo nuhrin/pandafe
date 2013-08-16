@@ -1,6 +1,7 @@
-/* MenuItemSeparator.vala
+/*
+ * AppearanceInfo.vala
  * 
- * Copyright (C) 2012 nuhrin
+ * Copyright (C) 2013 nuhrin
  * 
  * This file is part of Pandafe.
  * 
@@ -21,19 +22,35 @@
  *      nuhrin <nuhrin@oceanic.to>
  */
 
-using SDL;
-
-namespace Menus
+namespace Data.Appearances
 {
-	public class MenuItemSeparator : MenuItem
+	public class AppearanceInfo
 	{
-		public MenuItemSeparator() {
-			base("");
+		public static AppearanceInfo default {
+			get {
+				if (_default == null)
+					_default = new AppearanceInfo("default", "(Default)");
+				return _default;
+			}
+		}
+		static AppearanceInfo _default;
+		
+		public AppearanceInfo(string id, string name, bool is_local=false) {
+			_id = id;
+			_name = name;
+			this.is_local = is_local;
 		}
 		
-		public override void activate(MenuSelector selector) { }
+		public unowned string id { get { return _id; } }
+		string _id;
 		
-		protected override bool is_initially_enabled() { return false; }
-		protected override bool can_change_enabled_state() { return false; }
+		public unowned string name { get { return _name; } }
+		string _name;	
+		
+		public bool is_local { get; private set; }
+		
+		public static int compare(AppearanceInfo a, AppearanceInfo b) {
+			return Utility.strcasecmp(a.name, b.name);
+		}
 	}
 }
