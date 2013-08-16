@@ -30,6 +30,7 @@ namespace Menus
 	public class MenuUI
 	{
 		const int MAX_SMALL_FONT_SIZE = 17;
+		const int MIN_SMALL_FONT_SIZE = 10;
 		Font _font;
 		Font _font_small;
 		string _font_path;
@@ -89,11 +90,14 @@ namespace Menus
 			appearance.update_ui_colors(this);
 			colors_updated();
 		}
-		public void set_fonts(string font_path, int font_size, int16 item_spacing) {
+		public void set_fonts(string font_path, int font_size, int16 item_spacing) {				
 			_font = new Font(font_path, font_size);
 			if (_font == null) {
 				GLib.error("Error loading font: %s", SDL.get_error());
 			}
+			if (font_path != _font_path)
+				_font_size_width_map = null;
+
 			_font_path = font_path;			
 			_font_size = font_size;
 			_font_height = (int16)_font.height();
@@ -109,7 +113,7 @@ namespace Menus
 			_item_spacing = item_spacing;
 			_value_control_spacing = item_spacing;
 			if (item_spacing < font_height / 2)
-				_value_control_spacing = font_height / 2;
+				_value_control_spacing = font_height / 2;				
 		}
 		public void set_colors(SDL.Color background, SDL.Color item, SDL.Color selected_item, SDL.Color selected_item_background, SDL.Color text_cursor) {
 			_background_color = background;
@@ -157,6 +161,42 @@ namespace Menus
 		public Surface render_text_selected(string text) {
 			return _font.render_shaded(text, _selected_item_color, _selected_item_background_color);
 		}
+		
+		public Surface render_text_to_fit(string text, int max_width) {
+			var surface = render_text(text);
+			if (surface.w <= max_width)
+				return surface;
+			
+			return get_font_for_text_fit(_font_size - 1, text.length, max_width).render_shaded(text, _item_color, _background_color);
+		}
+		
+		Font get_font_for_text_fit(int starting_font_size, int text_length, int max_width) {
+			int font_size = starting_font_size;
+			while (font_size > MIN_SMALL_FONT_SIZE && font_size_fits_text(font_size, text_length, max_width) == false) {
+				font_size--;
+			}
+			Font font = new Font(_font_path, font_size);
+			if (font == null)
+				GLib.error("Error loading font: %s", SDL.get_error());
+			return font;
+		}
+		bool font_size_fits_text(int font_size, int text_length, int max_width) {
+			return (max_width >= (get_font_size_width(font_size) * text_length));
+		}
+		int get_font_size_width(int font_size) {
+			if (_font_size_width_map == null)
+				_font_size_width_map = new Gee.HashMap<int,int>();
+			if (_font_size_width_map.has_key(font_size))
+				return _font_size_width_map[font_size];
+			
+			Font font = new Font(_font_path, font_size);
+			if (font == null)
+				GLib.error("Error loading font: %s", SDL.get_error());
+			var width = font.render_shaded(" ", _background_color, _background_color).w;
+			_font_size_width_map[font_size] = width;
+			return width;
+		}
+		Gee.HashMap<int,int> _font_size_width_map;
 	}
 	
 }

@@ -72,29 +72,25 @@ namespace Layers.MenuBrowser
 		
 		protected override void draw() {
 			Rect rect = {35, 5};
-			Surface rendered = null;
-
-			if (_error != null && _error != "")
-				rendered = ui.render_text(_error);
-			else if (_message != null && _message != "")
-				rendered = ui.render_text(_message);
-			else if (_help != null && _help != "")
-				rendered = ui.render_text(_help);
 			
-			if (rendered == null)
+			string? text = null;
+			
+			if (_error != null && _error != "")
+				text = _error;
+			else if (_message != null && _message != "")
+				text = _message;
+			else if (_help != null && _help != "")
+				text = _help;
+			
+			if (text == null)
 				return;
 			
-			if (rendered.w > width) {
-				if (_error != null && _error != "")
-					rendered = ui.render_text_small(_error);
-				else if (_message != null && _message != "")
-					rendered = ui.render_text_small(_message);
-				else if (_help != null && _help != "")
-					rendered = ui.render_text_small(_help);				
-			}
+			var rendered = ui.render_text_to_fit(text, width);			
 			
 			if (centered == true)
 				rect.x = (int16)(surface.w/2 - rendered.w/2);
+				
+			rect.y = (int16)(surface.h/2 - rendered.h/2);
 			
 			blit_surface(rendered, null, rect);
 		}		
