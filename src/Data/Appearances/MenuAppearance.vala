@@ -212,6 +212,12 @@ namespace Data.Appearances
 			
 		protected void build_menu(MenuBuilder builder) {
 			font_field = new FileField("font", "Font", null, "", "ttf", Path.build_filename(RuntimeEnvironment.system_data_dir(), "fonts"));
+			font_field.set_validator((font_path) => {
+				var font = new SDLTTF.Font(font_path, 12);
+				if (font == null || font.is_fixed_width() == 0)
+					return false;
+				return true;
+			}, "A monospaced font is required.");
 			//font_field.set_minimum_menu_value_text_length(15);
 			builder.add_field(font_field);
 			font_size_field = new IntegerField("font_size", "Font Size", null, DEFAULT_FONT_SIZE, MIN_FONT_SIZE, MAX_FONT_SIZE);

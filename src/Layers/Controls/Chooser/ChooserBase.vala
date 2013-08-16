@@ -107,6 +107,7 @@ namespace Layers.Controls.Chooser
 			new_selector.changed.connect(() => on_selector_changed());
 			new_selector.scanning.connect(() => on_selector_scanning());
 			new_selector.scanned.connect(() => on_selector_scanned());
+			new_selector.selection_changed.connect(() => clear_error());
 			selector_hash[key] = new_selector;
 			return new_selector;
 		}
@@ -223,12 +224,19 @@ namespace Layers.Controls.Chooser
 		//
 		// commands: misc
 		protected abstract bool process_activation(ChooserSelector selector);
+		protected virtual bool validate_activation(ChooserSelector selector, out string? error) { error = null; return false; }
 		protected abstract string get_selected_key(ChooserSelector selector);
 		protected abstract string get_parent_key(ChooserSelector selector);
 		protected abstract string get_parent_child_name(ChooserSelector selector);
 		
 		void activate_selected() {
 			selector.choose_selected_item_secondary_id();
+			
+			string? error;
+			if (validate_activation(selector, out error) == false) {
+				status.error = error;
+				return;
+			}
 			if (process_activation(selector) == true) {
 				quit_event_loop();
 				return;
@@ -243,6 +251,10 @@ namespace Layers.Controls.Chooser
 			clear();
 			update_chooser();
 			selector.select_first();
+		}
+		void clear_error() {
+			if (status.error != null)
+				status.error = null;
 		}
 
 		void go_back() {

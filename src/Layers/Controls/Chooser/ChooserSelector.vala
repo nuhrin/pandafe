@@ -86,6 +86,7 @@ namespace Layers.Controls.Chooser
 		
 		public virtual signal void scanning() { }
 		public virtual signal void scanned() { }
+		public signal void selection_changed();
 		
 		protected override void draw() {
 			ensure_surface();
@@ -216,6 +217,7 @@ namespace Layers.Controls.Chooser
 			index_before_select_first = -1;
 			index_before_select_last = -1;
 			update();
+			selection_changed();
 			return true;
 		}
 		public void choose_selected_item_secondary_id(uchar screen_alpha=128, uint32 rgb_color=0) {
