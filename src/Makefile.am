@@ -259,6 +259,7 @@ pandafe_LDADD = \
 	$(GTK_LIBS) \
 	$(LIBXML_LIBS) \
 	$(VTE_LIBS) \
+	-lm \
 	$(NULL)
 
 EXTRA_DIST = \
