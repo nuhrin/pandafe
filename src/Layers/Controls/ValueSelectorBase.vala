@@ -29,7 +29,7 @@ namespace Layers.Controls
 {
 	public abstract class ValueSelectorBase<G> : Layers.Layer, EventHandler
 	{
-		Menus.MenuUI ui;
+		Menus.MenuUI.ControlsUI ui;
 		Surface surface;
 		int16 max_text_width;
 		int max_characters;
@@ -67,7 +67,7 @@ namespace Layers.Controls
 		}
 		ValueSelectorBase.internal(string id, int16 xpos, int16 ypos, int16 max_width) {
 			base(id);
-			ui = @interface.menu_ui;
+			ui = @interface.menu_ui.controls;
 			this.xpos = xpos;
 			this.ypos = ypos;
 			max_height = (int16)@interface.screen_height / 2;

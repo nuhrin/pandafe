@@ -53,7 +53,8 @@ namespace Menus.Fields
 			this.validator = (owned)validator; 
 			validator_error = error_if_invalid;
 		}
-
+		public bool hide_root_path { get; set; }
+		public string? chooser_title { get; set; }
 
 		public override string get_value_text() { return (_value == null) ? "" : Path.get_basename(_value); }
 		public override int get_minimum_menu_value_text_length() { return _min_value_text_length; }
@@ -64,7 +65,8 @@ namespace Menus.Fields
 		protected override bool has_value() { return (_value != null && _value.strip() != ""); }
 
 		protected override void activate(MenuSelector selector) {
-			var chooser = new FileChooser("file_chooser", "Choose file: " + name, file_extensions, root_path);
+			var chooser = new FileChooser("file_chooser", chooser_title ?? "Choose file: " + name, file_extensions, root_path);
+			chooser.hide_root_path = hide_root_path;
 			if (validator != null)
 				chooser.set_validator((owned)validator, validator_error);
 			var new_path = chooser.run(_value);

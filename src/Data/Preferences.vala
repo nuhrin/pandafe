@@ -64,10 +64,6 @@ namespace Data
 		// menu
 		protected void build_menu(MenuBuilder builder) {
 			appearance_field = new AppearanceField("appearance", "Appearance", "Configure font and colors", appearance);
-			appearance_field.game_browser_font_changed.connect((a) => @interface.game_browser_ui.update_fonts(a));
-			appearance_field.game_browser_color_changed.connect((a) => @interface.game_browser_ui.update_colors(a));
-			appearance_field.menu_font_changed.connect((a) => @interface.menu_ui.update_fonts(a));
-			appearance_field.menu_color_changed.connect((a) => @interface.menu_ui.update_colors(a));
 			appearance_field.appearance_changed.connect((a) => {
 				@interface.game_browser_ui.update_appearance(a.game_browser);
 				@interface.menu_ui.update_appearance(a.menu);
@@ -77,8 +73,7 @@ namespace Data
 //~ 				//@interface.peek_layer().update();
 //~ 			});
 			builder.add_field(appearance_field);			
-			var default_rom_path_field = builder.add_folder("default_rom_select_path", "Default Rom Path", "Used as starting path when selecting platform roms for the first time.", default_rom_select_path);
-			default_rom_path_field.changed.connect(() => refresh(1));			
+			builder.add_folder("default_rom_select_path", "Default Rom Path", "Used as starting path when selecting platform roms for the first time.", default_rom_select_path);
 		}
 		protected bool save_object(Menus.Menu menu) {
 			if (default_rom_select_path != null)

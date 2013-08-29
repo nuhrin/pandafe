@@ -27,15 +27,16 @@ namespace Layers.GameBrowser
 {
 	public class StatusMessageLayer : SurfaceLayer
 	{		
-		GameBrowserUI ui;
+		GameBrowserUI.FooterUI ui;
 		string? _left;
 		string? _center;
 		string? _right;
 		
 		public StatusMessageLayer(string id, int16 layer_height=480) {
-			var ui = @interface.game_browser_ui;
-			base(id, 780, ui.font_height, 10, layer_height - ui.font_height - 10, ui.background_color_rgb);
+			var ui = @interface.game_browser_ui.footer;
+			base(id, 780, ui.font_height, 10, layer_height - ui.font_height - 10, @interface.game_browser_ui.background_color_rgb);
 			this.ui = ui;
+			ui.colors_updated.connect(update_colors);
 		}
 		
 		public string? left {
@@ -58,25 +59,29 @@ namespace Layers.GameBrowser
 			update(flip_screen);
 		}
 		public bool text_will_fit(string text) {
-			return (ui.render_header_footer_text(text).w <= width);
+			return (ui.render_text(text).w <= width);
 		}
 		
 		protected override void draw() {
 			Rect rect = {0, 0};
 			if (_left != null && _left != "") {
-				blit_surface(ui.render_header_footer_text(_left), null, rect);
+				blit_surface(ui.render_text(_left), null, rect);
 			}
 			Surface rendered_message;
 			if (_center != null && _center != "") {
-				rendered_message = ui.render_header_footer_text(_center);
+				rendered_message = ui.render_text(_center);
 				rect.x = (int16)(surface.w/2 - rendered_message.w/2);
 				blit_surface(rendered_message, null, rect);
 			}
 			if (_right != null && _right != "") {
-				rendered_message = ui.render_header_footer_text(_right);
+				rendered_message = ui.render_text(_right);
 				rect.x = (int16)(surface.w - rendered_message.w);
 				blit_surface(rendered_message, null, rect);
 			}			
-		}		
+		}
+		
+		void update_colors() {
+			update(false);
+		}
 	}
 }

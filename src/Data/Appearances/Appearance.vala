@@ -24,6 +24,8 @@
 using Gee;
 using Catapult;
 using Data.Appearances;
+using Data.Appearances.GameBrowser;
+using Data.Appearances.Menu;
 using Fields;
 using Menus;
 using Menus.Fields;
@@ -54,39 +56,76 @@ public class Appearance : NamedEntity, MenuObject
 	}
 	
 	// menu
-	public signal void game_browser_font_changed(GameBrowserAppearance appearance);
-	public signal void game_browser_color_changed(GameBrowserAppearance appearance);
-	public signal void menu_font_changed(MenuAppearance appearance);
-	public signal void menu_color_changed(MenuAppearance appearance);
-		
+	public void set_temp_name(string name) { _temp_name = name; }
+	string _temp_name;
+	void appearance_changed<G>(AppearanceType<G> appearance) {
+		var type = appearance.get_type();
+		if (type == typeof(GameBrowserAppearance))
+			@interface.game_browser_ui.update_appearance(game_browser);
+		else if (type == typeof(MenuAppearance))
+			@interface.menu_ui.update_appearance(menu);
+	}
 	protected void build_menu(MenuBuilder builder) {
+		var display_name = this.name ?? _temp_name ?? "";
 		name_field = builder.add_string("name", "Name", null, this.name);
 		name_field.set_minimum_menu_value_text_length(10);
 		name_field.required = true;
-	
-		var game_browser_field = new ObjectBrowserField("game_browser", "Browser", "Game Browser Appearance: " + this.name, "Game Browser Appearance", game_browser);
-		game_browser_field.menu.set_metadata("header_footer_reveal", "true");
-		game_browser_font_changed_handler = game_browser.font_changed.connect(() => game_browser_font_changed(game_browser));
-		game_browser_color_changed_handler = game_browser.color_changed.connect(() => game_browser_color_changed(game_browser));
-		builder.add_field(game_browser_field);
-				
-		var menu_field = new ObjectBrowserField("menu", "Menu", "Menu Appearance: " + this.name, "Menu Appearance", menu);
-//~ 		menu_field.menu.set_metadata("header_footer_reveal", "true");
-		menu_font_changed_handler = menu.font_changed.connect(() => menu_font_changed(menu));
-		menu_color_changed_handler = menu.color_changed.connect(() => menu_color_changed(menu));
-		builder.add_field(menu_field);
+		game_browser.set_name(display_name);
+		menu.set_name(display_name);
+		
+		builder.add_separator();
+		
+		var game_browser_field = add_appearance_field<GameBrowserAppearance>(builder, "game_browser", "Browser", display_name + ": Game Browser Appearance", 
+																			 "Game Browser Appearance", game_browser);
+		var menu_field = add_appearance_field<MenuAppearance>(builder, "menu", "Menu", display_name + ": Menu Appearance", "Menu Appearance", menu);
 					
 		builder.add_separator();
+		
+		name_field.changed.connect(() => {
+			display_name = name_field.value;
+			if (display_name == null || display_name == "")
+				display_name = _temp_name ?? "";
+			game_browser.set_name(display_name);
+			menu.set_name(display_name);
+			game_browser_field.menu.title = display_name + ": Game Browser Appearance";
+			((GameBrowserAppearance)game_browser_field.value).set_name(display_name);
+			menu_field.menu.title = display_name + ": Menu Appearance";
+			((MenuAppearance)menu_field.value).set_name(display_name);
+		});		
+		
+	}
+	ObjectBrowserField add_appearance_field<G>(MenuBuilder builder, string id, string name, string title, string help, AppearanceType<G> appearance) {
+		var copy = (AppearanceType<G>)appearance.copy();
+		copy.set_name(appearance.name);
+		var field = new ObjectBrowserField(id, name, title, help, copy);
+		field.menu.set_metadata("header_footer_reveal", "true");
+		
+		if (field_handlers == null)
+			field_handlers = new Gee.HashMultiMap<MenuItemField, ulong>();
+		field_handlers.set(field, field.cancelled.connect(() => {
+			appearance_changed<G>(appearance);
+			copy.copy_from(appearance);
+		}));	
+		field_handlers.set(field, field.saved.connect(() =>  {
+			appearance.copy_from(copy);
+		}));
+		
+		builder.add_field(field);
+		
+		return field;
 	}
 	protected void release_fields(bool was_saved) {
 		name_field = null;
-		game_browser.disconnect(game_browser_font_changed_handler);
-		game_browser.disconnect(game_browser_color_changed_handler);
-		menu.disconnect(menu_font_changed_handler);
-		menu.disconnect(menu_color_changed_handler);
+		
+		if (field_handlers != null) {
+			foreach(var field in field_handlers.get_keys()) {
+				foreach(ulong handler in field_handlers[field])
+					field.disconnect(handler);
+			}
+			field_handlers.clear();
+		}
 	}
 	protected bool save_object(Menus.Menu menu) {
-		GLib.message("saving appearance '%s'...", name);
 		string? error;
 		if (Data.appearances().save_appearance(this, generate_id(), out error) == false) {
 			menu.error(error);
@@ -96,8 +135,5 @@ public class Appearance : NamedEntity, MenuObject
 		return true;
 	}
 	Menus.Fields.StringField name_field;
-	ulong game_browser_font_changed_handler;
-	ulong game_browser_color_changed_handler;
-	ulong menu_font_changed_handler;
-	ulong menu_color_changed_handler;
+	Gee.HashMultiMap<MenuItemField, ulong> field_handlers;
 }

@@ -30,7 +30,7 @@ namespace Menus
 {
 	public class MenuSelector : Layers.Layer
 	{
-		MenuUI ui;
+		MenuUI.ControlsUI ui;
 		Menu _menu;
 		Surface surface;
 		int _height;
@@ -61,10 +61,10 @@ namespace Menus
 			this.max_height = max_height;
 			this.max_width = max_width;
 			this.max_name_length = max_name_length;
-			
-			ui = @interface.menu_ui;
+
+			ui = @interface.menu_ui.controls;
 			ui.colors_updated.connect(update_colors);
-			ui.appearance_updated.connect(update_colors);
+			@interface.menu_ui.colors_updated.connect(update_colors);
 			ensure_surface();
 			
 			index_before_select_first = -1;
@@ -121,8 +121,8 @@ namespace Menus
 				offset = offset - get_offset(top_index);
 			
 			Rect rect = {xpos + value_x_pos - ui.value_control_spacing, ypos + offset - ui.value_control_spacing};
-			rect.w = (int16)blank_value_area.w;
-			rect.h = (int16)blank_value_area.h;
+			rect.w = (int16)blank_value_area.w + ui.value_control_spacing;
+			rect.h = (int16)blank_value_area.h + ui.value_control_spacing;
 			return rect;
 		}
 
@@ -130,10 +130,16 @@ namespace Menus
 			this.max_height = max_height;
 			surface = null;
 			ensure_surface();
-			select_item_no_update((int)selected_index);
+			show_selection(false);
 		}
 		void update_colors() {
-			surface = null;		
+			var pushed_layer = @interface.peek_layer();
+			if (pushed_layer == null || pushed_layer.id.has_prefix("menuoverlay_") == false)
+				return; // another control has focus, don't bother updating
+						
+			surface = null;
+			ensure_surface();
+			show_selection(false);
 		}
 
 		protected override void draw() {
@@ -148,7 +154,10 @@ namespace Menus
 			Rect source_r = {0, get_offset(top_index), (int16)_width, height};
 			blit_surface(surface, source_r, dest_r);
 			
-			draw_rectangle_outline(xpos, ypos, (int16)_width, (int16)_height, ui.item_color);
+			int16 rect_height = (int16)_height;
+			if (rect_height > max_height)
+				rect_height = max_height;			
+			draw_rectangle_outline(xpos, ypos, (int16)_width, (int16)rect_height, ui.item_color);
 		}
 
 		public void hide_selection(bool flip=true) {

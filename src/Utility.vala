@@ -21,6 +21,7 @@
  *      nuhrin <nuhrin@oceanic.to>
  */
 
+public delegate void Action<G> (owned G g);
 public delegate void ForEachFunc<G> (owned G g);
 public delegate ulong SignalConnect<G> (G g);
 

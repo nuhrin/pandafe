@@ -31,7 +31,7 @@ namespace Layers.Controls
 	{
 		const string DEFAULT_CHARACTER_MASK = "[[:alnum:][:punct:] ]";
 		
-		Menus.MenuUI ui;
+		Menus.MenuUI.ControlsUI ui;
 		Surface blank_textarea;
 		int16 x;
 		int16 y;
@@ -50,15 +50,18 @@ namespace Layers.Controls
 		bool _error_thrown;
 		
 		public TextEntry(string id, int16 x, int16 y, int16 width, string? value=null, string? character_mask_regex=null, string? value_mask_regex=null) {
-			var ui = @interface.menu_ui;
-			base(id, width, ui.font_height + (ui.value_control_spacing * 2), x, y, ui.background_color_rgb);
+			var ui = @interface.menu_ui.controls;
+			int max_text_width = width - (ui.value_control_spacing * 2);			
+			int max_characters = max_text_width / ui.font_width();
+			int resolved_width = (max_characters * ui.font_width()) + (ui.value_control_spacing * 2);
+			base(id, resolved_width, ui.font_height + (ui.value_control_spacing * 2), x, y, ui.background_color_rgb);
 			this.ui = ui;
 			this.x = x;
 			this.y = y;
-			blank_textarea = ui.get_blank_background_surface(width - ui.value_control_spacing, ui.font_height + ui.value_control_spacing);
-			max_text_width = width - (ui.value_control_spacing * 2);
-			char_width = ui.font_width();
-			max_characters = max_text_width / char_width;
+			this.max_text_width = (int16)max_text_width;
+			this.max_characters = max_characters;
+			this.char_width = ui.font_width();
+			blank_textarea = ui.get_blank_background_surface((int16)((max_characters * char_width) + ui.value_control_spacing), ui.font_height + ui.value_control_spacing + 1);
 			cursor_y = ui.value_control_spacing + (ui.font_height / 3) * 2;
 			cursor_height = ui.font_height / 3;
 			cursor_pos = (value != null) ? value.length : 0;
@@ -66,9 +69,10 @@ namespace Layers.Controls
 			initialize_character_mask_regex(character_mask_regex);
 			initialize_value_mask_regex(value_mask_regex);
 			
-			//this.text = value ?? "";
+			//int16 rect_width = (int16)(blank_textarea.w + (ui.value_control_spacing));
 			@interface.draw_rectangle_outline(0, 0, (int16)surface.w-1, (int16)surface.h-1, ui.item_color, 255, surface);			
-			set_text(value ?? "");
+			this.text = value ?? "";
+			render_text();
 			_is_valid_value = is_valid_value();
 			original_text = (has_valid_value) ? value : "";
 		}		
@@ -217,11 +221,12 @@ namespace Layers.Controls
 			return true;
 		}
 		void update_text(string? new_text=null) {
-			set_text(new_text);
 			if (new_text != null) {
+				this.text = new_text;
 				on_text_changed();
 				this.text_changed(new_text);
 			}
+				
 			_is_valid_value = is_valid_value();			
 			if (_is_valid_value == false) {
 				validation_error();
@@ -230,12 +235,11 @@ namespace Layers.Controls
 				_error_thrown = false;
 				error_cleared();
 			}			
+			
+			render_text();			
 			update();
 		}
-		void set_text(string? new_text=null) {
-			if (new_text != null)
-				this.text = new_text;			
-
+		void render_text() {
 			var resolved_text = text + " ";
 			int relative_cursor_pos = cursor_pos;
 			int half = max_characters / 2;

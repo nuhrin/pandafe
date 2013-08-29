@@ -67,12 +67,6 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 	public void run() {
 		platform_folder_data = Data.platforms().get_platform_folder_data();
 		
-		ui.colors_updated.connect(update_colors);
-		ui.font_updated.connect(update_font);
-		ui.appearance_updated.connect(() => {
-			update_colors();
-			update_font();
-		});
 		var pp = Data.platforms();
 		pp.platform_rescanned.connect((p) => platform_rescanned(p));
 		pp.platform_folders_changed.connect(() => platform_folders_changed());
@@ -85,6 +79,15 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		@interface.push_screen_layer(this, false);
 		initialize_from_browser_state();
 		Key.enable_unicode(1);
+
+		ui.colors_updated.connect(update_colors);
+		ui.header.font_updated.connect(update_font);
+		ui.list.font_updated.connect(update_font);
+		ui.footer.font_updated.connect(update_font);
+		ui.appearance_updated.connect(() => {
+			update_colors();
+			update_font();
+		});
         
         process_events();
         
@@ -106,9 +109,9 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		return Data.platforms().get_all_platforms();
 	}
 	void update_colors() {
+		this.set_rgb_color(ui.background_color_rgb);
 		header.set_rgb_color(ui.background_color_rgb);
 		status_message.set_rgb_color(ui.background_color_rgb);
-		this.set_rgb_color(ui.background_color_rgb);
 		update(false);
 	}
 	void update_font() {
@@ -122,8 +125,8 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		update(false);
 	}
 	void update_selector_ypos() {		
-		selector_ypos = header.ypos + (int16)header.height + (int16)(ui.font_height * 1.3);
-		selector_ymax = status_message.ypos - (int16)(ui.font_height * 1.1);
+		selector_ypos = header.ypos + (int16)header.height + (int16)(ui.list.font_height * 1.3);
+		selector_ymax = status_message.ypos - (int16)(ui.list.font_height * 1.1);
 		if (selector != null) { 
 			selector.ypos = selector_ypos;
 			selector.ymax = selector_ymax;
@@ -778,16 +781,17 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 	}
 	void filter_selector() {		
 		status_message.set();
-	
-		var font_height = @interface.menu_ui.font_height;
-		if (ui.font_height > font_height)
-			font_height = ui.font_height;			
-		int16 entry_ypos = (int16)(@interface.screen_height - font_height - 10);
-		
-		var label = @interface.game_browser_ui.render_header_footer_text(FILTER_LABEL);
+
+
+		var label = @interface.game_browser_ui.footer.render_text(FILTER_LABEL);
 		Rect label_rect = {600 - (int16)label.w, status_message.ypos};
 		blit_surface(label, null, label_rect);
 		this.add_layer(new Layers.SurfaceLayer.direct("filter_label", label, label_rect.x, label_rect.y));		
+
+		var controls = @interface.menu_ui.controls;
+		var footer_center = (int16)(status_message.ypos + (status_message.height / 2));
+		var entry_height = (int16)(controls.font_height + (controls.value_control_spacing * 2));
+		int16 entry_ypos = (int16)(footer_center - (entry_height / 2));
 		
 		var entry = new TextEntry("selection_filter", 600, entry_ypos, 200, selector.get_filter_pattern());
 		entry.text_changed.connect((text) => {

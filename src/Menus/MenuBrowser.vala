@@ -35,7 +35,7 @@ namespace Menus
 
 		const uint8 MAX_NAME_LENGTH = 30;
 
-		Menus.MenuUI ui;
+		Menus.MenuUI.ControlsUI ui;
 		MenuHeaderLayer header;
 		MenuMessageLayer message;
 		int16 selector_ypos;
@@ -48,7 +48,7 @@ namespace Menus
 			if (menu.item_count == 0)
 				GLib.error("Menu '%s' has no items.", menu.name);
 			base("menubrowser", @interface.game_browser_ui.background_color_rgb);
-			ui = @interface.menu_ui;
+			ui = @interface.menu_ui.controls;
 			menu_stack = new GLib.Queue<MenuSelector>();
 			header = add_layer(new MenuHeaderLayer("header")) as MenuHeaderLayer;
 			message = add_layer(new MenuMessageLayer("status")) as MenuMessageLayer;

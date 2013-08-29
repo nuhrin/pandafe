@@ -37,9 +37,9 @@ namespace Fields
 		ColorMenu _menu;
 		string _menu_title;
 		
-		public ColorField(string id, string name, string? help=null, Data.Color? color=null) {
+		public ColorField(string id, string name, string? help=null, string? title=null, Data.Color? color=null) {
 			base(id, name, help);
-			_menu_title = help ?? name;
+			_menu_title = title ?? help ?? name;
 			_color = new Data.Color();
 			if (color != null)
 				_color.copy_from(color);
@@ -48,7 +48,9 @@ namespace Fields
 		public new Data.Color value {
 			owned get { return _color; }
 			set { change_value(value); }
-		}
+		}		
+		
+		public bool update_on_text_value_change { get; set; }
 		
 		public Menus.Menu menu { 
 			get { 
@@ -60,11 +62,6 @@ namespace Fields
 				
 		public override string get_value_text() { return _color.spec; }
 		public override int get_minimum_menu_value_text_length() { return 7; } // "#000000"
-//~ 		public override Surface? get_value_rendering(SDLTTF.Font* font) {
-//~ 			unowned SDLTTF.Font f = font; 
-//~ 			var color = _color.get_sdl_color();
-//~ 			return f.render_shaded(get_value_text(), @interface.white_color, color);
-//~ 		}
 		
 		protected override Value get_field_value() { return _color; }
 		protected override void set_field_value(Value value) { change_value((Data.Color)value); }
@@ -84,6 +81,7 @@ namespace Fields
 		ColorMenu create_menu(Data.Color color) {
 			var menu = new ColorMenu(name, color);
 			menu.title = _menu_title;
+			menu.update_on_text_value_change = update_on_text_value_change;
 			menu.changed.connect(() => selection_changed(_menu.color));
 			menu.saved.connect(() => {
 				change_value(_menu.color);
@@ -107,6 +105,7 @@ namespace Fields
 
 			public signal void changed();
 			public Data.Color color { get { return _color; } }
+			public bool update_on_text_value_change { get; set; }
 			
 			protected override void populate_items(Gee.List<Menus.MenuItem> items) { 
 				spec_field = new StringField("spec", "Color Spec", "Hex Code (#xxx or #xxxxxx) or Color Name", _color.spec);
@@ -128,15 +127,13 @@ namespace Fields
 				items.add(value_field);
 				items.add(new Menus.MenuItemSeparator());
 				items.add(new Menus.MenuItem.cancel_item());
-				items.add(new Menus.MenuItem.save_item());
+				items.add(new Menus.MenuItem.save_item("Ok"));
 				watch_rgb_fields();
 				watch_hsv_fields();		
 				watch_spec_field();	
 			}
 			protected override void cleanup() {
-				ignore_rgb_fields();
-				ignore_hsv_fields();
-				ignore_spec_field();
+				clear_all_handlers();
 				spec_field = null;
 				red_field = null;
 				green_field = null;
@@ -146,33 +143,46 @@ namespace Fields
 				value_field = null;
 			}
 			void watch_rgb_fields() {
-				red_field.changed.connect(rgb_field_changed);
-				green_field.changed.connect(rgb_field_changed);
-				blue_field.changed.connect(rgb_field_changed);
+				add_uint_handler(red_field, (f) => f.changed.connect(()=>rgb_field_changed()));
+				add_uint_handler(green_field, (f) => f.changed.connect(()=>rgb_field_changed()));
+				add_uint_handler(blue_field, (f) => f.changed.connect(()=>rgb_field_changed()));
+				if (update_on_text_value_change) {
+					add_uint_handler(red_field, (f) => f.text_value_changed.connect((v)=>rgb_field_changed((uchar)v, null, null)));
+					add_uint_handler(green_field, (f) => f.text_value_changed.connect((v)=>rgb_field_changed(null, (uchar)v, null)));
+					add_uint_handler(blue_field, (f) => f.text_value_changed.connect((v)=>rgb_field_changed(null, null, (uchar)v)));
+				}
 			}
 			void ignore_rgb_fields() {
-				red_field.changed.disconnect(rgb_field_changed);
-				green_field.changed.disconnect(rgb_field_changed);
-				blue_field.changed.disconnect(rgb_field_changed);
+				clear_handlers(red_field);
+				clear_handlers(blue_field);
+				clear_handlers(green_field);
 			}
 			void watch_hsv_fields() {
-				hue_field.changed.connect(hsv_field_changed);
-				saturation_field.changed.connect(hsv_field_changed);
-				value_field.changed.connect(hsv_field_changed);
+				add_uint_handler(hue_field, (f) => f.changed.connect(()=>hsv_field_changed()));
+				add_uint_handler(saturation_field, (f) => f.changed.connect(()=>hsv_field_changed()));
+				add_uint_handler(value_field, (f) => f.changed.connect(()=>hsv_field_changed()));
+				if (update_on_text_value_change) {
+					add_uint_handler(hue_field, (f) => f.text_value_changed.connect((v)=>hsv_field_changed((uchar)v, null, null)));
+					add_uint_handler(saturation_field, (f) => f.text_value_changed.connect((v)=>hsv_field_changed(null, (uchar)v, null)));
+					add_uint_handler(value_field, (f) => f.text_value_changed.connect((v)=>hsv_field_changed(null, null, (uchar)v)));
+				}
 			}
 			void ignore_hsv_fields() {
-				hue_field.changed.disconnect(hsv_field_changed);
-				saturation_field.changed.disconnect(hsv_field_changed);
-				value_field.changed.disconnect(hsv_field_changed);
+				clear_handlers(hue_field);
+				clear_handlers(saturation_field);
+				clear_handlers(value_field);				
 			}
 			void watch_spec_field() {
-				spec_field.changed.connect(spec_field_changed);
+				add_handler(spec_field, (f) => f.changed.connect(() => spec_field_changed()));
 			}
 			void ignore_spec_field() {
-				spec_field.changed.disconnect(spec_field_changed);
+				clear_handlers(spec_field);
 			}
-			void rgb_field_changed() {
-				_color.set_rgb((uchar)red_field.value, (uchar)green_field.value, (uchar)blue_field.value);
+			void rgb_field_changed(uchar? red=null, uchar? green=null, uchar? blue=null) {
+				uchar r = red ?? (uchar)red_field.value;
+				uchar g = green ?? (uchar)green_field.value;
+				uchar b = blue ?? (uchar)blue_field.value;
+				_color.set_rgb(r, g, b);
 				ignore_hsv_fields();
 				ignore_spec_field();
 				hue_field.value = _color.hue;
@@ -183,8 +193,11 @@ namespace Fields
 				watch_spec_field();
 				changed();
 			}		
-			void hsv_field_changed() {
-				_color.set_hsv((uint8)hue_field.value, (uint8)saturation_field.value, (uint8)value_field.value);
+			void hsv_field_changed(uint8? hue=null, uint8? saturation=null, uint8? value=null) {
+				uint8 h = hue ?? (uint8)hue_field.value;
+				uint8 s = saturation ?? (uint8)saturation_field.value;
+				uint8 v = value ?? (uint8)value_field.value;
+				_color.set_hsv(h, s, v);
 				ignore_rgb_fields();
 				ignore_spec_field();
 				red_field.value = _color.red;
@@ -209,13 +222,42 @@ namespace Fields
 				watch_rgb_fields();
 				changed();
 			}
+			
+			void add_handler(MenuItemField field, SignalConnect<MenuItemField> handler) {
+				if (field_handlers == null)
+					field_handlers = new HashMultiMap<MenuItemField,ulong>();
+				field_handlers[field] = handler(field);
+			}
+			void add_uint_handler(UIntField field, SignalConnect<UIntField> handler) {
+				if (field_handlers == null)
+					field_handlers = new HashMultiMap<MenuItemField,ulong>();
+				field_handlers[field] = handler(field);
+			}
+			void clear_handlers(MenuItemField field) {
+				if (field_handlers == null || field_handlers.contains(field) == false)
+					return;
+				foreach(ulong handler in field_handlers[field])
+					field.disconnect(handler);
+				field_handlers.remove_all(field);
+			}
+			void clear_all_handlers() {
+				if (field_handlers == null)
+					return;
+				foreach(var field in field_handlers.get_keys())  {
+					foreach(ulong handler in field_handlers[field])
+						field.disconnect(handler);
+				}
+				field_handlers.clear();
+			}
+			
 			UIntField red_field;
 			UIntField green_field;
 			UIntField blue_field;
 			UIntField hue_field;
 			UIntField saturation_field;
 			UIntField value_field;
-			StringField spec_field;			
+			StringField spec_field;
+			HashMultiMap<MenuItemField,ulong> field_handlers;
 		}		
 	}
 }

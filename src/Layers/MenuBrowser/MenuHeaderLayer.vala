@@ -28,15 +28,16 @@ namespace Layers.MenuBrowser
 {
 	public class MenuHeaderLayer : SurfaceLayer
 	{
-		Menus.MenuUI ui;
+		Menus.MenuUI.HeaderUI ui;
 		string? _left;
 		string? _center;
 		string? _right;
 		
 		public MenuHeaderLayer(string id) {
-			var ui = @interface.menu_ui;
+			var ui = @interface.menu_ui.header;
 			base(id, 760, ui.font_height + 10, 20, 15, ui.background_color_rgb);
 			this.ui = ui;
+			ui.colors_updated.connect(update_colors);
 		}
 
 		public string? left {
@@ -66,7 +67,7 @@ namespace Layers.MenuBrowser
 			}
 			Surface rendered_text;		
 			if (_center != null && _center != "") {
-				rendered_text = ui.render_text(_center);
+				rendered_text = ui.render_text_to_fit(_center, width);
 				rect.x = (int16)(surface.w/2 - rendered_text.w/2);
 				blit_surface(rendered_text, null, rect);
 			}
@@ -77,5 +78,8 @@ namespace Layers.MenuBrowser
 			}		
 		}
 		
+		void update_colors() {
+			update(false);
+		}
 	}
 }

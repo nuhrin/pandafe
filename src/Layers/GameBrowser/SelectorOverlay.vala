@@ -31,7 +31,7 @@ namespace Layers.GameBrowser
 {
 	public class SelectorOverlay<G> : Layer
 	{
-		Menus.MenuUI ui;
+		Menus.MenuUI.ControlsUI ui;
 		const int SELECTOR_MIN_WIDTH = 150;
 		const int16 SELECTOR_YPOS = 95;
 		const string SELECTOR_ID = "selector_overlay_selector";
@@ -49,7 +49,7 @@ namespace Layers.GameBrowser
 		
 		public SelectorOverlay(string title, string? help, owned MapFunc<string, G> getItemName, Iterable<G>? items=null, uint selected_index=0) {
 			base("selector_overlay");
-			ui = @interface.menu_ui;
+			ui = @interface.menu_ui.controls;
 			header = add_layer(new MenuHeaderLayer("header")) as MenuHeaderLayer;
 			header.set_text(null, title, null, false);
 			message = add_layer(new MenuMessageLayer("status")) as MenuMessageLayer;			

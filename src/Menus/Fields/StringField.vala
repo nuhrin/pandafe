@@ -46,6 +46,8 @@ namespace Menus.Fields
 			set { change_value(value); }
 		}
 
+		public signal void text_changed(string text);
+
 		public override string get_value_text() { return _value ?? ""; }
 		public override int get_minimum_menu_value_text_length() { return _min_value_text_length; }
 		public void set_minimum_menu_value_text_length(uint? length) { _min_value_text_length = (length != null) ? (int)length : -1; }
@@ -72,6 +74,7 @@ namespace Menus.Fields
 					error("%s: %s".printf(name, msg ?? "not valid for some reason..."));
 				});
 				entry.error_cleared.connect(() => error_cleared());
+				entry.text_changed.connect((text) => text_changed(text));
 				change_value(entry.run());
 				selector.update_selected_item_value();
 				selector.update();

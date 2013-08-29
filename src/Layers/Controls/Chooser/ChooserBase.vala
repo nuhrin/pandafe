@@ -34,7 +34,7 @@ namespace Layers.Controls.Chooser
 		const int16 SELECTOR_XPOS = 100;
 		const int16 SELECTOR_YPOS = 70;
 
-		Menus.MenuUI ui;
+		Menus.MenuUI.ControlsUI ui;
 		HashMap<string, ChooserSelector> selector_hash;
 		int16 selector_ypos;
 		int16 selector_max_height;
@@ -44,7 +44,7 @@ namespace Layers.Controls.Chooser
 
 		protected ChooserBase(string id, string title) {
 			base(id, @interface.game_browser_ui.background_color_rgb);
-			ui = @interface.menu_ui;
+			ui = @interface.menu_ui.controls;
 			selector_hash = new HashMap<string, ChooserSelector>();
 			header = add_layer(new ChooserHeader("header")) as ChooserHeader;
 			header.title = title;
@@ -224,7 +224,7 @@ namespace Layers.Controls.Chooser
 		//
 		// commands: misc
 		protected abstract bool process_activation(ChooserSelector selector);
-		protected virtual bool validate_activation(ChooserSelector selector, out string? error) { error = null; return false; }
+		protected virtual bool validate_activation(ChooserSelector selector, out string? error) { error = null; return true; }
 		protected abstract string get_selected_key(ChooserSelector selector);
 		protected abstract string get_parent_key(ChooserSelector selector);
 		protected abstract string get_parent_child_name(ChooserSelector selector);

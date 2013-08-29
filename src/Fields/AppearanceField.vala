@@ -53,10 +53,6 @@ namespace Fields
 			}
 		}
 		public signal void appearance_changed(Appearance appearance);
-		public signal void game_browser_font_changed(GameBrowserAppearance appearance);
-		public signal void game_browser_color_changed(GameBrowserAppearance appearance);
-		public signal void menu_font_changed(MenuAppearance appearance);
-		public signal void menu_color_changed(MenuAppearance appearance);		
 				
 		public override string get_value_text() { return ""; }
 		public override int get_minimum_menu_value_text_length() { return 0; }
@@ -80,10 +76,6 @@ namespace Fields
 		AppearanceMenu create_menu() {
 			var menu = new AppearanceMenu(name, _appearance);
 			menu.title = _menu_title;
-			menu.game_browser_font_changed.connect((a) => game_browser_font_changed(a));
-			menu.game_browser_color_changed.connect((a) => game_browser_color_changed(a));
-			menu.menu_font_changed.connect((a) => menu_font_changed(a));
-			menu.menu_color_changed.connect((a) => menu_color_changed(a));
 			menu.appearance_changed.connect((a) => appearance_changed(a));
 			menu.saved.connect(() => this.saved());
 			menu.cancelled.connect(() => this.cancelled());
@@ -111,10 +103,6 @@ namespace Fields
 				if (current_appearance_info == null)
 					current_appearance_info = AppearanceInfo.default;
 			}
-			public signal void game_browser_font_changed(GameBrowserAppearance appearance);
-			public signal void game_browser_color_changed(GameBrowserAppearance appearance);
-			public signal void menu_font_changed(MenuAppearance appearance);
-			public signal void menu_color_changed(MenuAppearance appearance);
 			public signal void appearance_changed(Appearance appearance);
 			public Appearance? appearance { get { return _appearance; } }
 			
@@ -146,10 +134,6 @@ namespace Fields
 				if (current_appearance_info.is_local && _appearance != null) {
 					var edit_item = ObjectMenu.get_browser_item("Edit", "Edit Appearance: " + _appearance.name, "Edit this appearance", _appearance);
 					edit_item.menu.set_metadata("header_footer_reveal", "true");
-					_appearance.game_browser_font_changed.connect((gba) => game_browser_font_changed(gba));
-					_appearance.game_browser_color_changed.connect((gba) => game_browser_color_changed(gba));
-					_appearance.menu_font_changed.connect((ma) => menu_font_changed(ma));
-					_appearance.menu_color_changed.connect((ma) => menu_color_changed(ma));
 					edit_item.menu.saved.connect(() => {
 						update_appearance_info(_appearance);
 						refresh(1);
@@ -158,12 +142,9 @@ namespace Fields
 				}
 				
 				var copy = (_appearance != null) ? _appearance.copy() : new Appearance.default();
-				string copy_name = copy.name + "(Copy)";
+				string copy_name = copy.name + " (Copy)";
 				copy.name = null;
-				copy.game_browser_font_changed.connect((gba) => game_browser_font_changed(gba));
-				copy.game_browser_color_changed.connect((gba) => game_browser_color_changed(gba));
-				copy.menu_font_changed.connect((ma) => menu_font_changed(ma));
-				copy.menu_color_changed.connect((ma) => menu_color_changed(ma));					
+				copy.set_temp_name(copy_name);
 				var copy_item = ObjectMenu.get_browser_item("Copy", "Edit Appearance: " + copy_name, "Edit a copy of this appearance", copy);
 				copy_item.menu.set_metadata("header_footer_reveal", "true");
 				copy_item.menu.saved.connect(() => {

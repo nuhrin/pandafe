@@ -37,9 +37,13 @@ namespace Menus.Fields
 			base(id, name, help);
 			_obj = obj;
 			_menu = new ObjectMenu(title ?? name, null, obj);
+			_menu.cancelled.connect(() => cancelled());
+			_menu.saved.connect(() => saved());
+			_menu.finished.connect(() => finished());
 			this.activate_action = (owned)action;
 			handlers = new ArrayList<ulong>();	
 		}
+		
 		public new Object value {
 			owned get { return _obj; }
 		}

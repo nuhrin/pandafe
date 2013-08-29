@@ -30,7 +30,7 @@ public abstract class Selector : Layers.Layer
 	const int ITEMS_PER_SURFACE = 50;
 	const int16 ITEM_LEFT_PADDING = 30;
 	
-	GameBrowserUI ui;
+	GameBrowserUI.ListUI ui;
 	SelectorSurfaceSet surfaces;
 	int index_before_select_first;
 	int index_before_select_last;
@@ -41,7 +41,7 @@ public abstract class Selector : Layers.Layer
 	
 	protected Selector(string id, int16 xpos, int16 ypos, int16 ymax) {
 		base(id);
-		this.ui = @interface.game_browser_ui;
+		this.ui = @interface.game_browser_ui.list;
 		this.xpos = xpos;
 		this.ypos = ypos;
 		this.ymax = ymax;
@@ -50,8 +50,9 @@ public abstract class Selector : Layers.Layer
 		index_before_select_last = -1;
 		update_font();
 		this.ui.font_updated.connect(update_font);
-		this.ui.colors_updated.connect(reset_surface);
-		this.ui.appearance_updated.connect(update_font);
+		this.ui.colors_updated.connect(update_colors);
+		@interface.game_browser_ui.colors_updated.connect(reset_surface);
+		@interface.game_browser_ui.appearance_updated.connect(update_font);
 	}
 	
 	public int16 xpos { get; set; }
@@ -264,6 +265,10 @@ public abstract class Selector : Layers.Layer
 		if (remaining_space >= ui.font_height)
 			visible_items += 1;
 		reset_surface();
+	}
+	void update_colors() {
+		reset_surface();
+		update(false);
 	}
 
 	void ensure_surfaces(int display_index) {		

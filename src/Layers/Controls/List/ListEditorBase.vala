@@ -33,7 +33,7 @@ namespace Layers.Controls.List
 		const int16 SELECTOR_XPOS = 100;
 		const int16 MENU_SELECTOR_XPOS = 80;
 		
-		Menus.MenuUI ui;
+		Menus.MenuUI.ControlsUI ui;
 		bool move_active;
 		bool menu_active;
 		bool save_requested;
@@ -48,7 +48,7 @@ namespace Layers.Controls.List
 		
 		protected ListEditorBase(string id, string title, string? help=null, Gee.List<G> list=new ArrayList<G>()) {
 			base(id, @interface.game_browser_ui.background_color_rgb);
-			ui = @interface.menu_ui;
+			ui = @interface.menu_ui.controls;
 			_list = list;
 			header = add_layer(new MenuHeaderLayer("header")) as MenuHeaderLayer;
 			header.set_text(null, title, null, false);

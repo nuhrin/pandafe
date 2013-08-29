@@ -24,7 +24,7 @@
 using Gee;
 using Catapult;
 using Fields;
-using Data.Appearances;
+using Data.Appearances.GameBrowser;
 using Menus;
 using Menus.Fields;
 

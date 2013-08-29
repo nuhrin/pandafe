@@ -33,12 +33,11 @@ namespace Layers.GameBrowser
 	public class MenuOverlay : Layer, EventHandler
 	{
 		const int SELECTOR_MIN_WIDTH = 150;
-		const int16 SELECTOR_YPOS = 100;
 		const string SELECTOR_ID = "menu_overlay_selector";
 		const int16 HEADER_FOOTER_REVEAL_OFFSET = 100;
 		const uint8 MAX_NAME_LENGTH = 30;
 
-		Menus.MenuUI ui;
+		Menus.MenuUI.ControlsUI ui;
 		MenuHeaderLayer header;
 		MenuMessageLayer message;
 		int16 selector_max_height;
@@ -59,6 +58,7 @@ namespace Layers.GameBrowser
 			if (menu.item_count == 0)
 				GLib.error("Menu '%s' has no items.", menu.name);
 			base("menuoverlay_"+menu.name);
+			ui = @interface.menu_ui.controls;
 			cancel_keys = new ArrayList<int>();
 			if (cancel_key != null)
 				cancel_keys.add(cancel_key);
@@ -69,16 +69,14 @@ namespace Layers.GameBrowser
 			message.centered = true;
 			update_positions();
 			selector = add_layer(get_selector(menu)) as MenuSelector;			
-			
-			ui = @interface.menu_ui;
-			ui.colors_updated.connect(update_colors);
-			ui.font_updated.connect(update_font);
-			ui.appearance_updated.connect(update_font);
+			@interface.menu_ui.font_updated.connect(update_font);
+			@interface.menu_ui.colors_updated.connect(update_colors);
+			@interface.menu_ui.appearance_updated.connect(update_font);
 		}
 
 		public KeySymbol? run(uchar screen_alpha=0, uint32 rgb_color=0) {
 			connect_selector_signals();
-			
+						
 			set_header();
 			selector.ensure_initial_selection(false);
 			set_initial_help();
@@ -152,17 +150,14 @@ namespace Layers.GameBrowser
 	
 		void update_selector_pos(MenuSelector selector) {
 			selector.xpos = (int16)(@interface.screen_width - 25 - ((selector.width < SELECTOR_MIN_WIDTH) ? SELECTOR_MIN_WIDTH : selector.width));
-			print("== update_selector_pos(%s): xpos -> %d\n",  selector.menu.name, selector.xpos);
-			selector.ypos = SELECTOR_YPOS;			
+			selector.ypos = (int16)(header.ypos + header.height + ui.font_height); //SELECTOR_YPOS;			
 		}
 		void update_colors() {
-			GLib.message("update_colors");
-			header.set_rgb_color(ui.background_color_rgb);
-			message.set_rgb_color(ui.background_color_rgb);
+			header.set_rgb_color(@interface.menu_ui.background_color_rgb);
+			message.set_rgb_color(@interface.menu_ui.background_color_rgb);
 			update(false);
 		}
 		void update_font() {
-			GLib.message("update_font");
 			clear();
 			recreate_header();
 			recreate_message();
@@ -171,7 +166,7 @@ namespace Layers.GameBrowser
 			update_positions();
 			recreate_selectors();
 			update(false);
-			screen.update(false);
+			screen_update(false);
 		}
 		void recreate_header() {
 			var left = header.left;
@@ -212,7 +207,8 @@ namespace Layers.GameBrowser
 			}
 		}
 		void update_positions() {
-			selector_max_height = (int16)(@interface.screen_height - SELECTOR_YPOS - message.height - 10);
+			var selector_ypos = (int16)(header.ypos + header.height + ui.font_height); //SELECTOR_YPOS;	
+			selector_max_height = (int16)(@interface.screen_height - selector_ypos - message.height - 10);
 			upper_left={header.xpos - 1, header.ypos - 1};
 			upper_right={header.xpos + (int16)header.width, upper_left.y};
 			lower_left={message.xpos - 1, message.ypos + (int16)message.height};
@@ -220,20 +216,22 @@ namespace Layers.GameBrowser
 			header_bottom_y=header.ypos + (int16)header.height;
 		}
 		void recreate_selectors() {
-			print("recreate_selectors:\n");
 			for(uint index=0;index<menu_stack.length;index++) {
 				var item = menu_stack.peek_nth(index);
-				print("* stack %u: %s\n", index, item.menu.name);
 				item.recreate(selector_max_height);
 				update_selector_pos(item);
 			}
-			print("* selector: %s\n", selector.menu.name);
 			selector.recreate(selector_max_height);
 			update_selector_pos(selector);
 		}
 		
 		//
 		// screen updates
+		public void screen_update(bool flip=true) {
+			var s = this.screen;
+			if (s != null)
+				s.update(flip);
+		}
 		void push_menu(Menus.Menu menu) {
 			if (RuntimeEnvironment.dev_mode)
 				Menus.MenuItem.register_watch(menu.name);
@@ -247,7 +245,7 @@ namespace Layers.GameBrowser
 			set_header();
 			selector.ensure_initial_selection(false);
 			set_initial_help(false);
-			screen.update(false);
+			screen_update(false);
 			update();
 			is_initialized = true;
 			menu_changed(menu);
@@ -262,14 +260,14 @@ namespace Layers.GameBrowser
 			string watch = selector.menu.name;
 			is_initialized = false;
 			disconnect_selector_signals();
-			selector = menu_stack.pop_head();
+			selector = menu_stack.pop_head();			
 			connect_selector_signals();
-			replace_layer(SELECTOR_ID, selector);			
+			replace_layer(SELECTOR_ID, selector);
 			clear();
 			set_header();
 			message.reset(false);
 			message.update_help(selector.selected_item().help, false);
-			screen.update(false);
+			screen_update(false);
 			update();
 			is_initialized = true;
 			menu_changed(selector.menu);
@@ -281,7 +279,7 @@ namespace Layers.GameBrowser
 				clear();
 				set_header();
 				message.reset();
-				screen.update(false);
+				screen_update(false);
 				update();
 			}
 		}
@@ -299,13 +297,13 @@ namespace Layers.GameBrowser
 		void on_selector_changed() {
 			if (is_initialized == false)
 				return;
-			message.help = selector.selected_item().help;
+			message.update_help(selector.selected_item().help, false);
 		}
 		void on_message(string message) {
 			this.message.message = message;
 		}		
-		void clear_message() {
-			message.message = null;
+		void clear_message(bool flip=true) {
+			message.update_message(null, flip);
 		}
 		void on_error(string error) {
 			message.error = error;
@@ -403,30 +401,30 @@ namespace Layers.GameBrowser
 		//
 		// commands: selection
 		void select_previous() {
+			clear_message(false);
 			selector.select_previous();
-			clear_message();
 		}
 		void select_next() {
+			clear_message(false);
 			selector.select_next();
-			clear_message();
 		}
 		void select_first() {
+			clear_message(false);
 			selector.select_first();
-			clear_message();
 		}
 		void select_last() {
+			clear_message(false);
 			selector.select_last();
-			clear_message();
 		}
 		void select_next_starting_with(char c) {
-			clear_message();
+			clear_message(false);
 			selector.select_item_starting_with(c.to_string());
 		}
 
 		//
 		// commands: misc
 		void activate_selected() {
-			clear_message();
+			clear_message(false);
 			var selected_item = selector.selected_item();
 			var selected_menu = selected_item as Menus.Menu;
 			if (selected_menu != null) {
@@ -439,7 +437,7 @@ namespace Layers.GameBrowser
 				push_menu(submenu.menu);
 				return;
 			}			
-			message.error = null;
+			message.update_error(null, false);
 			selected_item.activate(selector);			
 			switch(selected_item.action) {				
 				case MenuItemActionType.CANCEL:

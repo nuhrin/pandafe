@@ -28,15 +28,16 @@ namespace Layers.MenuBrowser
 {
 	public class MenuMessageLayer : SurfaceLayer
 	{
-		Menus.MenuUI ui;
+		Menus.MenuUI.FooterUI ui;
 		string? _error;
 		string? _message;
 		string? _help;
 		
 		public MenuMessageLayer(string id, int16 layer_height=480) {
-			var ui = @interface.menu_ui;
+			var ui = @interface.menu_ui.footer;
 			base(id, 760, ui.font_height + 10, 20, layer_height - ui.font_height - 20, ui.background_color_rgb);
 			this.ui = ui;
+			ui.colors_updated.connect(update_colors);
 		}
 		public bool centered { get; set; }
 
@@ -57,6 +58,14 @@ namespace Layers.MenuBrowser
 			_error = null;
 			_message = null;
 			_help = null;
+			update(flip);
+		}
+		public void update_error(string? error, bool flip=true) {
+			_error = error;
+			update(flip);
+		}
+		public void update_message(string? message, bool flip=true) {
+			_message = message;
 			update(flip);
 		}
 		public void update_help(string? help, bool flip=true) {
@@ -93,6 +102,10 @@ namespace Layers.MenuBrowser
 			rect.y = (int16)(surface.h/2 - rendered.h/2);
 			
 			blit_surface(rendered, null, rect);
-		}		
+		}
+		
+		void update_colors() {
+			update(false);
+		}
 	}
 }

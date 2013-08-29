@@ -41,10 +41,23 @@ pandafe_SOURCES = \
 	Data/GameSettings.vala \
 	Data/GamesRunList.vala \
 	Data/Appearances/Appearance.vala \
+	Data/Appearances/AppearanceAreaType.vala \
+	Data/Appearances/AppearanceAreaUI.vala \
 	Data/Appearances/AppearanceInfo.vala \
 	Data/Appearances/AppearanceProvider.vala \
-	Data/Appearances/GameBrowserAppearance.vala \
-	Data/Appearances/MenuAppearance.vala \
+	Data/Appearances/AppearanceType.vala \
+	Data/Appearances/GameBrowser/GameBrowserAppearance.vala \
+	Data/Appearances/GameBrowser/GameBrowserAppearanceBase.vala \
+	Data/Appearances/GameBrowser/GameBrowserAreaBase.vala \
+	Data/Appearances/GameBrowser/GameBrowserFooter.vala \
+	Data/Appearances/GameBrowser/GameBrowserHeader.vala \
+	Data/Appearances/GameBrowser/GameBrowserList.vala \
+	Data/Appearances/Menu/MenuAppearance.vala \
+	Data/Appearances/Menu/MenuAppearanceBase.vala \
+	Data/Appearances/Menu/MenuAreaBase.vala \
+	Data/Appearances/Menu/MenuControls.vala \
+	Data/Appearances/Menu/MenuFooter.vala \
+	Data/Appearances/Menu/MenuHeader.vala \
 	Data/GameList/AllGames.vala \
 	Data/GameList/GameFolder.vala \
 	Data/GameList/GameItem.vala \

@@ -31,7 +31,7 @@ namespace Layers.Controls.Chooser
 {
 	public abstract class ChooserSelector : Layer
 	{
-		Menus.MenuUI ui;		
+		Menus.MenuUI.ControlsUI ui;		
 		const uint8 MAX_ITEM_LENGTH = 50;
 		int16 xpos;
 		int16 ypos;
@@ -63,10 +63,7 @@ namespace Layers.Controls.Chooser
 			this.is_root = is_root;
 			this.choose_item_name = choose_item_name;
 			
-			ui = @interface.menu_ui;
-			ui.font_updated.connect(reset_surface);
-			ui.colors_updated.connect(reset_surface);
-			ui.appearance_updated.connect(reset_surface);
+			ui = @interface.menu_ui.controls;
 		}
 		
 		public int height { get { return _height; } }
@@ -242,9 +239,6 @@ namespace Layers.Controls.Chooser
 		protected Item create_folder_item(string name) { return new Item.folder(name); }
 		protected virtual string? get_initial_selected_item_name() { return null; }
 
-		void reset_surface() {
-			surface = null;
-		}
 		void ensure_surface() {
 			if (surface != null)
 				return;

@@ -33,7 +33,7 @@ namespace Layers.Controls.List
 		const uint8 MAX_ITEM_LENGTH = 50;
 		const int VISIBLE_ITEMS = 11;
 		
-		Menus.MenuUI ui;
+		Menus.MenuUI.ControlsUI ui;
 		int16 xpos;
 		int16 ypos;
 		int16 max_height;
@@ -60,7 +60,7 @@ namespace Layers.Controls.List
 			this.max_height = max_height;
 			_items = items;
 			
-			ui = @interface.menu_ui;
+			ui = @interface.menu_ui.controls;
 			ensure_surface();
 			index_before_select_first = -1;
 			index_before_select_last = -1;
