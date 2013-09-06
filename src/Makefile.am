@@ -16,7 +16,6 @@ AM_CPPFLAGS = \
 
 BUILT_SOURCES = \
 	pandafe.submodule-vapi.check \
-	pandafe.vala.stamp \
 	pandafe.submodule-libs.check \
 	build-info.h \
 	$(NULL)
@@ -25,7 +24,8 @@ bin_PROGRAMS = \
 	pandafe \
 	$(NULL)
 
-pandafe_VALASOURCES = \
+pandafe_SOURCES = \
+	$(gtksourceview_custom_SOURCES) \
 	main.vala \
 	EventHandler.vala \
 	GameBrowser.vala \
@@ -222,23 +222,16 @@ gtksourceview_custom_SOURCES = \
 	gtksourceview/gtksourceview-typebuiltins.c \
 	$(NULL)
 
-pandafe_SOURCES = \
-	$(gtksourceview_custom_SOURCES) \
-	pandafe.vala.stamp \
-	$(pandafe_VALASOURCES:.vala=.c) \
-	$(NULL)
-
 pandafe.submodule-libs.check:
 	@$(top_srcdir)/scripts/update-stamp-from-dependencies.sh main.c "$(GEE_LTLIB)" "$(CATAPULT_LTLIB)" "$(PANDORA_GLIB_LTLIB)"
 
 pandafe.submodule-vapi.check:
 	@$(top_srcdir)/scripts/update-stamp-from-dependencies.sh main.vala "$(GEE_VAPI)" "$(CATAPULT_VAPI)" "$(PANDORA_GLIB_VAPI)"
 
-pandafe.vala.stamp: $(pandafe_VALASOURCES) 
-	$(VALA_V)$(VALAC) $(VALAFLAGS) -C $(SUBMODULE_VALAFLAGS) --vapidir $(srcdir)/../vapi \
+pandafe_VALAFLAGS = \
+	$(VALAFLAGS) -C $(SUBMODULE_VALAFLAGS) --vapidir $(srcdir)/../vapi \
 		--pkg catapult --pkg pandora-glib --pkg gee-0.8 --pkg gtk+-2.0 --pkg sdl --pkg sdl-image --pkg sdl-ttf --pkg sdl-gfx --pkg posix \
-		--pkg gtksourceview-2.0 --pkg vte --pkg build-info --pkg GdkKeySyms --pkg sdl-keyboard $^
-	@touch $@
+		--pkg gtksourceview-2.0 --pkg vte --pkg build-info --pkg GdkKeySyms --pkg sdl-keyboard 
 
 build-info.h: 
 	@echo "#define PACKAGE_DATADIR \"$(pkgdatadir)\"" > build-info.h; \
@@ -263,10 +256,7 @@ pandafe_LDADD = \
 	$(NULL)
 
 EXTRA_DIST = \
-	$(pandafe_VALASOURCES) \
-	pandafe.vala.stamp \
 	$(NULL)
 
 MAINTAINERCLEANFILES = \
-  $(pandafe_VALASOURCES:.vala=.c) \
   $(NULL)
