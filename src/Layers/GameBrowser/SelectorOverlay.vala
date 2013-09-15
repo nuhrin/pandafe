@@ -112,14 +112,14 @@ namespace Layers.GameBrowser
 			int16 height = (int16)(@interface.screen_height - header.height - message.height);
 			draw_rectangle_fill(box_left_x, 20, width, height, ui.background_color);
 			
-			draw_horizontal_line(upper_left.x, upper_right.x, upper_left.y, ui.item_color);
-			draw_vertical_line(upper_left.x, upper_left.y, header_bottom_y + 1, ui.item_color);
-			draw_horizontal_line(upper_left.x, box_left_x, header_bottom_y + 1, ui.item_color);
-			draw_vertical_line(box_left_x, header_bottom_y + 1, message.ypos - 1, ui.item_color);
-			draw_vertical_line(upper_right.x, upper_right.y, lower_right.y, ui.item_color);
-			draw_horizontal_line(lower_left.x, box_left_x, message.ypos - 1, ui.item_color);
-			draw_vertical_line(lower_left.x, message.ypos - 1, lower_left.y, ui.item_color);
-			draw_horizontal_line(lower_left.x, lower_right.x, lower_left.y, ui.item_color);
+			draw_horizontal_line(upper_left.x, upper_right.x, upper_left.y, ui.border_color);
+			draw_vertical_line(upper_left.x, upper_left.y, header_bottom_y + 1, ui.border_color);
+			draw_horizontal_line(upper_left.x, box_left_x, header_bottom_y + 1, ui.border_color);
+			draw_vertical_line(box_left_x, header_bottom_y + 1, message.ypos - 1, ui.border_color);
+			draw_vertical_line(upper_right.x, upper_right.y, lower_right.y, ui.border_color);
+			draw_horizontal_line(lower_left.x, box_left_x, message.ypos - 1, ui.border_color);
+			draw_vertical_line(lower_left.x, message.ypos - 1, lower_left.y, ui.border_color);
+			draw_horizontal_line(lower_left.x, lower_right.x, lower_left.y, ui.border_color);
 		}
 		
 		ValueSelector<G> get_selector(owned MapFunc<string, G> getItemName, Iterable<G>? items=null, uint selected_index) {

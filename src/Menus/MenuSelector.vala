@@ -157,7 +157,7 @@ namespace Menus
 			int16 rect_height = (int16)_height;
 			if (rect_height > max_height)
 				rect_height = max_height;			
-			draw_rectangle_outline(xpos, ypos, (int16)_width, (int16)rect_height, ui.item_color);
+			draw_rectangle_outline(xpos, ypos, (int16)_width, (int16)rect_height, ui.border_color);
 		}
 
 		public void hide_selection(bool flip=true) {

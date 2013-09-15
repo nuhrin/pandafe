@@ -70,7 +70,7 @@ namespace Layers.Controls
 			initialize_value_mask_regex(value_mask_regex);
 			
 			//int16 rect_width = (int16)(blank_textarea.w + (ui.value_control_spacing));
-			@interface.draw_rectangle_outline(0, 0, (int16)surface.w-1, (int16)surface.h-1, ui.item_color, 255, surface);			
+			@interface.draw_rectangle_outline(0, 0, (int16)surface.w-1, (int16)surface.h-1, ui.border_color, 255, surface);			
 			this.text = value ?? "";
 			render_text();
 			_is_valid_value = is_valid_value();

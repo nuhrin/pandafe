@@ -30,27 +30,15 @@ namespace Data.Appearances.GameBrowser
 	{
 		protected const string DEFAULT_HEADER_FOOTER_COLOR = "#FFFFFF";
 		
-		construct {			
-		}
-		protected GameBrowserAreaBase.default() { initialize_with_defaults(); }
-		
-		string _font;
-		int _font_size;
-		protected unowned string get_font() { return _font; }
-		protected void set_font(string font) { _font = font; }
-		protected int get_font_size() { return _font_size; }
-		protected void set_font_size(int size) { _font_size = size; }
-		protected bool monospace_font_required() { return false; }
-		
 		// yaml
-		protected override Yaml.Node build_yaml_node(Yaml.NodeBuilder builder) { return build_yaml_node_implementation(builder); }
-		protected override void apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) { apply_yaml_node_implementation(node, parser); }
+		protected override Yaml.Node build_yaml_node(Yaml.NodeBuilder builder) { return build_yaml_node_area_implementation(builder); }
+		protected override void apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) { apply_yaml_node_area_implementation(node, parser); }
 
 		// menu
-		protected abstract void font_changed();		
-		protected abstract void build_additional_fields(MenuBuilder builder);
-		protected abstract void cleanup_additional_fields();
-		protected override void build_menu(MenuBuilder builder) { build_menu_implementation(builder); }			
+		protected abstract void attribute_changed();		
+		protected abstract void build_area_fields(MenuBuilder builder);
+		protected abstract void cleanup_area_fields();
+		protected override void build_menu(MenuBuilder builder) { build_menu_area_implementation(builder); }			
 		protected override void cleanup_fields() { cleanup_fields_implementation(); }
 	}
 }

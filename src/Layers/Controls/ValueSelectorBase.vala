@@ -181,7 +181,7 @@ namespace Layers.Controls
 				// draw selector
 				blit_surface(surface, source_r, {xpos + ui.value_control_spacing, ypos + ui.value_control_spacing});
 				// draw border 			
-				draw_rectangle_outline(xpos, ypos, outer_width, outer_height, ui.item_color);
+				draw_rectangle_outline(xpos, ypos, outer_width, outer_height, ui.border_color);
 			} else {
 				// draw selector
 				blit_surface(surface, source_r, {xpos, ypos});

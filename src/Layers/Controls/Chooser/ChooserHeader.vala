@@ -61,7 +61,7 @@ namespace Layers.MenuBrowser
 				rect.x = (int16)(surface.w/2 - rendered_text.w/2);
 				blit_surface(rendered_text, null, rect);
 			}
-			draw_horizontal_line(0, (int16)width, ui.header.font_height + 11, ui.controls.item_color);
+			draw_horizontal_line(0, (int16)width, ui.header.font_height + 11, ui.controls.border_color);
 			if (_path != null && _path != "") {
 				rect.x = 10;
 				rect.y += 20 + ui.header.font_height;

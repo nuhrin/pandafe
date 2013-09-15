@@ -112,14 +112,14 @@ namespace Layers.GameBrowser
 			int16 height = (int16)(message.ypos - header.ypos - header.height);
 			draw_rectangle_fill(box_left_x, (int16)(header.ypos + header.height), width, height, ui.background_color);
 			
-			draw_horizontal_line(upper_left.x, upper_right.x, upper_left.y, ui.item_color);
-			draw_vertical_line(upper_left.x, upper_left.y, header_bottom_y, ui.item_color);
-			draw_horizontal_line(upper_left.x, box_left_x, header_bottom_y, ui.item_color);
-			draw_vertical_line(box_left_x, header_bottom_y, message.ypos - 1, ui.item_color);
-			draw_vertical_line(upper_right.x, upper_right.y, lower_right.y, ui.item_color);
-			draw_horizontal_line(lower_left.x, box_left_x, message.ypos - 1, ui.item_color);
-			draw_vertical_line(lower_left.x, message.ypos - 1, lower_left.y, ui.item_color);
-			draw_horizontal_line(lower_left.x, lower_right.x, lower_left.y, ui.item_color);
+			draw_horizontal_line(upper_left.x, upper_right.x, upper_left.y, ui.border_color);
+			draw_vertical_line(upper_left.x, upper_left.y, header_bottom_y, ui.border_color);
+			draw_horizontal_line(upper_left.x, box_left_x, header_bottom_y, ui.border_color);
+			draw_vertical_line(box_left_x, header_bottom_y, message.ypos - 1, ui.border_color);
+			draw_vertical_line(upper_right.x, upper_right.y, lower_right.y, ui.border_color);
+			draw_horizontal_line(lower_left.x, box_left_x, message.ypos - 1, ui.border_color);
+			draw_vertical_line(lower_left.x, message.ypos - 1, lower_left.y, ui.border_color);
+			draw_horizontal_line(lower_left.x, lower_right.x, lower_left.y, ui.border_color);
 		}
 
 		MenuSelector get_selector(Menus.Menu menu) {
@@ -150,7 +150,7 @@ namespace Layers.GameBrowser
 	
 		void update_selector_pos(MenuSelector selector) {
 			selector.xpos = (int16)(@interface.screen_width - 25 - ((selector.width < SELECTOR_MIN_WIDTH) ? SELECTOR_MIN_WIDTH : selector.width));
-			selector.ypos = (int16)(header.ypos + header.height + ui.font_height); //SELECTOR_YPOS;			
+			selector.ypos = (int16)(header.ypos + header.height + ui.font_height);
 		}
 		void update_colors() {
 			header.set_rgb_color(@interface.menu_ui.background_color_rgb);

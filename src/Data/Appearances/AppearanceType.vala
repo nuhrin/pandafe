@@ -54,7 +54,7 @@ namespace Data.Appearances
 				GLib.error("Unable to parse color constant: %s", spec);
 			return color;
 		}
-		internal SDL.Color resolve_sdl_color(Data.Color color, string fallback_color_spec) {
+		internal SDL.Color resolve_sdl_color(Data.Color? color, string fallback_color_spec) {
 			var resolved_color = color ?? build_color(fallback_color_spec);
 			return resolved_color.get_sdl_color();
 		}
@@ -69,7 +69,11 @@ namespace Data.Appearances
 		protected abstract void appearance_changed();
 		protected abstract void color_changed();
 		protected abstract string get_appearance_description();
-		internal string get_field_description(string field_name) { return "%s: %s %s".printf(name, get_appearance_description(), field_name); }
+		internal string get_field_description(string field_name) { 
+			if (name != null)
+				return "%s: %s %s".printf(name, get_appearance_description(), field_name); 
+			return "%s %s".printf(get_appearance_description(), field_name); 
+		}
 		
 		protected ObjectBrowserField add_appearance_field<G>(MenuBuilder builder, string id, string name, string help, AppearanceType<G> appearance) {
 			var field_handlers = get_field_handler_map();

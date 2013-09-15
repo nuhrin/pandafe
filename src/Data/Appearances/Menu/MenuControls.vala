@@ -26,7 +26,7 @@ using Menus.Fields;
 
 namespace Data.Appearances.Menu
 {
-	public class MenuControls : MenuAreaBase<MenuControls>
+	public class MenuControls : MenuFontAreaBase<MenuControls>
 	{	
 		const int DEFAULT_ITEM_SPACING = 6;
 		const string DEFAULT_ITEM_COLOR = "#FFFFFF";
@@ -82,18 +82,18 @@ namespace Data.Appearances.Menu
 			text_cursor_color = other.text_cursor_color;
 		}
 		
-		protected override void font_changed() { @interface.menu_ui.controls.update_font(this); }
+		protected override void attribute_changed() { @interface.menu_ui.controls.update_font(this); }
 		protected override void color_changed() { @interface.menu_ui.controls.update_colors(this); }
 		protected override void appearance_changed() { @interface.menu_ui.controls.update_appearance(this); }
 		protected override string get_appearance_description() { return "Menu Controls"; }
 		
 		protected override bool monospace_font_required() { return true; }
-		protected override void build_additional_fields(MenuBuilder builder)
+		protected override void build_area_fields(MenuBuilder builder)
 		{
 			var item_spacing_field = new IntegerField("item_spacing", "Item Spacing", null, item_spacing, 1, 15);
 			item_spacing_field.changed.connect(() => {
 				item_spacing = item_spacing_field.value;
-				font_changed();
+				attribute_changed();
 			});
 			builder.add_field(item_spacing_field);
 			
@@ -105,7 +105,7 @@ namespace Data.Appearances.Menu
 			var text_cursor_field = add_color_field(builder, "text_cursor_color", "Text Cursor", "Text Cursor Color", text_cursor_color, DEFAULT_TEXT_CURSOR_COLOR);
 			text_cursor_field.update_on_text_value_change = true;
 		}
-		protected override void cleanup_additional_fields() {
+		protected override void cleanup_area_fields() {
 		}
 	}
 }

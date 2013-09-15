@@ -31,6 +31,8 @@ namespace Data.Appearances.Menu
 {
 	public class MenuAppearance : MenuAppearanceBase<MenuAppearance>
 	{
+		const string DEFAULT_BORDER_COLOR = "#FFFFFF";
+		
 		construct {
 			background_color = build_color(default_background_color());
 			header = new MenuHeader.default();
@@ -52,7 +54,9 @@ namespace Data.Appearances.Menu
 		}
 
 		public Data.Color background_color { get; set; }
+		public Data.Color border_color { get; set; }
 		public SDL.Color background_color_sdl() { return resolve_sdl_color(background_color, default_background_color()); }
+		public SDL.Color border_color_sdl() { return resolve_sdl_color(border_color, DEFAULT_BORDER_COLOR); }
 
 		public MenuHeader header { get; set; }
 		public MenuControls controls { get; set; }
@@ -65,6 +69,11 @@ namespace Data.Appearances.Menu
 				copy.background_color = background_color.copy();
 			else
 				copy.background_color = build_color(default_background_color());
+			if (border_color != null)
+				copy.border_color = border_color.copy();
+			else
+				copy.border_color = build_color(DEFAULT_BORDER_COLOR);
+				
 			copy.header = header.copy();
 			copy.controls = controls.copy();
 			copy.footer = footer.copy();
@@ -73,6 +82,7 @@ namespace Data.Appearances.Menu
 		}
 		public override void copy_from(MenuAppearance other) {
 			background_color = other.background_color;
+			border_color = other.border_color;
 			header.copy_from(other.header);
 			controls.copy_from(other.controls);
 			footer.copy_from(other.footer);
@@ -89,6 +99,7 @@ namespace Data.Appearances.Menu
 		
 		protected override void build_menu(MenuBuilder builder) {
 			add_color_field(builder, "background_color", "Background", "Background Color", background_color, default_background_color());
+			add_color_field(builder, "border_color", "Border", "Border Color", border_color, DEFAULT_BORDER_COLOR);
 			
 			builder.add_separator();
 						

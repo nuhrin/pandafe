@@ -25,7 +25,7 @@ using Menus;
 
 namespace Data.Appearances.GameBrowser
 {
-	public class GameBrowserFooter : GameBrowserAreaBase<GameBrowserFooter>
+	public class GameBrowserFooter : GameBrowserFontAreaBase<GameBrowserFooter>
 	{	
 		construct {
 		}
@@ -51,17 +51,17 @@ namespace Data.Appearances.GameBrowser
 			text_color = other.text_color;
 		}
 		
-		protected override void font_changed() { @interface.game_browser_ui.footer.update_font(this); }
+		protected override void attribute_changed() { @interface.game_browser_ui.footer.update_font(this); }
 		protected override void color_changed() { @interface.game_browser_ui.footer.update_colors(this); }
 		protected override void appearance_changed() { @interface.game_browser_ui.footer.update_appearance(this); }
 		protected override string get_appearance_description() { return "Game Browser Footer"; }
 		
-		protected override void build_additional_fields(MenuBuilder builder)
+		protected override void build_area_fields(MenuBuilder builder)
 		{
 			builder.add_separator();
 			add_color_field(builder, "text_color", "Text", "Text Color", text_color, DEFAULT_HEADER_FOOTER_COLOR);
 		}
-		protected override void cleanup_additional_fields() {
+		protected override void cleanup_area_fields() {
 		}
 	}
 }

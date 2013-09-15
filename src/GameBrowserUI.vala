@@ -28,8 +28,6 @@ using Data.Appearances.GameBrowser;
 
 public class GameBrowserUI
 {
-	public const int16 SELECTOR_WITDH = 710;
-
 	SDL.Color _background_color;
 	uint32 _background_color_rgb;
 	
@@ -139,7 +137,6 @@ public class GameBrowserUI
 	}
 	public class ListUI : AppearanceAreaUI  {
 		GameBrowserUI ui;
-		int16 _item_spacing;
 		SDL.Color _item_color;
 		SDL.Color _selected_item_color;
 		SDL.Color _selected_item_background_color;
@@ -149,18 +146,24 @@ public class GameBrowserUI
 
 		public ListUI.from_appearance(GameBrowserList list, GameBrowserUI ui) {
 			this.ui = ui;
+			spacing = new ListSpacingUI(this);
 			update_appearance(list);
 		}
-		public int16 item_spacing { get { return _item_spacing; } }
+		public ListSpacingUI spacing { get; private set; }
+		public int16 selector_width() { return (int16)(@interface.screen_width - (spacing.left + spacing.right) - 40); }
+		
 		public unowned SDL.Color item_color { get { return _item_color; } }
 		public unowned SDL.Color selected_item_color { get { return _selected_item_color; } }
 		public unowned SDL.Color selected_item_background_color { get { return _selected_item_background_color; } }
 
 		public signal void colors_updated();
 
-		public void update_appearance(GameBrowserList list) {
+		public void update_appearance(GameBrowserList list, bool update_screen=false) {
+			spacing.update_appearance(list.spacing);
 			set_font(list);
 			set_colors(list);
+			if (update_screen)
+				ui.appearance_updated();
 		}
 		public void update_font(GameBrowserList list) {
 			set_font(list);
@@ -173,7 +176,6 @@ public class GameBrowserUI
 		}
 		void set_font(GameBrowserList list) {
 			set_area_font(list);
-			_item_spacing = list.item_spacing_resolved();
 			_blank_item_surface = null;
 			_blank_selected_item_surface = null;
 		}		
@@ -188,12 +190,12 @@ public class GameBrowserUI
 
 		public unowned Surface get_blank_item_surface() { 
 			if (_blank_item_surface == null)
-				_blank_item_surface = ui.get_blank_background_surface(SELECTOR_WITDH, font_height);
+				_blank_item_surface = ui.get_blank_background_surface(selector_width(), font_height);
 			return _blank_item_surface; 
 		}
 		public unowned Surface get_blank_selected_item_surface() { 
 			if (_blank_selected_item_surface == null)
-				_blank_selected_item_surface = @interface.get_blank_surface(SELECTOR_WITDH, font_height, _selected_item_background_color_rgb);
+				_blank_selected_item_surface = @interface.get_blank_surface(selector_width(), font_height, _selected_item_background_color_rgb);
 			return _blank_selected_item_surface; 
 		}
 		public Surface get_blank_background_surface(int width, int height) {
@@ -206,5 +208,40 @@ public class GameBrowserUI
 		public Surface render_text_selected(string text) {
 			return font.render_shaded(text, _selected_item_color, _selected_item_background_color);
 		}
-	}	
+	}
+	public class ListSpacingUI {
+		ListUI list;
+		int16 _top;
+		int16 _bottom;
+		int16 _left;
+		int16 _right;
+		int16 _item_v;
+		int16 _item_h;
+		
+		public ListSpacingUI(ListUI list) {
+			this.list = list;
+		}
+		public int16 top { get { return _top; } }
+		public int16 bottom { get { return _bottom; } }
+		public int16 left { get { return _left; } }
+		public int16 right { get { return _right; } }
+		public int16 item_v { get { return _item_v; } }
+		public int16 item_h { get { return _item_h; } }
+		
+		public void update_appearance(GameBrowserListSpacing spacing) {
+			set_attributes(spacing);
+		}
+		public void update_attributes(GameBrowserListSpacing spacing) {
+			set_attributes(spacing);
+			list.font_updated();
+		}
+		void set_attributes(GameBrowserListSpacing spacing) {
+			_top = spacing.top_resolved();
+			_bottom = spacing.bottom_resolved();
+			_left = spacing.left_resolved();
+			_right = spacing.right_resolved();
+			_item_v = spacing.item_v_resolved();
+			_item_h = spacing.item_h_resolved();
+		}
+	}
 }

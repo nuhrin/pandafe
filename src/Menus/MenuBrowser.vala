@@ -89,11 +89,11 @@ namespace Menus
 			int16 height = lower_left.y - upper_left.y;
 			draw_rectangle_fill(upper_left.x, upper_left.y, width, height, ui.background_color);
 			
-			draw_horizontal_line(upper_left.x, upper_right.x, upper_left.y, ui.item_color);
-			draw_horizontal_line(upper_left.x, upper_right.x, header_bottom_y + 1, ui.item_color);
-			draw_vertical_line(upper_left.x, upper_left.y, lower_left.y, ui.item_color);
-			draw_vertical_line(upper_right.x, upper_right.y, lower_left.y, ui.item_color);
-			draw_horizontal_line(lower_left.x, lower_right.x, lower_left.y, ui.item_color);			
+			draw_horizontal_line(upper_left.x, upper_right.x, upper_left.y, ui.border_color);
+			draw_horizontal_line(upper_left.x, upper_right.x, header_bottom_y + 1, ui.border_color);
+			draw_vertical_line(upper_left.x, upper_left.y, lower_left.y, ui.border_color);
+			draw_vertical_line(upper_right.x, upper_right.y, lower_left.y, ui.border_color);
+			draw_horizontal_line(lower_left.x, lower_right.x, lower_left.y, ui.border_color);			
 		}
 
 		MenuSelector get_selector(Menu menu) {

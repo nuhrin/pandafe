@@ -36,6 +36,7 @@ namespace Menus
 		
 		SDL.Color _background_color;
 		uint32 _background_color_rgb;
+		SDL.Color _border_color;
 		
 		public MenuUI.from_appearance(MenuAppearance appearance) {
 			set_colors(appearance);
@@ -46,6 +47,7 @@ namespace Menus
 		
 		public unowned SDL.Color background_color { get { return _background_color; } }
 		public uint32 background_color_rgb { get { return _background_color_rgb; } }
+		public unowned SDL.Color border_color { get { return _border_color; } }
 		
 		public HeaderUI header { get; private set; }
 		public ControlsUI controls { get; private set; }
@@ -69,6 +71,7 @@ namespace Menus
 		void set_colors(MenuAppearance appearance) {
 			_background_color = appearance.background_color_sdl();
 			_background_color_rgb = @interface.map_rgb(_background_color);
+			_border_color = appearance.border_color_sdl();
 		}				
 		
 		public Surface get_blank_background_surface(int width, int height) {
@@ -188,7 +191,8 @@ namespace Menus
 			public unowned SDL.Color text_cursor_color { get { return _text_cursor_color; } }
 			public uint32 text_cursor_color_rgb { get { return _text_cursor_color_rgb; } }
 			public unowned SDL.Color background_color { get { return ui.background_color;  } }
-			public uint32 background_color_rgb { get { return ui.background_color_rgb; } }			
+			public uint32 background_color_rgb { get { return ui.background_color_rgb; } }
+			public unowned SDL.Color border_color { get { return ui.border_color;  } }	
 		
 			public signal void colors_updated();
 

@@ -38,7 +38,7 @@ namespace Data.Appearances
 		
 		public signal void font_updated();
 		
-		public void set_area_font(AppearanceAreaType area) {
+		public void set_area_font(AppearanceFontAreaType area) {
 			_font_path = area.font_resolved();
 			_font_size = area.font_size_resolved();
 			_font = new Font(_font_path, _font_size);

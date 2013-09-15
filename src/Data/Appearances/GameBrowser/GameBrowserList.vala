@@ -26,29 +26,28 @@ using Menus.Fields;
 
 namespace Data.Appearances.GameBrowser
 {
-	public class GameBrowserList : GameBrowserAreaBase<GameBrowserList>
+	public class GameBrowserList : GameBrowserFontAreaBase<GameBrowserList>
 	{	
-		const int DEFAULT_ITEM_SPACING = 6;
 		const string DEFAULT_ITEM_COLOR = "#178ECB";
 		const string DEFAULT_SELECTED_ITEM_COLOR = "#0F3854";
 		const string DEFAULT_SELECTED_ITEM_BACKGROUND_COLOR = "#178ECB";
 		
 		construct {
+			spacing = new GameBrowserListSpacing.default();
 		}
 		public GameBrowserList.default() {
 			base.default();
-			item_spacing = DEFAULT_ITEM_SPACING;
+			spacing = new GameBrowserListSpacing.default();
 			item_color = build_color(DEFAULT_ITEM_COLOR);
 			selected_item_color = build_color(DEFAULT_SELECTED_ITEM_COLOR);
 			selected_item_background_color = build_color(DEFAULT_SELECTED_ITEM_BACKGROUND_COLOR);
 		}
 		
-		public int item_spacing { get; set; }
+		public GameBrowserListSpacing spacing { get; set; }
 		public Data.Color item_color { get; set; }
 		public Data.Color selected_item_color { get; set; }
 		public Data.Color selected_item_background_color { get; set; }
 		
-		public int16 item_spacing_resolved() { return (int16)((item_spacing > 0) ? item_spacing : DEFAULT_ITEM_SPACING); }
 		public SDL.Color item_color_sdl() { return resolve_sdl_color(item_color, DEFAULT_ITEM_COLOR);  }
 		public SDL.Color selected_item_color_sdl() { return resolve_sdl_color(selected_item_color, DEFAULT_SELECTED_ITEM_COLOR);  }
 		public SDL.Color selected_item_background_color_sdl() { return resolve_sdl_color(selected_item_background_color, DEFAULT_SELECTED_ITEM_BACKGROUND_COLOR);  }
@@ -56,7 +55,8 @@ namespace Data.Appearances.GameBrowser
 		public override GameBrowserList copy() {
 			var copy = new GameBrowserList();
 			copy_font_to(copy);
-			copy.item_spacing = item_spacing;
+			
+			copy.spacing = spacing.copy();
 
 			if (item_color != null)
 				copy.item_color = item_color.copy();
@@ -69,25 +69,20 @@ namespace Data.Appearances.GameBrowser
 		}
 		public override void copy_from(GameBrowserList other) {
 			copy_font_from(other);
-			item_spacing = other.item_spacing;
+			spacing.copy_from(other.spacing);
 			item_color = other.item_color;
 			selected_item_color = other.selected_item_color;
 			selected_item_background_color = other.selected_item_background_color;
 		}
 		
-		protected override void font_changed() { @interface.game_browser_ui.list.update_font(this); }
+		protected override void attribute_changed() { @interface.game_browser_ui.list.update_font(this); }
 		protected override void color_changed() { @interface.game_browser_ui.list.update_colors(this); }
-		protected override void appearance_changed() { @interface.game_browser_ui.list.update_appearance(this); }
+		protected override void appearance_changed() { @interface.game_browser_ui.list.update_appearance(this, true); }
 		protected override string get_appearance_description() { return "Game Browser List"; }
 		
-		protected override void build_additional_fields(MenuBuilder builder)
+		protected override void build_area_fields(MenuBuilder builder)
 		{
-			var item_spacing_field = new IntegerField("item_spacing", "Item Spacing", null, item_spacing, 1, 15);
-			item_spacing_field.changed.connect(() => {
-				item_spacing = item_spacing_field.value;
-				font_changed();
-			});
-			builder.add_field(item_spacing_field);
+			add_appearance_field<GameBrowserListSpacing>(builder, "spacing", "Spacing", "List Spacing", spacing);
 			
 			builder.add_separator();
 			
@@ -95,7 +90,7 @@ namespace Data.Appearances.GameBrowser
 			add_color_field(builder, "selected_item_color", "Selected", "Selected Item Color", selected_item_color, DEFAULT_SELECTED_ITEM_COLOR);
 			add_color_field(builder, "selected_item_background_color", "Selected BG", "Selected Item Background Color", selected_item_background_color, DEFAULT_SELECTED_ITEM_BACKGROUND_COLOR);						
 		}
-		protected override void cleanup_additional_fields() {
+		protected override void cleanup_area_fields() {
 		}
 	}
 }

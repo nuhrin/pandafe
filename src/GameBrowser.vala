@@ -34,7 +34,6 @@ using Menus.Fields;
 
 public class GameBrowser : Layers.ScreenLayer, EventHandler
 {
-	const int16 SELECTOR_XPOS = 45;
 	const string SELECTOR_ID = "selector";
 	const string FILTER_LABEL = "filter: ";	
 	
@@ -44,6 +43,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 	StatusMessageLayer status_message;
 	string? static_header_text;
 	string? static_status_test;
+	int16 selector_xpos;
 	int16 selector_ypos;
 	int16 selector_ymax;
     Selector selector;
@@ -124,10 +124,12 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		update_selector_ypos();
 		update(false);
 	}
-	void update_selector_ypos() {		
-		selector_ypos = header.ypos + (int16)header.height + (int16)(ui.list.font_height * 1.3);
-		selector_ymax = status_message.ypos - (int16)(ui.list.font_height * 1.1);
+	void update_selector_ypos() {
+		selector_xpos = ui.list.spacing.left + 20;
+		selector_ypos = header.ypos + (int16)header.height + ui.list.spacing.top;
+		selector_ymax = status_message.ypos - ui.list.spacing.bottom;
 		if (selector != null) { 
+			selector.xpos = selector_xpos;
 			selector.ypos = selector_ypos;
 			selector.ymax = selector_ymax;
 		}
@@ -265,7 +267,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 			on_selector_loading();
 			var everything_selector = selector as EverythingSelector;			
 			if (everything_selector == null)
-				everything_selector = new EverythingSelector(SELECTOR_ID, SELECTOR_XPOS, selector_ypos, selector_ymax, current_view_data);
+				everything_selector = new EverythingSelector(SELECTOR_ID, selector_xpos, selector_ypos, selector_ymax, current_view_data);
 			new_selector = everything_selector;
 		} else {
 			if (this.current_folder != null) {
@@ -273,13 +275,13 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 				var folder = current_platform.get_folder(current_folder);
 				if (folder == null)
 					folder = current_platform.get_root_folder();
-				new_selector = new GameFolderSelector(folder, SELECTOR_ID, SELECTOR_XPOS, selector_ypos, selector_ymax);	
+				new_selector = new GameFolderSelector(folder, SELECTOR_ID, selector_xpos, selector_ypos, selector_ymax);	
 			} else if (this.current_platform_folder != null) {
-				new_selector = new PlatformFolderSelector(this.current_platform_folder, SELECTOR_ID, SELECTOR_XPOS, selector_ypos, selector_ymax);
+				new_selector = new PlatformFolderSelector(this.current_platform_folder, SELECTOR_ID, selector_xpos, selector_ypos, selector_ymax);
 			} else if (platform_list_active == false && this.platform_folder_data.folders.size > 0) {
-				new_selector = new PlatformFolderSelector.root(SELECTOR_ID, SELECTOR_XPOS, selector_ypos, selector_ymax);
+				new_selector = new PlatformFolderSelector.root(SELECTOR_ID, selector_xpos, selector_ypos, selector_ymax);
 			} else {
-				new_selector = new PlatformSelector(SELECTOR_ID, SELECTOR_XPOS, selector_ypos, selector_ymax);
+				new_selector = new PlatformSelector(SELECTOR_ID, selector_xpos, selector_ypos, selector_ymax);
 			}			
 		}
 		selector_handlers.add(new_selector.changed.connect(() => on_selector_changed()));
@@ -782,7 +784,6 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 	void filter_selector() {		
 		status_message.set();
 
-
 		var label = @interface.game_browser_ui.footer.render_text(FILTER_LABEL);
 		Rect label_rect = {600 - (int16)label.w, status_message.ypos};
 		blit_surface(label, null, label_rect);
@@ -1169,5 +1170,5 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 			show_main_menu();
 		else
 			flip();
-	}	
+	}
 }

@@ -25,7 +25,7 @@ using Menus;
 
 namespace Data.Appearances.Menu
 {
-	public class MenuFooter : MenuAreaBase<MenuFooter>
+	public class MenuFooter : MenuFontAreaBase<MenuFooter>
 	{	
 		construct {
 		}
@@ -51,18 +51,18 @@ namespace Data.Appearances.Menu
 			text_color = other.text_color;
 		}
 		
-		protected override void font_changed() { @interface.menu_ui.footer.update_font(this); }
+		protected override void attribute_changed() { @interface.menu_ui.footer.update_font(this); }
 		protected override void color_changed() { @interface.menu_ui.footer.update_colors(this); }
 		protected override void appearance_changed() { @interface.menu_ui.footer.update_appearance(this); }
 		protected override string get_appearance_description() { return "Menu Footer"; }
 		
 		protected override bool monospace_font_required() { return true; }
-		protected override void build_additional_fields(MenuBuilder builder)
+		protected override void build_area_fields(MenuBuilder builder)
 		{
 			builder.add_separator();
 			add_color_field(builder, "text_color", "Text", "Text Color", text_color, DEFAULT_HEADER_FOOTER_COLOR);
 		}
-		protected override void cleanup_additional_fields() {
+		protected override void cleanup_area_fields() {
 		}
 	}
 }
