@@ -7,7 +7,7 @@ SUBDIRS = \
 	pnd \
 	scripts \
 	submodules \
-	src/gtksourceview \
+	gtksourceview \
 	src \
 	vapi \
 	$(NULL)

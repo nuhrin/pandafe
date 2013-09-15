@@ -2,6 +2,58 @@ NULL =
 
 SUBDIRS = language-specs
 
+noinst_LTLIBRARIES = \
+	libgtksourceview_custom.la
+	$(NULL)
+
+libgtksourceview_custom_la_SOURCES = \
+	embedded_languages.c \
+	gtksourcebuffer.c \
+	gtksourceiter.c \
+	gtksourceview.c \
+	gtksourceundomanager.c \
+	gtksourceundomanagerdefault.c \
+	gtktextregion.c \
+	gtksourcelanguage.c \
+	gtksourcelanguagemanager.c \
+	gtksourcelanguage-parser-1.c \
+	gtksourcelanguage-parser-2.c \
+	gtksourceview-i18n.c \
+	gtksourceview-utils.c \
+	gtksourcestyle.c \
+	gtksourcestyleschememanager.c \
+	gtksourcestylescheme.c \
+	gtksourceengine.c \
+	gtksourcecontextengine.c \
+	gtksourcemark.c \
+	gtksourceprintcompositor.c \
+	gtksourcegutter.c \
+	gtksourcecompletion.c \
+	gtksourcecompletioninfo.c \
+	gtksourcecompletionitem.c \
+	gtksourcecompletionproposal.c \
+	gtksourcecompletionprovider.c \
+	gtksourcecompletionmodel.c \
+	gtksourcecompletionutils.c \
+	gtksourcecompletioncontext.c \
+	gtksourceview-marshal.c \
+	gtksourceview-typebuiltins.c \
+	$(NULL)
+
+libgtksourceview_custom_la_CPPFLAGS = \
+	$(GLIB_CFLAGS) \
+	$(GTK_CFLAGS) \
+	$(LIBXML_CFLAGS) \
+	$(NULL)
+
+libgtksourceview_custom_la_LIBADD = \
+	$(GLIB_LIBS) \
+	$(GTK_LIBS) \
+	$(LIBXML_LIBS) \
+	$(NULL)
+
+libgtksourceview_custom_la_LDFLAGS = -static
+
 EMBEDDED_LANG_H_FILES = \
 	embedded_sh_lang.h \
 	embedded_def_lang.h \
@@ -74,7 +126,6 @@ EXTRA_H_FILES = \
     gtksourceview-i18n.h        \
     gtksourceview-utils.h       \
     gtktextregion.h
-
 
 gtksourceview-marshal.h: gtksourceview-marshal.list $(GLIB_GENMARSHAL)
 	$(AM_V_GEN) $(GLIB_GENMARSHAL) $< --header --prefix=_gtksourceview_marshal > $@

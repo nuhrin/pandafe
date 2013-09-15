@@ -119,10 +119,10 @@ AC_CONFIG_FILES([
 	pnd/previews/Makefile
 	scripts/Makefile
 	submodules/Makefile
+	gtksourceview/Makefile
+	gtksourceview/language-specs/Makefile
+	gtksourceview/embedded_languages.c
 	src/Makefile
-	src/gtksourceview/Makefile
-	src/gtksourceview/language-specs/Makefile
-	src/gtksourceview/embedded_languages.c
 	vapi/Makefile
 ])
 AC_OUTPUT

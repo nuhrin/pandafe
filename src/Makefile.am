@@ -9,7 +9,6 @@ AM_CPPFLAGS = \
 	$(SDL_CFLAGS) \
 	$(SDL_IMAGE_CFLAGS) \
 	$(GTK_CFLAGS) \
-	$(LIBXML_CFLAGS) \
 	$(VTE_CFLAGS) \
 	-I./gtksourceview \
 	$(NULL)
@@ -25,7 +24,6 @@ bin_PROGRAMS = \
 	$(NULL)
 
 pandafe_SOURCES = \
-	$(gtksourceview_custom_SOURCES) \
 	main.vala \
 	EventHandler.vala \
 	GameBrowser.vala \
@@ -188,40 +186,6 @@ pandafe_SOURCES = \
 	Selectors/SelectorItemSet.vala \
 	$(NULL)
 
-gtksourceview_custom_SOURCES = \
-	gtksourceview/embedded_languages.c \
-	gtksourceview/gtksourcebuffer.c \
-	gtksourceview/gtksourceiter.c \
-	gtksourceview/gtksourceview.c \
-	gtksourceview/gtksourceundomanager.c \
-	gtksourceview/gtksourceundomanagerdefault.c \
-	gtksourceview/gtktextregion.c \
-	gtksourceview/gtksourcelanguage.c \
-	gtksourceview/gtksourcelanguagemanager.c \
-	gtksourceview/gtksourcelanguage-parser-1.c \
-	gtksourceview/gtksourcelanguage-parser-2.c \
-	gtksourceview/gtksourceview-i18n.c \
-	gtksourceview/gtksourceview-utils.c \
-	gtksourceview/gtksourcestyle.c \
-	gtksourceview/gtksourcestyleschememanager.c \
-	gtksourceview/gtksourcestylescheme.c \
-	gtksourceview/gtksourceengine.c \
-	gtksourceview/gtksourcecontextengine.c \
-	gtksourceview/gtksourcemark.c \
-	gtksourceview/gtksourceprintcompositor.c \
-	gtksourceview/gtksourcegutter.c \
-	gtksourceview/gtksourcecompletion.c \
-	gtksourceview/gtksourcecompletioninfo.c \
-	gtksourceview/gtksourcecompletionitem.c \
-	gtksourceview/gtksourcecompletionproposal.c \
-	gtksourceview/gtksourcecompletionprovider.c \
-	gtksourceview/gtksourcecompletionmodel.c \
-	gtksourceview/gtksourcecompletionutils.c \
-	gtksourceview/gtksourcecompletioncontext.c \
-	gtksourceview/gtksourceview-marshal.c \
-	gtksourceview/gtksourceview-typebuiltins.c \
-	$(NULL)
-
 pandafe.submodule-libs.check:
 	@$(top_srcdir)/scripts/update-stamp-from-dependencies.sh main.c "$(GEE_LTLIB)" "$(CATAPULT_LTLIB)" "$(PANDORA_GLIB_LTLIB)"
 
@@ -245,12 +209,12 @@ pandafe_LDADD = \
 	$(GEE_LTLIB) \
 	$(CATAPULT_LTLIB) \
 	$(PANDORA_GLIB_LTLIB) \
+	$(top_builddir)/gtksourceview/libgtksourceview_custom.la \
 	$(SDL_LIBS) \
 	$(SDL_IMAGE_LIBS) \
 	$(SDL_TTF_LIBS) \
 	$(SDL_GFX_LIBS) \
 	$(GTK_LIBS) \
-	$(LIBXML_LIBS) \
 	$(VTE_LIBS) \
 	-lm \
 	$(NULL)
