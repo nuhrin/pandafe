@@ -203,10 +203,22 @@ public class GameBrowserUI
 		}
 
 		public Surface render_text(string text) {
-			return font.render_shaded(text, _item_color, ui.background_color);
+			return _render_text(text, _item_color, ui.background_color);
 		}
 		public Surface render_text_selected(string text) {
-			return font.render_shaded(text, _selected_item_color, _selected_item_background_color);
+			return _render_text(text, _selected_item_color, _selected_item_background_color);
+		}
+		Surface _render_text(string* text, SDL.Color text_color, SDL.Color background_color) {
+			int max_width = get_blank_item_surface().w - (spacing.item_h * 2);
+			if (get_text_width(text) <= max_width)
+				return font.render_shaded(text, text_color, background_color);
+			
+			var sb = new StringBuilder(text);
+			do {
+				sb.truncate(sb.len-1);
+			} while(get_text_width(sb.str) > max_width);
+			
+			return font.render_shaded(sb.str, text_color, background_color);
 		}
 	}
 	public class ListSpacingUI {

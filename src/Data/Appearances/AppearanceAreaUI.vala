@@ -48,6 +48,17 @@ namespace Data.Appearances
 			_font_height = (int16)font.height();
 		}
 		
+		protected int get_text_width(string* text) {
+			return get_font_text_width(font, text);
+		}
+		int get_font_text_width(Font* font, string* text) {
+			int w = 0;
+			int h = 0;
+			if (font->size(text, ref w, ref h) == 0)
+				return w;
+			return -1;
+		}
+		
 		protected Font get_font_for_text_fit(int starting_font_size, int min_font_size, int text_length, int max_width) {
 			int font_size = starting_font_size;
 			while (font_size > min_font_size && font_size_fits_text(font_size, text_length, max_width) == false) {
@@ -70,7 +81,7 @@ namespace Data.Appearances
 			Font font = new Font(font_path, font_size);
 			if (font == null)
 				GLib.error("Error loading font: %s", SDL.get_error());
-			var width = font.render_shaded(" ", {0,0,0}, {0,0,0}).w;
+			var width = get_font_text_width(font, " ");
 			_font_size_width_map[font_size] = width;
 			return width;
 		}
