@@ -455,6 +455,25 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 	//
 	// events
     void on_keydown_event (KeyboardEvent event) {
+		if (event.keysym.mod == KeyModifier.LALT) {
+			switch(event.keysym.sym) {
+				case KeySymbol.a:
+					new Layers.GameBrowser.MenuOverlay(new ObjectMenu("Edit current appearance", null, Data.preferences().appearance)).run();
+					flip();
+					return;
+				case KeySymbol.b:
+					new Layers.GameBrowser.MenuOverlay(new ObjectMenu("Edit current browser appearance", null, Data.preferences().appearance.game_browser)).run();
+					flip();
+					return;
+				case KeySymbol.m:
+					new Layers.GameBrowser.MenuOverlay(new ObjectMenu("Edit current menu appearance", null, Data.preferences().appearance.menu)).run();
+					flip();
+					return;
+				default:
+					break;
+			}
+		}
+		
 		if (process_unicode(event.keysym.unicode) == false)
 			return;
 
