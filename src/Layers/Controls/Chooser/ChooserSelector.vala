@@ -245,7 +245,7 @@ namespace Layers.Controls.Chooser
 			update_selector_attributes();
 			surface = ui.get_blank_background_surface(_width, _height);
 
-			Rect rect = {0, 0};
+			Rect rect = {ui.font_width(), 0};
 			for(int index=0; index < item_count; index++) {
 				render_item(index).blit(null, surface, rect);
 				rect.y = (int16)(rect.y + ui.font_height + ui.item_spacing);
@@ -264,7 +264,7 @@ namespace Layers.Controls.Chooser
 			if (max_chars > uint8.MAX)
 				max_chars = uint8.MAX;
 			max_item_length_real = (max_chars < MAX_ITEM_LENGTH) ? (uint8)max_chars : MAX_ITEM_LENGTH;
-			int item_area_width = ui.font_width(max_item_length_real);
+			int item_area_width = ui.font_width(max_item_length_real + 2);
 			_width = item_area_width;
 
 			blank_item_area = ui.get_blank_item_surface(item_area_width);
@@ -279,9 +279,11 @@ namespace Layers.Controls.Chooser
 			var item = get_item_name(index);
 			if (selected == true) {
 				select_item_area.blit(null, surface, rect);
+				rect.x += ui.font_width();
 				ui.render_text_selected(item).blit(null, surface, rect);
 			} else {
 				blank_item_area.blit(null, surface, rect);
+				rect.x += ui.font_width();
 				ui.render_text(item).blit(null, surface, rect);
 			}
 		}

@@ -296,20 +296,25 @@ namespace Layers.Controls.List
 			Rect rect = {0, 0};
 			if (_items.size == 0) {
 				select_item_area.blit(null, surface, rect);
+				rect.x += ui.font_width();
 				ui.render_text_selected(NO_ITEMS_TEXT).blit(null, surface, rect);
 				return;
 			}
 			for(int index=0; index < _items.size; index++) {
+				rect.x = 0;
 				var item = items[index].name;
 				if (index == selected_index) {
 					if (move_active == true) {
 						move_item_area.blit(null, surface, rect);
+						rect.x += ui.font_width();
 						ui.font.render_shaded(item, ui.selected_item_color, ui.text_cursor_color).blit(null, surface, rect);
 					} else {
 						select_item_area.blit(null, surface, rect);
+						rect.x += ui.font_width();
 						ui.render_text_selected(item).blit(null, surface, rect);
 					}
 				} else {
+					rect.x += ui.font_width();
 					ui.render_text(item).blit(null, surface, rect);
 				}
 				rect.y = (int16)(rect.y + ui.font_height + ui.item_spacing);
@@ -334,7 +339,7 @@ namespace Layers.Controls.List
 			if (max_chars > uint8.MAX)
 				max_chars = uint8.MAX;
 			max_item_length_real = (max_chars < MAX_ITEM_LENGTH) ? (uint8)max_chars : MAX_ITEM_LENGTH;
-			int item_area_width = ui.font_width(max_item_length_real);
+			int item_area_width = ui.font_width(max_item_length_real + 2);
 			_width = item_area_width;
 
 			blank_item_area = ui.get_blank_item_surface(item_area_width);
@@ -349,13 +354,16 @@ namespace Layers.Controls.List
 			if (selected == true) {
 				if (move_active == true) {
 					move_item_area.blit(null, surface, rect);
+					rect.x += ui.font_width();
 					ui.font.render_shaded(item, ui.selected_item_color, ui.text_cursor_color).blit(null, surface, rect);
 				} else {
 					select_item_area.blit(null, surface, rect);
+					rect.x += ui.font_width();
 					ui.render_text_selected(item).blit(null, surface, rect);
 				}
 			} else {
 				blank_item_area.blit(null, surface, rect);
+				rect.x += ui.font_width();
 				ui.render_text(item).blit(null, surface, rect);
 			}
 		}

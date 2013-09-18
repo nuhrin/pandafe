@@ -71,7 +71,7 @@ namespace Layers.Controls
 			this.xpos = xpos;
 			this.ypos = ypos;
 			max_height = (int16)@interface.screen_height / 2;
-			max_text_width = max_width - 8;
+			max_text_width = max_width - ui.value_control_spacing;
 			max_characters = max_text_width / ui.font_width();
 			items = new ArrayList<G>();
 			draw_rectangle = true;
@@ -89,6 +89,7 @@ namespace Layers.Controls
 		public uint item_count { get { return items.size; } }
 		public bool can_select_single_item { get; set; }
 		public bool wrap_selector { get; set; }
+		public bool pad_items { get; set; }
 		
 		public uint selected_index {
 			get { return _selected_index; }
@@ -311,6 +312,8 @@ namespace Layers.Controls
 			surface = ui.get_blank_background_surface(_width, _height);
 
 			Rect rect = {0, 0};
+			if (pad_items)
+				rect.x += ui.font_width();
 			for(int index=0; index < items.size; index++) {
 				render_item(index).blit(null, surface, rect);
 				rect.y = (int16)(rect.y + ui.font_height + ui.item_spacing);
@@ -330,6 +333,8 @@ namespace Layers.Controls
 			if (max_name_chars < max_characters)
 				max_characters = max_name_chars;
 			int name_area_width = ui.font_width(max_characters);
+			if (pad_items)
+				name_area_width += ui.font_width(2);
 			_width = name_area_width;
 
 			blank_name_area = ui.get_blank_item_surface(name_area_width);
@@ -360,9 +365,13 @@ namespace Layers.Controls
 			Rect rect = {0, get_offset(index)};
 			if (selected == true) {
 				select_name_area.blit(null, surface, rect);
+				if (pad_items)
+					rect.x += ui.font_width();
 				ui.render_text_selected(get_display_name(index)).blit(null, surface, rect);
 			} else {
 				blank_name_area.blit(null, surface, rect);
+				if (pad_items)
+					rect.x += ui.font_width();
 				ui.render_text(get_display_name(index)).blit(null, surface, rect);
 			}
 		}

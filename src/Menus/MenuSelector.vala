@@ -154,10 +154,10 @@ namespace Menus
 			Rect source_r = {0, get_offset(top_index), (int16)_width, height};
 			blit_surface(surface, source_r, dest_r);
 			
-			int16 rect_height = (int16)_height;
-			if (rect_height > max_height)
-				rect_height = max_height;			
-			draw_rectangle_outline(xpos, ypos, (int16)_width, (int16)rect_height, ui.border_color);
+//~ 			int16 rect_height = (int16)_height;
+//~ 			if (rect_height > max_height)
+//~ 				rect_height = max_height;			
+//~ 			draw_rectangle_outline(xpos, ypos, (int16)_width, (int16)rect_height, ui.border_color);
 		}
 
 		public void hide_selection(bool flip=true) {
@@ -401,7 +401,7 @@ namespace Menus
 						value_x_pos = ui.font_width(max_name_length + item_padding_length);
 					}
 				}
-				int value_area_width = ui.font_width(max_value_length + 1); // +1 for padding
+				int value_area_width = ui.font_width(max_value_length);
 				blank_value_area = ui.get_blank_item_surface(value_area_width);
 				_width = value_x_pos + value_area_width;
 			}

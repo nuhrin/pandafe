@@ -298,7 +298,8 @@ namespace Layers.Controls.List
 			if (selector.item_count > 0) {
 				var selected_item = selector.selected_item();
 				bool move_ok = (selector.item_count > 1);
-				action = new ListItemActionSelector("item_action_selector", rect.x + (int16)rect.w, rect.y, 
+				int16 max_width = (int16)(@interface.screen_width - 20 - rect.x - rect.w);
+				action = new ListItemActionSelector("item_action_selector", rect.x + (int16)rect.w, rect.y, max_width,
 					can_edit(selected_item), can_delete(selected_item), move_ok, can_insert())
 					.run();				
 			}

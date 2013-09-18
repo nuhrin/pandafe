@@ -97,7 +97,7 @@ namespace Menus
 		}
 
 		MenuSelector get_selector(Menu menu) {
-			int16 max_width = (int16)(header.xpos + header.width - SELECTOR_XPOS - ui.font_width());
+			int16 max_width = (int16)(@interface.screen_width - SELECTOR_XPOS - 20 - ui.value_control_spacing);
 			return new MenuSelector(SELECTOR_ID, SELECTOR_XPOS, selector_ypos, menu, selector_max_height, max_width, MAX_NAME_LENGTH);			
 		}
 		void connect_selector_signals() {

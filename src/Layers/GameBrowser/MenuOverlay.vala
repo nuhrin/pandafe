@@ -107,8 +107,8 @@ namespace Layers.GameBrowser
 		}
 		
 		protected override void draw() {
-			int16 box_left_x = selector.xpos - 20;
-			int16 width = (int16)@interface.screen_width - selector.xpos;
+			int16 box_left_x = selector.xpos - ui.value_control_spacing;
+			int16 width = (int16)@interface.screen_width - box_left_x - 20;
 			int16 height = (int16)(message.ypos - header.ypos - header.height);
 			draw_rectangle_fill(box_left_x, (int16)(header.ypos + header.height), width, height, ui.background_color);
 			
@@ -149,7 +149,7 @@ namespace Layers.GameBrowser
 		Gee.ArrayList<ulong> menu_handlers = new Gee.ArrayList<ulong>();
 	
 		void update_selector_pos(MenuSelector selector) {
-			selector.xpos = (int16)(@interface.screen_width - 25 - ((selector.width < SELECTOR_MIN_WIDTH) ? SELECTOR_MIN_WIDTH : selector.width));
+			selector.xpos = (int16)(@interface.screen_width - 20 - ui.value_control_spacing - ((selector.width < SELECTOR_MIN_WIDTH) ? SELECTOR_MIN_WIDTH : selector.width));
 			selector.ypos = (int16)(header.ypos + header.height + ui.font_height);
 		}
 		void update_colors() {

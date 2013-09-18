@@ -51,9 +51,9 @@ namespace Layers.Controls
 		
 		public TextEntry(string id, int16 x, int16 y, int16 width, string? value=null, string? character_mask_regex=null, string? value_mask_regex=null) {
 			var ui = @interface.menu_ui.controls;
-			int max_text_width = width - (ui.value_control_spacing * 2);			
+			int max_text_width = width - (ui.value_control_spacing);
 			int max_characters = max_text_width / ui.font_width();
-			int resolved_width = (max_characters * ui.font_width()) + (ui.value_control_spacing * 2);
+			int resolved_width = (max_characters * ui.font_width()) + (ui.value_control_spacing * 2) + 1;
 			base(id, resolved_width, ui.font_height + (ui.value_control_spacing * 2), x, y, ui.background_color_rgb);
 			this.ui = ui;
 			this.x = x;
@@ -61,7 +61,7 @@ namespace Layers.Controls
 			this.max_text_width = (int16)max_text_width;
 			this.max_characters = max_characters;
 			this.char_width = ui.font_width();
-			blank_textarea = ui.get_blank_background_surface((int16)((max_characters * char_width) + ui.value_control_spacing), ui.font_height + ui.value_control_spacing + 1);
+			blank_textarea = ui.get_blank_background_surface((int16)((max_characters * char_width) + ui.value_control_spacing)-1, ui.font_height + ui.value_control_spacing);
 			cursor_y = ui.value_control_spacing + (ui.font_height / 3) * 2;
 			cursor_height = ui.font_height / 3;
 			cursor_pos = (value != null) ? value.length : 0;
