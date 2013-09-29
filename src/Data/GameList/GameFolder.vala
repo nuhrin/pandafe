@@ -158,7 +158,7 @@ namespace Data.GameList
 						game.add_cache_line(sb, null);
 				}
 
-				string folder_path = Path.build_filename(Build.LOCAL_CONFIG_DIR, get_cache_folder());
+				string folder_path = Path.build_filename(RuntimeEnvironment.user_config_dir(), get_cache_folder());
 				if (FileUtils.test(folder_path, FileTest.IS_DIR) == false) {
 					if (File.new_for_path(folder_path).make_directory_with_parents() == false)
 						throw new FileError.FAILED("unable to create cache folder");
@@ -181,7 +181,7 @@ namespace Data.GameList
 			var folder_path = get_cache_folder();
 			try {
 				string contents;
-				if (FileUtils.get_contents(Path.build_filename(Build.LOCAL_CONFIG_DIR, folder_path, CACHE_FILENAME), out contents) == false)
+				if (FileUtils.get_contents(Path.build_filename(RuntimeEnvironment.user_config_dir(), folder_path, CACHE_FILENAME), out contents) == false)
 					throw new FileError.FAILED("unspecified error");
 					
 				var lines = contents.strip().split("\n");

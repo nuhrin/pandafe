@@ -30,6 +30,7 @@ pandafe_SOURCES = \
 	GameBrowserUI.vala \
 	GuiInstaller.vala \
 	InterfaceHelper.vala \
+	RuntimeEnvironment.vala \
 	Spawning.vala \
 	SpawningResult.vala \
 	Utility.vala \
@@ -199,11 +200,11 @@ pandafe_VALAFLAGS = \
 
 build-info.h: 
 	@echo "#define PACKAGE_DATADIR \"$(pkgdatadir)\"" > build-info.h; \
-	LOCAL_CONFIG_DIR=".pandafe"; \
+	IS_PND=0; \
 	if test "x$(prefix)" = "x$(PND_MOUNT_DIR)"; then \
-		LOCAL_CONFIG_DIR="."; \
+		IS_PND=1; \
 	fi; \
-	echo "#define LOCAL_CONFIG_DIR \"$$LOCAL_CONFIG_DIR\"" >> build-info.h
+	echo "#define IS_PND $$IS_PND" >> build-info.h;
 
 pandafe_LDADD = \
 	$(GEE_LTLIB) \

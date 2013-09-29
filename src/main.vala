@@ -92,9 +92,9 @@ public class MainClass: Object {
 	}
 
 	static void ensure_pandafe_appdata(SDL.Screen* screen) {
-		if (FileUtils.test(Build.LOCAL_CONFIG_DIR, FileTest.IS_DIR) == false) {
-			if (FileUtils.test(Build.LOCAL_CONFIG_DIR, FileTest.EXISTS) == true)
-				GLib.error("Local config directory '%s' exists but is not a directory.", Build.LOCAL_CONFIG_DIR);
+		if (FileUtils.test(RuntimeEnvironment.user_config_dir(), FileTest.IS_DIR) == false) {
+			if (FileUtils.test(RuntimeEnvironment.user_config_dir(), FileTest.EXISTS) == true)
+				GLib.error("Local config directory '%s' exists but is not a directory.", RuntimeEnvironment.user_config_dir());
 		}
 				
 		// ensure appdata
@@ -123,7 +123,7 @@ public class MainClass: Object {
 			Data.save_preferences();
 	}	
 	static bool determine_data_update_need() {
-		string path = Path.build_filename(Build.LOCAL_CONFIG_DIR, ".data-version-last-checked");
+		string path = Path.build_filename(RuntimeEnvironment.user_config_dir(), ".data-version-last-checked");
 		if (FileUtils.test(path, FileTest.EXISTS) == true) {
 			try {
 				string last_checked_data_version = Build.BUILD_VERSION;
@@ -201,7 +201,7 @@ public class MainClass: Object {
 	}
 
 	static void ensure_appdata_folder(string foldername, bool copy_files=true, bool force_update=false) {
-		string target_path = Path.build_filename(Build.LOCAL_CONFIG_DIR, foldername);
+		string target_path = Path.build_filename(RuntimeEnvironment.user_config_dir(), foldername);
 		bool target_path_exists = (FileUtils.test(target_path, FileTest.IS_DIR) == true);
 		if (target_path_exists) {
 			if (force_update == false)
@@ -211,7 +211,7 @@ public class MainClass: Object {
 		}				
 		
 		// check for source folder in the pkgconfigdir
-		string source_path = Path.build_filename(Build.PACKAGE_DATADIR, foldername);
+		string source_path = Path.build_filename(RuntimeEnvironment.system_data_dir(), foldername);
 		if (FileUtils.test(source_path, FileTest.IS_DIR) == false)
 			return;
 
@@ -234,6 +234,8 @@ public class MainClass: Object {
 			FileInfo source_info;
 			while ((source_info = enumerator.next_file()) != null) {
 				var name = source_info.get_name();
+				if (name.has_prefix("Makefile"))
+					continue;
 				var source = File.new_for_path(Path.build_filename(source_path, name));
 				var destination = File.new_for_path(Path.build_filename(target_path, name));
 				var destination_ok = destination.query_exists();
@@ -253,14 +255,14 @@ public class MainClass: Object {
 	}
 	
 	static bool ensure_appdata_file(string filename) {
-		string target_path = Path.build_filename(Build.LOCAL_CONFIG_DIR, filename);
+		string target_path = Path.build_filename(RuntimeEnvironment.user_config_dir(), filename);
 		if (FileUtils.test(target_path, FileTest.IS_REGULAR) == true)
 			return true;
 		if (FileUtils.test(target_path, FileTest.EXISTS) == true)
 			GLib.error("Local config file '%s' exists but is not a regular file.", target_path);
 		
 		// check for source file in the pkgconfigdir
-		string source_path = Path.build_filename(Build.PACKAGE_DATADIR, filename);
+		string source_path = Path.build_filename(RuntimeEnvironment.system_data_dir(), filename);
 		if (FileUtils.test(source_path, FileTest.IS_REGULAR) == false)
 			return false;
 		
@@ -280,7 +282,7 @@ public class MainClass: Object {
 	
 		
 	static void cleanup_cache() {
-		string gamelistcache_path = Path.build_filename(Build.LOCAL_CONFIG_DIR, Data.GameList.GameFolder.CACHE_FOLDER_ROOT);
+		string gamelistcache_path = Path.build_filename(RuntimeEnvironment.user_config_dir(), Data.GameList.GameFolder.CACHE_FOLDER_ROOT);
 		if (FileUtils.test(gamelistcache_path, FileTest.EXISTS) == true) {
 			try {
 				var platform_ids = Data.platforms().get_all_platforms().select<string>(p=>p.id).to_list();

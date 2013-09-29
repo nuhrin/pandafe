@@ -64,7 +64,7 @@ namespace Data.GameList
 			// attempt to load
 			try {
 				string contents;
-				if (FileUtils.get_contents(Path.build_filename(Build.LOCAL_CONFIG_DIR, GameFolder.CACHE_FOLDER_ROOT, CACHE_FILENAME), out contents) == false)
+				if (FileUtils.get_contents(Path.build_filename(RuntimeEnvironment.user_config_dir(), GameFolder.CACHE_FOLDER_ROOT, CACHE_FILENAME), out contents) == false)
 					throw new FileError.FAILED("unspecified error");
 				var lines = contents.strip().split("\n");
 				if (lines.length == 0)
@@ -137,7 +137,7 @@ namespace Data.GameList
 					ensure_folder_store(game.parent, hash, sb);
 					game.add_cache_line(sb, hash[game.parent]);
 				}
-				if (FileUtils.set_contents(Path.build_filename(Build.LOCAL_CONFIG_DIR, GameFolder.CACHE_FOLDER_ROOT, CACHE_FILENAME), sb.str) == false)
+				if (FileUtils.set_contents(Path.build_filename(RuntimeEnvironment.user_config_dir(), GameFolder.CACHE_FOLDER_ROOT, CACHE_FILENAME), sb.str) == false)
 					throw new FileError.FAILED("unspecified error");
 				cache_updated();
 			} catch(Error e) {

@@ -173,7 +173,7 @@ public class Spawning
 	
 	static unowned string get_cpuspeed_wrapper_script_path() {
 		if (_cpuspeed_wrapper_script_path == null) {				
-			_cpuspeed_wrapper_script_path = Path.build_filename(Build.PACKAGE_DATADIR, CPUSPEED_WRAPPER_SCRIPT_PATH);
+			_cpuspeed_wrapper_script_path = Path.build_filename(RuntimeEnvironment.system_data_dir(), CPUSPEED_WRAPPER_SCRIPT_PATH);
 			if (FileUtils.test(_cpuspeed_wrapper_script_path, FileTest.EXISTS) == false)
 				_cpuspeed_wrapper_script_path = CPUSPEED_WRAPPER_SCRIPT_PATH;
 		}

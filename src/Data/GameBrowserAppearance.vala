@@ -125,7 +125,7 @@ namespace Data
 			return new GameBrowserUI(resolved_font, resolved_font_size, item_color, selected_item_color, background_color);
 		}
 		string get_default_font_path() {
-			string path = Path.build_filename(Build.PACKAGE_DATADIR, DEFAULT_FONT_PREFERRED);
+			string path = Path.build_filename(RuntimeEnvironment.system_data_dir(), DEFAULT_FONT_PREFERRED);
 			if (FileUtils.test(path, FileTest.EXISTS) == false)
 				path = DEFAULT_FONT;
 			return path;
