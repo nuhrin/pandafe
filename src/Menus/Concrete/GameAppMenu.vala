@@ -87,8 +87,8 @@ namespace Menus.Concrete
 				}
 				
 				unowned SDL.Rect rect = menu_data.selected_item_rect();			
-				int16 width = (int16)(@interface.screen_width - (@interface.screen_width - selector.xpos) - rect.x - 35);
-				var entry = new Layers.Controls.TextEntry("app_rename", rect.x, rect.y, width, app.title);
+				int16 width = selector.xpos - @interface.menu_ui.controls.value_control_spacing - rect.x;
+				var entry = new Layers.Controls.TextEntry.browser("app_rename", rect.x, rect.y, width, app.title);
 				string? new_title = entry.run();
 				if (new_title == app.title)
 					return;

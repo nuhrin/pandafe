@@ -31,13 +31,10 @@ namespace Layers.Controls
 	{
 		const string DEFAULT_CHARACTER_MASK = "[[:alnum:][:punct:] ]";
 		
-		Menus.MenuUI.ControlsUI ui;
+		TextEntryUI ui;
 		Surface blank_textarea;
 		int16 x;
 		int16 y;
-		int16 max_text_width;
-		int16 char_width;
-		int max_characters;
 		int cursor_pos;
 		int16 cursor_y;
 		int16 cursor_height;
@@ -49,34 +46,37 @@ namespace Layers.Controls
 		bool _is_valid_value;
 		bool _error_thrown;
 		
-		public TextEntry(string id, int16 x, int16 y, int16 width, string? value=null, string? character_mask_regex=null, string? value_mask_regex=null) {
-			var ui = @interface.menu_ui.controls;
-			int max_text_width = width - (ui.value_control_spacing);
-			int max_characters = max_text_width / ui.font_width();
-			int resolved_width = (max_characters * ui.font_width()) + (ui.value_control_spacing * 2) + 1;
-			base(id, resolved_width, ui.font_height + (ui.value_control_spacing * 2), x, y, ui.background_color_rgb);
+		public TextEntry(string id, int16 x, int16 y, int16 width, string? value=null, string? character_mask_regex=null, string? value_mask_regex=null) {			
+			this.common(id,x, y, new MenuTextEntryUI(width, @interface.menu_ui.controls), value, character_mask_regex, value_mask_regex);
+		}		
+		public TextEntry.browser(string id, int16 x, int16 y, int16 width, string? value=null, string? character_mask_regex=null, string? value_mask_regex=null){
+			var ui = @interface.game_browser_ui;
+			this.common(id,x, y, new BrowserTextEntryUI(width, ui, ui.list), value, character_mask_regex, value_mask_regex);
+		}
+		public TextEntry.browser_footer(string id, int16 x, int16 y, int16 width, string? value=null, string? character_mask_regex=null, string? value_mask_regex=null){
+			var ui = @interface.game_browser_ui;
+			this.common(id,x, y, new BrowserFooterTextEntryUI(width, ui, ui.footer), value, character_mask_regex, value_mask_regex);
+		}
+		TextEntry.common(string id, int16 x, int16 y, TextEntryUI ui, string? value=null, string? character_mask_regex=null, string? value_mask_regex=null) {
+			base(id, ui.surface_width(), ui.surface_height(), x, y, ui.background_color_rgb);
 			this.ui = ui;
 			this.x = x;
 			this.y = y;
-			this.max_text_width = (int16)max_text_width;
-			this.max_characters = max_characters;
-			this.char_width = ui.font_width();
-			blank_textarea = ui.get_blank_background_surface((int16)((max_characters * char_width) + ui.value_control_spacing)-1, ui.font_height + ui.value_control_spacing);
-			cursor_y = ui.value_control_spacing + (ui.font_height / 3) * 2;
+			blank_textarea = ui.get_blank_textarea();
+			cursor_y = ui.control_spacing_v + (ui.font_height / 3) * 2;
 			cursor_height = ui.font_height / 3;
 			cursor_pos = (value != null) ? value.length : 0;
 			
 			initialize_character_mask_regex(character_mask_regex);
 			initialize_value_mask_regex(value_mask_regex);
 			
-			//int16 rect_width = (int16)(blank_textarea.w + (ui.value_control_spacing));
-			@interface.draw_rectangle_outline(0, 0, (int16)surface.w-1, (int16)surface.h-1, ui.border_color, 255, surface);			
+			//int16 rect_width = (int16)(blank_textarea.w + (ui.control_spacing_h));
+			@interface.draw_rectangle_outline(0, 0, (int16)surface.w-1, (int16)surface.h-1, ui.border_color(), 255, surface);			
 			this.text = value ?? "";
 			render_text();
 			_is_valid_value = is_valid_value();
 			original_text = (has_valid_value) ? value : "";
-		}		
-
+		}
 		public string? run(uchar screen_alpha=128, uint32 rgb_color=0) {
 			@interface.push_layer(this, screen_alpha, rgb_color);
 			process_events();
@@ -240,43 +240,20 @@ namespace Layers.Controls
 			update();
 		}
 		void render_text() {
-			var resolved_text = text + " ";
-			int relative_cursor_pos = cursor_pos;
-			int half = max_characters / 2;
-			if (resolved_text.length > max_characters) {
-				if (cursor_pos <= half) {
-					// beginning of string
-					//debug("in the beginning...");
-					resolved_text = resolved_text.substring(0, max_characters);
-				} else if (cursor_pos > text.length - half) {
-					// end of string
-					//debug("at the end...");
-					resolved_text = resolved_text.substring(resolved_text.length - max_characters);
-					relative_cursor_pos = (cursor_pos == text.length) ? max_characters - 1 : cursor_pos - (text.length - max_characters) - 1;
-				} else {
-					// middle of string
-					//debug("(in the middle)");
-					relative_cursor_pos = half + (max_characters % 2) - 1;
-					resolved_text = resolved_text.substring(cursor_pos - relative_cursor_pos, max_characters);
-				}
-			}
-//~ 			debug("cursor[%d]: '%c', relative_cursor[%d]: '%c'",
-//~ 				cursor_pos,
-//~ 				(cursor_pos == text.length) ? ' ' : text[cursor_pos],
-//~ 				relative_cursor_pos,
-//~ 				resolved_text[relative_cursor_pos]);
+			int16 cursor_x;
+			int16 cursor_width;
+			var visible_text = ui.get_visible_text(text, cursor_pos, out cursor_x, out cursor_width);
 
 			// clear text area
-			Rect textarea_rect = {1, 1, max_text_width + 2};
+			Rect textarea_rect = {1, 1, ui.max_text_width + 2};
 			blank_textarea.blit(null, surface, textarea_rect);
 
 			// render text
-			Rect text_rect = {ui.value_control_spacing, ui.value_control_spacing, max_text_width};
-			ui.render_text(resolved_text).blit(null, surface, text_rect);
+			Rect text_rect = {ui.control_spacing_h, ui.control_spacing_v, ui.max_text_width};
+			ui.render_text(visible_text).blit(null, surface, text_rect);
 
 			// render cursor
-			int16 cursor_x = (int16)(relative_cursor_pos*char_width) + ui.value_control_spacing;
-			@interface.draw_rectangle_fill(cursor_x, cursor_y, char_width, cursor_height, ui.text_cursor_color, 200, surface);
+			@interface.draw_rectangle_fill(cursor_x, cursor_y, cursor_width, cursor_height, ui.cursor_color(), 200, surface);
 
 			surface.flip();
 		}
@@ -327,5 +304,202 @@ namespace Layers.Controls
 			public unowned string error { get { return _error; } }
 		}
 		ArrayList<Validator> _validators;
+		
+		class MenuTextEntryUI: TextEntryUI 
+		{
+			Menus.MenuUI.ControlsUI ui;
+			int max_characters;
+			int16 char_width;
+			public MenuTextEntryUI(int16 requested_width, Menus.MenuUI.ControlsUI ui) {
+				base(requested_width, ui);
+				this.ui = ui;
+				char_width = ui.font_width();
+				max_characters = max_text_width / char_width;
+			}
+			
+			public override uint32 background_color_rgb { get { return ui.background_color_rgb; } }
+			public override unowned SDL.Color border_color() { return ui.border_color; }
+			public override unowned SDL.Color cursor_color() { return ui.text_cursor_color; }
+			public override int16 control_spacing_v { get { return ui.value_control_spacing; } }
+			public override int16 control_spacing_h { get { return ui.value_control_spacing; } }
+			public override int surface_width() { return (max_characters * ui.font_width()) + (control_spacing_h * 2) + 1; }
+
+			public override Surface render_text(string text) { return ui.render_text(text); }
+			public override Surface get_blank_textarea() {
+				return ui.get_blank_background_surface((int16)((max_characters * char_width) + control_spacing_h)-1, ui.font_height + control_spacing_v);
+			}
+
+			public override string get_visible_text(string text, int cursor_pos, out int16 cursor_x, out int16 cursor_width) {
+				var visible_text = text + " ";
+				int relative_cursor_pos = cursor_pos;
+				int half = max_characters / 2;
+				if (visible_text.length > max_characters) {
+					if (cursor_pos <= half) {
+						// beginning of string
+						//debug("in the beginning...");
+						visible_text = visible_text.substring(0, max_characters);
+					} else if (cursor_pos > text.length - half) {
+						// end of string
+						//debug("at the end...");
+						visible_text = visible_text.substring(visible_text.length - max_characters);
+						relative_cursor_pos = (cursor_pos == text.length) ? max_characters - 1 : cursor_pos - (text.length - max_characters) - 1;
+					} else {
+						// middle of string
+						//debug("(in the middle)");
+						relative_cursor_pos = half + (max_characters % 2) - 1;
+						visible_text = visible_text.substring(cursor_pos - relative_cursor_pos, max_characters);
+					}
+				}				
+//~ 			debug("cursor[%d]: '%c', relative_cursor[%d]: '%c'",
+//~ 				cursor_pos,
+//~ 				(cursor_pos == text.length) ? ' ' : text[cursor_pos],
+//~ 				relative_cursor_pos,
+//~ 				visible_text[relative_cursor_pos]);
+
+				cursor_x = (int16)(relative_cursor_pos*char_width) + control_spacing_h;
+				cursor_width = char_width;
+				return visible_text;
+			}
+
+			protected override int16 calculate_max_text_width(int16 requested_width) { return requested_width - control_spacing_h; }
+		}
+		class BrowserTextEntryUI: TextEntryUI 
+		{
+			protected GameBrowserUI ui;
+			public BrowserTextEntryUI(int16 requested_width, GameBrowserUI ui, Data.Appearances.AppearanceAreaUI fontui) {
+				base(requested_width, fontui);
+				this.ui = ui;
+			}
+			
+			public override uint32 background_color_rgb { get { return ui.background_color_rgb; } }
+			public override unowned SDL.Color border_color() { return ui.list.selected_item_background_color; }
+			public override unowned SDL.Color cursor_color() { return ui.list.selected_item_background_color; }
+			public override int16 control_spacing_v { get { return ui.list.spacing.item_v; } }
+			public override int16 control_spacing_h { get { return ui.list.spacing.item_h; } }
+			public override int surface_width() { return max_text_width + (control_spacing_h * 2) + 1; }
+			
+			public override Surface render_text(string text) { return ui.list.render_text(text); }
+			public override Surface get_blank_textarea() {
+				return ui.get_blank_background_surface((int16)(max_text_width + control_spacing_h)-1, font_height + control_spacing_v);
+			}
+			
+			public override string get_visible_text(string text, int cursor_pos, out int16 cursor_x, out int16 cursor_width) {
+				string visible_text = text + " ";
+				int relative_cursor_pos = cursor_pos;
+				
+				if (fontui.get_text_width(visible_text) > max_text_width) {
+					var full_text = visible_text;
+					int16 half_window = max_text_width / 2;
+					// get left text fitting window and max cursor pos for rendering at front of string
+					int pos=0;
+					int front_max_cursor_pos = 0;
+					StringBuilder sb = new StringBuilder(full_text.substring(pos, 1));
+					int width = fontui.get_text_width(sb.str);
+					while (width < max_text_width) {
+						if (width < half_window)
+							front_max_cursor_pos++;
+						sb.append(full_text.substring(pos + 1, 1));
+						width = fontui.get_text_width(sb.str);
+						pos++;
+					}
+					string left_text = full_text.substring(0, pos);
+					// get right text fitting window and max cursor pos for rendering at end of string
+					pos = full_text.length - 1;
+					int end_max_cursor_pos = pos;
+					sb = new StringBuilder(full_text.substring(pos, 1));
+					width = fontui.get_text_width(sb.str);
+					while (width < max_text_width) {
+						if (width < half_window)
+							end_max_cursor_pos--;
+						sb.append(full_text.substring(pos - 1, 1));
+						width = fontui.get_text_width(sb.str);
+						pos--;
+					}
+					string right_text = full_text.substring(pos);
+					
+					if (cursor_pos <= front_max_cursor_pos) {
+						// beginning of string
+						visible_text = left_text;
+					} else if (cursor_pos >= end_max_cursor_pos) {
+						// end of string
+						visible_text = right_text;
+						int right_text_start_pos = (full_text.length - right_text.length);
+						relative_cursor_pos =  cursor_pos - right_text_start_pos;
+					} else {
+						// middle of string
+						cursor_width = (int16)fontui.get_text_width(full_text.substring(cursor_pos, 1));
+						int16 side_window = (max_text_width - cursor_width) / 2;
+						pos = cursor_pos - 1;
+						sb = new StringBuilder(full_text.substring(pos, 1));
+						while (fontui.get_text_width(sb.str) < side_window) {
+							sb.append(full_text.substring(pos - 1, 1));
+							pos--;
+						}
+						int left_index = pos;
+						int length = cursor_pos - left_index;
+						pos = cursor_pos + 1;
+						sb = new StringBuilder(full_text.substring(pos, 1));
+						while (fontui.get_text_width(sb.str) < side_window) {
+							sb.append(full_text.substring(pos + 1, 1));
+							pos++;
+							length++;
+						}
+						visible_text = full_text.substring(left_index, length);
+						relative_cursor_pos = cursor_pos - left_index;
+					}
+				}
+				
+				cursor_x = (int16)fontui.get_text_width(visible_text.substring(0, relative_cursor_pos)) + control_spacing_h;
+				cursor_width = (int16)fontui.get_text_width(visible_text.substring(relative_cursor_pos, 1));
+				return visible_text;
+			}			
+
+			protected override int16 calculate_max_text_width(int16 requested_width) { return requested_width - (control_spacing_h * 2); }			
+		}
+		class BrowserFooterTextEntryUI: BrowserTextEntryUI
+		{
+			public BrowserFooterTextEntryUI(int16 requested_width, GameBrowserUI ui, Data.Appearances.AppearanceAreaUI fontui) {
+				base(requested_width, ui, fontui);
+			}
+			public override unowned SDL.Color border_color() { return ui.footer.text_color; }
+			public override unowned SDL.Color cursor_color() { return ui.footer.text_color; }
+			public override int16 control_spacing_h { get { return (int16)ui.footer.get_text_width(" "); } }
+			public override Surface render_text(string text) { return ui.footer.render_text(text); }
+		} 
+		abstract class TextEntryUI 
+		{
+			protected Data.Appearances.AppearanceAreaUI fontui;
+			int16 requested_width;
+			int16 _max_text_width;
+			protected TextEntryUI(int16 requested_width, Data.Appearances.AppearanceAreaUI fontui) {
+				this.requested_width = requested_width;
+				this.fontui = fontui;
+				_max_text_width = -1;
+			}
+
+			public int16 max_text_width { 
+				get {
+					if (_max_text_width == -1)
+						_max_text_width = calculate_max_text_width(requested_width);
+					return _max_text_width;
+				}
+			}
+			public int16 font_height { get { return fontui.font_height;} }
+			public int surface_height() { return fontui.font_height + (control_spacing_v * 2); }			
+
+			public abstract uint32 background_color_rgb { get; }
+			public abstract unowned SDL.Color border_color();
+			public abstract unowned SDL.Color cursor_color();
+			public abstract int16 control_spacing_v { get; }
+			public abstract int16 control_spacing_h { get; }
+			public abstract int surface_width();
+			
+			public abstract Surface render_text(string text);
+			public abstract Surface get_blank_textarea();
+			
+			public abstract string get_visible_text(string text, int cursor_pos, out int16 cursor_x, out int16 cursor_width);
+
+			protected abstract int16 calculate_max_text_width(int16 requested_width);
+		}
 	}
 }

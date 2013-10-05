@@ -911,13 +911,8 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		Rect label_rect = {600 - (int16)label.w, status_message.ypos};
 		blit_surface(label, null, label_rect);
 		this.add_layer(new Layers.SurfaceLayer.direct("filter_label", label, label_rect.x, label_rect.y));		
-
-		var controls = @interface.menu_ui.controls;
-		var footer_center = (int16)(status_message.ypos + (status_message.height / 2));
-		var entry_height = (int16)(controls.font_height + (controls.value_control_spacing * 2));
-		int16 entry_ypos = (int16)(footer_center - (entry_height / 2));
 		
-		var entry = new TextEntry("selection_filter", 600, entry_ypos, 200, selector.get_filter_pattern());
+		var entry = new TextEntry.browser_footer("selection_filter", 598, status_message.ypos - ui.list.spacing.item_v, 200, selector.get_filter_pattern());
 		entry.text_changed.connect((text) => {
 			var new_filter = text.strip();
 			if (new_filter == "")

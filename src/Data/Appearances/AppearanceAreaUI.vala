@@ -48,7 +48,7 @@ namespace Data.Appearances
 			_font_height = (int16)font.height();
 		}
 		
-		protected int get_text_width(string* text) {
+		public int get_text_width(string* text) {
 			return get_font_text_width(font, text);
 		}
 		int get_font_text_width(Font* font, string* text) {
