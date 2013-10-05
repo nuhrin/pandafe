@@ -105,13 +105,11 @@ public abstract class Selector : Layers.Layer
 		if (display_item_count == 0)
 			return rect;
 		int index = selected_display_index() - get_first_displayed_index();
-		if (index > 0 && index < visible_items / 2)
-			index--;
 		rect.y += (int16)((ui.font_height * index) + (ui.spacing.item_v * index) - ui.spacing.item_v);
 		return rect;
 	}
-	int get_first_displayed_index() {
-		int first_index = get_closest_display_index(0);
+	int get_first_displayed_index() {	
+		int first_index = (_filter == null) ? 0 : get_closest_display_index(0);
 		int last_index = display_item_count - 1;
 		int center_index = selected_display_index();
 		int top_index = center_index - (visible_items / 2);
