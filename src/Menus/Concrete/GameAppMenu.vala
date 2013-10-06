@@ -192,7 +192,7 @@ namespace Menus.Concrete
 				if (ObjectMenu.edit("App Override: %s, %s".printf(app.filename, app.id), app_override) == false)
 					return;
 									
-				Data.platforms().rescan_folder(game.parent);
+				Data.platforms().rescan_folder(game.platform.get_root_folder(), game.unique_id());
 				selector.menu.quit();				
 			}
 		}

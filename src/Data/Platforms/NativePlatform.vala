@@ -75,7 +75,6 @@ public class NativePlatform : Platform
 			? new GameFolder.root("", this, main_categories[0])
 			: new GameFolder.root(this.name, this, "");
 	}
-	protected override void rescan_init() { initialize_runtime_data(); }
 	ArrayList<string> main_categories;
 	HashMap<string, NativePlatformCategory> platform_category_hash;	
 	GameFolder root_folder;

@@ -114,6 +114,7 @@ namespace Data.Pnd
 			app.main_category = main_category;
 			app.subcategory1 = sub_category;
 			Data.pnd_data().rebuild();
+			Data.platforms().get_native_platform().reset_runtime_data();
 			
 			return true; 			
 		}

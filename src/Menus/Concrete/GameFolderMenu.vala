@@ -48,6 +48,7 @@ namespace Menus.Concrete
 				if (platform.platform_type == PlatformType.NATIVE) {
 					this.message("Scanning PNDs...");
 					Data.rescan_pnd_data();
+					platform.reset_runtime_data();
 				}
 				folder.rescan_children();
 			}));

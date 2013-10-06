@@ -61,6 +61,7 @@ public abstract class Platform : NamedEntity, MenuObject
 	public abstract bool supports_game_settings { get; }
 	
 	// runtime data
+	public void reset_runtime_data() { initialized = false; }
 	protected void ensure_runtime_data() {
 		if (initialized == true)
 			return;
@@ -78,13 +79,11 @@ public abstract class Platform : NamedEntity, MenuObject
 	}
 	public void rescan(owned ForEachFunc<GameFolder>? pre_scan_action=null) {
 		remove_platform_gamelist_cache();
-		rescan_init();
 		get_root_folder().rescan_children((owned)pre_scan_action);
 		rescanned();
 	}
 	public signal void rescanned();
 	public signal void folder_scanned(GameFolder folder);
-	protected virtual void rescan_init() { }		
 	void remove_platform_gamelist_cache() {
 		if (this.id == null)
 			return;
