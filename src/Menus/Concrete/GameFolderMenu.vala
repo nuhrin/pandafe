@@ -69,11 +69,11 @@ namespace Menus.Concrete
 				}));
 				items.add(new MenuItemSeparator());
 				
-				if (folder.parent != null) {
-					items.add(new RenameItem(folder, menu_data));
-					items.add(new MoveItem(folder, platform as RomPlatform));
-					items.add(new MenuItemSeparator());
-				}
+//~ 				if (folder.parent != null) {
+//~ 					items.add(new RenameItem(folder, menu_data));
+//~ 					items.add(new MoveItem(folder, platform as RomPlatform));
+//~ 					items.add(new MenuItemSeparator());
+//~ 				}
 			}
 			
 			var platform_menu = new PlatformMenu(platform);

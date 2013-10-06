@@ -52,6 +52,20 @@ namespace Menus.Concrete
 			items.add(new EditOVRItem(game, app));
 			items.add(new MenuItemSeparator());
 			items.add(new DeleteItem(game, app));
+			if (app != null) {
+				items.add(new MenuItemSeparator());
+				var full_path = Path.get_dirname(app.get_fullpath());
+				items.add(new MenuItem.custom("Terminal", "Open terminal in " + full_path, "", () => {
+					var result = Spawning.spawn_command("/usr/bin/terminal", full_path);
+					if (result.success == false)
+						result.show_result_dialog();
+				}));
+				items.add(new MenuItem.custom("File Manager", "Open file manager in " + full_path, "", () => {
+					var result = Spawning.spawn_command("/usr/bin/thunar", full_path);
+					if (result.success == false)
+						result.show_result_dialog();
+				}));
+			}
 		}
 		
 		static string get_app_name(GameItem game, AppItem? app) {
