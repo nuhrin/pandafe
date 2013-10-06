@@ -78,6 +78,8 @@ namespace Menus.Concrete
 				if (new_name == rom_files.rom_fullname)
 					return;
 				
+				selector.menu.message("Renaming...");
+				
 				if (rom_files.rename(new_name, out error) == false) {
 					selector.menu.error(error);
 					return;
@@ -115,7 +117,12 @@ namespace Menus.Concrete
 				if (current_category == "")
 					current_category = null;
 				var category_selector = new Layers.Controls.GameCategorySelector("game_category_selector", rect.x, rect.y, 200, current_category);
-				category_selector.run();
+				var category_overlay = new Layers.GameBrowser.SelectorOverlay<string>.from_selector("Change Category: " + game.id, null, category_selector);
+				
+				var overlay_layer = @interface.pop_layer(false);
+				category_overlay.run();
+				@interface.push_layer(overlay_layer);
+				
 				if (category_selector.was_canceled == true)
 					return;
 				if (current_category == null && category_selector.no_category_selected == true)
@@ -141,6 +148,8 @@ namespace Menus.Concrete
 				
 				if (new_folder == game.parent.unique_id())
 					return; // already the same
+				
+				selector.menu.message("Changing category...");
 				
 				bool newly_created = false;
 				if (FileUtils.test(new_folder, FileTest.IS_DIR) == false) {
@@ -196,9 +205,16 @@ namespace Menus.Concrete
 				}
 				
 				var rect = selector.get_selected_item_rect();
-				var confirmed = new DeleteConfirmation("confirm_game_delete", rect.x, rect.y).run();
-				if (confirmed == false)
+				var delete_selector = new DeleteConfirmation("confirm_game_delete", rect.x, rect.y);
+				var delete_overlay = new Layers.GameBrowser.SelectorOverlay<string>.from_selector("Delete: " + game.id, null, delete_selector);
+				var overlay_layer = @interface.pop_layer(false);
+				delete_overlay.run();
+				@interface.push_layer(overlay_layer);
+
+				if (delete_selector.confirm_selected() == false)
 					return;
+				
+				selector.menu.message("Deleting...");
 				
 				if (rom_files.remove(out error) == false) {
 					selector.menu.error(error);

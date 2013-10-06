@@ -42,11 +42,7 @@ namespace Menus.Concrete
 			this.game = game;
 			this.menu_data = menu_data;
 			this.app = (game.platform as NativePlatform).get_game_app(game);
-			if (app != null)
-				this.title = "Manage App: %s, %s".printf(app.filename, app.id);
-			else
-				this.title = "Manage App: " + game.name;
-			
+			this.title = "Manage App: " + get_app_name(game, app);			
 		}
 
 		protected override void populate_items(Gee.List<MenuItem> items) { 			
@@ -56,6 +52,13 @@ namespace Menus.Concrete
 			items.add(new EditOVRItem(game, app));
 			items.add(new MenuItemSeparator());
 			items.add(new DeleteItem(game, app));
+		}
+		
+		static string get_app_name(GameItem game, AppItem? app) {
+			if (app != null)
+				return "%s, %s".printf(app.filename, app.id);
+			
+			return game.name;
 		}
 		
 		class RenameItem : MenuItem
@@ -92,6 +95,8 @@ namespace Menus.Concrete
 				string? new_title = entry.run();
 				if (new_title == app.title)
 					return;
+				
+				selector.menu.message("Renaming...");
 				
 				app_override.title = new_title;
 				if (app_override.save() == false) {
@@ -135,13 +140,20 @@ namespace Menus.Concrete
 				if (current_category == "")
 					current_category = null;
 				var category_selector = new Layers.Controls.GameCategorySelector("game_category_selector", rect.x, rect.y, 200, current_category);
-				category_selector.run();
+				var category_overlay = new Layers.GameBrowser.SelectorOverlay<string>.from_selector("Change Category: " + get_app_name(game, app), null, category_selector);
+				
+				var overlay_layer = @interface.pop_layer(false);
+				category_overlay.run();
+				@interface.push_layer(overlay_layer);
+				
 				if (category_selector.was_canceled == true)
 					return;
 				if (current_category == null && category_selector.no_category_selected == true)
 					return;
 				if (current_category == category_selector.selected_item())
 					return;
+				
+				selector.menu.message("Changing category...");
 				
 				string? new_category = null;				
 				if (category_selector.no_category_selected == false)
@@ -159,7 +171,7 @@ namespace Menus.Concrete
 				while(new_folder_depth <= scan_target_node.depth() && scan_target_node.parent != null)
 					scan_target_node = scan_target_node.parent;
 				Data.platforms().rescan_folder(scan_target_node, game.unique_id());
-				selector.menu.quit();							
+				selector.menu.quit();
 			}
 		}
 		class EditOVRItem : MenuItem
@@ -191,7 +203,9 @@ namespace Menus.Concrete
 				
 				if (ObjectMenu.edit("App Override: %s, %s".printf(app.filename, app.id), app_override) == false)
 					return;
-									
+				
+				selector.menu.message("Updating..");
+				
 				Data.platforms().rescan_folder(game.platform.get_root_folder(), game.unique_id());
 				selector.menu.quit();				
 			}
@@ -216,9 +230,16 @@ namespace Menus.Concrete
 				}
 				
 				var rect = selector.get_selected_item_rect();
-				var confirmed = new DeleteConfirmation("confirm_game_delete", rect.x, rect.y).run();
-				if (confirmed == false)
+				var delete_selector = new DeleteConfirmation("confirm_game_delete", rect.x, rect.y);
+				var delete_overlay = new Layers.GameBrowser.SelectorOverlay<string>.from_selector("Delete: " + app.get_fullpath(), null, delete_selector);
+				var overlay_layer = @interface.pop_layer(false);
+				delete_overlay.run();
+				@interface.push_layer(overlay_layer);
+
+				if (delete_selector.confirm_selected() == false)
 					return;
+				
+				selector.menu.message("Deleting...");
 				
 				var filename = app.get_fullpath();
 				var file = File.new_for_path(filename);

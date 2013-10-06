@@ -38,7 +38,8 @@ namespace Layers.Controls
 		}
 		public new bool run(uchar screen_alpha=128, uint32 rgb_color=0) {
 			base.run(screen_alpha, rgb_color);
-			return (selected_item() == CONFIRM_TEXT);
+			return confirm_selected();
 		}
+		public bool confirm_selected() { return (selected_item() == CONFIRM_TEXT); }
 	}
 }

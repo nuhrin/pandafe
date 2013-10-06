@@ -71,8 +71,7 @@ namespace Layers.Controls
 			this.xpos = xpos;
 			this.ypos = ypos;
 			max_height = (int16)@interface.screen_height / 2;
-			max_text_width = max_width - ui.value_control_spacing;
-			max_characters = max_text_width / ui.font_width();
+			update_max_width(max_width);
 			items = new ArrayList<G>();
 			draw_rectangle = true;
 			cancel_keys = new ArrayList<int>();
@@ -84,12 +83,17 @@ namespace Layers.Controls
 		public int height { get { return _height; } }
 		public int width { get { return _width; } }
 		public int16 max_height { get; set; }
+		public void update_max_width(int16 max_width) {
+			max_text_width = max_width - ui.value_control_spacing;
+			max_characters = max_text_width / ui.font_width();
+		}
 		public bool draw_rectangle { get; set; }
 		
 		public uint item_count { get { return items.size; } }
 		public bool can_select_single_item { get; set; }
 		public bool wrap_selector { get; set; }
 		public bool pad_items { get; set; }
+				
 		
 		public uint selected_index {
 			get { return _selected_index; }
