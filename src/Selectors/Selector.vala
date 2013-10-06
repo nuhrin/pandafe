@@ -132,7 +132,15 @@ public abstract class Selector : Layers.Layer
 		_item_count = -1;
 		int index = selected_index;
 		selected_index = -1;
+		
+		var existing_filter = _filter;		
+		__clear_filter();
+		
 		rebuild_items(index, new_selection_id);
+		
+		if (existing_filter != null)
+			__filter(existing_filter, false);
+		
 		rebuilt();
 	}
 	protected abstract void	rebuild_items(int selection_index, string? new_selection_id);
@@ -237,7 +245,12 @@ public abstract class Selector : Layers.Layer
 		select_display_item(0, flip);
 	}
 
-	public bool filter(string pattern, bool flip=true) {
+	public bool filter(string pattern, bool flip=true) {		
+		bool success = __filter(pattern,  flip);
+		rebuilt();
+		return success;
+	}
+	bool __filter(string pattern, bool flip) {
 		_filter = pattern;
 		_filter_match_indexes = new ArrayList<int>();
 		_filter_match_indexes.add_all(items.get_folder_indexes());
@@ -262,14 +275,16 @@ public abstract class Selector : Layers.Layer
 		else if (display_item_count > 0)
 			select_display_item(0, flip);
 		
-		rebuilt();
 		return success;
 	}
 	public void clear_filter() {
+		__clear_filter();
+		rebuild();
+	}
+	void __clear_filter() {
 		_filter = null;
 		_filter_match_indexes = null;
 		_filter_index_position_hash = null;
-		rebuild();
 	}
 	public string? get_filter_pattern() { return _filter; }
 
