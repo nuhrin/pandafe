@@ -77,7 +77,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		mountset.app_mounting.connect((mount_id) => {if (@interface.peek_layer() == null) status_message.right = "Mounting '%s'...".printf(mount_id);});
 		mountset.app_mounted.connect((mount_id) => {if (@interface.peek_layer() == null) status_message.right = "";});
 		mountset.app_unmounting.connect((mount_id) => {if (@interface.peek_layer() == null) status_message.right = "Unmounting '%s'...".printf(mount_id);});
-
+				
 		@interface.push_screen_layer(this, false);
 		initialize_from_browser_state();
 		Key.enable_unicode(1);
@@ -1056,8 +1056,8 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 				}
 				
 				current_platform = active_platform;
-				current_folder = active_folder;
 				if (Data.preferences().show_platform_game_folders == true) {
+					current_folder = active_folder;									
 					Data.browser_state().current_platform = current_platform.id;
 					if (current_folder != null)
 						Data.browser_state().apply_platform_state(current_platform, current_folder, active_folder_item_index, null);
@@ -1272,7 +1272,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 			apply_platform_state();
 			selector.update();
 		} else {
-			current_folder = active_folder ?? "";
+			current_folder = "";
 			change_selector();
 			selector.update();				
 			if (selected_game == null || (selector as GamePlatformSelector).select_game(selected_game) == false);

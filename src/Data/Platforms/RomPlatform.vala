@@ -159,8 +159,8 @@ namespace Data.Platforms
 			while(checked_path != "" && FileUtils.test(Path.build_filename(rom_folder_root, checked_path), FileTest.IS_DIR) == false) {
 				int last_separator_index = folder_path.last_index_of(Path.DIR_SEPARATOR_S);
 				if (last_separator_index == -1) {
-					folder_path = "";
-					continue;
+					checked_path = "";
+					break;
 				}
 				checked_path = checked_path.substring(0, last_separator_index);
 			}
