@@ -163,6 +163,7 @@ namespace Menus.Concrete
 				
 				selector.menu.message("Changing category...");
 				
+				// move the rom file(s)
 				bool newly_created = false;
 				if (FileUtils.test(new_folder, FileTest.IS_DIR) == false) {
 					try {
@@ -184,6 +185,10 @@ namespace Menus.Concrete
 					selector.menu.error(error);
 					return;
 				}
+				
+				// attempt to remove the old directory. only removed if its empty. if not empty, the call will simply return -1 and be ignored
+				FileUtils.remove(game.parent.unique_id());
+				
 				
 				var new_folder_relative = new_folder.replace(platform.rom_folder_root, "");
 				if (new_folder_relative.has_prefix("/") == true)
