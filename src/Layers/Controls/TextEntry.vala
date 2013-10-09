@@ -380,7 +380,7 @@ namespace Layers.Controls
 			
 			public override Surface render_text(string text) { return ui.list.render_text(text); }
 			public override Surface get_blank_textarea() {
-				return ui.get_blank_background_surface((int16)(max_text_width + control_spacing_h)-1, font_height + control_spacing_v);
+				return ui.get_blank_background_surface((int16)(max_text_width + (control_spacing_h * 2)) -1, font_height + control_spacing_v);
 			}
 			
 			public override string get_visible_text(string text, int cursor_pos, out int16 cursor_x, out int16 cursor_width) {
@@ -395,8 +395,8 @@ namespace Layers.Controls
 					int front_max_cursor_pos = 0;
 					StringBuilder sb = new StringBuilder(full_text.substring(pos, 1));
 					int width = fontui.get_text_width(sb.str);
-					while (width < max_text_width) {
-						if (width < half_window)
+					while (width <= max_text_width) {
+						if (width <= half_window)
 							front_max_cursor_pos++;
 						sb.append(full_text.substring(pos + 1, 1));
 						width = fontui.get_text_width(sb.str);
@@ -405,17 +405,17 @@ namespace Layers.Controls
 					string left_text = full_text.substring(0, pos);
 					// get right text fitting window and max cursor pos for rendering at end of string
 					pos = full_text.length - 1;
-					int end_max_cursor_pos = pos;
+					int end_max_cursor_pos = pos + 1;
 					sb = new StringBuilder(full_text.substring(pos, 1));
 					width = fontui.get_text_width(sb.str);
-					while (width < max_text_width) {
-						if (width < half_window)
+					while (width <= max_text_width) {
+						if (width <= half_window)
 							end_max_cursor_pos--;
 						sb.append(full_text.substring(pos - 1, 1));
 						width = fontui.get_text_width(sb.str);
 						pos--;
 					}
-					string right_text = full_text.substring(pos);
+					string right_text = full_text.substring(pos+1);
 					
 					if (cursor_pos <= front_max_cursor_pos) {
 						// beginning of string
@@ -431,16 +431,16 @@ namespace Layers.Controls
 						int16 side_window = (max_text_width - cursor_width) / 2;
 						pos = cursor_pos - 1;
 						sb = new StringBuilder(full_text.substring(pos, 1));
-						while (fontui.get_text_width(sb.str) < side_window) {
+						while (fontui.get_text_width(sb.str) <= side_window) {
 							sb.append(full_text.substring(pos - 1, 1));
 							pos--;
 						}
 						int left_index = pos;
-						int length = cursor_pos - left_index;
 						pos = cursor_pos + 1;
-						sb = new StringBuilder(full_text.substring(pos, 1));
-						while (fontui.get_text_width(sb.str) < side_window) {
-							sb.append(full_text.substring(pos + 1, 1));
+						int length = cursor_pos - left_index;
+						sb = new StringBuilder(full_text.substring(left_index, length + 1));
+						while (pos < full_text.length && fontui.get_text_width(sb.str) <= max_text_width) {
+							sb.append(full_text.substring(pos, 1));
 							pos++;
 							length++;
 						}
