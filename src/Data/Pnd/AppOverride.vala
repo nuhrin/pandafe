@@ -123,7 +123,10 @@ namespace Data.Pnd
 		protected void build_menu(MenuBuilder builder) {
 			title_field = builder.add_string("title", "Title", null, title);
 			
-			var clockspeed_field = new ClockSpeedField("clockspeed", "Clockspeed", null, clockspeed ?? app_direct.clockspeed, 120, 1000, 5);
+			uint clockspeed = 0;
+			if (this.clockspeed != null && this.clockspeed != app_direct.clockspeed)
+				clockspeed = this.clockspeed;
+			var clockspeed_field = new ClockSpeedField("clockspeed", "Clockspeed", null, clockspeed, 120, 1000, 5);
 			clockspeed_field.default_value = app_direct.clockspeed;
 			builder.add_field(clockspeed_field);
 			
@@ -131,6 +134,8 @@ namespace Data.Pnd
 			
 			category_field = builder.add_string("main_category", "Main Category", null, main_category);
 			subcategory_field = builder.add_string("sub_category", "Sub Category", null, sub_category);
+		
+			builder.add_separator();
 			
 			initialize_fields();
 		}
@@ -155,7 +160,7 @@ namespace Data.Pnd
 		protected bool apply_changed_field(Menus.Menu menu, MenuItemField field) {
 			if (field.id == "clockspeed") {
 				var value = (uint)field.value;
-				if (value == app_direct.clockspeed)
+				if (value == app_direct.clockspeed || value == 0)
 					clockspeed = null;
 				else
 					clockspeed = value;
@@ -164,6 +169,7 @@ namespace Data.Pnd
 			return false;
 		}
 		protected bool save_object(Menus.Menu menu) {
+			menu.message("Saving...");
 			if (save() == false) {
 				menu.error("unknown error saving ovr file.");
 				return false;

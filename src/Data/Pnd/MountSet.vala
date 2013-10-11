@@ -109,7 +109,7 @@ namespace Data.Pnd
 			
 			return (error == false);
 		}
-		bool unmount_by_id(string mount_id, owned ForEachFunc<string>? pre_unmount_action=null) {
+		public bool unmount_by_id(string mount_id, owned ForEachFunc<string>? pre_unmount_action=null) {
 			if (mounted_ids.contains(mount_id) == false)
 				return true;
 				
@@ -119,7 +119,10 @@ namespace Data.Pnd
 			
 			if (Pandora.Apps.unmount_pnd(mounted_pnd_path_hash[mount_id], mount_id) == false)
 				return false;
-
+			
+			if (FileUtils.test(UNION_MOUNT_PATH + mount_id, FileTest.EXISTS) == true)
+				return false;
+			
 			mounted_pnd_path_hash.unset(mount_id);
 			if (mounted_appdata_path_hash.has_key(mount_id) == true)
 				mounted_appdata_path_hash.unset(mount_id);
@@ -129,7 +132,9 @@ namespace Data.Pnd
 				
 			return true;
 		}
-		
+		public bool is_id_mounted(string mount_id) {
+			return mounted_ids.contains(mount_id);
+		}
 
 		bool is_app_mounted(AppItem app) {
 			return mounted_ids.contains(app.mount_id);

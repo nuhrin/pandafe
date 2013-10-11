@@ -86,18 +86,22 @@ namespace Menus.Concrete
 				unowned SDL.Rect rect = menu_data.selected_item_rect();			
 				int16 width = selector.xpos - @interface.menu_ui.controls.value_control_spacing - rect.x;
 				var entry = new Layers.Controls.TextEntry.browser("game_rename", rect.x, rect.y, width, rom_files.rom_fullname);
-				string? new_name = entry.run();
-				if (new_name == rom_files.rom_fullname)
+				string? new_name = entry.run_no_pop();
+				if (new_name == rom_files.rom_fullname) {
+					@interface.pop_layer();
 					return;
+				}
 				
 				selector.menu.message("Renaming...");
 				
 				if (rom_files.rename(new_name, out error) == false) {
+					@interface.pop_layer(false);
 					selector.menu.error(error);
 					return;
 				}				
-				
 				Data.platforms().rescan_folder(game.parent, rom_files.unique_id());
+				
+				@interface.pop_layer(false);
 				selector.menu.quit();
 			}
 		}
@@ -132,15 +136,17 @@ namespace Menus.Concrete
 				var category_overlay = new Layers.GameBrowser.SelectorOverlay<string>.from_selector("Change Category: " + game.id, null, category_selector);
 				
 				var overlay_layer = @interface.pop_layer(false);
-				category_overlay.run();
-				@interface.push_layer(overlay_layer);
+				category_overlay.run_no_pop();
 				
-				if (category_selector.was_canceled == true)
+				if (
+				    category_selector.was_canceled == true ||
+				    (current_category == null && category_selector.no_category_selected == true) ||
+				    (current_category == category_selector.selected_item())
+				) {
+					@interface.pop_layer(false);
+					@interface.push_layer(overlay_layer);
 					return;
-				if (current_category == null && category_selector.no_category_selected == true)
-					return;
-				if (current_category == category_selector.selected_item())
-					return;
+				}
 				
 				string? new_category = null;				
 				if (category_selector.no_category_selected == false)
@@ -158,10 +164,13 @@ namespace Menus.Concrete
 					? platform.rom_folder_root
 					: Path.build_filename(platform.rom_folder_root, new_category);
 				
-				if (new_folder == game.parent.unique_id())
+				if (new_folder == game.parent.unique_id()) {
+					@interface.pop_layer(false);
+					@interface.push_layer(overlay_layer);
 					return; // already the same
+				}
 				
-				selector.menu.message("Changing category...");
+				category_overlay.set_message("Changing category...");
 				
 				// move the rom file(s)
 				bool newly_created = false;
@@ -171,6 +180,8 @@ namespace Menus.Concrete
 							throw new FileError.FAILED("unable to create directory");
 						newly_created = true;
 					} catch(Error e) {
+						@interface.pop_layer(false);
+						@interface.push_layer(overlay_layer, 0, 0, false);
 						selector.menu.error("%s: %s".printf(new_category, e.message));
 						return;
 					}
@@ -182,14 +193,15 @@ namespace Menus.Concrete
 						} catch(Error e) {
 						}
 					}
+					@interface.pop_layer(false);
+					@interface.push_layer(overlay_layer, 0, 0, false);
 					selector.menu.error(error);
 					return;
 				}
-				
+								
 				// attempt to remove the old directory. only removed if its empty. if not empty, the call will simply return -1 and be ignored
 				FileUtils.remove(game.parent.unique_id());
-				
-				
+								
 				var new_folder_relative = new_folder.replace(platform.rom_folder_root, "");
 				if (new_folder_relative.has_prefix("/") == true)
 					new_folder_relative = new_folder_relative.substring(1);
@@ -198,7 +210,9 @@ namespace Menus.Concrete
 				while(new_folder_depth <= scan_target_node.depth() && scan_target_node.parent != null)
 					scan_target_node = scan_target_node.parent;
 				Data.platforms().rescan_folder(scan_target_node, rom_files.unique_id());
-				selector.menu.quit();							
+				
+				@interface.pop_layer(false);
+				selector.menu.quit();
 			}
 		}
 		class DeleteItem : MenuItem
@@ -225,20 +239,26 @@ namespace Menus.Concrete
 				var delete_selector = new DeleteConfirmation("confirm_game_delete", rect.x, rect.y);
 				var delete_overlay = new Layers.GameBrowser.SelectorOverlay<string>.from_selector("Delete: " + game.id, null, delete_selector);
 				var overlay_layer = @interface.pop_layer(false);
-				delete_overlay.run();
-				@interface.push_layer(overlay_layer);
-
-				if (delete_selector.confirm_selected() == false)
-					return;
+				delete_overlay.run_no_pop();
 				
-				selector.menu.message("Deleting...");
+				if (delete_selector.confirm_selected() == false) {
+					@interface.pop_layer(false);
+					@interface.push_layer(overlay_layer);
+					return;
+				}
+				
+				delete_overlay.set_message("Deleting...");
 				
 				if (rom_files.remove(out error) == false) {
+					@interface.pop_layer(false);
+					@interface.push_layer(overlay_layer, 0, 0, false);					
 					selector.menu.error(error);
 					return;
 				}
 				
 				Data.platforms().rescan_folder(game.parent);
+				
+				@interface.pop_layer(false);
 				selector.menu.quit();				
 			}
 		}

@@ -83,6 +83,11 @@ namespace Layers.Controls
 			@interface.pop_layer();
 			return text;
 		}
+		public string? run_no_pop(uchar screen_alpha=128, uint32 rgb_color=0) {
+			@interface.push_layer(this, screen_alpha, rgb_color);
+			process_events();
+			return text;
+		}
 
 		public string value {
 			get { return text; }

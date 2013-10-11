@@ -39,6 +39,11 @@ namespace Menus
 			new MenuBrowser(menu).run();			
 			return menu.was_saved;
 		}
+		public static bool edit_no_pop(string title, Object obj) {
+			var menu = new ObjectMenu(title, null, obj);
+			new MenuBrowser(menu).run_no_pop();			
+			return menu.was_saved;
+		}
 		public static MenuBrowserItem get_browser_item(string name, string? title, string? help, Object obj) {
 			var menu = new ObjectMenu(title ?? name, null, obj);
 			return new MenuBrowserItem(name, help, menu);

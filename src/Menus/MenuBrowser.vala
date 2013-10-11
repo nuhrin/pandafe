@@ -58,6 +58,10 @@ namespace Menus
 		}
 
 		public void run() {
+			run_no_pop();
+			@interface.pop_screen_layer();
+		}
+		public void run_no_pop() {
 			connect_selector_signals();
 			@interface.push_screen_layer(this);
 			
@@ -69,8 +73,13 @@ namespace Menus
 			
 			process_events();
 			
-			disconnect_selector_signals();			
-			@interface.pop_screen_layer();			
+			disconnect_selector_signals();
+		}
+		public void set_message(string message) {
+			this.message.message = message;
+		}
+		public void clear_message() {
+			message.message = null;
 		}
 		
 		public signal void menu_changed(Menu menu);
@@ -192,10 +201,7 @@ namespace Menus
 			message.help = selector.selected_item().help;
 		}
 		void on_message(string message) {
-			this.message.message = message;
-		}
-		void clear_message() {
-			message.message = null;
+			set_message(message);
 		}
 		void on_error(string error) {
 			message.error = error;

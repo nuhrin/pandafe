@@ -96,15 +96,17 @@ namespace Layers.GameBrowser
 
 
 		public uint run() {			
-			selector.ensure_selection();
-			
-			@interface.push_layer(this);
-			
-			var selected_index = selector.run_no_push();
-			
-			@interface.pop_layer(false);
-			
+			var selected_index = run_no_pop();
+			@interface.pop_layer(false);			
 			return selected_index;
+		}
+		public uint run_no_pop() {
+			selector.ensure_selection();			
+			@interface.push_layer(this);			
+			return selector.run_no_push();			
+		}
+		public void set_message(string? message) {
+			this.message.update_message(message);
 		}
 		
 		protected virtual string? get_selection_help(G selected_item) {

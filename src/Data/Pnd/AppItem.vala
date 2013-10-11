@@ -81,6 +81,14 @@ namespace Data.Pnd
 				return id; 				 
 			}
 		}
+		public string menu_title() { 
+			ensure_pnd();
+			return "%s (%s)".printf(id, get_shortpath());
+		}
+		public string get_shortpath() {
+			ensure_pnd();
+			return Path.build_filename(Path.get_basename(pnd.path), pnd.filename);
+		}
 
 		public string subcategory_display_name { 
 			get { 
@@ -116,7 +124,7 @@ namespace Data.Pnd
 						return app;
 				}
 			}
-			throw new KeyFileError.NOT_FOUND("App '%s' was not found in pnd '%s'.", this.id, pnd.get_fullpath());			
+			throw new KeyFileError.NOT_FOUND("App '%s' was not found in pnd '%s'.", this.id, get_fullpath());
 		}
 
 		internal void set_pnd(PndItem pnd) { this.pnd = pnd; }

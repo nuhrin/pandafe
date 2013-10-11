@@ -42,7 +42,7 @@ namespace Menus.Concrete
 			this.game = game;
 			this.menu_data = menu_data;
 			this.app = (game.platform as NativePlatform).get_game_app(game);
-			this.title = "Manage App: " + get_app_name(game, app);			
+			this.title = "Manage App: " + ((app != null) ? app.menu_title() : game.name);
 		}
 
 		protected override void populate_items(Gee.List<MenuItem> items) { 			
@@ -66,13 +66,6 @@ namespace Menus.Concrete
 						result.show_result_dialog();
 				}));
 			}
-		}
-		
-		static string get_app_name(GameItem game, AppItem? app) {
-			if (app != null)
-				return "%s, %s".printf(app.filename, app.id);
-			
-			return game.name;
 		}
 		
 		class RenameItem : MenuItem
@@ -106,19 +99,24 @@ namespace Menus.Concrete
 				unowned SDL.Rect rect = menu_data.selected_item_rect();			
 				int16 width = selector.xpos - @interface.menu_ui.controls.value_control_spacing - rect.x;
 				var entry = new Layers.Controls.TextEntry.browser("app_rename", rect.x, rect.y, width, app.title);
-				string? new_title = entry.run();
-				if (new_title == app.title)
+				string? new_title = entry.run_no_pop();
+				if (new_title == app.title) {
+					@interface.pop_layer();
 					return;
+				}
 				
 				selector.menu.message("Renaming...");
 				
 				app_override.title = new_title;
 				if (app_override.save() == false) {
+					@interface.pop_layer(false);
 					selector.menu.error("Error saving ovr update");
 					return;
 				}
 				
 				Data.platforms().rescan_folder(game.parent, game.unique_id());
+				
+				@interface.pop_layer(false);
 				selector.menu.quit();
 			}
 		}
@@ -154,20 +152,22 @@ namespace Menus.Concrete
 				if (current_category == "")
 					current_category = null;
 				var category_selector = new Layers.Controls.GameCategorySelector("game_category_selector", rect.x, rect.y, 200, current_category);
-				var category_overlay = new Layers.GameBrowser.SelectorOverlay<string>.from_selector("Change Category: " + get_app_name(game, app), null, category_selector);
+				var category_overlay = new Layers.GameBrowser.SelectorOverlay<string>.from_selector("Change Category: " + app.menu_title(), null, category_selector);
 				
 				var overlay_layer = @interface.pop_layer(false);
-				category_overlay.run();
-				@interface.push_layer(overlay_layer);
+				category_overlay.run_no_pop();
 				
-				if (category_selector.was_canceled == true)
+				if (
+				    category_selector.was_canceled == true ||
+				    (current_category == null && category_selector.no_category_selected == true) ||
+				    (current_category == category_selector.selected_item())
+				) {
+					@interface.pop_layer(false);
+					@interface.push_layer(overlay_layer);
 					return;
-				if (current_category == null && category_selector.no_category_selected == true)
-					return;
-				if (current_category == category_selector.selected_item())
-					return;
+				}
 				
-				selector.menu.message("Changing category...");
+				category_overlay.set_message("Changing category...");
 				
 				string? new_category = null;				
 				if (category_selector.no_category_selected == false)
@@ -175,6 +175,8 @@ namespace Menus.Concrete
 				
 				app_override.sub_category = new_category;
 				if (app_override.save() == false) {
+					@interface.pop_layer(false);
+					@interface.push_layer(overlay_layer, 0, 0, false);
 					selector.menu.error("Error saving ovr update");
 					return;
 				}				
@@ -185,6 +187,8 @@ namespace Menus.Concrete
 				while(new_folder_depth <= scan_target_node.depth() && scan_target_node.parent != null)
 					scan_target_node = scan_target_node.parent;
 				Data.platforms().rescan_folder(scan_target_node, game.unique_id());
+				
+				@interface.pop_layer(false);
 				selector.menu.quit();
 			}
 		}
@@ -215,12 +219,27 @@ namespace Menus.Concrete
 					return;
 				}
 				
-				if (ObjectMenu.edit("App Override: %s, %s".printf(app.filename, app.id), app_override) == false)
+				var original_mount_id = app.mount_id;
+				var app_edit_menu = new ObjectMenu("App Override: " + app.menu_title(), null, app_override);
+				var browser = new MenuBrowser(app_edit_menu);
+				browser.run_no_pop();
+				
+				if (app_edit_menu.was_saved == false) {
+					@interface.pop_screen_layer();
 					return;
-				
-				selector.menu.message("Updating..");
-				
+				}
+							
+				if (app.mount_id != original_mount_id && Data.pnd_mountset().is_id_mounted(original_mount_id)) {
+					browser.set_message("Unmounting %s...".printf(original_mount_id));
+					// hack around GameBrowser behavior, to prevent screen flip
+						@interface.push_layer(new Layers.DummyLayer(), 0, 0, false);
+					Data.pnd_mountset().unmount_by_id(original_mount_id);
+					browser.set_message("Saving...");
+				}
+
 				Data.platforms().rescan_folder(game.platform.get_root_folder(), game.unique_id());
+				
+				@interface.pop_screen_layer();
 				selector.menu.quit();				
 			}
 		}
@@ -247,27 +266,55 @@ namespace Menus.Concrete
 				var delete_selector = new DeleteConfirmation("confirm_game_delete", rect.x, rect.y);
 				var delete_overlay = new Layers.GameBrowser.SelectorOverlay<string>.from_selector("Delete: " + app.get_fullpath(), null, delete_selector);
 				var overlay_layer = @interface.pop_layer(false);
-				delete_overlay.run();
-				@interface.push_layer(overlay_layer);
-
-				if (delete_selector.confirm_selected() == false)
+				delete_overlay.run_no_pop();
+				
+				if (delete_selector.confirm_selected() == false) {
+					@interface.pop_layer(false);
+					@interface.push_layer(overlay_layer);
 					return;
+				}
+								
+				// unmount the pnd, if necessary
+				if (Data.pnd_mountset().is_mounted(app) == true) {
+					delete_overlay.set_message("Unmounting...");				
+					if (Data.pnd_mountset().unmount(app) == false) {
+						@interface.pop_layer(false);
+						@interface.push_layer(overlay_layer, 0, 0, false);
+						selector.menu.error(app.get_fullpath() + ": unable to unmount");
+						return;
+					}
+				}
 				
-				selector.menu.message("Deleting...");
+				delete_overlay.set_message("Deleting...");
 				
+				// remove the pnd
 				var filename = app.get_fullpath();
 				var file = File.new_for_path(filename);
 				try {
-					if (file.delete() == false) {
-						selector.menu.error(filename + ": unable to delete file");
-						return;
-					}					
+					if (file.delete() == false)
+						throw new FileError.FAILED("unable to delete file");					
 				} catch (GLib.Error e) {
+					@interface.pop_layer(false);
+					@interface.push_layer(overlay_layer, 0, 0, false);
 					selector.menu.error("%s: %s".printf(filename, e.message));
 					return;
 				}
 				
+				// update the pnd_cache and runtime data
+				bool updated = false;
+				var pnd = Data.pnd_data().get_pnd(filename);
+				if (pnd != null) {
+					if (Data.pnd_data().remove_pnd_item(pnd) == true) {
+						Data.programs().rebuild_program_apps();
+						updated = true;
+					}
+				}
+				if (updated == false)
+					Data.rescan_pnd_data();				
+				game.platform.reset_runtime_data();		
 				Data.platforms().rescan_folder(game.parent);
+								
+				@interface.pop_layer(false);
 				selector.menu.quit();				
 			}
 		}

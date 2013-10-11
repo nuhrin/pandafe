@@ -59,6 +59,12 @@ namespace Data.Pnd
 			update_cache_file(cache);
 			reload_from_cache(cache);
 		}
+		public bool remove_pnd_item(PndItem pnd) {
+			if (pnd_list.remove(pnd) == false)
+				return false;
+			rebuild();
+			return true;
+		}
 		void update_cache_file(PndCache cache) {
 			try {
 				data_interface.save(cache, CACHED_DATA_ID, CACHED_DATA_FOLDER);
