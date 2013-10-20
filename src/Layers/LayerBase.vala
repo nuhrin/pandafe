@@ -30,7 +30,30 @@ namespace Layers
 	{	
 		static uint next_unique_id;
 		static LayerDependencies dependencies;
-		
+		static Gee.HashMap<uint,string> id_hash;
+		static Gee.HashMap<uint,string> type_hash;
+		static void register_creation(LayerBase layer) {
+			if (id_hash == null) {
+				id_hash = new Gee.HashMap<uint,string>();
+				type_hash = new Gee.HashMap<uint,string>();
+			}
+			id_hash[next_unique_id] = layer.id;
+			type_hash[next_unique_id] = layer.get_type().name();
+			layer.unique_id = next_unique_id;
+			next_unique_id++;			
+		}
+		static void register_destruction(LayerBase layer) {
+			id_hash.unset(layer.unique_id);
+			type_hash.unset(layer.unique_id);
+		}
+		public static void print_all_registered_layers() {
+			if (id_hash == null || id_hash.size == 0)
+				return;
+			print("all LayerBase instances not destroyed:\n");			
+			foreach(var uid in id_hash.keys) {
+				print("- %u: %s (%s)\n", uid, id_hash[uid], type_hash[uid]);
+			}
+		}
 		string _id;
 		uint unique_id;
 		ArrayList<Layer> children;
@@ -39,13 +62,20 @@ namespace Layers
 		
 		public LayerBase(string id) {
 			_id = id;
-			unique_id = next_unique_id;			
-			next_unique_id++;
+			if (RuntimeEnvironment.dev_mode) {
+				register_creation(this);
+			} else {
+				unique_id = next_unique_id;			
+				next_unique_id++;
+			}
 			if (dependencies == null)
 				dependencies = new LayerDependencies();
 			needs_update = true;
 		}
-		
+		~LayerBase() {
+			if (RuntimeEnvironment.dev_mode)
+				register_destruction(this);
+		}
 		public unowned string id { get { return _id; } }	
 
 		//

@@ -37,7 +37,12 @@ public class MainClass: Object {
         ensure_pandafe_appdata(screen);
         @interface = new InterfaceHelper(screen);
         new GameBrowser().run();
-
+        @interface = null;
+        if (RuntimeEnvironment.dev_mode) {
+            Menus.MenuItem.print_all_registered_items();
+            Layers.LayerBase.print_all_registered_layers();
+        }
+		
         SDL.quit();
 
 		cleanup_cache();

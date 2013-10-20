@@ -28,6 +28,78 @@ namespace Menus
 	public delegate void MenuItemActivationAction();
 	public class MenuItem : Object
 	{
+		static uint next_unique_id;
+		static Gee.HashMap<uint,string> id_name_hash;
+		static Gee.HashMap<uint,string> id_type_hash;
+		static Gee.HashMap<string,Gee.ArrayList<uint>> watch_ids_hash;
+		static void register_creation(MenuItem item) {
+			if (id_name_hash == null) {
+				id_name_hash = new Gee.HashMap<uint,string>();
+				id_type_hash = new Gee.HashMap<uint,string>();
+			}
+			id_name_hash[next_unique_id] = item.name;
+			id_type_hash[next_unique_id] = item.get_type().name();
+			item.unique_id = next_unique_id;
+			next_unique_id++;			
+		}
+		static void register_destruction(MenuItem item) {
+			id_name_hash.unset(item.unique_id);
+			id_type_hash.unset(item.unique_id);
+		}
+		public static void print_all_registered_items() {
+			if (id_name_hash == null || id_name_hash.size == 0)
+				return;
+			print("all MenuItem instances not destroyed:\n");
+			var ids = new Gee.ArrayList<uint>();
+			ids.add_all(id_name_hash.keys);
+			ids.sort();
+			foreach(var uid in ids) {
+				print("- %u: %s (%s)\n", uid, id_name_hash[uid], id_type_hash[uid]);
+			}
+		}
+		public static void register_watch(string name) {
+			if (watch_ids_hash == null)
+				watch_ids_hash = new Gee.HashMap<string,Gee.ArrayList<uint>>();
+			if (watch_ids_hash.has_key(name) == true)
+				GLib.error("register_watch: watch %s is already registered. :(", name);
+			
+			var ids = new Gee.ArrayList<uint>();
+			ids.add_all(id_name_hash.keys);
+			watch_ids_hash[name] = ids;
+		}
+		public static void update_watch(string name)  {
+			if (watch_ids_hash == null || watch_ids_hash.has_key(name) == false)
+				GLib.error("update_watch: watch %s is not registered. :(", name);
+			
+			var ids = watch_ids_hash[name];
+			var new_ids = new Gee.ArrayList<uint>();
+			new_ids.add_all(id_name_hash.keys);
+			foreach(var id in id_name_hash.keys) {
+				if (ids.contains(id) == true)
+					new_ids.remove(id);
+			}
+			watch_ids_hash[name] = new_ids;
+		}
+		public static void unregister_watch(string name) {
+			if (watch_ids_hash == null || watch_ids_hash.has_key(name) == false)
+				GLib.error("unregister_watch: watch %s is not registered. :(", name);
+								
+			var ids = watch_ids_hash[name];
+			watch_ids_hash.unset(name);
+			var remaining_ids = new Gee.ArrayList<uint>();
+			foreach(var id in ids) {
+				if (id_name_hash.has_key(id) == true)
+					remaining_ids.add(id);
+			}
+			if (remaining_ids.size == 0)
+				return;
+			remaining_ids.sort();
+			print("watch %s: all MenuItem instances not destroyed:\n", name);
+			foreach(var uid in remaining_ids) {
+				print("- %u: %s (%s)\n", uid, id_name_hash[uid], id_type_hash[uid]);
+			}
+		}
+		
 		public MenuItem.cancel_item(string? name=null, string? help=null) { this.with_action(MenuItemActionType.CANCEL, name, help); }
 		public MenuItem.save_item(string? name=null, string? help=null) { this.with_action(MenuItemActionType.SAVE, name, help); }
 		public MenuItem.save_and_quit_item(string? name=null, string? help=null) { 
@@ -49,7 +121,14 @@ namespace Menus
 			_name = name;
 			_help = help;
 			_enabled = is_initially_enabled();
+			if (RuntimeEnvironment.dev_mode)
+				register_creation(this);
 		}
+		~MenuItem() {
+			if (RuntimeEnvironment.dev_mode)
+				register_destruction(this);
+		}
+		uint unique_id;
 		string _name;
 		string? _help;
 		MenuItemActivationAction? activate_action;

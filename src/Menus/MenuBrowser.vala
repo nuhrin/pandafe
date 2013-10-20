@@ -121,6 +121,8 @@ namespace Menus
 		//
 		// screen updates
 		void push_menu(Menu menu) {
+			if (RuntimeEnvironment.dev_mode)
+				Menus.MenuItem.register_watch(menu.name);			
 			disconnect_selector_signals();
 			remove_additional_layer();
 			menu_stack.push_head(selector);
@@ -134,12 +136,15 @@ namespace Menus
 			add_additional_layer(menu);
 			selector.select_first();
 			menu_changed(menu);
+			if (RuntimeEnvironment.dev_mode)
+				Menus.MenuItem.update_watch(menu.name);
 		}
 		void pop_menu() {
 			if (menu_stack.length == 0) {
 				quit_event_loop();
 				return;
 			}
+			string watch = selector.menu.name;
 			disconnect_selector_signals();
 			remove_additional_layer();
 			selector = menu_stack.pop_head();
@@ -151,6 +156,8 @@ namespace Menus
 			add_additional_layer(selector.menu);
 			selector.update();
 			menu_changed(selector.menu);
+			if (RuntimeEnvironment.dev_mode)
+				Menus.MenuItem.unregister_watch(watch);
 		}
 		void refresh_menu(Menu menu) {
 			if (menu == selector.menu) {

@@ -87,7 +87,10 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 			status_message.set("Unmounting PNDs...");
 			Data.pnd_mountset().unmount_all();
 		}
-		@interface.pop_screen_layer();
+		foreach(var handler in selector_handlers)
+			selector.disconnect(handler);
+
+		@interface.pop_screen_layer();		
 	}
 	
 	Enumerable<Platform> get_current_platforms() {
