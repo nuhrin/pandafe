@@ -59,6 +59,12 @@ namespace Data.Pnd
 
 			return UNION_MOUNT_PATH + app.mount_id;
 		}
+		public string? get_mounted_pnd_path(AppItem app) {
+			if (is_app_mounted(app) == false)
+				return null;
+
+			return PND_MOUNT_PATH + app.mount_id;
+		}
 		public string? get_mounted_appdata_path(AppItem app) {
 			if (is_app_mounted(app) == false)
 				return null;

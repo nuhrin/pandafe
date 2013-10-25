@@ -44,6 +44,23 @@ public class Spawning
 		return CUSTOM_COMMAND_SCRIPT_FORMAT.printf(app.id);
 	}
 	
+	const string TERMINAL_COMMAND = "/usr/bin/terminal";
+	const string TERMINAL_DEVMODE = "/usr/bin/roxterm";
+	public static void open_terminal(string path) {
+		string command = (RuntimeEnvironment.dev_mode) ? TERMINAL_DEVMODE : TERMINAL_COMMAND;
+		var result = Spawning.spawn_command(command, path);
+		if (result.success == false)
+			result.show_result_dialog();
+	}
+	const string FILE_MANAGER_COMMAND = "/usr/bin/thunar";
+	const string FILE_MANAGER_DEVMODE = "/usr/bin/nautilus .";
+	public static void open_file_manager(string path) {
+		string command = (RuntimeEnvironment.dev_mode) ? FILE_MANAGER_DEVMODE : FILE_MANAGER_COMMAND;
+		var result = Spawning.spawn_command(command, path);
+		if (result.success == false)
+			result.show_result_dialog();
+	}
+	
 	public static SpawningResult spawn_command(string command_line, string working_directory) {
 		int exit_status = -1;
 		string standard_output;

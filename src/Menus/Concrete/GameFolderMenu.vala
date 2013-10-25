@@ -58,14 +58,10 @@ namespace Menus.Concrete
 			if (platform.platform_type == PlatformType.ROM) {
 				var full_path = folder.unique_id();
 				items.add(new MenuItem.custom("Terminal", "Open terminal in " + full_path, "", () => {
-					var result = Spawning.spawn_command("/usr/bin/terminal", full_path);
-					if (result.success == false)
-						result.show_result_dialog();
+					Spawning.open_terminal(full_path);
 				}));
 				items.add(new MenuItem.custom("File Manager", "Open file manager in " + full_path, "", () => {
-					var result = Spawning.spawn_command("/usr/bin/thunar", full_path);
-					if (result.success == false)
-						result.show_result_dialog();
+					Spawning.open_file_manager(full_path);
 				}));
 				items.add(new MenuItemSeparator());
 				

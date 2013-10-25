@@ -54,17 +54,8 @@ namespace Menus.Concrete
 			items.add(new DeleteItem(game, app));
 			if (app != null) {
 				items.add(new MenuItemSeparator());
-				var full_path = Path.get_dirname(app.get_fullpath());
-				items.add(new MenuItem.custom("Terminal", "Open terminal in " + full_path, "", () => {
-					var result = Spawning.spawn_command("/usr/bin/terminal", full_path);
-					if (result.success == false)
-						result.show_result_dialog();
-				}));
-				items.add(new MenuItem.custom("File Manager", "Open file manager in " + full_path, "", () => {
-					var result = Spawning.spawn_command("/usr/bin/thunar", full_path);
-					if (result.success == false)
-						result.show_result_dialog();
-				}));
+				items.add(new AppTerminalFolderItem(app));
+				items.add(new AppFileManagerFolderItem(app));
 			}
 		}
 		
@@ -318,5 +309,76 @@ namespace Menus.Concrete
 				selector.menu.quit();				
 			}
 		}
+		public class AppTerminalFolderItem : FolderItem
+		{
+			public AppTerminalFolderItem(AppItem? app, string? app_title=null) {
+				base("Terminal", "Open terminal in", app, app_title);
+			}
+			protected override void open_command(string path) { Spawning.open_terminal(path); }
+		}
+		public class AppFileManagerFolderItem : FolderItem
+		{
+			public AppFileManagerFolderItem(AppItem? app, string? app_title=null) {
+				base("File Manager", "Open file manager in", app, app_title);
+			}
+			protected override void open_command(string path) { Spawning.open_file_manager(path); }
+		}
+		public abstract class FolderItem : MenuItem, SubMenuItem
+		{
+			string help_prefix;
+			AppItem? app;
+			string? app_title;
+			Menu _menu;
+			protected FolderItem(string name, string help_prefix, AppItem? app, string? app_title=null) {
+				base(name, help_prefix + " ...");
+				this.help_prefix = help_prefix;
+				this.app = app;
+				this.app_title = app_title ?? app.menu_title();
+			}
+			protected abstract void open_command(string path);
+			
+			public bool on_activation(MenuSelector selector) { 
+				if (app == null) {
+					selector.menu.error("App not found");
+					return false;
+				}
+				if (FileUtils.test(app.get_fullpath(), FileTest.EXISTS) == false) {
+					selector.menu.error("PND does not exist");
+					return false;
+				}
+				if (Data.pnd_mountset().is_mounted(app) == false) {
+					selector.menu.message("Mounting '%s'...".printf(app.mount_id));
+					if (Data.pnd_mountset().mount(app) == false) {
+						selector.menu.error("Unable to mount app.");
+						return false;
+					}
+					selector.menu.message("");						
+				}
+				_menu = new FolderMenu("%s: %s".printf(name, app_title), this);
+				return true;
+			}
+			public Menu menu { get { return _menu;} }
+			
+			class FolderMenu : Menu
+			{
+				weak FolderItem item;
+				public FolderMenu(string name, FolderItem item) {
+					base(name);
+					this.item = item;
+				}
+				
+				protected override void populate_items(Gee.List<MenuItem> items) { 			
+					items.add(get_item("AppData", Data.pnd_mountset().get_mounted_appdata_path(item.app)));
+					items.add(get_item("PND", Data.pnd_mountset().get_mounted_pnd_path(item.app)));
+					items.add(get_item("Union", Data.pnd_mountset().get_mounted_path(item.app)));
+				}
+				MenuItem get_item(string name, string path) {
+					return new MenuItem.custom(name, "%s %s".printf(item.help_prefix, path), "", () => {
+						item.open_command(path);
+					});
+				}
+			}
+		}
+		
 	}
 }

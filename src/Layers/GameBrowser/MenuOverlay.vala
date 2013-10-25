@@ -434,8 +434,8 @@ namespace Layers.GameBrowser
 			}
 			var submenu = selected_item as SubMenuItem;
 			if (submenu != null) {
-				submenu.on_activation();
-				push_menu(submenu.menu);
+				if (submenu.on_activation(selector) == true)
+					push_menu(submenu.menu);
 				return;
 			}			
 			message.update_error(null, false);
