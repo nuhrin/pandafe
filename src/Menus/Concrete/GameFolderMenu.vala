@@ -35,7 +35,7 @@ namespace Menus.Concrete
 		GameNodeMenuData menu_data;
 		Platform platform;
 		public GameFolderMenu(GameFolder folder, GameNodeMenuData menu_data, string? help=null) {
-			string name = "Folder: " + ((folder.parent != null) ? folder.display_name() : "Root");
+			string name = "Folder: " + ((folder.parent != null) ? folder.display_name() : Path.get_basename(folder.unique_id()));
 			base(name, help);
 			this.title = "Game " + name;
 			this.folder = folder;
