@@ -147,23 +147,19 @@ public class NativePlatform : Platform
 			excluded_hash.add(Build.PND_APP_ID);
 			if (native_category != null)
 				excluded_hash.add_all(native_category.excluded_apps);				
-			var title_game_hash = new HashMap<string, GameItem?>();
-			var title_packageid_hash = new HashMap<string, string>();
+			var title_set = new HashSet<string>();
+			var colliding_title_set = new HashSet<string>();
+			foreach(var app in category.apps) {
+				if (title_set.contains(app.title))
+					colliding_title_set.add(app.title);
+				title_set.add(app.title);
+			}
 			foreach(var app in category.apps) {
 				if (excluded_hash.contains(app.id) == true)
 					continue;
 				GameItem game = GameItem.create(app.title, this, folder, "%s|%s".printf(app.get_fullpath(), app.id));
-				if (title_game_hash.has_key(app.title) == true) {
-					var old_game_item = title_game_hash[app.title];
-					if (old_game_item != null) {
-						GameItem.set_full_name(old_game_item, "%s (%s)".printf(app.title, title_packageid_hash[app.title]));
-						title_game_hash[app.title] = null;
-					}
-					GameItem.set_full_name(game, "%s (%s)".printf(app.title, app.package_id));
-				} else {
-					title_game_hash[app.title] = game;
-					title_packageid_hash[app.title] = app.package_id;
-				}
+				if (colliding_title_set.contains(app.title) == true)
+					GameItem.set_full_name(game, "%s (%s)".printf(app.title, app.get_shortpath()));				
 				game_list.add(game);
 			}
 			game_list.sort(IGameListNode.compare);
