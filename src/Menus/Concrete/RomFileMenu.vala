@@ -94,7 +94,9 @@ namespace Menus.Concrete
 					@interface.pop_layer(false);
 					selector.menu.error(error);
 					return;
-				}				
+				}
+				Data.favorites_rename(game.id, Path.get_basename(rom_files.unique_id()));
+				Data.games_run_list_rename(game.unique_id(), rom_files.unique_id());
 				Data.platforms().rescan_folder(game.parent, rom_files.unique_id());
 				
 				@interface.pop_layer(false);
@@ -194,7 +196,9 @@ namespace Menus.Concrete
 					selector.menu.error(error);
 					return;
 				}
-								
+				
+				Data.games_run_list_rename(game.unique_id(), rom_files.unique_id());
+				
 				// attempt to remove the old directory. only removed if its empty. if not empty, the call will simply return -1 and be ignored
 				FileUtils.remove(game.parent.unique_id());
 								

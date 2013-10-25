@@ -54,7 +54,7 @@ namespace Data.GameList
 				GLib.error("Invalid attempt to reuse RomFiles instance for '%s'.", game.id);
 			_processed = true;			
 
-			var move_set = new RomFileMoveSet.for_rename(_folder_path, rom_fullname, new_fullname, filenames);
+			var move_set = new RomFileMoveSet.for_rename(game, _folder_path, rom_fullname, new_fullname, filenames);
 			if (move_set.move(out error) == false) {
 				move_set.revert();
 				return false;
@@ -128,11 +128,18 @@ namespace Data.GameList
 		class RomFileMoveSet
 		{
 			ArrayList<RomFileMove> files;
-			public RomFileMoveSet.for_rename(string folder_path, string original_name, string new_name, Iterable<string> filenames) {
+			public RomFileMoveSet.for_rename(GameItem game, string folder_path, string original_name, string new_name, Iterable<string> filenames) {
 				files = new ArrayList<RomFileMove>();
 				foreach(string filename in filenames) {
 					files.add(new RomFileMove(Path.build_filename(folder_path, filename), 
 					                          Path.build_filename(folder_path, filename.replace(original_name, new_name))));
+				}
+				// include GameSettings file, if neccessary
+				var game_settings_folder = Path.build_filename(RuntimeEnvironment.user_config_dir(), "GameSettings");
+				var game_settings_file = Path.build_filename(game_settings_folder, game.id);
+				if (FileUtils.test(game_settings_file, FileTest.EXISTS) == true) {
+					var new_game_settings_file = Path.build_filename(game_settings_folder, game.id.replace(original_name, new_name));
+					files.add(new RomFileMove(game_settings_file, new_game_settings_file));
 				}
 			}
 			public RomFileMoveSet.for_move(string original_folder_path, string new_folder_path, Iterable<string> filenames) {
