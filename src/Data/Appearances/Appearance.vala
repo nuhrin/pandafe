@@ -33,13 +33,13 @@ using Menus.Fields;
 public class Appearance : NamedEntity, MenuObject
 {
 	construct {			
-		name = "(Default)";
+		name = "[Default]";
 		game_browser = new GameBrowserAppearance.default();
 		menu = new MenuAppearance.default();
 	}
 	
 	public Appearance.default() {
-		name = "(Default)";
+		name = "[Default]";
 		game_browser = new GameBrowserAppearance.default();
 		menu = new MenuAppearance.default();
 	}

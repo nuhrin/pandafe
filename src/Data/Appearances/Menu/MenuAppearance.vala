@@ -31,7 +31,7 @@ namespace Data.Appearances.Menu
 {
 	public class MenuAppearance : MenuAppearanceBase<MenuAppearance>
 	{
-		const string DEFAULT_BORDER_COLOR = "#FFFFFF";
+		const string DEFAULT_BORDER_COLOR = "#00BF10";
 		
 		construct {
 			background_color = build_color(default_background_color());

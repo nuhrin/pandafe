@@ -29,7 +29,7 @@ namespace Data.Appearances
 		public static AppearanceInfo default {
 			get {
 				if (_default == null)
-					_default = new AppearanceInfo("default", "(Default)");
+					_default = new AppearanceInfo("default", "[Default]");
 				return _default;
 			}
 		}

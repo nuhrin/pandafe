@@ -26,7 +26,10 @@ using Menus;
 namespace Data.Appearances.GameBrowser
 {
 	public class GameBrowserHeader : GameBrowserFontAreaBase<GameBrowserHeader>
-	{	
+	{
+		const string DEFAULT_FONT_PREFERRED = "fonts/ArchitectsDaughter.ttf";
+		const int DEFAULT_FONT_SIZE = 25;
+		
 		construct {
 		}
 		public GameBrowserHeader.default() {
@@ -50,6 +53,9 @@ namespace Data.Appearances.GameBrowser
 			copy_font_from(other);
 			text_color = other.text_color;
 		}
+		
+		protected override unowned string default_font_preferred() { return DEFAULT_FONT_PREFERRED; }
+		protected override int default_font_size() { return DEFAULT_FONT_SIZE; }
 		
 		protected override void attribute_changed() { @interface.game_browser_ui.header.update_font(this); }
 		protected override void color_changed() { @interface.game_browser_ui.header.update_colors(this); }

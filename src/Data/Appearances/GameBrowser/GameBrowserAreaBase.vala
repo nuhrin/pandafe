@@ -28,7 +28,7 @@ namespace Data.Appearances.GameBrowser
 {
 	public abstract class GameBrowserAreaBase<G> : GameBrowserAppearanceBase<G>, AppearanceAreaType<G>
 	{
-		protected const string DEFAULT_HEADER_FOOTER_COLOR = "#FFFFFF";
+		protected const string DEFAULT_HEADER_FOOTER_COLOR = "#A19999";
 		
 		// yaml
 		protected override Yaml.Node build_yaml_node(Yaml.NodeBuilder builder) { return build_yaml_node_area_implementation(builder); }

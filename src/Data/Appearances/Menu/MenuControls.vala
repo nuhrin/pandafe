@@ -28,11 +28,11 @@ namespace Data.Appearances.Menu
 {
 	public class MenuControls : MenuFontAreaBase<MenuControls>
 	{	
-		const int DEFAULT_ITEM_SPACING = 6;
-		const string DEFAULT_ITEM_COLOR = "#FFFFFF";
-		const string DEFAULT_SELECTED_ITEM_COLOR = "#000000";
-		const string DEFAULT_SELECTED_ITEM_BACKGROUND_COLOR = "#FFFFFF";
-		const string DEFAULT_TEXT_CURSOR_COLOR = "#00498A";
+		const int DEFAULT_ITEM_SPACING = 1;
+		const string DEFAULT_ITEM_COLOR = "#00BF10";
+		const string DEFAULT_SELECTED_ITEM_COLOR = "#00FF15";
+		const string DEFAULT_SELECTED_ITEM_BACKGROUND_COLOR = "#006609";
+		const string DEFAULT_TEXT_CURSOR_COLOR = "#384000";
 				
 		construct {
 		}

@@ -29,9 +29,9 @@ namespace Data.Appearances.Menu
 	public abstract class MenuAppearanceBase<G> : Catapult.YamlObject, MenuObject, AppearanceType<G>
 	{
 		const string DEFAULT_FONT = "/usr/share/fonts/truetype/DejaVuSansMono.ttf";
-		const string DEFAULT_FONT_PREFERRED = "fonts/monof55.ttf";
-		const int DEFAULT_FONT_SIZE = 24;
-		const int MAX_FONT_SIZE = 30;
+		const string DEFAULT_FONT_PREFERRED = "fonts/repet___.ttf";
+		const int DEFAULT_FONT_SIZE = 25;
+		const int MAX_FONT_SIZE = 48;
 		const int MIN_FONT_SIZE = 10;
 		const string DEFAULT_BACKGROUND_COLOR = "#000000";
 		
@@ -42,8 +42,8 @@ namespace Data.Appearances.Menu
 		protected unowned string? __get_name() { return _name; }
 		string? _name;
 		protected unowned string default_font() { return DEFAULT_FONT; }
-		protected unowned string default_font_preferred() { return DEFAULT_FONT_PREFERRED; }
-		protected int default_font_size() { return DEFAULT_FONT_SIZE; }
+		protected virtual unowned string default_font_preferred() { return DEFAULT_FONT_PREFERRED; }
+		protected virtual int default_font_size() { return DEFAULT_FONT_SIZE; }
 		protected int max_font_size() { return MAX_FONT_SIZE; }
 		protected int min_font_size() { return MIN_FONT_SIZE; }
 		protected unowned string default_background_color() { return DEFAULT_BACKGROUND_COLOR; }		

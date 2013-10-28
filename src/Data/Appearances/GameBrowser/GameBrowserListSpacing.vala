@@ -28,12 +28,12 @@ namespace Data.Appearances.GameBrowser
 {
 	public class GameBrowserListSpacing : GameBrowserAreaBase<GameBrowserListSpacing>
 	{	
-		const int DEFAULT_TOP_SPACING = 25;
-		const int DEFAULT_BOTTOM_SPACING = 25;
+		const int DEFAULT_TOP_SPACING = 15;
+		const int DEFAULT_BOTTOM_SPACING = 15;
 		const int DEFAULT_LEFT_SPACING = 0;
 		const int DEFAULT_RIGHT_SPACING = 0;
-		const int DEFAULT_ITEM_SPACING = 6;
-		const int DEFAULT_ITEM_PADDING = 30;
+		const int DEFAULT_ITEM_SPACING = 10;
+		const int DEFAULT_ITEM_PADDING = 20;
 		
 		construct {
 		}

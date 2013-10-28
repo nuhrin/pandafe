@@ -26,16 +26,19 @@ using Menus;
 namespace Data.Appearances.Menu
 {
 	public class MenuHeader : MenuFontAreaBase<MenuHeader>
-	{	
+	{
+		const int DEFAULT_FONT_SIZE = 29;
+		const string DEFAULT_TEXT_COLOR = "#00FF14";
+		
 		construct {
 		}
 		public MenuHeader.default() {
 			base.default();
-			text_color = build_color(DEFAULT_HEADER_FOOTER_COLOR);
+			text_color = build_color(DEFAULT_TEXT_COLOR);
 		}
 		
 		public Data.Color text_color { get; set; }
-		public SDL.Color text_color_sdl() { return resolve_sdl_color(text_color, DEFAULT_HEADER_FOOTER_COLOR); }
+		public SDL.Color text_color_sdl() { return resolve_sdl_color(text_color, DEFAULT_TEXT_COLOR); }
 				
 		public override MenuHeader copy() {
 			var copy = new MenuHeader();
@@ -51,6 +54,8 @@ namespace Data.Appearances.Menu
 			text_color = other.text_color;
 		}
 		
+		protected override int default_font_size() { return DEFAULT_FONT_SIZE; }
+		
 		protected override void attribute_changed() { @interface.menu_ui.header.update_font(this); }
 		protected override void color_changed() { @interface.menu_ui.header.update_colors(this); }
 		protected override void appearance_changed() { @interface.menu_ui.header.update_appearance(this); }
@@ -60,7 +65,7 @@ namespace Data.Appearances.Menu
 		protected override void build_area_fields(MenuBuilder builder)
 		{
 			builder.add_separator();
-			add_color_field(builder, "text_color", "Text", "Text Color", text_color, DEFAULT_HEADER_FOOTER_COLOR);
+			add_color_field(builder, "text_color", "Text", "Text Color", text_color, DEFAULT_TEXT_COLOR);
 		}
 		protected override void cleanup_area_fields() {
 		}

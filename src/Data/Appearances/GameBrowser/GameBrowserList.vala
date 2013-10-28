@@ -27,9 +27,10 @@ using Menus.Fields;
 namespace Data.Appearances.GameBrowser
 {
 	public class GameBrowserList : GameBrowserFontAreaBase<GameBrowserList>
-	{	
+	{
+		const int DEFAULT_FONT_SIZE = 29;
 		const string DEFAULT_ITEM_COLOR = "#178ECB";
-		const string DEFAULT_SELECTED_ITEM_COLOR = "#0F3854";
+		const string DEFAULT_SELECTED_ITEM_COLOR = "#071A26";
 		const string DEFAULT_SELECTED_ITEM_BACKGROUND_COLOR = "#178ECB";
 		
 		construct {
@@ -74,6 +75,8 @@ namespace Data.Appearances.GameBrowser
 			selected_item_color = other.selected_item_color;
 			selected_item_background_color = other.selected_item_background_color;
 		}
+		
+		protected override int default_font_size() { return DEFAULT_FONT_SIZE; }
 		
 		protected override void attribute_changed() { @interface.game_browser_ui.list.update_font(this); }
 		protected override void color_changed() { @interface.game_browser_ui.list.update_colors(this); }
