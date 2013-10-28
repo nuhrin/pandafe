@@ -3,8 +3,9 @@ NULL =
 SUBDIRS = \
 	fonts \
 	Platform \
+	Preset \
 	Program \
-  $(NULL)
+	$(NULL)
 
 topdatadir=$(pkgdatadir)
 topdata_DATA = \

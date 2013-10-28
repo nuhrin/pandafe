@@ -113,6 +113,8 @@ AC_CONFIG_FILES([
 	data/Makefile
 	data/fonts/Makefile
 	data/Platform/Makefile
+	data/Preset/Makefile
+	data/Preset/Appearance/Makefile
 	data/Program/Makefile
 	pnd/Makefile
 	pnd/PXML.xml

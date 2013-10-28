@@ -1,0 +1,44 @@
+name: ! '[Old Default]'
+game-browser:
+  background-color: ! '#0F3854'
+  header:
+    font: bitwise.ttf
+    font-size: 19
+    text-color: ! '#FFFFFF'
+  list:
+    font: bitwise.ttf
+    font-size: 19
+    spacing:
+      top: 30
+      bottom: 25
+      left: 25
+      right: 0
+      item-v: 5
+      item-h: 30
+    item-color: ! '#178ECB'
+    selected-item-color: ! '#FFFFFF'
+    selected-item-background-color: ! '#0F3854'
+  footer:
+    font: bitwise.ttf
+    font-size: 19
+    text-color: ! '#FFFFFF'
+menu:
+  background-color: ! '#000000'
+  border-color: ! '#FFFFFF'
+  header:
+    font: monof55.ttf
+    font-size: 20
+    text-color: ! '#FFFFFF'
+  controls:
+    font: monof55.ttf
+    font-size: 20
+    item-spacing: 6
+    item-color: ! '#FFFFFF'
+    selected-item-color: ! '#000000'
+    selected-item-background-color: ! '#FFFFFF'
+    text-cursor-color: ! '#00498A'
+  footer:
+    font: monof55.ttf
+    font-size: 20
+    text-color: ! '#FFFFFF'
+

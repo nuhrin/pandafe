@@ -29,6 +29,7 @@ namespace Data.Appearances
 	public class AppearanceProvider : EntityProvider<Appearance>
 	{
 		const string SUBFOLDER = "Preset";
+		const string OLD_DEFAULT_ID = "olddefault";
 		
 		AppearanceEntityProvider package_appearance_provider;
 		AppearanceEntityProvider local_appearance_provider;
@@ -36,6 +37,7 @@ namespace Data.Appearances
 		HashSet<string> local_appearance_ids;
 		HashSet<string> reserved_appearance_ids;
 		HashMap<string,AppearanceInfo> appearance_info_hash;
+		AppearanceInfo old_default_info;
 		
 		public AppearanceProvider(string root_folder) throws RuntimeError {
 			base(root_folder);
@@ -50,6 +52,8 @@ namespace Data.Appearances
 			
 			if (id == AppearanceInfo.default.id)
 				return new Appearance.default();
+			if (id == OLD_DEFAULT_ID && old_default_info != null)
+				return package_appearance_provider.get_appearance(id);
 				
 			Appearance? appearance = null;
 			if (local_appearance_ids.contains(id) == true)
@@ -66,6 +70,7 @@ namespace Data.Appearances
 			list.add_all(appearance_info_hash.values);
 			list.sort(AppearanceInfo.compare);
 			list.add(AppearanceInfo.default);
+			list.add(old_default_info);
 			return new Enumerable<AppearanceInfo>(list);
 		}
 		
@@ -138,8 +143,12 @@ namespace Data.Appearances
 			
 			package_appearance_ids = new HashSet<string>();
 			foreach(var info in package_appearance_provider.get_appearance_info()) {
-				package_appearance_ids.add(info.id);
-				appearance_info_hash[info.id] = info;
+				if (info.id == OLD_DEFAULT_ID) {
+					old_default_info = info;
+				} else {
+					package_appearance_ids.add(info.id);
+					appearance_info_hash[info.id] = info;
+				}
 			}
 			local_appearance_ids = new HashSet<string>();
 			foreach(var info in local_appearance_provider.get_appearance_info()) {
@@ -149,6 +158,7 @@ namespace Data.Appearances
 			
 			reserved_appearance_ids = new HashSet<string>();
 			reserved_appearance_ids.add(AppearanceInfo.default.id);
+			reserved_appearance_ids.add(OLD_DEFAULT_ID);
 		}
 		
 		class AppearanceEntityProvider : EntityProvider<Appearance>
