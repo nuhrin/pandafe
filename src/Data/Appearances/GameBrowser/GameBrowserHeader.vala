@@ -27,18 +27,15 @@ namespace Data.Appearances.GameBrowser
 {
 	public class GameBrowserHeader : GameBrowserFontAreaBase<GameBrowserHeader>
 	{
-		const string DEFAULT_FONT_PREFERRED = "fonts/ArchitectsDaughter.ttf";
-		const int DEFAULT_FONT_SIZE = 25;
-		
 		construct {
 		}
 		public GameBrowserHeader.default() {
 			base.default();
-			text_color = build_color(DEFAULT_HEADER_FOOTER_COLOR);
+			text_color = build_color(AppearanceDefaults.GAME_BROWSER_HEADER_FOOTER_COLOR);
 		}
 		
 		public Data.Color text_color { get; set; }
-		public SDL.Color text_color_sdl() { return resolve_sdl_color(text_color, DEFAULT_HEADER_FOOTER_COLOR); }
+		public SDL.Color text_color_sdl() { return resolve_sdl_color(text_color, AppearanceDefaults.GAME_BROWSER_HEADER_FOOTER_COLOR); }
 				
 		public override GameBrowserHeader copy() {
 			var copy = new GameBrowserHeader();
@@ -54,8 +51,8 @@ namespace Data.Appearances.GameBrowser
 			text_color = other.text_color;
 		}
 		
-		protected override unowned string default_font_preferred() { return DEFAULT_FONT_PREFERRED; }
-		protected override int default_font_size() { return DEFAULT_FONT_SIZE; }
+		protected override unowned string default_font_preferred() { return AppearanceDefaults.GAME_BROWSER_HEADER_FONT_PREFERRED; }
+		protected override int default_font_size() { return AppearanceDefaults.GAME_BROWSER_HEADER_FONT_SIZE; }
 		
 		protected override void attribute_changed() { @interface.game_browser_ui.header.update_font(this); }
 		protected override void color_changed() { @interface.game_browser_ui.header.update_colors(this); }
@@ -65,7 +62,7 @@ namespace Data.Appearances.GameBrowser
 		protected override void build_area_fields(MenuBuilder builder)
 		{
 			builder.add_separator();
-			add_color_field(builder, "text_color", "Text", "Text Color", text_color, DEFAULT_HEADER_FOOTER_COLOR);
+			add_color_field(builder, "text_color", "Text", "Text Color", text_color, AppearanceDefaults.GAME_BROWSER_HEADER_FOOTER_COLOR);
 		}
 		protected override void cleanup_area_fields() {
 		}

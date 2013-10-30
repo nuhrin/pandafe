@@ -28,21 +28,15 @@ namespace Data.Appearances.Menu
 {
 	public class MenuControls : MenuFontAreaBase<MenuControls>
 	{	
-		const int DEFAULT_ITEM_SPACING = 1;
-		const string DEFAULT_ITEM_COLOR = "#00BF10";
-		const string DEFAULT_SELECTED_ITEM_COLOR = "#00FF15";
-		const string DEFAULT_SELECTED_ITEM_BACKGROUND_COLOR = "#006609";
-		const string DEFAULT_TEXT_CURSOR_COLOR = "#384000";
-				
 		construct {
 		}
 		public MenuControls.default() {
 			base.default();
-			item_spacing = DEFAULT_ITEM_SPACING;
-			item_color = build_color(DEFAULT_ITEM_COLOR);
-			selected_item_color = build_color(DEFAULT_SELECTED_ITEM_COLOR);
-			selected_item_background_color = build_color(DEFAULT_SELECTED_ITEM_BACKGROUND_COLOR);
-			text_cursor_color = build_color(DEFAULT_TEXT_CURSOR_COLOR);
+			item_spacing = AppearanceDefaults.MENU_ITEM_SPACING;
+			item_color = build_color(AppearanceDefaults.MENU_ITEM_COLOR);
+			selected_item_color = build_color(AppearanceDefaults.MENU_SELECTED_ITEM_COLOR);
+			selected_item_background_color = build_color(AppearanceDefaults.MENU_SELECTED_ITEM_BACKGROUND_COLOR);
+			text_cursor_color = build_color(AppearanceDefaults.MENU_TEXT_CURSOR_COLOR);
 		}
 		
 		public int item_spacing { get; set; }
@@ -51,11 +45,11 @@ namespace Data.Appearances.Menu
 		public Data.Color selected_item_background_color { get; set; }
 		public Data.Color text_cursor_color { get; set; }
 		
-		public int16 item_spacing_resolved() { return (int16)((item_spacing > 0) ? item_spacing : DEFAULT_ITEM_SPACING); }
-		public SDL.Color item_color_sdl() { return resolve_sdl_color(item_color, DEFAULT_ITEM_COLOR);  }
-		public SDL.Color selected_item_color_sdl() { return resolve_sdl_color(selected_item_color, DEFAULT_SELECTED_ITEM_COLOR);  }
-		public SDL.Color selected_item_background_color_sdl() { return resolve_sdl_color(selected_item_background_color, DEFAULT_SELECTED_ITEM_BACKGROUND_COLOR);  }
-		public SDL.Color text_cursor_color_sdl() { return resolve_sdl_color(text_cursor_color, DEFAULT_TEXT_CURSOR_COLOR); }
+		public int16 item_spacing_resolved() { return (int16)((item_spacing > 0) ? item_spacing : AppearanceDefaults.MENU_ITEM_SPACING); }
+		public SDL.Color item_color_sdl() { return resolve_sdl_color(item_color, AppearanceDefaults.MENU_ITEM_COLOR);  }
+		public SDL.Color selected_item_color_sdl() { return resolve_sdl_color(selected_item_color, AppearanceDefaults.MENU_SELECTED_ITEM_COLOR);  }
+		public SDL.Color selected_item_background_color_sdl() { return resolve_sdl_color(selected_item_background_color, AppearanceDefaults.MENU_SELECTED_ITEM_BACKGROUND_COLOR);  }
+		public SDL.Color text_cursor_color_sdl() { return resolve_sdl_color(text_cursor_color, AppearanceDefaults.MENU_TEXT_CURSOR_COLOR); }
 		
 		public override MenuControls copy() {
 			var copy = new MenuControls();
@@ -99,10 +93,10 @@ namespace Data.Appearances.Menu
 			
 			builder.add_separator();
 			
-			add_color_field(builder, "item_color", "Item", "Item Color", item_color, DEFAULT_ITEM_COLOR);
-			add_color_field(builder, "selected_item_color", "Selected", "Selected Item Color", selected_item_color, DEFAULT_SELECTED_ITEM_COLOR);
-			add_color_field(builder, "selected_item_background_color", "Selected BG", "Selected Item Background Color", selected_item_background_color, DEFAULT_SELECTED_ITEM_BACKGROUND_COLOR);
-			var text_cursor_field = add_color_field(builder, "text_cursor_color", "Text Cursor", "Text Cursor Color", text_cursor_color, DEFAULT_TEXT_CURSOR_COLOR);
+			add_color_field(builder, "item_color", "Item", "Item Color", item_color, AppearanceDefaults.MENU_ITEM_COLOR);
+			add_color_field(builder, "selected_item_color", "Selected", "Selected Item Color", selected_item_color, AppearanceDefaults.MENU_SELECTED_ITEM_COLOR);
+			add_color_field(builder, "selected_item_background_color", "Selected BG", "Selected Item Background Color", selected_item_background_color, AppearanceDefaults.MENU_SELECTED_ITEM_BACKGROUND_COLOR);
+			var text_cursor_field = add_color_field(builder, "text_cursor_color", "Text Cursor", "Text Cursor Color", text_cursor_color, AppearanceDefaults.MENU_TEXT_CURSOR_COLOR);
 			text_cursor_field.update_on_text_value_change = true;
 		}
 		protected override void cleanup_area_fields() {

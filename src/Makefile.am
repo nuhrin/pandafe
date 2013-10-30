@@ -43,6 +43,7 @@ pandafe_SOURCES = \
 	Data/Appearances/Appearance.vala \
 	Data/Appearances/AppearanceAreaType.vala \
 	Data/Appearances/AppearanceAreaUI.vala \
+	Data/Appearances/AppearanceDefaults.vala \
 	Data/Appearances/AppearanceFontAreaType.vala \
 	Data/Appearances/AppearanceInfo.vala \
 	Data/Appearances/AppearanceProvider.vala \

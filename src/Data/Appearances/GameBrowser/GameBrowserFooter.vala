@@ -26,18 +26,16 @@ using Menus;
 namespace Data.Appearances.GameBrowser
 {
 	public class GameBrowserFooter : GameBrowserFontAreaBase<GameBrowserFooter>
-	{
-		const int DEFAULT_FONT_SIZE = 25;
-		
+	{		
 		construct {
 		}
 		public GameBrowserFooter.default() {
 			base.default();
-			text_color = build_color(DEFAULT_HEADER_FOOTER_COLOR);
+			text_color = build_color(AppearanceDefaults.GAME_BROWSER_HEADER_FOOTER_COLOR);
 		}
 		
 		public Data.Color text_color { get; set; }
-		public SDL.Color text_color_sdl() { return resolve_sdl_color(text_color, DEFAULT_HEADER_FOOTER_COLOR); }
+		public SDL.Color text_color_sdl() { return resolve_sdl_color(text_color, AppearanceDefaults.GAME_BROWSER_HEADER_FOOTER_COLOR); }
 		
 		public override GameBrowserFooter copy() {
 			var copy = new GameBrowserFooter();
@@ -53,8 +51,8 @@ namespace Data.Appearances.GameBrowser
 			text_color = other.text_color;
 		}
 
-		protected override int default_font_size() { return DEFAULT_FONT_SIZE; }
-		
+		protected override int default_font_size() { return AppearanceDefaults.GAME_BROWSER_FOOTER_FONT_SIZE; }
+
 		protected override void attribute_changed() { @interface.game_browser_ui.footer.update_font(this); }
 		protected override void color_changed() { @interface.game_browser_ui.footer.update_colors(this); }
 		protected override void appearance_changed() { @interface.game_browser_ui.footer.update_appearance(this); }
@@ -63,7 +61,7 @@ namespace Data.Appearances.GameBrowser
 		protected override void build_area_fields(MenuBuilder builder)
 		{
 			builder.add_separator();
-			add_color_field(builder, "text_color", "Text", "Text Color", text_color, DEFAULT_HEADER_FOOTER_COLOR);
+			add_color_field(builder, "text_color", "Text", "Text Color", text_color, AppearanceDefaults.GAME_BROWSER_HEADER_FOOTER_COLOR);
 		}
 		protected override void cleanup_area_fields() {
 		}

@@ -28,20 +28,15 @@ namespace Data.Appearances.GameBrowser
 {
 	public class GameBrowserList : GameBrowserFontAreaBase<GameBrowserList>
 	{
-		const int DEFAULT_FONT_SIZE = 29;
-		const string DEFAULT_ITEM_COLOR = "#178ECB";
-		const string DEFAULT_SELECTED_ITEM_COLOR = "#071A26";
-		const string DEFAULT_SELECTED_ITEM_BACKGROUND_COLOR = "#178ECB";
-		
 		construct {
 			spacing = new GameBrowserListSpacing.default();
 		}
 		public GameBrowserList.default() {
 			base.default();
 			spacing = new GameBrowserListSpacing.default();
-			item_color = build_color(DEFAULT_ITEM_COLOR);
-			selected_item_color = build_color(DEFAULT_SELECTED_ITEM_COLOR);
-			selected_item_background_color = build_color(DEFAULT_SELECTED_ITEM_BACKGROUND_COLOR);
+			item_color = build_color(AppearanceDefaults.GAME_BROWSER_ITEM_COLOR);
+			selected_item_color = build_color(AppearanceDefaults.GAME_BROWSER_SELECTED_ITEM_COLOR);
+			selected_item_background_color = build_color(AppearanceDefaults.GAME_BROWSER_SELECTED_ITEM_BACKGROUND_COLOR);
 		}
 		
 		public GameBrowserListSpacing spacing { get; set; }
@@ -49,9 +44,9 @@ namespace Data.Appearances.GameBrowser
 		public Data.Color selected_item_color { get; set; }
 		public Data.Color selected_item_background_color { get; set; }
 		
-		public SDL.Color item_color_sdl() { return resolve_sdl_color(item_color, DEFAULT_ITEM_COLOR);  }
-		public SDL.Color selected_item_color_sdl() { return resolve_sdl_color(selected_item_color, DEFAULT_SELECTED_ITEM_COLOR);  }
-		public SDL.Color selected_item_background_color_sdl() { return resolve_sdl_color(selected_item_background_color, DEFAULT_SELECTED_ITEM_BACKGROUND_COLOR);  }
+		public SDL.Color item_color_sdl() { return resolve_sdl_color(item_color, AppearanceDefaults.GAME_BROWSER_ITEM_COLOR);  }
+		public SDL.Color selected_item_color_sdl() { return resolve_sdl_color(selected_item_color, AppearanceDefaults.GAME_BROWSER_SELECTED_ITEM_COLOR);  }
+		public SDL.Color selected_item_background_color_sdl() { return resolve_sdl_color(selected_item_background_color, AppearanceDefaults.GAME_BROWSER_SELECTED_ITEM_BACKGROUND_COLOR);  }
 				
 		public override GameBrowserList copy() {
 			var copy = new GameBrowserList();
@@ -76,8 +71,6 @@ namespace Data.Appearances.GameBrowser
 			selected_item_background_color = other.selected_item_background_color;
 		}
 		
-		protected override int default_font_size() { return DEFAULT_FONT_SIZE; }
-		
 		protected override void attribute_changed() { @interface.game_browser_ui.list.update_font(this); }
 		protected override void color_changed() { @interface.game_browser_ui.list.update_colors(this); }
 		protected override void appearance_changed() { @interface.game_browser_ui.list.update_appearance(this, true); }
@@ -89,9 +82,9 @@ namespace Data.Appearances.GameBrowser
 			
 			builder.add_separator();
 			
-			add_color_field(builder, "item_color", "Item", "Item Color", item_color, DEFAULT_ITEM_COLOR);
-			add_color_field(builder, "selected_item_color", "Selected", "Selected Item Color", selected_item_color, DEFAULT_SELECTED_ITEM_COLOR);
-			add_color_field(builder, "selected_item_background_color", "Selected BG", "Selected Item Background Color", selected_item_background_color, DEFAULT_SELECTED_ITEM_BACKGROUND_COLOR);						
+			add_color_field(builder, "item_color", "Item", "Item Color", item_color, AppearanceDefaults.GAME_BROWSER_ITEM_COLOR);
+			add_color_field(builder, "selected_item_color", "Selected", "Selected Item Color", selected_item_color, AppearanceDefaults.GAME_BROWSER_SELECTED_ITEM_COLOR);
+			add_color_field(builder, "selected_item_background_color", "Selected BG", "Selected Item Background Color", selected_item_background_color, AppearanceDefaults.GAME_BROWSER_SELECTED_ITEM_BACKGROUND_COLOR);						
 		}
 		protected override void cleanup_area_fields() {
 		}

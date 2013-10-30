@@ -28,22 +28,15 @@ namespace Data.Appearances.GameBrowser
 {
 	public class GameBrowserListSpacing : GameBrowserAreaBase<GameBrowserListSpacing>
 	{	
-		const int DEFAULT_TOP_SPACING = 15;
-		const int DEFAULT_BOTTOM_SPACING = 15;
-		const int DEFAULT_LEFT_SPACING = 0;
-		const int DEFAULT_RIGHT_SPACING = 0;
-		const int DEFAULT_ITEM_SPACING = 10;
-		const int DEFAULT_ITEM_PADDING = 20;
-		
 		construct {
 		}
 		public GameBrowserListSpacing.default() {
-			top = DEFAULT_TOP_SPACING;
-			bottom = DEFAULT_BOTTOM_SPACING;
-			left = DEFAULT_LEFT_SPACING;
-			right = DEFAULT_RIGHT_SPACING;
-			item_v = DEFAULT_ITEM_SPACING;
-			item_h = DEFAULT_ITEM_PADDING;
+			top = AppearanceDefaults.GAME_BROWSER_TOP_SPACING;
+			bottom = AppearanceDefaults.GAME_BROWSER_BOTTOM_SPACING;
+			left = AppearanceDefaults.GAME_BROWSER_LEFT_SPACING;
+			right = AppearanceDefaults.GAME_BROWSER_RIGHT_SPACING;
+			item_v = AppearanceDefaults.GAME_BROWSER_ITEM_SPACING;
+			item_h = AppearanceDefaults.GAME_BROWSER_ITEM_PADDING;
 		}
 		
 		public int top { get; set; }
@@ -53,12 +46,12 @@ namespace Data.Appearances.GameBrowser
 		public int item_v { get; set; }
 		public int item_h { get; set; }
 		
-		public int16 top_resolved() { return (int16)((top > 0) ? top : DEFAULT_TOP_SPACING); }
-		public int16 bottom_resolved() { return (int16)((bottom > 0) ? bottom : DEFAULT_BOTTOM_SPACING); }
-		public int16 left_resolved() { return (int16)((left >= 0) ? left : DEFAULT_LEFT_SPACING); }
-		public int16 right_resolved() { return (int16)((right >= 0) ? right : DEFAULT_RIGHT_SPACING); }
-		public int16 item_v_resolved() { return (int16)((item_v > 0) ? item_v : DEFAULT_ITEM_SPACING); }
-		public int16 item_h_resolved() { return (int16)((item_h >= 0) ? item_h : DEFAULT_ITEM_PADDING); }
+		public int16 top_resolved() { return (int16)((top > 0) ? top : AppearanceDefaults.GAME_BROWSER_TOP_SPACING); }
+		public int16 bottom_resolved() { return (int16)((bottom > 0) ? bottom : AppearanceDefaults.GAME_BROWSER_BOTTOM_SPACING); }
+		public int16 left_resolved() { return (int16)((left >= 0) ? left : AppearanceDefaults.GAME_BROWSER_LEFT_SPACING); }
+		public int16 right_resolved() { return (int16)((right >= 0) ? right : AppearanceDefaults.GAME_BROWSER_RIGHT_SPACING); }
+		public int16 item_v_resolved() { return (int16)((item_v > 0) ? item_v : AppearanceDefaults.GAME_BROWSER_ITEM_SPACING); }
+		public int16 item_h_resolved() { return (int16)((item_h >= 0) ? item_h : AppearanceDefaults.GAME_BROWSER_ITEM_PADDING); }
 
 		public override GameBrowserListSpacing copy() {
 			var copy = new GameBrowserListSpacing();
