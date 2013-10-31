@@ -181,6 +181,8 @@ namespace Data.Appearances
 				}
 				
 				foreach(var id in ids) {
+					if (RuntimeEnvironment.dev_mode && id.has_prefix("Makefile"))
+						continue;
 					Yaml.MappingNode mapping = null;
 					try {
 						mapping = load_document(id).root as Yaml.MappingNode;
