@@ -79,10 +79,12 @@ namespace Data.Appearances
 			builder.add_cancel_item();
 			builder.add_save_item("Ok");
 		}
-		protected abstract void build_area_fields(MenuBuilder builder);		
+		protected abstract void build_area_fields(MenuBuilder builder);
 		protected void cleanup_fields_implementation() {
+			release_field_handlers();
 			cleanup_area_fields();
 		}
+		protected abstract void release_field_handlers();
 		protected abstract void cleanup_area_fields();
 		
 	}

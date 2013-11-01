@@ -112,7 +112,8 @@ namespace Data.Appearances
 			return field;
 		}
 		protected abstract Gee.HashMultiMap<MenuItemField, ulong> get_field_handler_map();
-		protected void release_field_handlers() {
+		protected abstract void release_field_handlers();
+		protected void release_field_handlers_implementation() {
 			var field_handlers = get_field_handler_map();
 			if (field_handlers == null)
 				return;

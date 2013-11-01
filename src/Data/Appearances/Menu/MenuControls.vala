@@ -84,11 +84,12 @@ namespace Data.Appearances.Menu
 		protected override bool monospace_font_required() { return true; }
 		protected override void build_area_fields(MenuBuilder builder)
 		{
+			var field_handlers = get_field_handler_map();
 			var item_spacing_field = new IntegerField("item_spacing", "Item Spacing", null, item_spacing, 1, 15);
-			item_spacing_field.changed.connect(() => {
+			field_handlers.set(item_spacing_field, item_spacing_field.changed.connect(() => {
 				item_spacing = item_spacing_field.value;
 				attribute_changed();
-			});
+			}));
 			builder.add_field(item_spacing_field);
 			
 			builder.add_separator();

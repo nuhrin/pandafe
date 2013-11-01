@@ -152,6 +152,7 @@ namespace Data.Appearances
 		protected abstract void color_changed();
 			
 		protected void build_menu_font_area_implementation(MenuBuilder builder) {
+			var field_handlers = get_field_handler_map();
 			var font_field = new FileField("font", "Font", null, "", "ttf", Path.build_filename(RuntimeEnvironment.system_data_dir(), "fonts"));
 			font_field.chooser_title = get_field_description("Font");
 			font_field.hide_root_path = true;
@@ -163,18 +164,18 @@ namespace Data.Appearances
 					return true;
 				}, "A monospaced font is required.");
 			}
-			font_field.changed.connect(() => {
+			field_handlers.set(font_field, font_field.changed.connect(() => {
 				set_font(font_field.value);
 				attribute_changed();
-			});
+			}));
 			font_field.value = get_font();
 			builder.add_field(font_field);
 			
 			var font_size_field = new IntegerField("font_size", "Font Size", null, get_font_size(), min_font_size(), max_font_size());
-			font_size_field.changed.connect(() => {
+			field_handlers.set(font_size_field, font_size_field.changed.connect(() => {
 				set_font_size(font_size_field.value);
 				attribute_changed();
-			});
+			}));
 			builder.add_field(font_size_field);
 			
 			build_area_fields(builder);
@@ -184,7 +185,8 @@ namespace Data.Appearances
 			builder.add_cancel_item();
 			builder.add_save_item("Ok");
 		}
-		protected abstract void build_area_fields(MenuBuilder builder);		
+		protected abstract Gee.HashMultiMap<MenuItemField, ulong> get_field_handler_map();
+		protected abstract void build_area_fields(MenuBuilder builder);
 		protected abstract void cleanup_area_fields();
 		
 	}

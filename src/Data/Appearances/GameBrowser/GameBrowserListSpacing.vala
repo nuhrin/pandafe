@@ -79,20 +79,23 @@ namespace Data.Appearances.GameBrowser
 		
 		protected override void build_area_fields(MenuBuilder builder)
 		{
-			add_spacing_field(builder, "top", "Top", "Spacing above list", top_resolved(), 1, 50);
-			add_spacing_field(builder, "bottom", "Bottom", "Spacing below list", bottom_resolved(), 1, 50);
-			add_spacing_field(builder, "left", "Left", "Spacing to the left of list", left_resolved(), 0, 100);
-			add_spacing_field(builder, "right", "Right", "Spacing to the right of list", right_resolved(), 0, 100);
+			var handlers = get_field_handler_map();
+			add_spacing_field(handlers, builder, "top", "Top", "Spacing above list", top_resolved(), 1, 50);
+			add_spacing_field(handlers, builder, "bottom", "Bottom", "Spacing below list", bottom_resolved(), 1, 50);
+			add_spacing_field(handlers, builder, "left", "Left", "Spacing to the left of list", left_resolved(), 0, 100);
+			add_spacing_field(handlers, builder, "right", "Right", "Spacing to the right of list", right_resolved(), 0, 100);
 			builder.add_separator();
-			add_spacing_field(builder, "item_v", "Item V", "Vertical spacing between items", item_v_resolved(), 1, 15);			
-			add_spacing_field(builder, "item_h", "Item H", "Horizonal padding on left/right of items", item_h_resolved(), 0, 50);
+			add_spacing_field(handlers, builder, "item_v", "Item V", "Vertical spacing between items", item_v_resolved(), 1, 15);			
+			add_spacing_field(handlers, builder, "item_h", "Item H", "Horizonal padding on left/right of items", item_h_resolved(), 0, 50);
 		}
-		IntegerField add_spacing_field(MenuBuilder builder, string id, string name, string help, int value, int min_value, int max_value, uint step=1) {
-			var field = new IntegerField(id, name, help, value, min_value, max_value, step);
-			field.changed.connect(() => {
+		IntegerField add_spacing_field(Gee.HashMultiMap<MenuItemField, ulong> field_handlers, MenuBuilder builder, 
+		                               string id, string name, string help, int value, int min_value, int max_value, uint step=1) 
+		{
+			var field = new IntegerField(id, name, help, value, min_value, max_value, step);			
+			field_handlers.set(field, field.changed.connect(() => {
 				this.set_property(field.id, field.value);
 				attribute_changed();
-			});
+			}));
 			builder.add_field(field);
 			return field;
 		}

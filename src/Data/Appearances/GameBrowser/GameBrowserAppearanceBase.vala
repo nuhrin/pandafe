@@ -57,6 +57,7 @@ namespace Data.Appearances.GameBrowser
 			cleanup_fields();
 		}
 		protected abstract void cleanup_fields();
+		protected void release_field_handlers() { release_field_handlers_implementation(); }
 		protected bool suppress_default_actions() { return true; }
 		protected bool apply_changed_field(Menus.Menu menu, MenuItemField field) { return true; }
 	}
