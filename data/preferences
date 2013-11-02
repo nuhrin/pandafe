@@ -1,8 +1,0 @@
-appearance:
-  font-size: 24
-  item-color: ! '#178ECB'
-  selected-item-color: ! '#0F3854'
-  selected-item-background-color: ! '#178ECB'
-  background-color: ! '#0F3854'
-  header-footer-color: ! '#FFFFFF'
-

@@ -9,7 +9,6 @@ SUBDIRS = \
 
 topdatadir=$(pkgdatadir)
 topdata_DATA = \
-	preferences \
 	$(NULL)
 
 dist_topdata_DATA = \
