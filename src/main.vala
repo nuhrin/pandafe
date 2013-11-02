@@ -104,6 +104,9 @@ public class MainClass: Object {
 				
 		// ensure appdata
 		ensure_appdata_folder("fonts", false);
+		ensure_appdata_file("native_platform");
+		ensure_appdata_file("platform_folders");
+
 		var data_needs_update = determine_data_update_need();
 		if (data_needs_update) {
 			var font = new Font(InterfaceHelper.FONT_MONO_DEFAULT, 18);
@@ -118,10 +121,7 @@ public class MainClass: Object {
 		} else {
 			ensure_appdata_folder("Platform");
 			ensure_appdata_folder("Program");
-		}
-		ensure_appdata_file("native_platform");
-		ensure_appdata_file("platform_folders");
-		
+		}		
 
 		// ensure preferences file
 		if (ensure_appdata_file("preferences") == false)
