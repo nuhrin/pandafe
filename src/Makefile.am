@@ -66,7 +66,9 @@ pandafe_SOURCES = \
 	Data/GameList/AllGames.vala \
 	Data/GameList/GameFolder.vala \
 	Data/GameList/GameItem.vala \
+	Data/GameList/GameNodeMenuData.vala \
 	Data/GameList/IGameListNode.vala \
+	Data/GameList/RomFiles.vala \
 	Data/Options/DoubleOption.vala \
 	Data/Options/FlagOption.vala \
 	Data/Options/IntegerOption.vala \
@@ -89,6 +91,7 @@ pandafe_SOURCES = \
 	Data/Platforms/RomPlatform.vala \
 	Data/Pnd/AppIdType.vala \
 	Data/Pnd/AppItem.vala \
+	Data/Pnd/AppOverride.vala \
 	Data/Pnd/Category.vala \
 	Data/Pnd/MountSet.vala \
 	Data/Pnd/PndCache.vala \
@@ -111,9 +114,7 @@ pandafe_SOURCES = \
 	Fields/PlatformFolderListField.vala \
 	Fields/PlatformListField.vala \
 	Fields/PlatformNodeListField.vala \
-	Fields/PndAppField.vala \
 	Fields/PndCategoryField.vala \
-	Fields/PndSelectionField.vala \
 	Fields/ProgramAppIdField.vala \
 	Fields/ProgramDefaultSettingsField.vala \
 	Fields/ProgramField.vala \
@@ -138,6 +139,7 @@ pandafe_SOURCES = \
 	Layers/Controls/DoubleEntry.vala \
 	Layers/Controls/FileChooser.vala \
 	Layers/Controls/FolderChooser.vala \
+	Layers/Controls/GameCategorySelector.vala \
 	Layers/Controls/IntegerEntry.vala \
 	Layers/Controls/ListEditor.vala \
 	Layers/Controls/PndAppChooser.vala \
@@ -148,6 +150,7 @@ pandafe_SOURCES = \
 	Layers/Controls/UIntEntry.vala \
 	Layers/Controls/ValueSelector.vala \
 	Layers/Controls/ValueSelectorBase.vala \
+	Layers/GameBrowser/CategorySelectorOverlay.vala \
 	Layers/GameBrowser/HeaderLayer.vala \
 	Layers/GameBrowser/MenuOverlay.vala \
 	Layers/GameBrowser/PlatformSelectorOverlay.vala \
@@ -155,6 +158,7 @@ pandafe_SOURCES = \
 	Layers/GameBrowser/StatusMessageLayer.vala \
 	Layers/MenuBrowser/MenuHeaderLayer.vala \
 	Layers/MenuBrowser/MenuMessageLayer.vala \
+	Layers/DummyLayer.vala \
 	Layers/Layer.vala \
 	Layers/LayerBase.vala \
 	Layers/ScreenAlphaLayer.vala \
@@ -162,6 +166,7 @@ pandafe_SOURCES = \
 	Layers/SurfaceLayer.vala \
 	Menus/Concrete/ChangeViewMenu.vala \
 	Menus/Concrete/ExitMenu.vala \
+	Menus/Concrete/GameAppMenu.vala \
 	Menus/Concrete/GameFolderMenu.vala \
 	Menus/Concrete/GameMenu.vala \
 	Menus/Concrete/GameSettingsMenu.vala \
@@ -172,6 +177,7 @@ pandafe_SOURCES = \
 	Menus/Concrete/PlatformProgramSettingsMapMenu.vala \
 	Menus/Concrete/ProgramDefaultSettingsMenu.vala \
 	Menus/Concrete/ProgramMenu.vala \
+	Menus/Concrete/RomFileMenu.vala \
 	Menus/Concrete/SwitchGuiMenu.vala \
 	Menus/Fields/BooleanField.vala \
 	Menus/Fields/DoubleField.vala \
@@ -203,7 +209,9 @@ pandafe_SOURCES = \
 	Menus/ObjectMenu.vala \
 	Menus/SubMenuItem.vala \
 	Selectors/EverythingSelector.vala \
+	Selectors/GameCategorySelector.vala \
 	Selectors/GameFolderSelector.vala \
+	Selectors/GamePlatformSelector.vala \
 	Selectors/PlatformFolderSelector.vala \
 	Selectors/PlatformSelector.vala \
 	Selectors/Selector.vala \

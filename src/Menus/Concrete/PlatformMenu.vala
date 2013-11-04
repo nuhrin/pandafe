@@ -53,11 +53,23 @@ namespace Menus.Concrete
 				if (platform.platform_type == PlatformType.NATIVE) {
 					this.message("Scanning PNDs...");
 					Data.rescan_pnd_data();
+					platform.reset_runtime_data();
 				}
 				platform.rescan(f=> this.message("Scanning folder '%s'...".printf(f.unique_name())));
 				refresh(1);
 			}));
-						
+			
+			if (platform.platform_type == PlatformType.ROM) {
+				items.add(new MenuItemSeparator());
+				var full_path = platform.get_root_folder().unique_id();
+				items.add(new MenuItem.custom("Terminal", "Open terminal in " + full_path, "", () => {
+					Spawning.open_terminal(full_path);
+				}));
+				items.add(new MenuItem.custom("File Manager", "Open file manager in " + full_path, "", () => {
+					Spawning.open_file_manager(full_path);
+				}));
+			}
+			
 			if (platform_folder != null) {
 				items.add(new MenuItemSeparator());
 				

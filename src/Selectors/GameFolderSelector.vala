@@ -38,15 +38,13 @@ public class GameFolderSelector : Selector
 		items = _folder.children().to_list();
 	}
 
-	public GameFolder folder { 
-		get { return _folder; } 
-		set {
-			if (_folder != value) {
-				_folder = value;
-				_folder.rescanned.connect(() => rebuild());
-			}
-			rebuild();
+	public GameFolder folder { get { return _folder; } }
+	public void set_folder(GameFolder folder, string? new_selection_id) {
+		if (_folder != folder) {
+			_folder = folder;
+			_folder.rescanned.connect(() => rebuild());
 		}
+		rebuild(new_selection_id);
 	}
 
 	public IGameListNode? selected_item()
@@ -56,20 +54,24 @@ public class GameFolderSelector : Selector
 		return items[selected_index];
 	}
 	
-	protected override void rebuild_items(int selection_index) {
-		var node = (selection_index != -1) ? items[selection_index] : null;
-		var previous_selection_id = (node != null) ? node.id : null;
+	protected override void rebuild_items(int selection_index, string? new_selection_id) {
+		var selection_id = new_selection_id;
+		if (selection_id == null && selection_index != -1)
+			selection_id = items[selection_index].unique_id();
+		
 		items = _folder.children().to_list();
 		int new_index = -1;
-		if (previous_selection_id != null) {
+		if (selection_id != null) {
 			for(int index=0;index<items.size;index++) {
 				var item = items[index];
-				if (item.id == previous_selection_id) {
+				if (item.unique_id() == selection_id) {
 					new_index = index;
 					break;
 				}
 			}
 		}
+		if (new_index == -1 && selection_index > -1 && selection_index < items.size)
+			new_index = selection_index;
 		if (new_index != -1)
 			select_item(new_index, false);
 	}

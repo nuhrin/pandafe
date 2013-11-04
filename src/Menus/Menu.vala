@@ -131,6 +131,7 @@ namespace Menus
 		public signal void saved();
 		public virtual signal void refreshed(uint selected_index) { }
 		public signal void finished();
+		public signal void quit();
 		
 		public bool validate() {
 			bool success = true;

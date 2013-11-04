@@ -90,7 +90,6 @@ namespace Layers.Controls
 			}
 			header.path = path;
 		}
-		
 		protected override bool validate_activation(ChooserSelector selector, out string? error) { 
 			error = null; 
 			if (validator == null)
@@ -106,7 +105,8 @@ namespace Layers.Controls
 			}
 			return true;
 		}
-		protected override bool process_activation(ChooserSelector selector) {
+		protected override bool process_activation(ChooserSelector selector, out bool cancel) {
+			cancel = false;
 			var file_selector = (FileSelector)selector;
 			if (file_selector.is_folder_selected == false) {
 				// choose this this

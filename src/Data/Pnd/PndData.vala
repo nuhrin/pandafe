@@ -34,6 +34,7 @@ namespace Data.Pnd
 		DataInterface data_interface;
 		ArrayList<PndItem> pnd_list;
 		HashMap<string, PndItem> pnd_id_hash;
+		HashMap<string, PndItem> pnd_path_hash;
 		HashMap<string, AppItem> app_id_hash;
 		HashMap<string, ArrayList<PndItem>> app_id_pnd_list_hash;
 		ArrayList<string> main_category_name_list;
@@ -49,17 +50,31 @@ namespace Data.Pnd
 		public void rescan() {
 			Pandora.Apps.scan_pnds();
 			var cache = new PndCache.from_pnds(Pandora.Apps.get_all_pnds());
-
+			update_cache_file(cache);
+			Pandora.Apps.clear_pnd_cache();
+			reload_from_cache(cache);
+		}
+		public void rebuild() {
+			var cache = new PndCache.from_data(pnd_list);
+			update_cache_file(cache);
+			reload_from_cache(cache);
+		}
+		public bool remove_pnd_item(PndItem pnd) {
+			if (pnd_list.remove(pnd) == false)
+				return false;
+			rebuild();
+			return true;
+		}
+		void update_cache_file(PndCache cache) {
 			try {
 				data_interface.save(cache, CACHED_DATA_ID, CACHED_DATA_FOLDER);
 			} catch (Error e) {
 				warning("Error while saving pnd data cache: %s", e.message);
 			}
-			Pandora.Apps.clear_pnd_cache();
-			reload_from_cache(cache);
 		}
 		void reload_from_cache(PndCache cache) {
 			pnd_list = new ArrayList<PndItem>();
+			pnd_path_hash = new HashMap<string, PndItem>();
 			pnd_id_hash = new HashMap<string, PndItem>();
 			app_id_hash = new HashMap<string, AppItem>();
 			app_id_pnd_list_hash = new HashMap<string, ArrayList<PndItem>>();
@@ -69,6 +84,7 @@ namespace Data.Pnd
 
 			foreach(var pnd in cache.pnd_list) {
 				pnd_list.add(pnd);
+				pnd_path_hash[pnd.get_fullpath()] = pnd;
 				pnd_id_hash[pnd.pnd_id] = pnd;
 				foreach(var app in pnd.apps) {
 					if (app_id_pnd_list_hash.has_key(app.id) == false)
@@ -83,28 +99,30 @@ namespace Data.Pnd
 		public Enumerable<PndItem> get_all_pnds() {
 			return new Enumerable<PndItem>(pnd_list);
 		}
-		public PndItem? get_pnd(string id) {
+		public PndItem? get_pnd_direct(string path, string filename) {
+			var pnd = Pandora.Apps.get_pnd_direct(path, filename);
+			if (pnd == null)
+				return null;
+			return new PndItem.from_pnd(pnd);
+		}
+		public PndItem? get_pnd(string pnd_path) {
+			if (pnd_path_hash.has_key(pnd_path) == true)
+				return pnd_path_hash[pnd_path];
+
+			return null;
+		}
+		public PndItem? get_pnd_by_id(string id) {
 			if (pnd_id_hash.has_key(id) == true)
 				return pnd_id_hash[id];
 
 			return null;
 		}
-		public Enumerable<AppItem> get_pnd_apps(string pnd_id) {
-			var pnd = get_pnd(pnd_id);
-			if (pnd != null)
-				return pnd.apps;
-			return Enumerable.empty<AppItem>();
-		}
-		public AppItem? get_app(string id, string? pnd_id=null, AppIdType id_type=AppIdType.EXACT) {
+		
+		public AppItem? get_app(string id, AppIdType id_type=AppIdType.EXACT) {
 			if (id == "")
 				return null;
-			PndItem? pnd = null;
-			if (pnd_id != null)
-				pnd = get_pnd(pnd_id);
 				
 			if (id_type == AppIdType.EXACT) {
-				if (pnd != null)
-					return pnd.get_app(id);
 				if (app_id_hash.has_key(id) == true)
 					return app_id_hash[id];
 				return null;
@@ -119,11 +137,7 @@ namespace Data.Pnd
 				}
 			}
 			
-			Enumerable<AppItem> apps = (pnd != null)
-				? pnd.apps
-				: new Enumerable<AppItem>(app_id_hash.values);
-									
-			foreach(var app in apps) {
+			foreach(var app in app_id_hash.values) {
 				if (regex != null) {
 					if (regex.match(app.id) == true)
 						return app;
@@ -267,7 +281,7 @@ namespace Data.Pnd
 						category.add_app(app);
 					} else {
 						if (subcategory1 != "") {
-							var sub1 = category.ensure_subcategory(subcategory1);
+							var sub1 = category.ensure_subcategory(app.subcategory_display_name);
 							sub1.add_app(app);
 						}
 						if (subcategory2 != "") {

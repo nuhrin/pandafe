@@ -53,6 +53,12 @@ namespace Data
 	
 	public Favorites favorites() { return Provider.instance().get_favorites(); }
 	public bool save_favorites() { return Provider.instance().save_favorites(); }
+	public bool favorites_rename(string old_id, string new_id) {
+		bool success = favorites().change_id(old_id, new_id);
+		if (success == true)
+			save_favorites();
+		return success;
+	}
 
 	public void increment_game_run_count(GameItem game) {
 		Provider.instance().get_games_run_list().increment_run_count(game);
@@ -67,7 +73,13 @@ namespace Data
 	public bool games_run_list_is_empty() {
 		return (Provider.instance().get_games_run_list().games_run.size == 0);
 	}
-
+	public bool games_run_list_rename(string old_id, string new_id) {
+		bool success = Provider.instance().get_games_run_list().change_id(old_id, new_id);
+		if (success == true)
+			Provider.instance().save_games_run_list();
+		return success;
+	}	
+	
 	public class Provider
 	{
 		static Provider _instance;

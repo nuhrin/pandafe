@@ -34,7 +34,7 @@ public class PlatformFolderSelector : PlatformSelector
 	public PlatformFolderSelector(PlatformFolder folder, string id, int16 xpos, int16 ypos, int16 ymax) {
 		base.base(id, xpos, ypos, ymax);
 		_folder = folder;
-		rebuild_items(-1);
+		rebuild_items(-1, null);
 	}
 	public PlatformFolderSelector.root(string id, int16 xpos, int16 ypos, int16 ymax) {
 		base(id, xpos, ypos, ymax);
@@ -60,9 +60,11 @@ public class PlatformFolderSelector : PlatformSelector
 		return false;
 	}
 	
-	protected override void rebuild_items(int selection_index) {
-		var node = (selection_index != -1) ? items[selection_index] : null;
-		var previous_selection_name = (node != null) ? node.name : null;		
+	protected override void rebuild_items(int selection_index, string? new_selection_id) {
+		var selection_name = new_selection_id;
+		if (selection_name == null && selection_index != -1)
+			selection_name = items[selection_index].name;
+		
 		items = new ArrayList<PlatformListNode>();
 		if (folder == null) {
 			var data = Data.platforms().get_platform_folder_data();
@@ -75,10 +77,10 @@ public class PlatformFolderSelector : PlatformSelector
 			items = new Enumerable<PlatformNode>(folder.folders).concat(new Enumerable<PlatformListNode>(folder.platforms)).to_list();
 		}
 		int new_index = -1;
-		if (previous_selection_name != null) {
+		if (selection_name != null) {
 			for(int index=0;index<items.size;index++) {
 				var item = items[index];
-				if (item.name == previous_selection_name) {
+				if (item.name == selection_name) {
 					new_index = index;
 					break;
 				}

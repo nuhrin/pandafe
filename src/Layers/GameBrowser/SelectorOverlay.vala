@@ -38,7 +38,7 @@ namespace Layers.GameBrowser
 		
 		protected MenuHeaderLayer header;
 		protected MenuMessageLayer message;
-		ValueSelector<G> selector;
+		ValueSelectorBase<G> selector;
 		Rect upper_left;
 		Rect upper_right;
 		Rect lower_left;
@@ -47,6 +47,11 @@ namespace Layers.GameBrowser
 		string? original_help;
 		
 		public SelectorOverlay(string title, string? help, owned MapFunc<string, G> getItemName, Iterable<G>? items=null, uint selected_index=0) {
+			int16 max_width = (int16)(@interface.screen_width / 2);
+			var selector = new ValueSelector<G>(SELECTOR_ID, 0, 0, max_width, (owned)getItemName, items, selected_index);
+			this.from_selector(title, help, selector);
+		}
+		public SelectorOverlay.from_selector(string title, string? help, ValueSelectorBase<G> selector) {
 			base("selector_overlay");
 			ui = @interface.menu_ui.controls;
 			header = add_layer(new MenuHeaderLayer("header")) as MenuHeaderLayer;
@@ -60,7 +65,8 @@ namespace Layers.GameBrowser
 			lower_left={message.xpos - 1, message.ypos + (int16)message.height};
 			lower_right={message.xpos + (int16)message.width, lower_left.y};
 			header_bottom_y=header.ypos + (int16)header.height;
-			selector = add_layer(get_selector((owned)getItemName, items, selected_index)) as ValueSelector<G>;			
+			this.selector = add_layer(selector) as ValueSelectorBase<G>;
+			update_selector_attributes();
 		}
 
 		public uint item_count { get { return selector.item_count; } }
@@ -90,15 +96,17 @@ namespace Layers.GameBrowser
 
 
 		public uint run() {			
-			selector.ensure_selection();
-			
-			@interface.push_layer(this);
-			
-			var selected_index = selector.run_no_push();
-			
-			@interface.pop_layer(false);
-			
+			var selected_index = run_no_pop();
+			@interface.pop_layer(false);			
 			return selected_index;
+		}
+		public uint run_no_pop() {
+			selector.ensure_selection();			
+			@interface.push_layer(this);			
+			return selector.run_no_push();			
+		}
+		public void set_message(string? message) {
+			this.message.update_message(message);
 		}
 		
 		protected virtual string? get_selection_help(G selected_item) {
@@ -121,18 +129,16 @@ namespace Layers.GameBrowser
 			draw_horizontal_line(lower_left.x, lower_right.x, lower_left.y, ui.border_color);
 		}
 		
-		ValueSelector<G> get_selector(owned MapFunc<string, G> getItemName, Iterable<G>? items=null, uint selected_index) {
-			int16 max_width = (int16)(@interface.screen_width / 2);
-			var selector = new ValueSelector<G>(SELECTOR_ID, 0, 0, max_width, (owned)getItemName, items, selected_index);
+		void update_selector_attributes() {
 			selector.draw_rectangle = false;
 			selector.pad_items = true;
 			selector.ypos = (int16)(header.ypos + header.height + ui.font_height);
 			selector.max_height = (int16)(message.ypos - selector.ypos);
+			selector.update_max_width((int16)(@interface.screen_width / 2));
 			selector.ensure_selection();
 			selector.xpos = (int16)(@interface.screen_width - 20 - ui.value_control_spacing - ((selector.width < SELECTOR_MIN_WIDTH) ? SELECTOR_MIN_WIDTH : selector.width));
 			selector.wrap_selector = true;
 			selector.selection_changed.connect(change_help_text_on_selection_change);
-			return selector;
 		}
 		
 		void change_help_text_on_selection_change() {

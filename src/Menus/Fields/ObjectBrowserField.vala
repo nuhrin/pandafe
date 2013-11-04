@@ -49,9 +49,10 @@ namespace Menus.Fields
 		}
 		public Menu menu { get { return _menu; } }
 
-		public void on_activation() {
+		public bool on_activation(MenuSelector selector) {
 			if (activate_action != null)
 				activate_action();
+			return true;
 		}
 
 		public override string get_value_text() { return ""; }
@@ -64,7 +65,8 @@ namespace Menus.Fields
 
 		
 		public override void activate(MenuSelector selector) { 
-			on_activation();
+			if (on_activation(selector) == false)
+				return;
 			
 			handlers.add(_menu.cancelled.connect(() => cancelled()));
 			handlers.add(_menu.saved.connect(() => saved()));

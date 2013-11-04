@@ -52,6 +52,12 @@ namespace Data.GameList
 
 		protected Platform platform { get { return _platform; } }
 		public GameFolder? parent { get { return _parent; } }
+		public GameFolder root_folder() {
+			var folder = this;
+			while(folder.parent != null)
+				folder = folder.parent;
+			return  folder;
+		}
 
 		public unowned string id { get { if (_id != null) return _id; return _name; } }
 		public unowned string name { get { return _name; } }
@@ -63,6 +69,15 @@ namespace Data.GameList
 		public int child_count() {
 			ensure_children();
 			return ((_child_folders != null) ? _child_folders.size : 0) + ((_child_games != null) ? _child_games.size : 0);
+		}
+		public int depth() {
+			int depth = 0;
+			var node = this;
+			while (node.parent != null) {
+				depth++;
+				node = node.parent;
+			}
+			return depth;
 		}
 
 		public int index_of(IGameListNode child_node) {
@@ -140,9 +155,10 @@ namespace Data.GameList
 		}
 
 		public signal void rescanned();
-		public void rescan_children(owned ForEachFunc<GameFolder>? pre_scan_action=null) {
+		public void rescan_children(owned ForEachFunc<GameFolder>? pre_scan_action=null, string? new_selection_id=null) {
 			scan_children(true, (owned)pre_scan_action);
-			Data.all_games().update_cache_for_folder(this);
+			this.platform.update_cache_for_folder(this, new_selection_id);
+			Data.all_games().update_cache_for_folder(this, new_selection_id);
 		}
 		public void update_cache() {
 			// attempt to save

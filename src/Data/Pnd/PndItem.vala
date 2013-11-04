@@ -23,6 +23,7 @@
 
 using Gee;
 using Catapult;
+using Pandora.Config;
 
 namespace Data.Pnd
 {
@@ -57,8 +58,17 @@ namespace Data.Pnd
 			}
 			return null;
 		}
+		
+		public PndOvrFile get_ovr_file() throws KeyFileError, FileError {
+			return Pandora.Config.get_pnd_ovr_file(get_fullpath());
+		}
 
-		public int compare_to(PndItem other) { return strcmp(pnd_id, other.pnd_id); }
+		public int compare_to(PndItem other) { 
+			int result = strcmp(pnd_id, other.pnd_id);
+			if (result == 0)
+				result = strcmp(get_fullpath(), other.get_fullpath());
+			return result;
+		}
 
 		protected override Yaml.Node build_yaml_node(Yaml.NodeBuilder builder) {
 			var map = new Yaml.MappingNode();

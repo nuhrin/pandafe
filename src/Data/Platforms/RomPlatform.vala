@@ -41,6 +41,7 @@ namespace Data.Platforms
 		
 		public string rom_folder_root { get; set; }
 		public string rom_file_extensions { get; set; }
+		public string extra_rom_files_regex { get; set; }
 
 		public Gee.List<Program> programs { get; set; }
 		public Program default_program { get; set; }
@@ -101,10 +102,9 @@ namespace Data.Platforms
 		
 		// runtime data
 		protected override void initialize_runtime_data() {
-			regex_file_extensions = get_file_extensions_regex(rom_file_extensions);
-		}		
-		Regex? get_file_extensions_regex(string file_extensions) {
-			var parts = file_extensions.split_set(" .;,");
+			if (rom_file_extensions == null)
+				return;
+			var parts = rom_file_extensions.down().split_set(" .;,");
 			var exts = new ArrayList<string>();
 			foreach(var part in parts) {
 				part = part.strip();
@@ -112,36 +112,44 @@ namespace Data.Platforms
 					exts.add(part);
 			}
 			if (exts.size == 0)
-				return null;
+				return;
 
 			try {
 				if (exts.size == 1)
-					return new Regex("\\.%s$".printf(exts[0]), REGEX_COMPILE_FLAGS, REGEX_MATCH_FLAGS);
-
-				var sb = new StringBuilder("\\.(");
-				bool have_first = false;
-				foreach(var ext in exts) {
-					if (have_first == true) {
-						sb.append("|");
-						sb.append(ext);
-					} else {
-						sb.append(ext);
-						have_first = true;
+					regex_file_extensions = new Regex("\\.%s$".printf(exts[0]), REGEX_COMPILE_FLAGS, REGEX_MATCH_FLAGS);
+				else {
+					var sb = new StringBuilder("\\.(");
+					bool have_first = false;
+					foreach(var ext in exts) {
+						if (have_first == true) {
+							sb.append("|");
+							sb.append(ext);
+						} else {
+							sb.append(ext);
+							have_first = true;
+						}
 					}
+					sb.append(")$");
+					regex_file_extensions = new Regex(sb.str, REGEX_COMPILE_FLAGS, REGEX_MATCH_FLAGS);
 				}
-				sb.append(")$");
-				return new Regex(sb.str, REGEX_COMPILE_FLAGS, REGEX_MATCH_FLAGS);
 			} catch(RegexError e) {
 				warning("Error creating file extension regex: %s", e.message);
 			}
-			return null;
+			if (exts.contains("cue") == true) {
+				try {
+					regex_cue_extension = new Regex("\\.cue$", RegexCompileFlags.CASELESS);
+				} catch(RegexError e)  {
+					error("Error creating \".cue\" file extension regex: %s", e.message);
+				}
+			}
 		}
 		Regex regex_file_extensions;
+		bool needs_cue_processing() { return (regex_cue_extension != null); }
+		Regex regex_cue_extension;
 		const RegexMatchFlags REGEX_MATCH_FLAGS = RegexMatchFlags.NEWLINE_LF;		
 		const RegexCompileFlags REGEX_COMPILE_FLAGS = RegexCompileFlags.OPTIMIZE | RegexCompileFlags.CASELESS |
 													  RegexCompileFlags.MULTILINE | RegexCompileFlags.NEWLINE_LF;
-		
-		
+				
 		// game list
 		public override GameFolder get_root_folder() { return new GameFolder.root(this.name, this, rom_folder_root); }
 		public override string get_nearest_folder_path(string folder_path) {
@@ -151,8 +159,8 @@ namespace Data.Platforms
 			while(checked_path != "" && FileUtils.test(Path.build_filename(rom_folder_root, checked_path), FileTest.IS_DIR) == false) {
 				int last_separator_index = folder_path.last_index_of(Path.DIR_SEPARATOR_S);
 				if (last_separator_index == -1) {
-					folder_path = "";
-					continue;
+					checked_path = "";
+					break;
 				}
 				checked_path = checked_path.substring(0, last_separator_index);
 			}
@@ -278,8 +286,84 @@ namespace Data.Platforms
 				}
 			}
 
+			if (needs_cue_processing() == true)
+				process_cue_files(folder, matched_names);
+
 			return get_matched_game_items(folder, matched_names);
 		}
+		void process_cue_files(GameFolder folder, ArrayList<string> file_names) {
+			string error;
+			var get_binary_files_script = Spawning.create_temp_script("get_cue_binary_filenames.sh", GET_CUE_BINARY_FILES, out error);
+			if (get_binary_files_script == null)
+				return;
+			var verify_binary_files_script = Spawning.create_temp_script("verify_cue_binary_filenames.sh", VERIFY_CUE_FILES_FORMAT.printf(GET_CUE_BINARY_FILES), out error);
+			if (verify_binary_files_script == null) {
+				FileUtils.remove(get_binary_files_script);
+				return;
+			}
+			
+			// store all cue binary file relationships
+			var cue_file_set = new HashSet<string>();
+			var binary_file_set = new HashSet<string>();
+			foreach(var name in file_names) {
+				if (regex_cue_extension.match(name) == true) {
+					cue_file_set.add(name);					
+					var binary_files = get_cue_binary_filenames(folder, get_binary_files_script, name);
+					if (binary_files != null) {
+						foreach(var binary in binary_files)
+							binary_file_set.add(binary);
+					}
+				}
+			}
+			if (cue_file_set.size == 0)
+				return;
+			
+			// remove any cue binary files from file_names list
+			for(int index=file_names.size-1; index >= 0; index--) {
+				var name = file_names[index];
+				if (binary_file_set.contains(name) == true)
+					file_names.remove_at(index);				
+			}
+			// remove any cue files with incomplete binary files present
+			for(int index=file_names.size-1; index >= 0; index--) {
+				var name = file_names[index];
+				if (cue_file_set.contains(name) == true) {
+					if (verify_cue_binary_filenames_exist(folder, verify_binary_files_script, name) == false) 
+						file_names.remove_at(index);				
+				}
+			}
+			
+			FileUtils.remove(get_binary_files_script);
+			FileUtils.remove(verify_binary_files_script);
+		}
+		ArrayList<string>? get_cue_binary_filenames(GameFolder folder, string script_path, string filename) {
+			string command_line = "%s \"%s\"".printf(script_path, filename);
+			var result = Spawning.spawn_command(command_line, folder.unique_id());
+			if (result.success == false) {
+				return null;
+			}
+			var filenames = new ArrayList<string>();
+			if (result.standard_output != null)
+			{
+				var lines = result.standard_output.split("\n");
+				foreach (var line in lines) {
+					line = line.strip();
+					if (line != "")
+						filenames.add(line);
+				}
+			}
+			return filenames;
+		}
+		bool verify_cue_binary_filenames_exist(GameFolder folder, string script_path, string filename) {
+			string command_line = "%s \"%s\"".printf(script_path, filename);
+			var result = Spawning.spawn_command(command_line, folder.unique_id());
+			return (result.success == true && result.exit_status == 0);
+		}
+		const string GET_CUE_BINARY_FILES="""cat "$1" 2>&1 | grep BINARY | sed -e 's|.*FILE "\(.*\)" BINARY|\1|' | grep -v BINARY""";
+		const string VERIFY_CUE_FILES_FORMAT ="""#!/bin/bash
+%s | while read -r; do FILE=$(echo "$REPLY" | tr -d [:cntrl:]); [[ -f "$FILE" ]] || exit 1; done
+""";
+
 		ArrayList<GameItem> get_matched_game_items(GameFolder folder, ArrayList<string> file_names) {
 			var games = new ArrayList<GameItem>();
 			var displayname_game_hash = new HashMap<string, GameItem?>();
@@ -330,7 +414,6 @@ namespace Data.Platforms
 		static Regex _regex_rom_display_name;
 		static Regex _regex_rom_full_name;
 
-
 		// yaml		
 		protected override bool yaml_use_default_for_property(string property) {
 			return (property != "default-program");
@@ -364,6 +447,9 @@ namespace Data.Platforms
 			
 			var exts_field = builder.add_string("rom_file_extensions", "Rom File Extensions", null, this.rom_file_extensions);
 			exts_field.required = true;
+			
+			builder.add_string("extra_rom_files_regex", "Extra Rom Files Regex", 
+				"Regex matching additional rom-related files (for renaming/moving)", this.extra_rom_files_regex);
 			
 			programs_field = new ProgramListField("programs", "Programs", null, programs);
 			programs_field.required = true;

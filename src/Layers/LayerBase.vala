@@ -59,8 +59,8 @@ namespace Layers
 		ArrayList<Layer> children;
 		ArrayList<Layer> additional_layer_stack;
 		bool needs_update;
-		
-		public LayerBase(string id) {
+				
+		protected LayerBase(string id) {
 			_id = id;
 			if (RuntimeEnvironment.dev_mode) {
 				register_creation(this);
@@ -71,6 +71,9 @@ namespace Layers
 			if (dependencies == null)
 				dependencies = new LayerDependencies();
 			needs_update = true;
+		}
+		protected LayerBase.uniqueid(string id) {
+			base("%s_%u".printf(id, next_unique_id));
 		}
 		~LayerBase() {
 			if (RuntimeEnvironment.dev_mode)

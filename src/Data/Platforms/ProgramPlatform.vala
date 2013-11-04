@@ -39,6 +39,7 @@ namespace Data.Platforms
 			base(PlatformType.PROGRAM);
 		}		
 		public Program program { get; set; }		
+		public string category { get; set; }
 		public string get_games_script { get; set; }
 		
 		// game launching
@@ -68,6 +69,18 @@ namespace Data.Platforms
 			return new GameFolder.root("unknown-program", this, "");				
 		}
 		public override string get_unique_node_name(IGameListNode node) { return node.id; }
+		public override string get_folder_display_name(GameFolder folder) { return get_category_name(); }
+		public override string get_unique_folder_display_name(GameFolder folder) { return get_category_name(); }
+		string get_category_name() {
+			if (category != null)
+				return category;
+			if (program == null)
+				return "";
+			var app = program.get_app();
+			if (app == null)
+				return "";
+			return app.subcategory_display_name;			
+		}
 		protected override bool get_children(GameFolder folder, out ArrayList<GameFolder> child_folders, out ArrayList<GameItem> child_games) {
 			child_folders = null;
 			child_games = null;
@@ -79,11 +92,10 @@ namespace Data.Platforms
 				
 			// mount pnd, if necessary
 			var mountset = Data.pnd_mountset();
-			bool is_new_mount = (mountset.is_mounted(app.package_id) == false && 
-								 mountset.mount(app.id, app.package_id) == true);
-			var mounted_path = mountset.get_mounted_path(app.package_id);
+			bool is_new_mount = (mountset.is_mounted(app) == false && mountset.mount(app) == true);
+			var mounted_path = mountset.get_mounted_path(app);
 			if (mounted_path == null && is_new_mount == true) {
-				mountset.unmount(app.package_id);
+				mountset.unmount(app);
 				return false;
 			}
 	
@@ -140,6 +152,8 @@ namespace Data.Platforms
 			program_field.required = true;
 			builder.add_field(program_field);
 			
+			name_field = builder.add_string("category", "Category", null, this.category);
+			
 			get_games_script_field = new CustomCommandField("get_games_script", "Get Games Script", "Shell script to retrieve game items for the program", 
 				program, get_games_script, "Get Games Script for ");
 			get_games_script_field.mime_type = "text/plain";
@@ -162,6 +176,7 @@ namespace Data.Platforms
 					if (app != null) {
 						get_games_script_field.app = app;
 						name_field.value = app.title;
+						category_field.value = app.subcategory_display_name;
 					}
 				}
 			});
@@ -177,6 +192,7 @@ namespace Data.Platforms
 		
 		Menus.Fields.StringField name_field;
 		ProgramField program_field;
+		Menus.Fields.StringField category_field;
 		CustomCommandField get_games_script_field;
 	}
 }

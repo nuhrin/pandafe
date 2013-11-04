@@ -28,7 +28,7 @@ namespace Menus
 	public interface SubMenuItem : MenuItem
 	{	
 		public abstract Menu menu { get; }
-		public virtual void on_activation() { }
+		public virtual bool on_activation(MenuSelector selector) { return true; }
 		
 		public signal void cancelled();
 		public signal void saved();

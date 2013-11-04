@@ -29,21 +29,45 @@ namespace Data.GameList
 	public class AllGames
 	{
 		const string CACHE_FILENAME = "everything";
-		
+		public const string UNCATEGORIZED_CATEGORY_NAME = "(Uncategorized)";
+	
 		public Enumerable<GameItem> load() {
 			Gee.List<GameItem> games;
-			if (load_cache(out games) == true)
+			if (load_all_games_from_cache(out games) == true)
 				return new Enumerable<GameItem>(games);
 				
 			return rebuild();
 		}
 		
-		public signal void cache_updated();
-		public void update_cache_for_folder(GameFolder folder) {
-			rebuild();
+		public Enumerable<string> get_root_category_names() {			
+			if (_root_category_names != null)
+				return new Enumerable<string>(_root_category_names);
+				
+			Gee.List<string> subcategories;
+			Gee.List<GameItem> games;
+			if (load_category_data(null, out subcategories, out games) == true) {
+				_root_category_names = subcategories;
+				return new Enumerable<string>(_root_category_names);
+			}
+			return Enumerable.empty<string>();
+		}
+		Gee.List<string> _root_category_names;
+		
+		public bool load_category_data(string? category_path, out Gee.List<string> subcategories, out Gee.List<GameItem> games) {
+			if (load_category_from_cache(category_path, out subcategories, out games) == false) {
+				rebuild();
+				if (load_category_from_cache(category_path, out subcategories, out games) == false)
+					return false;
+			}
+			return true;
 		}
 		
-		Enumerable<GameItem> rebuild() {
+		public signal void cache_updated(string? new_selection_id);
+		public void update_cache_for_folder(GameFolder folder, string? new_selection_id) {
+			rebuild(new_selection_id);
+		}
+		
+		Enumerable<GameItem> rebuild(string? new_selection_id=null) {
 			var folder_data = Data.platforms().get_platform_folder_data();
 			var platforms = (folder_data.folders.size > 0)
 				? folder_data.get_all_platforms()
@@ -51,25 +75,22 @@ namespace Data.GameList
 			
 			var games = Enumerable.empty<GameItem>();
 			foreach(var platform in platforms)
-				games = games.concat(platform.get_root_folder().all_games());
+				games = games.concat(platform.all_games());
 			
 			var list = games.to_list();
-			save_cache(list);
+			save_cache(list, new_selection_id);
 
 			return new Enumerable<GameItem>(list);
 		}
 		
-		bool load_cache(out Gee.List<GameItem> games) {
+		bool load_all_games_from_cache(out Gee.List<GameItem> games) {
 			games = null;
-			// attempt to load
+				
 			try {
-				string contents;
-				if (FileUtils.get_contents(Path.build_filename(RuntimeEnvironment.user_config_dir(), GameFolder.CACHE_FOLDER_ROOT, CACHE_FILENAME), out contents) == false)
-					throw new FileError.FAILED("unspecified error");
-				var lines = contents.strip().split("\n");
+				var lines = load_cache_lines();
 				if (lines.length == 0)
 					return false;
-
+				
 				var hash = new HashMap<string,GameFolder>();
 				var platform_provider = Data.platforms();
 				games = new ArrayList<GameItem>();
@@ -122,12 +143,125 @@ namespace Data.GameList
 				return true;
 			} catch(Error e) {
 				games = null;
-				//GLib.error("Error saving all games cache: %s", e.message);
 			}
 			return false;
 		}
+		bool load_category_from_cache(string? category_path, out Gee.List<string> subcategories, out Gee.List<GameItem> games) {
+			subcategories = null;
+			games = null;			
+				
+			try {
+				var lines = load_cache_lines();
+				if (lines.length == 0)
+					return false;
+			
+				bool is_root_category = (category_path == null);
+				bool is_uncategorized_category = (category_path == UNCATEGORIZED_CATEGORY_NAME);
+				var folder_id_map = new HashMap<string,GameFolder>();
+				var platform_provider = Data.platforms();
+				var category_folder_set = new HashSet<GameFolder>();
+				var subcategory_set = new HashSet<string>();
+				games = new ArrayList<GameItem>();
+				
+				int folder_index = -1;
+				foreach(var line in lines) {
+					var parts = line.split("||");
+					if (parts.length < 3 || parts[0].length != 1)
+						throw new FileError.FAILED("invalid cache file format: %s".printf(line));
+					//print("%s\n", line);
+					
+					GameFolder folder = null;
+					var key = parts[1];
+					var name = parts[2];
+					if (parts[0] == "f") {
+						folder_index++;	
+						// folder
+						if (key == "p") {
+							var platform = (name == "pandora")
+								? platform_provider.get_native_platform()
+								: platform_provider.get_platform(name);
+							if (platform == null)
+								continue;
+							folder = platform.get_root_folder();
+							folder_id_map[folder_index.to_string()] = folder;
+							if (platform.platform_type == PlatformType.PROGRAM) {
+								if (is_root_category == true)
+									subcategory_set.add(folder.display_name());
+								else if (folder.display_name() == category_path)
+									category_folder_set.add(folder);								
+							} else if (is_uncategorized_category == true || is_root_category == true) {
+								category_folder_set.add(folder);
+							}
+							continue;
+						}
+						if (folder_id_map.has_key(key) == false)
+							continue; // parent folder not found (possibly not yet parsed?)
+
+						if (is_uncategorized_category == true)
+							continue; // just want platform folders
+												
+						var parent = folder_id_map[key];
+						if (category_folder_set.contains(parent) == true) {
+							folder = new GameFolder(name, parent.platform, parent);
+							subcategory_set.add(folder.display_name());
+							continue; // just want names for next folder depth
+						}
+
+						folder = new GameFolder(name, parent.platform, parent);
+						folder_id_map[folder_index.to_string()] = folder;
+						if (folder.unique_display_name() == category_path)
+							category_folder_set.add(folder);
+						continue;
+					}
+					if (is_root_category == true) {
+						// just want top level categories...
+						continue;
+					}
+					
+					// game					
+					if (parts[0] != "g" || parts.length != 5)
+						throw new FileError.FAILED("invalid game format");					
+					if (folder_id_map.has_key(key) == false)
+						continue; // folder not found for key
+					
+					folder = folder_id_map[key];
+					if (category_folder_set.contains(folder) == false)
+						continue; // not relevant for the category path
+						
+					var id = parts[3];
+					var full_name = parts[4];
+					if (id == "")
+						id = null;
+					if (full_name == "")
+						full_name = null;
+					games.add(GameItem.create(name, folder.platform, folder, id, full_name));
+				}
+				
+				subcategories = new ArrayList<string>();					
+				if (subcategory_set.size > 0) {
+					subcategories.add_all(subcategory_set);
+					subcategories.sort(strcasecmp);
+				}
+									
+				return true;
+			} catch(Error e) {
+				games = null;
+				subcategories = null;
+				return false;
+			}			
+		}
+		static int strcasecmp(string a, string b) {
+			return Utility.strcasecmp(a, b);
+		}
+
+		string[] load_cache_lines() throws GLib.FileError {
+			string contents;
+			if (FileUtils.get_contents(Path.build_filename(RuntimeEnvironment.user_config_dir(), GameFolder.CACHE_FOLDER_ROOT, CACHE_FILENAME), out contents) == false)
+				return new string[0];
+			return contents.strip().split("\n");			
+		}
 		
-		void save_cache(Gee.List<GameItem> games) {
+		void save_cache(Gee.List<GameItem> games, string? new_selection_id=null) {
 			// attempt to save
 			try {
 				var sb = new StringBuilder();
@@ -139,7 +273,8 @@ namespace Data.GameList
 				}
 				if (FileUtils.set_contents(Path.build_filename(RuntimeEnvironment.user_config_dir(), GameFolder.CACHE_FOLDER_ROOT, CACHE_FILENAME), sb.str) == false)
 					throw new FileError.FAILED("unspecified error");
-				cache_updated();
+				_root_category_names = null;
+				cache_updated(new_selection_id);
 			} catch(Error e) {
 				warning("Error saving all games cache: %s", e.message);
 			}
@@ -160,6 +295,6 @@ namespace Data.GameList
 		}
 		void add_folder_line(string parent_id, string name, StringBuilder sb) {
 			sb.append("f||%s||%s\n".printf(parent_id, name));
-		}			
+		}
 	}
 }

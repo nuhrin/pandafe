@@ -1,6 +1,6 @@
-/* DeletionConfirmation.vala
+/* DummyLayer.vala
  * 
- * Copyright (C) 2012 nuhrin
+ * Copyright (C) 2013 nuhrin
  * 
  * This file is part of Pandafe.
  * 
@@ -21,25 +21,14 @@
  *      nuhrin <nuhrin@oceanic.to>
  */
 
-namespace Layers.Controls
+namespace Layers
 {
-	public class DeleteConfirmation : StringSelector
+	public class DummyLayer : Layer
 	{
-		const string CANCEL_TEXT = ".. cancel";
-		const string CONFIRM_TEXT = "!! Confirm";
-		public DeleteConfirmation(string id, int16 xpos, int16 ypos)
+		public DummyLayer()
 		{
-			base(id, xpos, ypos, 200);
-			for(int index=0;index<7;index++)
-				add_item(CANCEL_TEXT);
-			add_item(CONFIRM_TEXT);
-			add_item(CANCEL_TEXT);
-			add_item(CANCEL_TEXT);
+			base.uniqueid("dummy");
 		}
-		public new bool run(uchar screen_alpha=128, uint32 rgb_color=0) {
-			base.run(screen_alpha, rgb_color);
-			return confirm_selected();
-		}
-		public bool confirm_selected() { return (selected_item() == CONFIRM_TEXT); }
+		protected override void draw() { }
 	}
 }

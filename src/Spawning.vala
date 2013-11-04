@@ -44,13 +44,45 @@ public class Spawning
 		return CUSTOM_COMMAND_SCRIPT_FORMAT.printf(app.id);
 	}
 	
+	const string TERMINAL_COMMAND = "/usr/bin/terminal";
+	const string TERMINAL_DEVMODE = "/usr/bin/roxterm";
+	public static void open_terminal(string path) {
+		string command = (RuntimeEnvironment.dev_mode) ? TERMINAL_DEVMODE : TERMINAL_COMMAND;
+		var result = Spawning.spawn_command(command, path);
+		if (result.success == false)
+			result.show_result_dialog();
+	}
+	const string FILE_MANAGER_COMMAND = "/usr/bin/thunar";
+	const string FILE_MANAGER_DEVMODE = "/usr/bin/nautilus .";
+	public static void open_file_manager(string path) {
+		string command = (RuntimeEnvironment.dev_mode) ? FILE_MANAGER_DEVMODE : FILE_MANAGER_COMMAND;
+		var result = Spawning.spawn_command(command, path);
+		if (result.success == false)
+			result.show_result_dialog();
+	}
+	
+	public static SpawningResult spawn_command(string command_line, string working_directory) {
+		int exit_status = -1;
+		string standard_output;
+		string standard_error;
+		bool success;
+		try {			
+			string[] argv;
+			Shell.parse_argv(command_line, out argv);
+			success = Process.spawn_sync(working_directory, argv, null, 0, null, out standard_output, out standard_error, out exit_status);
+			return new SpawningResult(success, command_line, standard_output, standard_error, exit_status);
+		} catch(Error e) {
+			return new SpawningResult.error_with_command_line(e.message, command_line);
+		}
+	}
+	
 	public static SpawningResult spawn_app(AppItem app, bool treat_non_zero_exit_code_as_error=true) {
 		var mountset = Data.pnd_mountset();
-		bool already_mounted = mountset.is_mounted(app.package_id);
+		bool already_mounted = mountset.is_mounted(app);
 		if (already_mounted == false)
-			return spawn_app_wrapper(app.get_fullpath(), app.appdata_dirname ?? app.id, app.exec_command, app.startdir, app.exec_arguments, app.clockspeed, treat_non_zero_exit_code_as_error);
+			return spawn_app_wrapper(app.get_fullpath(), app.mount_id, app.exec_command, app.startdir, app.exec_arguments, app.clockspeed, treat_non_zero_exit_code_as_error);
 		
-		var working_directory = mountset.get_mounted_path(app.package_id);
+		var working_directory = mountset.get_mounted_path(app);
 		if (app.startdir != null && app.startdir.strip() != "")
 			working_directory = Path.build_filename(working_directory, app.startdir);
 			
@@ -61,14 +93,56 @@ public class Spawning
 		string? custom_command=null, string? custom_command_script=null) {
 		return spawn_program_internal(program, premount, program_settings, game_path, custom_command, custom_command_script);
 	}
+	
+	public static SpawningResult run_temp_script(string filename, string contents, bool as_root=false) {
+		string error;
+		var path = create_temp_script(filename, contents, out error);
+		if (path == null)
+			return new SpawningResult.error(error);
+		
+		string command = (as_root) ? "gksudo " + path : path;
+		int exit_status = -1;
+		string standard_output;
+		string standard_error;
+		bool success;
+		try {			
+			success = Process.spawn_command_line_sync(command, out standard_output, out standard_error, out exit_status);			
+			if (success == true && exit_status > 0)
+				success = false;
+			FileUtils.remove(path);
+			return new SpawningResult(success, command, standard_output, standard_error, exit_status);
+		} catch(Error e) {
+			FileUtils.remove(path);
+			return new SpawningResult.error_with_command_line(e.message, command);
+		}
+	}
+	
+	public static string? create_temp_script(string filename, string contents, out string error) {
+		error = "";
+		var path = Path.build_filename("/tmp", filename);
+		try {
+			if (FileUtils.set_contents(path, contents) == false) {
+				error = @"Unable to write '$path'.";
+				return null;
+			}
+		} catch(FileError e) {
+			error = e.message;
+			return null;
+		}
+		if (Posix.chmod(path, Posix.S_IRUSR | Posix.S_IWUSR | Posix.S_IXUSR | Posix.S_IRGRP | Posix.S_IXGRP | Posix.S_IROTH | Posix.S_IXOTH) == -1) {
+			FileUtils.remove(path);
+			error = @"Unable to make '$path' executable.";
+			return null;
+		}
+		return path;
+	}	
+	
 	static SpawningResult spawn_program_internal(Program program, bool premount, ProgramSettings? program_settings=null, string? game_path=null,
 		string? custom_command=null, string? custom_command_script=null) {		
 		Data.Pnd.AppItem app = program.get_app();
 		if (app == null)
 			return new SpawningResult.error("No pnd app found for program '%s'.".printf(program.name));		
 		
-		string unique_id = app.id;
-		string appdata_dirname = app.appdata_dirname;
 		string command = app.exec_command;
 		string startdir = app.startdir;
 		uint clockspeed = program.get_clockspeed(program_settings);			
@@ -88,24 +162,23 @@ public class Spawning
 			return new SpawningResult.error("No command specified for program '%s'.".printf(program.name));
 
 		if (has_custom_command == false && premount == false) // run the pnd without premount
-			return spawn_app_wrapper(app.get_fullpath(), appdata_dirname ?? unique_id, command, startdir, args, clockspeed);
+			return spawn_app_wrapper(app.get_fullpath(), app.mount_id, command, startdir, args, clockspeed);
 
 		// mount the pnd
 		var mountset = Data.pnd_mountset();
-		bool already_mounted = mountset.is_mounted(app.package_id);
-		if (already_mounted == false && mountset.mount(unique_id, app.package_id) == false)
-			return new SpawningResult.error("Unable to mount pnd for id '%s'.".printf(unique_id));
-		string mount_id = mountset.get_mount_id(app.package_id);
+		bool already_mounted = mountset.is_mounted(app);
+		if (already_mounted == false && mountset.mount(app) == false)
+			return new SpawningResult.error("Unable to mount app '%s' with id '%s'.".printf(app.title, app.mount_id));
 
 		// ensure custom_command script, if specified
 		if (has_custom_command == true) {
 			command = custom_command ?? get_custom_command_script_name(app);
-			string appdata_path = mountset.get_appdata_path(app.package_id);
+			string appdata_path = mountset.get_mounted_appdata_path(app);
 			if (appdata_path == null)
-				return new SpawningResult.error("appdata path not found for '%s'".printf(mount_id));
+				return new SpawningResult.error("appdata path not found for '%s'".printf(app.mount_id));
 			else if (FileUtils.test(appdata_path, FileTest.EXISTS) == false)
 				return new SpawningResult.error("appdata path does not exist: %s".printf(appdata_path));
-			
+						
 			string custom_path = appdata_path + command;
 			if (already_mounted == false || FileUtils.test(custom_path, FileTest.EXISTS) == false) {
 				try {
@@ -118,7 +191,7 @@ public class Spawning
 			}
 		}
 		// run the pnd
-		var working_directory = mountset.get_mounted_path(app.package_id);
+		var working_directory = mountset.get_mounted_path(app);
 		if (has_custom_command == false && startdir != null && startdir.strip() != "")
 			working_directory = Path.build_filename(working_directory, startdir);
 		

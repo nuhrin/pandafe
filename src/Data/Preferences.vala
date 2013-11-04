@@ -37,6 +37,7 @@ namespace Data
 		public Appearance appearance { get; set; }
 		public string? default_rom_select_path { get; set; }
 		public string? most_recent_rom_path { get; set; }
+		public bool show_platform_game_folders { get; private set; }
 		
 		public string? rom_select_path() { return default_rom_select_path ?? most_recent_rom_path ?? FALLBACK_ROM_SELECT_PATH; }
 		public void update_most_recent_rom_path(string? new_path) {
@@ -53,12 +54,23 @@ namespace Data
 			if (appearance == null)
 				appearance = new Appearance.default();
 			
-			return base.build_yaml_node(builder);
+			var mapping = base.build_yaml_node(builder) as Yaml.MappingNode;
+			if (show_platform_game_folders == true)
+				mapping.set_scalar("show-platform-game-folders", builder.build_value(true));
+				
+			return mapping;
 		}
 		protected override void apply_yaml_node(Yaml.Node node, Yaml.NodeParser parser) {
 			base.apply_yaml_node(node, parser);
 			if (appearance == null)
 				appearance = new Appearance.default();
+
+			var mapping = node as Yaml.MappingNode;
+			if (mapping == null)
+				return;
+			var show_platform_game_folders_node = mapping.get_scalar("show-platform-game-folders");
+			if (show_platform_game_folders_node != null )
+				show_platform_game_folders = parser.parse<bool>(show_platform_game_folders_node, false);			
 		}
 		
 		// menu
@@ -72,8 +84,12 @@ namespace Data
 //~ 				@interface.menu_ui.set_appearance(ma);
 //~ 				//@interface.peek_layer().update();
 //~ 			});
-			builder.add_field(appearance_field);			
-			builder.add_folder("default_rom_select_path", "Default Rom Path", "Used as starting path when selecting platform roms for the first time.", default_rom_select_path);
+			builder.add_field(appearance_field);
+			var default_rom_path_field = builder.add_folder("default_rom_select_path", "Default Rom Path", "Used as starting path when selecting platform roms for the first time.", default_rom_select_path);
+			field_connect(default_rom_path_field, (f) => f.changed.connect(() => {
+				default_rom_select_path = ((FolderField)f).value;
+				refresh(1);
+			}));
 		}
 		protected bool save_object(Menus.Menu menu) {
 			if (default_rom_select_path != null)

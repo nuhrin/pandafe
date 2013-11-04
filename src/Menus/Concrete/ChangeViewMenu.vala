@@ -49,6 +49,7 @@ namespace Menus.Concrete
 			var games_run_list_has_data = (Data.games_run_list_is_empty() == false);
 			add_menu_item(GameBrowserViewType.MOST_PLAYED, items, games_run_list_has_data);
 			add_menu_item(GameBrowserViewType.MOST_RECENT, items, games_run_list_has_data);
+			add_menu_item(GameBrowserViewType.CATEGORY, items);
 			add_menu_item(GameBrowserViewType.PLATFORM, items, (current_platform != null));
 			add_menu_item(GameBrowserViewType.PLATFORM_LIST, items);
 			add_menu_item(GameBrowserViewType.PLATFORM_FOLDER, items);

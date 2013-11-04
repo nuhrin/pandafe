@@ -27,8 +27,11 @@ namespace Layers
 {
 	public abstract class Layer : LayerBase
 	{
-		public Layer(string id) {
+		protected Layer(string id) {
 			base(id);
+		}
+		protected Layer.uniqueid(string id) {
+			base.uniqueid(id);
 		}
 		public ScreenLayer? screen { owned get { return get_owning_screen(); } }
 		public Layer? parent { owned get { return get_parent_layer(); } }

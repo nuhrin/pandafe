@@ -41,6 +41,9 @@ namespace Data.Pnd
 			items.sort();
 			pnd_list = new Enumerable<PndItem>(items);
 		}
+		public PndCache.from_data(Iterable<PndItem> pnds) {
+			pnd_list = new Enumerable<PndItem>(pnds);
+		}
 
 		protected override string generate_id() { return PndData.CACHED_DATA_ID; }
 

@@ -38,7 +38,7 @@ namespace Menus.Concrete
 			items.add(new MenuBrowserItem("Data", "Show data management menu", new DataMenu()));
 			items.add(new MenuItem.custom("Scan PNDs", "Scan system for new pnd apps, and rescan native platform", "Scanning PNDs...", () => {
 				Data.rescan_pnd_data();
-				Data.platforms().get_native_platform().rescan(f=> this.message("Scanning folder '%s'...".printf(f.unique_name())));
+				Data.platforms().get_native_platform().rebuild(f=> this.message("Scanning folder '%s'...".printf(f.unique_name())));
 				refresh(2);
 			}));
 			

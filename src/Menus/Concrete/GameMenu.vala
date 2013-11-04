@@ -32,12 +32,14 @@ namespace Menus.Concrete
 	public class GameMenu : Menu  
 	{	
 		GameItem game;
+		GameNodeMenuData menu_data;
 		Platform platform;
 		GameSettingsMenu? settings_menu;
 		string? program_name;
-		public GameMenu(GameItem game) {
+		public GameMenu(GameItem game, GameNodeMenuData menu_data) {
 			base("Game: " + game.full_name);
 			this.game = game;
+			this.menu_data = menu_data;
 			platform = game.platform;
 		}
 
@@ -65,8 +67,16 @@ namespace Menus.Concrete
 			
 			items.add(new MenuItemSeparator());
 			
+			if (platform.platform_type == PlatformType.ROM) {
+				items.add(new RomFileMenu(game, menu_data));
+				items.add(new MenuItemSeparator());
+			} else if (platform.platform_type == PlatformType.NATIVE) {
+				items.add(new GameAppMenu(game, menu_data));
+				items.add(new MenuItemSeparator());
+			}
+			
 			if (platform.platform_type != PlatformType.PROGRAM && game.parent != null)
-				items.add(new GameFolderMenu(game.parent, "Show a menu for the folder containing this game"));
+				items.add(new GameFolderMenu(game.parent, menu_data, "Show a menu for the folder containing this game"));
 			
 			if (platform.platform_type == PlatformType.ROM && settings_menu.program != null) {
 				program_name = settings_menu.program.name;				

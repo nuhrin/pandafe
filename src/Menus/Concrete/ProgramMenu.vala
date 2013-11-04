@@ -45,14 +45,18 @@ namespace Menus.Concrete
 					}
 				}));
 			}
+			var app = program.get_app();				
 			items.add(new MenuItem.custom("Run", "Run the program using its default command", "", () => {
-				var app = program.get_app();
 				if (app == null) {
 					error("App (%s) not found.".printf(program.app_id));
 					return;
 				}
 				Spawning.spawn_app(app, false);
-			}));			
+			}));
+			
+			items.add(new MenuItemSeparator());
+			items.add(new GameAppMenu.AppTerminalFolderItem(app, program.name));
+			items.add(new GameAppMenu.AppFileManagerFolderItem(app, program.name));
 		}						
 	}
 }

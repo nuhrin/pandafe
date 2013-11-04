@@ -100,18 +100,50 @@ public abstract class Selector : Layers.Layer
 			blit_surface(window.surface_two.get_surface(), window.rect_two, dest);
 		}
 	}
+	public Rect get_selected_item_rect() {
+		Rect rect = {xpos, ypos};
+		if (display_item_count == 0)
+			return rect;
+		int index = selected_display_index() - get_first_displayed_index();
+		rect.y += (int16)((ui.font_height * index) + (ui.spacing.item_v * index) - ui.spacing.item_v);
+		return rect;
+	}
+	int get_first_displayed_index() {	
+		int first_index = (_filter == null) ? 0 : get_closest_display_index(0);
+		int last_index = display_item_count - 1;
+		int center_index = selected_display_index();
+		int top_index = center_index - (visible_items / 2);
+		if (top_index < first_index)
+			top_index = first_index;
+		int bottom_index = top_index + visible_items - 1;
+		if (bottom_index > last_index)
+			bottom_index = last_index;
+		if ((bottom_index - top_index) < visible_items - 1)
+			top_index = bottom_index - visible_items + 1;
+		if (bottom_index < visible_items || top_index < first_index)
+			top_index = first_index;
+		return top_index;
+	}
 	public signal void loading();
 	public signal void rebuilt();
-	public void rebuild() {
+	public void rebuild(string? new_selection_id=null) {
 		reset_surface();
 		_items = null;
 		_item_count = -1;
 		int index = selected_index;
 		selected_index = -1;
-		rebuild_items(index);
+		
+		var existing_filter = _filter;		
+		__clear_filter();
+		
+		rebuild_items(index, new_selection_id);
+		
+		if (existing_filter != null)
+			__filter(existing_filter, false);
+		
 		rebuilt();
 	}
-	protected abstract void	rebuild_items(int selection_index);
+	protected abstract void	rebuild_items(int selection_index, string? new_selection_id);
 
 	public bool has_previous { get { return selected_display_index() > 0; } }
 	public bool has_next { get { return selected_display_index() < display_item_count - 1; } }
@@ -213,7 +245,12 @@ public abstract class Selector : Layers.Layer
 		select_display_item(0, flip);
 	}
 
-	public bool filter(string pattern, bool flip=true) {
+	public bool filter(string pattern, bool flip=true) {		
+		bool success = __filter(pattern,  flip);
+		rebuilt();
+		return success;
+	}
+	bool __filter(string pattern, bool flip) {
 		_filter = pattern;
 		_filter_match_indexes = new ArrayList<int>();
 		_filter_match_indexes.add_all(items.get_folder_indexes());
@@ -238,14 +275,16 @@ public abstract class Selector : Layers.Layer
 		else if (display_item_count > 0)
 			select_display_item(0, flip);
 		
-		rebuilt();
 		return success;
 	}
 	public void clear_filter() {
+		__clear_filter();
+		rebuild();
+	}
+	void __clear_filter() {
 		_filter = null;
 		_filter_match_indexes = null;
 		_filter_index_position_hash = null;
-		rebuild();
 	}
 	public string? get_filter_pattern() { return _filter; }
 

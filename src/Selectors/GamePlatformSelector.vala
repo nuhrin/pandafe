@@ -1,6 +1,6 @@
-/* EverythingSelector.vala
+/* GamePlatformSelector.vala
  * 
- * Copyright (C) 2012 nuhrin
+ * Copyright (C) 2013 nuhrin
  * 
  * This file is part of Pandafe.
  * 
@@ -28,34 +28,32 @@ using Catapult;
 using Data;
 using Data.GameList;
 
-public class EverythingSelector : Selector 
+public class GamePlatformSelector : Selector 
 {
-	GameBrowserViewData view;
-	
-	public EverythingSelector(string id, int16 xpos, int16 ypos, int16 ymax, GameBrowserViewData? view) {
+	Platform _platform;
+	public GamePlatformSelector(string id, int16 xpos, int16 ypos, int16 ymax, Platform platform) {
 		base(id, xpos, ypos, ymax);
-		this.view = view ?? new GameBrowserViewData(GameBrowserViewType.ALL_GAMES);
-		Data.all_games().cache_updated.connect((new_selection_id) => rebuild(new_selection_id));
-		Data.favorites().changed.connect(() => favorites_changed());
-	}
+		_platform = platform;
+	}	
 
 	Gee.List<GameItem> items {
 		get {
 			if (_items == null) {
 				loading();
-				_items = get_view_games(view);
+				_items = _platform.all_games().to_list();
+				_items.sort(IGameListNode.compare);
 			}
 			return _items;
 		}
 	}
 	Gee.List<GameItem> _items;
 	
-	public unowned string view_name { get { return view.name; } }
+	public Platform platform { get { return _platform; } }
 	
-	public void change_view(GameBrowserViewData view) {
-		if (this.view.equals(view) == true)
+	public void set_platform(Platform platform) {
+		if (_platform.id == platform.id)
 			return;
-		this.view = view;
+		_platform = platform;
 		var filter = get_filter_pattern();
 		if (filter == null) {
 			rebuild();
@@ -63,10 +61,6 @@ public class EverythingSelector : Selector
 			clear_filter();
 			this.filter(filter);
 		}			
-	}
-	void favorites_changed() {
-		if (view.view_type == GameBrowserViewType.FAVORITES)
-			rebuild();
 	}
 
 	public GameItem? selected_game() {
@@ -88,11 +82,6 @@ public class EverythingSelector : Selector
 			return false;			
 		
 		return select_item(found_index);		
-	}
-	
-	public void game_run_completed() {
-		if (view.view_type == GameBrowserViewType.MOST_PLAYED || view.view_type == GameBrowserViewType.MOST_RECENT)
-			rebuild();
 	}
 	
 	protected override void rebuild_items(int selection_index, string? new_selection_id) {
@@ -120,33 +109,5 @@ public class EverythingSelector : Selector
 	}
 	protected override string get_item_full_name(int index) {
 		return items[index].full_name;
-	}
-	
-	Gee.List<GameItem> get_view_games(GameBrowserViewData view) {		
-		var games = Data.all_games().load();
-		
-		// filter games list
-		bool do_sort = true;
-		switch (view.view_type) {
-			case GameBrowserViewType.FAVORITES:
-				games = games.where(g=>g.is_favorite == true);
-				break;
-			case GameBrowserViewType.MOST_RECENT:
-				games = Data.get_most_recently_played_games(games);
-				do_sort = false;
-				break;
-			case GameBrowserViewType.MOST_PLAYED:
-				games = Data.get_most_frequently_played_games(games);
-				do_sort = false;
-				break;
-			default:
-				break;
-		}
-		
-		var list = games.to_list();
-		if (do_sort == true)
-			list.sort(IGameListNode.compare);
-			
-		return list;
-	}
+	}	
 }

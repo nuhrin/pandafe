@@ -70,6 +70,17 @@ namespace Data
 				.sort((a,b) => (int)b.run_count - (int)a.run_count)
 				.select<GameItem>(e=>id_map[e.id]);
 		}
+
+		public bool change_id(string old_id, string new_id) {
+			bool success = false;
+			var matching = new Enumerable<Entry>(games_list)
+				.where(e=>e.id == old_id);
+			foreach(var entry in matching) {
+				entry.id = new_id;
+				success = true;
+			}
+			return success;
+		}
 		
 		int index_of_game(string game_id) {
 			int index = 0;

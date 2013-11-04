@@ -39,6 +39,11 @@ namespace Menus
 			new MenuBrowser(menu).run();			
 			return menu.was_saved;
 		}
+		public static bool edit_no_pop(string title, Object obj) {
+			var menu = new ObjectMenu(title, null, obj);
+			new MenuBrowser(menu).run_no_pop();			
+			return menu.was_saved;
+		}
 		public static MenuBrowserItem get_browser_item(string name, string? title, string? help, Object obj) {
 			var menu = new ObjectMenu(title ?? name, null, obj);
 			return new MenuBrowserItem(name, help, menu);
@@ -85,9 +90,9 @@ namespace Menus
 		protected override void populate_items(Gee.List<MenuItem> items) { 
 			var builder = new MenuBuilder();
 			if (mo != null) {
-				mo.i_build_menu(builder);
 				mo_handlers.add(mo.i_refreshed.connect((i) => refresh(i)));
 				mo_handlers.add(mo.i_field_connected.connect((f,h) => field_connect_handler(f, h)));
+				mo.i_build_menu(builder);				
 			} else {
 				builder.add_object_properties(obj);
 			}

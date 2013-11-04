@@ -71,8 +71,7 @@ namespace Layers.Controls
 			this.xpos = xpos;
 			this.ypos = ypos;
 			max_height = (int16)@interface.screen_height / 2;
-			max_text_width = max_width - ui.value_control_spacing;
-			max_characters = max_text_width / ui.font_width();
+			update_max_width(max_width);
 			items = new ArrayList<G>();
 			draw_rectangle = true;
 			cancel_keys = new ArrayList<int>();
@@ -84,12 +83,17 @@ namespace Layers.Controls
 		public int height { get { return _height; } }
 		public int width { get { return _width; } }
 		public int16 max_height { get; set; }
+		public void update_max_width(int16 max_width) {
+			max_text_width = max_width - ui.value_control_spacing;
+			max_characters = max_text_width / ui.font_width();
+		}
 		public bool draw_rectangle { get; set; }
 		
 		public uint item_count { get { return items.size; } }
 		public bool can_select_single_item { get; set; }
 		public bool wrap_selector { get; set; }
 		public bool pad_items { get; set; }
+				
 		
 		public uint selected_index {
 			get { return _selected_index; }
@@ -189,6 +193,23 @@ namespace Layers.Controls
 			}
 		}
 		
+		protected virtual bool activate(Rect selected_item_rect) {
+			return true;
+		}
+		protected void set_selected_item(G item) {
+			if (items.size == 0)
+				GLib.error("ValueSelector '%s' has no items.", id);
+				
+			items[(int)_selected_index] = item;
+		}
+		Rect get_selected_item_rect() {
+			uint top_index;
+			uint bottom_index;
+			get_display_range(selected_index, out top_index, out bottom_index);
+			var item_offset = (selected_index - top_index);
+			return {xpos, ypos + (int16)((ui.font_height + ui.item_spacing) * item_offset), (int16)width};
+		}
+		
 		void on_keydown_event(KeyboardEvent event) {
 			if (process_unicode(event.keysym.unicode) == false)
 				return;
@@ -205,7 +226,10 @@ namespace Layers.Controls
 					case KeySymbol.RETURN:
 					case KeySymbol.KP_ENTER:
 					case KeySymbol.END:
-						quit_event_loop();
+						if (activate(get_selected_item_rect()) == false)
+							update();							
+						else
+							quit_event_loop();
 						break;
 					case KeySymbol.ESCAPE:
 					case KeySymbol.HOME:

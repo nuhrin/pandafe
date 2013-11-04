@@ -52,6 +52,14 @@ namespace Data
 			return _favorite_game_ids.contains(game.id);
 		}
 		public bool is_empty() { return (_favorite_game_ids == null || _favorite_game_ids.size == 0); }
+
+		public bool change_id(string old_id, string new_id) {
+			if (_favorite_game_ids == null || _favorite_game_ids.contains(old_id) == false)
+				return false;
+			_favorite_game_ids.remove(old_id);
+			_favorite_game_ids.add(new_id);
+			return true;
+		}		
 		
 		void ensure_hashset() {
 			if (_favorite_game_ids == null)

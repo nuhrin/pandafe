@@ -45,6 +45,7 @@ namespace Layers.Controls
 			else
 				this.root_path = "/";			
 		}
+		public bool allow_folder_creation { get; set; }
 		
 		
 		public void set_fallback_starting_path(string path) { 
@@ -67,19 +68,42 @@ namespace Layers.Controls
 		protected override string? get_run_result() { return selected_path; }
 		
 		protected override ChooserSelector create_selector(string key, int16 xpos, int16 ypos, int16 max_height) {
-			return new FolderSelector(SELECTOR_ID, xpos, ypos, max_height, key, (key == root_path));
+			var new_selector = new FolderSelector(SELECTOR_ID, xpos, ypos, max_height, key, (key == root_path));
+			new_selector.allow_folder_creation = allow_folder_creation;
+			return new_selector;
 		}		
 		
 		protected override void update_header(ChooserHeader header, ChooserSelector selector) {
 			header.path = ((FolderSelector)selector).path;
 			most_recent_path = header.path;
 		}
-		protected override bool process_activation(ChooserSelector selector) {
+		protected override bool process_activation(ChooserSelector selector, out bool cancel) {
+			cancel = false;
 			var folder_selector = (FolderSelector)selector;
 			if (folder_selector.is_choose_item_selected) {
 				// choose this folder
 				selected_path = folder_selector.selected_path();				
 				return true;
+			} else if (folder_selector.is_create_item_selected) {
+				// create new folder
+				if (folder_selector.edit_selected_item_secondary_id() == true) {
+					var new_name = folder_selector.selected_item_secondary_id();
+					var new_folder = File.new_for_path(folder_selector.selected_path());
+					bool created = false;
+					try {
+						created = new_folder.make_directory();
+						if (created == true)
+							uncache_selector(folder_selector.path);
+						else
+							message("Unable to create '%s'.".printf(new_name));
+					} catch(GLib.Error e) {
+						message(e.message);
+					}
+					if (created == false) {
+						folder_selector.unset_selected_item_secondary_id();
+						cancel = true;
+					}
+				}
 			}
 			return false;
 		}

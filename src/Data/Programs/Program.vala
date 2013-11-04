@@ -138,7 +138,7 @@ public class Program : Entity, MenuObject
 			app_id_field.app_id_type = (AppIdType)app_id_type_field.value;
 		});
 		app_id_field.changed.connect(() => {
-			var app = Data.pnd_data().get_app(app_id_field.value, null, app_id_field.app_id_type);
+			var app = Data.pnd_data().get_app(app_id_field.value, app_id_field.app_id_type);
 			if (app != null) {
 				if (app_id_field.app_id_type == AppIdType.EXACT) {
 					name_field.value = app.title;
