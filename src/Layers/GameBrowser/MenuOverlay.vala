@@ -89,6 +89,8 @@ namespace Layers.GameBrowser
 			@interface.pop_layer(false);
 			disconnect_selector_signals();
 			while (menu_stack.length > 0) {
+				if (RuntimeEnvironment.dev_mode)
+					Menus.MenuItem.unregister_watch(selector.menu.name);
 				selector = menu_stack.pop_head();
 				selector.menu.cancel(true);
 			}
@@ -135,7 +137,10 @@ namespace Layers.GameBrowser
 			menu_handlers.add(selector.menu.field_error.connect((field, index, error) => on_field_error(field, index, error)));
 			menu_handlers.add(selector.menu.clear_error.connect(() => clear_error()));
 			menu_handlers.add(selector.menu.refreshed.connect(() => refresh_menu(selector.menu)));
-			menu_handlers.add(selector.menu.quit.connect(() => quit_event_loop()));
+			menu_handlers.add(selector.menu.quit.connect(() => {
+				selector.menu.cancel(true);
+				quit_event_loop();				
+			}));
 		}
 		void disconnect_selector_signals() {
 			foreach(var handler in menu_handlers)
@@ -323,6 +328,7 @@ namespace Layers.GameBrowser
 
 		//
 		// events
+		void on_quit_all() { selector.menu.cancel(true); }
 		void on_keydown_event (KeyboardEvent event) {
 			if (process_unicode(event.keysym.unicode) == false)
 				return;

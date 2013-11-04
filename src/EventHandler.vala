@@ -34,7 +34,10 @@ public interface EventHandler : Object
 		
 		// setup handlers
 		var handlers = new ArrayList<ulong>();		
-		handlers.add(@interface.quit_all.connect(() => event_loop_done = true));
+		handlers.add(@interface.quit_all.connect(() => {
+			on_quit_all();
+			event_loop_done = true;
+		}));
 		handlers.add(@interface.pandora_keyup_event.connect(() => {
 			if (@interface.pandora_keyup_event_handled == true)
 				return;
@@ -99,4 +102,5 @@ public interface EventHandler : Object
 	protected abstract void on_keydown_event(KeyboardEvent event);
 	protected virtual void on_keyup_event(KeyboardEvent event) { }
 	protected virtual void handle_pandora_keyup_event() { }	
+	protected virtual void on_quit_all() { }
 }
