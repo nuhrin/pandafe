@@ -243,7 +243,7 @@ namespace Menus.Concrete
 				this.game = game;
 				this.app = app;
 			}
-			public override void activate(MenuSelector selector) { 
+			public override void activate(MenuSelector selector) {
 				if (app == null) {
 					selector.menu.error("App '%s' not found".printf(game.name));
 					return;
@@ -266,7 +266,7 @@ namespace Menus.Concrete
 				}
 								
 				// unmount the pnd, if necessary
-				if (Data.pnd_mountset().is_mounted(app) == true) {
+				if (Data.pnd_mountset().is_pnd_mounted(app) == true) {
 					delete_overlay.set_message("Unmounting...");				
 					if (Data.pnd_mountset().unmount(app) == false) {
 						@interface.pop_layer(false);
@@ -346,18 +346,12 @@ namespace Menus.Concrete
 					selector.menu.error("PND does not exist");
 					return false;
 				}
-				if (Data.pnd_mountset().is_mounted(app) == false) {
-					selector.menu.message("Mounting '%s'...".printf(app.mount_id));
-					if (Data.pnd_mountset().mount(app) == false) {
-						selector.menu.error("Unable to mount app.");
-						return false;
-					}
-					selector.menu.message("");						
-				}
+				
 				_menu = new FolderMenu("%s: %s".printf(name, app_title), this);
 				return true;
 			}
 			public Menu menu { get { return _menu;} }
+			string get_help_text(string path) { return "%s %s".printf(help_prefix, path); }
 			
 			class FolderMenu : Menu
 			{
@@ -367,15 +361,49 @@ namespace Menus.Concrete
 					this.item = item;
 				}
 				
-				protected override void populate_items(Gee.List<MenuItem> items) { 			
-					items.add(get_item("AppData", Data.pnd_mountset().get_mounted_appdata_path(item.app)));
-					items.add(get_item("PND", Data.pnd_mountset().get_mounted_pnd_path(item.app)));
-					items.add(get_item("Union", Data.pnd_mountset().get_mounted_path(item.app)));
+				protected override void populate_items(Gee.List<MenuItem> items) {
+					var appdata_path = MountSet.get_appdata_path(item.app);
+					if (appdata_path != null)
+						items.add(get_item("AppData", appdata_path));
+					items.add(new MountFolderItem("Mount", item));
+					items.add(get_item("PND", Path.get_dirname(item.app.get_fullpath())));
 				}
 				MenuItem get_item(string name, string path) {
-					return new MenuItem.custom(name, "%s %s".printf(item.help_prefix, path), "", () => {
+					return new MenuItem.custom(name, item.get_help_text(path), "", () => {
 						item.open_command(path);
 					});
+				}
+				
+				class MountFolderItem : MenuItem
+				{
+					weak FolderItem item;
+					string path;
+					public MountFolderItem(string name, FolderItem item) {
+						var path = MountSet.get_mount_path(item.app);
+						base(name, item.get_help_text(path));
+						this.path = path;
+						this.item = item;
+					}
+					public override void activate(MenuSelector selector) {
+						var app = item.app;
+						var mountset = Data.pnd_mountset();
+						if (mountset.is_pnd_mounted(app) == false) {
+							if (mountset.is_mounted(app) == true) {
+								selector.menu.message("Unmounting '%s'...".printf(app.menu_title()));
+								if (mountset.unmount(app) == false) {
+									selector.menu.error("Unable to unmount %s.".printf(app.menu_title()));
+									return;
+								}
+							}
+							selector.menu.message("Mounting '%s'...".printf(app.menu_title()));
+							if (Data.pnd_mountset().mount(app) == false) {
+								selector.menu.error("Unable to mount %s.".printf(app.menu_title()));
+								return;
+							}
+							selector.menu.message("");
+						}
+						item.open_command(path);
+					}
 				}
 			}
 		}

@@ -53,12 +53,18 @@ namespace Data.Pnd
 		public bool is_mounted(AppItem app) {
 			return is_app_mounted(app);
 		}
+		public bool is_pnd_mounted(AppItem app) {
+			if (is_app_mounted(app) == false)
+				return false;
+			return (mounted_pnd_path_hash[app.mount_id] == app.get_fullpath());
+		}
 		public string? get_mounted_path(AppItem app) {
 			if (is_app_mounted(app) == false)
 				return null;
 
 			return UNION_MOUNT_PATH + app.mount_id;
 		}
+		public static string get_mount_path(AppItem app) { return UNION_MOUNT_PATH + app.mount_id; }
 		public string? get_mounted_pnd_path(AppItem app) {
 			if (is_app_mounted(app) == false)
 				return null;
@@ -80,6 +86,7 @@ namespace Data.Pnd
 
 			return null;
 		}
+		public static string? get_appdata_path(AppItem app) { return Pandora.Apps.get_appdata_path(app.get_fullpath(), app.mount_id); }
 
 		public bool mount(AppItem app) {
 			if (is_app_mounted(app) == true)
