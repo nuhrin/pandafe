@@ -5,6 +5,7 @@ EXTRA_DIST = \
 	pandafe2.png \
 	pandafe3.png \
 	pandafe4.png \
+	pandafe5.png \
 	$(NULL)
 
 install-data-local:
