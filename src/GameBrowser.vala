@@ -768,7 +768,8 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 				return false;
 			rom_platform.rom_folder_root = new_root;
 			string? error;
-			if (Data.platforms().save_platform(platform, platform.id, out error, f=> status_message.set("Scanning", platform.name, f.unique_name())) == false) {
+			
+			if (Data.platforms().save_platform(platform, platform.id.dup(), out error, f=> status_message.set("Scanning", platform.name, f.unique_name())) == false) {
 				status_message.set(error);
 				return false;
 			}
