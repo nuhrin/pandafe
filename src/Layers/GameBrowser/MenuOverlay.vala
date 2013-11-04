@@ -33,12 +33,11 @@ namespace Layers.GameBrowser
 	public class MenuOverlay : Layer, EventHandler
 	{
 		const int SELECTOR_MIN_WIDTH = 150;
-		const int16 SELECTOR_YPOS = 100;
 		const string SELECTOR_ID = "menu_overlay_selector";
+		const int16 HEADER_FOOTER_REVEAL_OFFSET = 100;
+		const uint8 MAX_NAME_LENGTH = 30;
 
-		const uint8 MAX_NAME_LENGTH = 40;
-		const uint8 MAX_VALUE_LENGTH = 40;
-		
+		Menus.MenuUI.ControlsUI ui;
 		MenuHeaderLayer header;
 		MenuMessageLayer message;
 		int16 selector_max_height;
@@ -50,6 +49,7 @@ namespace Layers.GameBrowser
 		Rect lower_right;
 		int16 header_bottom_y;
 		bool is_initialized;
+		bool needs_header_footer_reveal;
 		
 		ArrayList<int> cancel_keys;
 		KeySymbol? cancel_key_pressed;
@@ -58,6 +58,7 @@ namespace Layers.GameBrowser
 			if (menu.item_count == 0)
 				GLib.error("Menu '%s' has no items.", menu.name);
 			base("menuoverlay_"+menu.name);
+			ui = @interface.menu_ui.controls;
 			cancel_keys = new ArrayList<int>();
 			if (cancel_key != null)
 				cancel_keys.add(cancel_key);
@@ -66,18 +67,16 @@ namespace Layers.GameBrowser
 			header = add_layer(new MenuHeaderLayer("menu-header")) as MenuHeaderLayer;
 			message = add_layer(new MenuMessageLayer("menu-status")) as MenuMessageLayer;			
 			message.centered = true;
-			selector_max_height = (int16)(@interface.screen_height - SELECTOR_YPOS - message.height - 10);
-			selector = add_layer(get_selector(menu)) as MenuSelector;
-			upper_left={header.xpos - 1, header.ypos - 1};
-			upper_right={header.xpos + (int16)header.width + 1, upper_left.y};
-			lower_left={message.xpos - 1, message.ypos + (int16)message.height + 1};
-			lower_right={message.xpos + (int16)message.width + 1, lower_left.y};
-			header_bottom_y=header.ypos + (int16)header.height;
+			update_positions();
+			selector = add_layer(get_selector(menu)) as MenuSelector;			
+			@interface.menu_ui.font_updated.connect(update_font);
+			@interface.menu_ui.colors_updated.connect(update_colors);
+			@interface.menu_ui.appearance_updated.connect(update_font);
 		}
 
 		public KeySymbol? run(uchar screen_alpha=0, uint32 rgb_color=0) {
 			connect_selector_signals();
-			
+						
 			set_header();
 			selector.ensure_initial_selection(false);
 			set_initial_help();
@@ -89,8 +88,10 @@ namespace Layers.GameBrowser
 			
 			@interface.pop_layer(false);
 			disconnect_selector_signals();
-			while (menu_stack.length > 0)
+			while (menu_stack.length > 0) {
 				selector = menu_stack.pop_head();
+				selector.menu.cancel(true);
+			}
 			return cancel_key_pressed;
 		}
 		
@@ -106,23 +107,23 @@ namespace Layers.GameBrowser
 		}
 		
 		protected override void draw() {
-			int16 box_left_x = selector.xpos - 20;
-			int16 width = (int16)@interface.screen_width - selector.xpos;
-			int16 height = (int16)(@interface.screen_height - header.height - message.height);
-			draw_rectangle_fill(box_left_x, 20, width, height, @interface.black_color);
+			int16 box_left_x = selector.xpos - ui.value_control_spacing;
+			int16 width = (int16)@interface.screen_width - box_left_x - 20;
+			int16 height = (int16)(message.ypos - header.ypos - header.height);
+			draw_rectangle_fill(box_left_x, (int16)(header.ypos + header.height), width, height, ui.background_color);
 			
-			draw_horizontal_line(upper_left.x, upper_right.x, upper_left.y, @interface.white_color);
-			draw_vertical_line(upper_left.x, upper_left.y, header_bottom_y + 1, @interface.white_color);
-			draw_horizontal_line(upper_left.x, box_left_x, header_bottom_y + 1, @interface.white_color);
-			draw_vertical_line(box_left_x, header_bottom_y + 1, message.ypos - 1, @interface.white_color);
-			draw_vertical_line(upper_right.x, upper_right.y, lower_right.y, @interface.white_color);
-			draw_horizontal_line(lower_left.x, box_left_x, message.ypos - 1, @interface.white_color);
-			draw_vertical_line(lower_left.x, message.ypos - 1, lower_left.y, @interface.white_color);
-			draw_horizontal_line(lower_left.x, lower_right.x, lower_left.y, @interface.white_color);
+			draw_horizontal_line(upper_left.x, upper_right.x, upper_left.y, ui.border_color);
+			draw_vertical_line(upper_left.x, upper_left.y, header_bottom_y, ui.border_color);
+			draw_horizontal_line(upper_left.x, box_left_x, header_bottom_y, ui.border_color);
+			draw_vertical_line(box_left_x, header_bottom_y, message.ypos - 1, ui.border_color);
+			draw_vertical_line(upper_right.x, upper_right.y, lower_right.y, ui.border_color);
+			draw_horizontal_line(lower_left.x, box_left_x, message.ypos - 1, ui.border_color);
+			draw_vertical_line(lower_left.x, message.ypos - 1, lower_left.y, ui.border_color);
+			draw_horizontal_line(lower_left.x, lower_right.x, lower_left.y, ui.border_color);
 		}
 
 		MenuSelector get_selector(Menus.Menu menu) {
-			var new_selector = new MenuSelector(SELECTOR_ID, 0, 0, menu, selector_max_height, MAX_NAME_LENGTH, MAX_VALUE_LENGTH);	
+			var new_selector = new MenuSelector(SELECTOR_ID, 0, 0, menu, selector_max_height, (int16)(@interface.screen_width / 2), MAX_NAME_LENGTH);	
 			update_selector_pos(new_selector);					
 			return new_selector;
 		}
@@ -148,12 +149,89 @@ namespace Layers.GameBrowser
 		Gee.ArrayList<ulong> menu_handlers = new Gee.ArrayList<ulong>();
 	
 		void update_selector_pos(MenuSelector selector) {
-			selector.xpos = (int16)(@interface.screen_width - 25 - ((selector.width < SELECTOR_MIN_WIDTH) ? SELECTOR_MIN_WIDTH : selector.width));
-			selector.ypos = SELECTOR_YPOS;			
+			selector.xpos = (int16)(@interface.screen_width - 20 - ui.value_control_spacing - ((selector.width < SELECTOR_MIN_WIDTH) ? SELECTOR_MIN_WIDTH : selector.width));
+			selector.ypos = (int16)(header.ypos + header.height + ui.font_height);
+		}
+		void update_colors() {
+			header.set_rgb_color(@interface.menu_ui.background_color_rgb);
+			message.set_rgb_color(@interface.menu_ui.background_color_rgb);
+			update(false);
+		}
+		void update_font() {
+			clear();
+			recreate_header();
+			recreate_message();
+			needs_header_footer_reveal = false;
+			do_header_footer_reveal();
+			update_positions();
+			recreate_selectors();
+			update(false);
+			screen_update(false);
+		}
+		void recreate_header() {
+			var left = header.left;
+			var center = header.center;
+			var right = header.right;			
+			header = new MenuHeaderLayer("menu-header");
+			header.set_text(left, center, right, false);
+			replace_layer(header.id, header);
+		}
+		void recreate_message() {
+			var centered = message.centered;
+			var error = message.error;
+			var msg = message.message;
+			var help = message.help;
+			message = new MenuMessageLayer("menu-status");
+			message.centered = centered;
+			message.set_text(error, msg, help);
+			replace_layer(message.id, message);
+		}
+		void do_header_footer_reveal() {
+			var do_reveal = (selector.menu.get_metadata("header_footer_reveal") == "true");
+			if (do_reveal) {
+				if (needs_header_footer_reveal == false) {
+					header.resize(header.width - (int)HEADER_FOOTER_REVEAL_OFFSET, -1, header.xpos + HEADER_FOOTER_REVEAL_OFFSET, -1);
+					message.resize(message.width - (int)HEADER_FOOTER_REVEAL_OFFSET, -1, message.xpos + HEADER_FOOTER_REVEAL_OFFSET, -1);
+					upper_left.x += HEADER_FOOTER_REVEAL_OFFSET;
+					lower_left.x += HEADER_FOOTER_REVEAL_OFFSET;
+					needs_header_footer_reveal = true;
+				}
+			} else {
+				if (needs_header_footer_reveal == true) {
+					header.resize(header.width + (int)HEADER_FOOTER_REVEAL_OFFSET, -1, header.xpos - HEADER_FOOTER_REVEAL_OFFSET, -1);
+					message.resize(message.width + (int)HEADER_FOOTER_REVEAL_OFFSET, -1, message.xpos - HEADER_FOOTER_REVEAL_OFFSET, -1);					
+					upper_left.x -= HEADER_FOOTER_REVEAL_OFFSET;
+					lower_left.x -= HEADER_FOOTER_REVEAL_OFFSET;
+					needs_header_footer_reveal = false;
+				}
+			}
+		}
+		void update_positions() {
+			var selector_ypos = (int16)(header.ypos + header.height + ui.font_height); //SELECTOR_YPOS;	
+			selector_max_height = (int16)(@interface.screen_height - selector_ypos - message.height - 10);
+			upper_left={header.xpos - 1, header.ypos - 1};
+			upper_right={header.xpos + (int16)header.width, upper_left.y};
+			lower_left={message.xpos - 1, message.ypos + (int16)message.height};
+			lower_right={message.xpos + (int16)message.width, lower_left.y};
+			header_bottom_y=header.ypos + (int16)header.height;
+		}
+		void recreate_selectors() {
+			for(uint index=0;index<menu_stack.length;index++) {
+				var item = menu_stack.peek_nth(index);
+				item.recreate(selector_max_height);
+				update_selector_pos(item);
+			}
+			selector.recreate(selector_max_height);
+			update_selector_pos(selector);
 		}
 		
 		//
 		// screen updates
+		public void screen_update(bool flip=true) {
+			var s = this.screen;
+			if (s != null)
+				s.update(flip);
+		}
 		void push_menu(Menus.Menu menu) {
 			if (RuntimeEnvironment.dev_mode)
 				Menus.MenuItem.register_watch(menu.name);
@@ -167,7 +245,7 @@ namespace Layers.GameBrowser
 			set_header();
 			selector.ensure_initial_selection(false);
 			set_initial_help(false);
-			screen.update(false);
+			screen_update(false);
 			update();
 			is_initialized = true;
 			menu_changed(menu);
@@ -182,14 +260,14 @@ namespace Layers.GameBrowser
 			string watch = selector.menu.name;
 			is_initialized = false;
 			disconnect_selector_signals();
-			selector = menu_stack.pop_head();
+			selector = menu_stack.pop_head();			
 			connect_selector_signals();
-			replace_layer(SELECTOR_ID, selector);			
+			replace_layer(SELECTOR_ID, selector);
 			clear();
 			set_header();
 			message.reset(false);
 			message.update_help(selector.selected_item().help, false);
-			screen.update(false);
+			screen_update(false);
 			update();
 			is_initialized = true;
 			menu_changed(selector.menu);
@@ -201,11 +279,12 @@ namespace Layers.GameBrowser
 				clear();
 				set_header();
 				message.reset();
-				screen.update(false);
+				screen_update(false);
 				update();
 			}
 		}
 		void set_header() {
+			do_header_footer_reveal();
 			header.set_text(null, selector.menu_title, null, false);
 		}
 		void set_initial_help(bool flip_screen=true) {
@@ -218,13 +297,13 @@ namespace Layers.GameBrowser
 		void on_selector_changed() {
 			if (is_initialized == false)
 				return;
-			message.help = selector.selected_item().help;
+			message.update_help(selector.selected_item().help, false);
 		}
 		void on_message(string message) {
 			this.message.message = message;
 		}		
-		void clear_message() {
-			message.message = null;
+		void clear_message(bool flip=true) {
+			message.update_message(null, flip);
 		}
 		void on_error(string error) {
 			message.error = error;
@@ -322,30 +401,30 @@ namespace Layers.GameBrowser
 		//
 		// commands: selection
 		void select_previous() {
+			clear_message(false);
 			selector.select_previous();
-			clear_message();
 		}
 		void select_next() {
+			clear_message(false);
 			selector.select_next();
-			clear_message();
 		}
 		void select_first() {
+			clear_message(false);
 			selector.select_first();
-			clear_message();
 		}
 		void select_last() {
+			clear_message(false);
 			selector.select_last();
-			clear_message();
 		}
 		void select_next_starting_with(char c) {
-			clear_message();
+			clear_message(false);
 			selector.select_item_starting_with(c.to_string());
 		}
 
 		//
 		// commands: misc
 		void activate_selected() {
-			clear_message();
+			clear_message(false);
 			var selected_item = selector.selected_item();
 			var selected_menu = selected_item as Menus.Menu;
 			if (selected_menu != null) {
@@ -354,10 +433,11 @@ namespace Layers.GameBrowser
 			}
 			var submenu = selected_item as SubMenuItem;
 			if (submenu != null) {
+				submenu.on_activation();
 				push_menu(submenu.menu);
 				return;
 			}			
-			message.error = null;
+			message.update_error(null, false);
 			selected_item.activate(selector);			
 			switch(selected_item.action) {				
 				case MenuItemActionType.CANCEL:

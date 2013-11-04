@@ -40,6 +40,8 @@ namespace Layers.Controls
 		string root_path;
 		string? selected_path;
 		Regex? regex_file_filter;
+		Predicate<string>? validator;
+		string? validator_error;
 
 		public FileChooser(string id, string title, string? file_extensions=null, string? root_path=null) {			
 			base(id, title);
@@ -47,11 +49,15 @@ namespace Layers.Controls
 				this.root_path = root_path;
 			else
 				this.root_path = "/";
-									
 			if (file_extensions != null)
 				regex_file_filter = get_file_extensions_regex(file_extensions);			
 		}
-	
+		public bool hide_root_path { get; set; }
+		public void set_validator(owned Predicate<string>? validator, string? error_if_invalid=null) { 
+			this.validator = (owned)validator; 
+			validator_error = error_if_invalid;
+		}
+		
 		protected override void on_selector_scanning() { this.message("Reading directory..."); }
 		protected override void on_selector_scanned() { this.message(null); }
 
@@ -73,17 +79,38 @@ namespace Layers.Controls
 		protected override string? get_run_result() { return selected_path; }
 		
 		protected override ChooserSelector create_selector(string key, int16 xpos, int16 ypos, int16 max_height) {
-			return new FileSelector(SELECTOR_ID, xpos, ypos, max_height, key, regex_file_filter, (key == root_path));
+			var key_path = (FileUtils.test(key, FileTest.IS_DIR)) ? key : Path.get_dirname(key);
+			return new FileSelector(SELECTOR_ID, xpos, ypos, max_height, key, regex_file_filter, (key_path == root_path));
 		}
 				
 		protected override void update_header(ChooserHeader header, ChooserSelector selector) {
-			header.path = ((FileSelector)selector).path;
+			var path = ((FileSelector)selector).path;
+			if (hide_root_path && path.has_prefix(root_path) == true) {
+				path = path.replace(root_path, "");
+			}
+			header.path = path;
+		}
+		
+		protected override bool validate_activation(ChooserSelector selector, out string? error) { 
+			error = null; 
+			if (validator == null)
+				return true;
+			var file_selector = (FileSelector)selector;
+			if (file_selector.is_folder_selected == true)
+				return true;
+				
+			var path = file_selector.selected_path();				
+			if (validator(path) == false) {
+				error = validator_error ?? "Invalid selection";
+				return false;
+			}
+			return true;
 		}
 		protected override bool process_activation(ChooserSelector selector) {
 			var file_selector = (FileSelector)selector;
 			if (file_selector.is_folder_selected == false) {
 				// choose this this
-				selected_path = file_selector.selected_path();				
+				selected_path = file_selector.selected_path();
 				return true;
 			}
 			return false;
@@ -93,7 +120,6 @@ namespace Layers.Controls
 		protected override string get_parent_child_name(ChooserSelector selector) { 
 			return Path.get_basename(((FileSelector)selector).path) + Path.DIR_SEPARATOR_S; 
 		}
-
 		
 		Regex? get_file_extensions_regex(string file_extensions) {
 			var parts = file_extensions.split_set(" .;,");

@@ -32,7 +32,8 @@ namespace Menus
 	{		
 		Object obj;
 		MenuObject mo;
-
+		ArrayList<ulong> mo_handlers;
+		
 		public static bool edit(string title, Object obj) {
 			var menu = new ObjectMenu(title, null, obj);
 			new MenuBrowser(menu).run();			
@@ -43,10 +44,12 @@ namespace Menus
 			return new MenuBrowserItem(name, help, menu);
 		}
 		
-		ObjectMenu(string name, string? help=null, Object obj) {
+		public ObjectMenu(string name, string? help=null, Object obj) {
 			base(name, help);
 			this.obj = obj;
-			mo = this.obj as MenuObject;			
+			mo = this.obj as MenuObject;
+			if (mo != null)
+				mo_handlers = new ArrayList<ulong>();
 		}
 		public bool was_saved { get; private set; }
 				
@@ -79,15 +82,12 @@ namespace Menus
 			return true;
 		}
 	
-		protected override void cleanup() {
-			if (mo != null)
-				mo.i_release_fields();
-		}
-
 		protected override void populate_items(Gee.List<MenuItem> items) { 
 			var builder = new MenuBuilder();
 			if (mo != null) {
 				mo.i_build_menu(builder);
+				mo_handlers.add(mo.i_refreshed.connect((i) => refresh(i)));
+				mo_handlers.add(mo.i_field_connected.connect((f,h) => field_connect_handler(f, h)));
 			} else {
 				builder.add_object_properties(obj);
 			}
@@ -97,11 +97,20 @@ namespace Menus
 			if (builder.has_action) {
 				foreach(var action in builder.actions())
 					items.add(action);
-			} else {
+			} else if (mo == null || mo.i_suppress_default_actions() == false) {
 				items.add(new MenuItem.cancel_item());
 				items.add(new MenuItem.save_item());
 			}
 		}
+		protected override void cleanup() {
+			if (mo != null) {
+				foreach(var handler in mo_handlers)
+					mo.disconnect(handler);
+				mo_handlers.clear();
+				mo.i_release_fields(was_saved);
+			}
+		}
+
 //~ 		void copy_object_properties(Object from, Object to) {
 //~ 			unowned ObjectClass klass = from.get_class();
 //~ 	    	var properties = klass.list_properties();

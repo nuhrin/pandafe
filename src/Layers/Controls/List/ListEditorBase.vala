@@ -33,6 +33,7 @@ namespace Layers.Controls.List
 		const int16 SELECTOR_XPOS = 100;
 		const int16 MENU_SELECTOR_XPOS = 80;
 		
+		Menus.MenuUI.ControlsUI ui;
 		bool move_active;
 		bool menu_active;
 		bool save_requested;
@@ -47,6 +48,7 @@ namespace Layers.Controls.List
 		
 		protected ListEditorBase(string id, string title, string? help=null, Gee.List<G> list=new ArrayList<G>()) {
 			base(id, @interface.game_browser_ui.background_color_rgb);
+			ui = @interface.menu_ui.controls;
 			_list = list;
 			header = add_layer(new MenuHeaderLayer("header")) as MenuHeaderLayer;
 			header.set_text(null, title, null, false);
@@ -60,11 +62,13 @@ namespace Layers.Controls.List
 			var save_text = get_save_item_text();
 			if (save_text != null)
 				menu.add_item(new Menus.MenuItem.save_item(save_text));
-			selector_ypos = header.ypos + (int16)header.height + @interface.get_monospaced_font_height();
-			int16 menu_selector_max_height = (int16)((@interface.get_monospaced_font_height() + @interface.get_monospaced_font_item_spacing()) * menu.item_count);
+			selector_ypos = header.ypos + (int16)header.height + ui.font_height;
+			int16 menu_selector_max_height = (int16)((ui.font_height + ui.item_spacing) * menu.item_count);
 			menu_selector_ypos = message.ypos - menu_selector_max_height;
-			menu_selector = add_layer(new MenuSelector("list_menu_selector", MENU_SELECTOR_XPOS, menu_selector_ypos, menu, menu_selector_max_height, 100, 0)) as MenuSelector;
+			int16 menu_selector_max_width = (int16)(header.xpos + header.width - MENU_SELECTOR_XPOS - ui.font_width());
+			menu_selector = add_layer(new MenuSelector("list_menu_selector", MENU_SELECTOR_XPOS, menu_selector_ypos, menu, menu_selector_max_height, menu_selector_max_width)) as MenuSelector;
 			menu_selector.wrap_selector = false;
+			
 		}		
 		
 		public void set_header(string? left, string? center, string? right) {
@@ -100,13 +104,13 @@ namespace Layers.Controls.List
 			int16 header_bottom_y=header.ypos + (int16)header.height;
 			int16 width = upper_right.x - upper_left.x;
 			int16 height = lower_left.y - upper_left.y;
-			draw_rectangle_fill(upper_left.x, upper_left.y, width, height, @interface.black_color);
+			draw_rectangle_fill(upper_left.x, upper_left.y, width, height, ui.background_color);
 			
-			draw_horizontal_line(upper_left.x, upper_right.x, upper_left.y, @interface.white_color);
-			draw_horizontal_line(upper_left.x, upper_right.x, header_bottom_y + 1, @interface.white_color);
-			draw_vertical_line(upper_left.x, upper_left.y, lower_left.y, @interface.white_color);
-			draw_vertical_line(upper_right.x, upper_right.y, lower_left.y, @interface.white_color);
-			draw_horizontal_line(lower_left.x, lower_right.x, lower_left.y, @interface.white_color);			
+			draw_horizontal_line(upper_left.x, upper_right.x, upper_left.y, ui.border_color);
+			draw_horizontal_line(upper_left.x, upper_right.x, header_bottom_y + 1, ui.border_color);
+			draw_vertical_line(upper_left.x, upper_left.y, lower_left.y, ui.border_color);
+			draw_vertical_line(upper_right.x, upper_right.y, lower_left.y, ui.border_color);
+			draw_horizontal_line(lower_left.x, lower_right.x, lower_left.y, ui.border_color);			
 		}
 		
 		protected abstract ListItem<G> get_list_item(G item);
@@ -294,7 +298,8 @@ namespace Layers.Controls.List
 			if (selector.item_count > 0) {
 				var selected_item = selector.selected_item();
 				bool move_ok = (selector.item_count > 1);
-				action = new ListItemActionSelector("item_action_selector", rect.x + (int16)rect.w, rect.y, 
+				int16 max_width = (int16)(@interface.screen_width - 20 - rect.x - rect.w);
+				action = new ListItemActionSelector("item_action_selector", rect.x + (int16)rect.w, rect.y, max_width,
 					can_edit(selected_item), can_delete(selected_item), move_ok, can_insert())
 					.run();				
 			}
@@ -360,24 +365,6 @@ namespace Layers.Controls.List
 					break;
 			}
 
-		}
-		class DeleteConfirmation : StringSelector
-		{
-			const string CANCEL_TEXT = ".. cancel";
-			const string CONFIRM_TEXT = "!! Confirm";
-			public DeleteConfirmation(string id, int16 xpos, int16 ypos)
-			{
-				base(id, xpos, ypos, 200);
-				for(int index=0;index<7;index++)
-					add_item(CANCEL_TEXT);
-				add_item(CONFIRM_TEXT);
-				add_item(CANCEL_TEXT);
-				add_item(CANCEL_TEXT);
-			}
-			public new bool run(uchar screen_alpha=128, uint32 rgb_color=0) {
-				base.run(screen_alpha, rgb_color);
-				return (selected_item() == CONFIRM_TEXT);
-			}
 		}
 	}
 }

@@ -34,7 +34,6 @@ using Menus.Fields;
 
 public class GameBrowser : Layers.ScreenLayer, EventHandler
 {
-	const int16 SELECTOR_XPOS = 75;
 	const string SELECTOR_ID = "selector";
 	const string FILTER_LABEL = "filter: ";	
 	
@@ -42,7 +41,11 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 
 	HeaderLayer header;
 	StatusMessageLayer status_message;
+	string? static_header_text;
+	string? static_status_test;
+	int16 selector_xpos;
 	int16 selector_ypos;
+	int16 selector_ymax;
     Selector selector;
     bool everything_active;
     bool platform_list_active;
@@ -64,8 +67,6 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 	public void run() {
 		platform_folder_data = Data.platforms().get_platform_folder_data();
 		
-		ui.colors_updated.connect(update_colors);
-		ui.font_updated.connect(update_font);
 		var pp = Data.platforms();
 		pp.platform_rescanned.connect((p) => platform_rescanned(p));
 		pp.platform_folders_changed.connect(() => platform_folders_changed());
@@ -78,6 +79,15 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		@interface.push_screen_layer(this, false);
 		initialize_from_browser_state();
 		Key.enable_unicode(1);
+
+		ui.colors_updated.connect(update_colors);
+		ui.header.font_updated.connect(update_font);
+		ui.list.font_updated.connect(update_font);
+		ui.footer.font_updated.connect(update_font);
+		ui.appearance_updated.connect(() => {
+			update_colors();
+			update_font();
+		});
         
         process_events();
         
@@ -99,9 +109,10 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		return Data.platforms().get_all_platforms();
 	}
 	void update_colors() {
+		this.set_rgb_color(ui.background_color_rgb);
 		header.set_rgb_color(ui.background_color_rgb);
 		status_message.set_rgb_color(ui.background_color_rgb);
-		this.set_rgb_color(ui.background_color_rgb);
+		update(false);
 	}
 	void update_font() {
 		clear();
@@ -111,11 +122,17 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		status_message = new StatusMessageLayer("status-message");
 		replace_layer(status_message.id, status_message);
 		update_selector_ypos();
+		update(false);
 	}
-	void update_selector_ypos() {		
-		selector_ypos = header.ypos + (int16)header.height + (int16)(ui.font_height * 1.5);
-		if (selector != null)
+	void update_selector_ypos() {
+		selector_xpos = ui.list.spacing.left + 20;
+		selector_ypos = header.ypos + (int16)header.height + ui.list.spacing.top;
+		selector_ymax = status_message.ypos - ui.list.spacing.bottom;
+		if (selector != null) { 
+			selector.xpos = selector_xpos;
 			selector.ypos = selector_ypos;
+			selector.ymax = selector_ymax;
+		}
 	}
 	
 	//
@@ -208,6 +225,10 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 	//
 	// layer updates
 	void set_header(bool flip=false) {
+		if (static_header_text != null) {
+			header.set_text(static_header_text, null, null, flip);
+			return;
+		}
 		string left = null;
 		string center = null;
 		string right = null;
@@ -246,7 +267,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 			on_selector_loading();
 			var everything_selector = selector as EverythingSelector;			
 			if (everything_selector == null)
-				everything_selector = new EverythingSelector(SELECTOR_ID, SELECTOR_XPOS, selector_ypos, current_view_data);
+				everything_selector = new EverythingSelector(SELECTOR_ID, selector_xpos, selector_ypos, selector_ymax, current_view_data);
 			new_selector = everything_selector;
 		} else {
 			if (this.current_folder != null) {
@@ -254,23 +275,24 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 				var folder = current_platform.get_folder(current_folder);
 				if (folder == null)
 					folder = current_platform.get_root_folder();
-				new_selector = new GameFolderSelector(folder, SELECTOR_ID, SELECTOR_XPOS, selector_ypos);				
+				new_selector = new GameFolderSelector(folder, SELECTOR_ID, selector_xpos, selector_ypos, selector_ymax);	
 			} else if (this.current_platform_folder != null) {
-				new_selector = new PlatformFolderSelector(this.current_platform_folder, SELECTOR_ID, SELECTOR_XPOS, selector_ypos);
+				new_selector = new PlatformFolderSelector(this.current_platform_folder, SELECTOR_ID, selector_xpos, selector_ypos, selector_ymax);
 			} else if (platform_list_active == false && this.platform_folder_data.folders.size > 0) {
-				new_selector = new PlatformFolderSelector.root(SELECTOR_ID, SELECTOR_XPOS, selector_ypos);
+				new_selector = new PlatformFolderSelector.root(SELECTOR_ID, selector_xpos, selector_ypos, selector_ymax);
 			} else {
-				new_selector = new PlatformSelector(SELECTOR_ID, SELECTOR_XPOS, selector_ypos);
+				new_selector = new PlatformSelector(SELECTOR_ID, selector_xpos, selector_ypos, selector_ymax);
 			}			
 		}
 		selector_handlers.add(new_selector.changed.connect(() => on_selector_changed()));
 		selector_handlers.add(new_selector.loading.connect(() => on_selector_loading()));
 		selector_handlers.add(new_selector.rebuilt.connect(() => on_selector_rebuilt(new_selector)));
+		
 		if (this.selector == null)
 			add_layer(new_selector);
 		else
 			replace_layer(SELECTOR_ID, new_selector);
-			
+		
 		this.selector = new_selector;
 	}
 	Gee.ArrayList<ulong> selector_handlers = new Gee.ArrayList<ulong>();
@@ -283,6 +305,10 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		set_status(false);
 	}
 	void set_status(bool flip=true) {
+		if (static_status_test != null) {
+			status_message.set(static_status_test, null, null, flip);
+			return;
+		}
 		if (@interface.peek_layer() != null)
 			return; // another layer has focus, don't bother updating status
 		string center = "%d / %d".printf(selector.selected_display_index() + 1, selector.display_item_count);
@@ -429,6 +455,25 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 	//
 	// events
     void on_keydown_event (KeyboardEvent event) {
+		if (event.keysym.mod == KeyModifier.LALT) {
+			switch(event.keysym.sym) {
+				case KeySymbol.a:
+					new Layers.GameBrowser.MenuOverlay(new ObjectMenu("Edit current appearance", null, Data.preferences().appearance)).run();
+					flip();
+					return;
+				case KeySymbol.b:
+					new Layers.GameBrowser.MenuOverlay(new ObjectMenu("Edit current browser appearance", null, Data.preferences().appearance.game_browser)).run();
+					flip();
+					return;
+				case KeySymbol.m:
+					new Layers.GameBrowser.MenuOverlay(new ObjectMenu("Edit current menu appearance", null, Data.preferences().appearance.menu)).run();
+					flip();
+					return;
+				default:
+					break;
+			}
+		}
+		
 		if (process_unicode(event.keysym.unicode) == false)
 			return;
 
@@ -757,16 +802,16 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 	}
 	void filter_selector() {		
 		status_message.set();
-	
-		var font_height = @interface.get_monospaced_font_height();
-		if (ui.font_height > font_height)
-			font_height = ui.font_height;			
-		int16 entry_ypos = (int16)(@interface.screen_height - font_height - 10);
-		
-		var label = @interface.game_browser_ui.render_text_selected(FILTER_LABEL);
-		Rect label_rect = {600 - (int16)label.w, entry_ypos+5};
+
+		var label = @interface.game_browser_ui.footer.render_text(FILTER_LABEL);
+		Rect label_rect = {600 - (int16)label.w, status_message.ypos};
 		blit_surface(label, null, label_rect);
 		this.add_layer(new Layers.SurfaceLayer.direct("filter_label", label, label_rect.x, label_rect.y));		
+
+		var controls = @interface.menu_ui.controls;
+		var footer_center = (int16)(status_message.ypos + (status_message.height / 2));
+		var entry_height = (int16)(controls.font_height + (controls.value_control_spacing * 2));
+		int16 entry_ypos = (int16)(footer_center - (entry_height / 2));
 		
 		var entry = new TextEntry("selection_filter", 600, entry_ypos, 200, selector.get_filter_pattern());
 		entry.text_changed.connect((text) => {
@@ -1041,7 +1086,19 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 		overlay.add_cancel_key(KeySymbol.RSHIFT); // pandora L
 		overlay.add_cancel_key(KeySymbol.RCTRL); // pandora R
 		overlay.add_cancel_key(KeySymbol.SPACE);
+		
+		static_header_text = "Header";
+		static_status_test = " Footer";
+		set_header(false);
+		set_status(false);		
+		
 		var cancel_key_pressed = overlay.run();
+		
+		static_header_text = null;
+		static_status_test = null;
+		set_header(false);
+		set_status(false);
+		
 		if (cancel_key_pressed == KeySymbol.RSHIFT)
 			show_change_view_overlay();
 		else if (cancel_key_pressed == KeySymbol.RCTRL)
@@ -1132,5 +1189,5 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 			show_main_menu();
 		else
 			flip();
-	}	
+	}
 }

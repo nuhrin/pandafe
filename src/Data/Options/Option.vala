@@ -70,8 +70,8 @@ namespace Data.Options
 			var name_field = builder.add_string("name", "Name", null, name ?? "", NAME_CHARACTER_REGEX);
 			name_field.required = true;
 		}
-		protected virtual bool apply_changed_field(Menus.Menu menu, MenuItemField field) { return false; }
-
+		protected virtual bool apply_changed_field(Menus.Menu menu, MenuItemField field) { return false; }		
+		protected virtual void release_fields(bool was_saved) { }
 		// field
 		public abstract MenuItemField get_setting_field(string? setting);
 		public abstract string get_setting_value_from_field(MenuItemField field);

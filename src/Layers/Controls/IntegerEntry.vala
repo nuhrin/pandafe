@@ -63,8 +63,12 @@ namespace Layers.Controls
 			set { change_value(value); }			
 		}
 		
-		protected override void on_text_changed() { 
-			_value = int.parse(get_current_text_value());			
+		public signal void text_value_changed(int text_value);
+		
+		protected override void on_text_changed() {
+			_value = int.parse(get_current_text_value());
+			if (is_valid_value())
+				text_value_changed(_value);
 		}
 		protected override bool is_valid_value() { 
 			return !(_value < min_value || _value > max_value);

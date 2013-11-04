@@ -34,10 +34,6 @@ public InterfaceHelper @interface;
 public class InterfaceHelper : Object
 {
 	public const string FONT_MONO_DEFAULT = "/usr/share/fonts/truetype/DejaVuSansMono.ttf";
-	const string FONT_MONO_PREFERRED = "fonts/monof55.ttf";	
-	const int FONT_SIZE = 20;
-	const int FONT_SMALL_SIZE = 14;
-	const string MENU_HIGHLIGHT_COLOR = "#00498A";
 	const int DEPTH = 32;
 	const int IDLE_DELAY = 10;
 
@@ -45,18 +41,7 @@ public class InterfaceHelper : Object
 	unowned SDL.Screen screen;
 
 	GameBrowserUI _game_browser_ui;
-	Font font_mono;
-	Font font_mono_small;
-	int16 font_mono_char_width;
-	int16 font_mono_height;
-	int16 font_mono_small_height;
-	int16 font_mono_item_spacing;
-	Color _black_color;	
-	Color _grey_color;
-	Color _white_color;
-	uint32 _white_color_rgb;
-	Color _highlight_color;
-	uint32 _highlight_color_rgb;
+	Menus.MenuUI _menu_ui;
 
 	HashMap<string, ulong> idle_function_hash;
 
@@ -65,28 +50,6 @@ public class InterfaceHelper : Object
 		this.screen = screen;
 		idle_function_hash = new HashMap<string, ulong>();
 
-		_black_color = {0, 0, 0};
-		_grey_color = {125, 125, 125};
-		_white_color = {255, 255, 255};		
-		_white_color_rgb = this.screen.format.map_rgb(255, 255, 255);
-		_highlight_color = Data.Color.parse_sdl(MENU_HIGHLIGHT_COLOR);
-		_highlight_color_rgb = map_rgb(_highlight_color);
-		
-		string mono_font_path = Path.build_filename(RuntimeEnvironment.system_data_dir(), FONT_MONO_PREFERRED);
-		if (FileUtils.test(mono_font_path, FileTest.EXISTS) == false)
-			mono_font_path = FONT_MONO_DEFAULT;
-		
-		font_mono = new Font(mono_font_path, FONT_SIZE);
-		if (font_mono == null) {
-			GLib.error("Error loading monospaced font: %s", SDL.get_error());
-		}
-		font_mono_height = (int16)font_mono.height();
-		font_mono_char_width = (int16)font_mono.render_shaded(" ", _black_color, _black_color).w;
-		font_mono_item_spacing = font_mono_height / 5;
-
-		font_mono_small = new Font(mono_font_path, FONT_SMALL_SIZE);
-		font_mono_small_height = (int16)font_mono_small.height();
-		
 		screen_layer_stack = new GLib.Queue<ScreenLayer>();
 		screen_layer_stack.push_head(new ScreenLayer("root_screen"));
 	}
@@ -132,33 +95,21 @@ public class InterfaceHelper : Object
 	public GameBrowserUI game_browser_ui {
 		get {
 			if (_game_browser_ui == null)
-				_game_browser_ui = preferences.appearance.create_ui();
+				_game_browser_ui = preferences.appearance.game_browser.create_ui();
 			
 			return _game_browser_ui;
 		}
 	}
-	public unowned SDL.Color black_color { get { return _black_color; } }
-	public unowned SDL.Color grey_color { get{ return _grey_color; } }
-	public unowned SDL.Color white_color { get{ return _white_color; } }
-	public uint32 white_color_rgb { get { return _white_color_rgb; } }
-	public unowned SDL.Color highlight_color { get { return _highlight_color; } }
-	public uint32 highlight_color_rgb { get { return _highlight_color_rgb; } }
-
-	public uint32 map_rgb(SDL.Color color) { return this.screen.format.map_rgb(color.r, color.g, color.b); }
-
-	public unowned Font get_monospaced_font() { return font_mono; }
-	public int16 get_monospaced_font_width(uint chars=1) { return (int16)(font_mono_char_width * chars); }
-	public int16 get_monospaced_font_height() { return font_mono_height; }
-	public int16 get_monospaced_font_item_spacing() { return font_mono_item_spacing; }
-	public int get_monospaced_font_selector_visible_items(int16 max_height) {
-		var min_height = (font_mono_height + font_mono_item_spacing) * 3;
-		if (max_height < min_height)
-			return 3;
-		return max_height / (font_mono_height + font_mono_item_spacing);			
+	public Menus.MenuUI menu_ui {
+		get {
+			if (_menu_ui == null)
+				_menu_ui = preferences.appearance.menu.create_ui();
+			return _menu_ui;
+		}
 	}
-	public unowned Font get_monospaced_small_font() { return font_mono_small; }
-	public int16 get_monospaced_small_font_height() { return font_mono_small_height; }
-
+	
+	public uint32 map_rgb(SDL.Color color) { return this.screen.format.map_rgb(color.r, color.g, color.b); }
+	
 	public Surface get_blank_surface(int width, int height, uint32 rgb_color=0) {
 		var surface = new Surface.RGB(SurfaceFlag.SWSURFACE, width, height, DEPTH, 0, 0, 0, 0);
 		if (rgb_color > 0)

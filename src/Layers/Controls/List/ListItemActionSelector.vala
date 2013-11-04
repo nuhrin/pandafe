@@ -25,8 +25,8 @@ namespace Layers.Controls.List
 {
 	public class ListItemActionSelector : StringSelector
 	{		
-		public ListItemActionSelector(string id, int16 xpos, int16 ypos, bool can_edit=true, bool can_delete=true, bool can_move=true, bool can_insert=true) {
-			base.from_array(id, xpos, ypos, 200);
+		public ListItemActionSelector(string id, int16 xpos, int16 ypos, int16 max_width, bool can_edit=true, bool can_delete=true, bool can_move=true, bool can_insert=true) {
+			base.from_array(id, xpos, ypos, max_width);
 			can_select_single_item = true;
 			if (can_edit)
 				add_action(ListItemActionType.EDIT);

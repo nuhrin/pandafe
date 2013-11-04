@@ -28,15 +28,16 @@ namespace Layers.GameBrowser
 {
 	public class HeaderLayer : SurfaceLayer
 	{
-		GameBrowserUI ui;
+		GameBrowserUI.HeaderUI ui;
 		string? _left;
 		string? _center;
 		string? _right;
 				
-		public HeaderLayer(string id, int16 ypos=20, GameBrowserUI? ui=null) {
-			GameBrowserUI resolved_ui = (GameBrowserUI)ui ?? @interface.game_browser_ui;
-			base(id, 760, resolved_ui.font_height, 20, ypos, resolved_ui.background_color_rgb);
-			this.ui = resolved_ui;			
+		public HeaderLayer(string id, int16 ypos=20) {
+			var ui = @interface.game_browser_ui.header;
+			base(id, 760, ui.font_height, 20, ypos, @interface.game_browser_ui.background_color_rgb);
+			this.ui = ui;
+			ui.colors_updated.connect(update_colors);
 		}
 
 		public string? left {
@@ -62,20 +63,23 @@ namespace Layers.GameBrowser
 		protected override void draw() {
 			Rect rect = {0, 0};
 			if (_left != null && _left != "") {
-				blit_surface(ui.render_text_selected_fast(_left), null, rect);
+				blit_surface(ui.render_text(_left), null, rect);
 			}
 			Surface rendered_text;		
 			if (_center != null && _center != "") {
-				rendered_text = ui.render_text_selected_fast(_center);
+				rendered_text = ui.render_text(_center);
 				rect.x = (int16)(surface.w/2 - rendered_text.w/2);
 				blit_surface(rendered_text, null, rect);
 			}
 			if (_right != null && _right != "") {
-				rendered_text = ui.render_text_selected_fast(_right);
+				rendered_text = ui.render_text(_right);
 				rect.x = (int16)(surface.w - rendered_text.w);
 				blit_surface(rendered_text, null, rect);
 			}		
 		}
 		
+		void update_colors() {
+			update(false);			
+		}
 	}
 }

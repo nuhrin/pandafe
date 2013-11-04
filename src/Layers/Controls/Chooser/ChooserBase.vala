@@ -34,6 +34,7 @@ namespace Layers.Controls.Chooser
 		const int16 SELECTOR_XPOS = 100;
 		const int16 SELECTOR_YPOS = 70;
 
+		Menus.MenuUI.ControlsUI ui;
 		HashMap<string, ChooserSelector> selector_hash;
 		int16 selector_ypos;
 		int16 selector_max_height;
@@ -43,11 +44,12 @@ namespace Layers.Controls.Chooser
 
 		protected ChooserBase(string id, string title) {
 			base(id, @interface.game_browser_ui.background_color_rgb);
+			ui = @interface.menu_ui.controls;
 			selector_hash = new HashMap<string, ChooserSelector>();
 			header = add_layer(new ChooserHeader("header")) as ChooserHeader;
 			header.title = title;
 			status = add_layer(new MenuMessageLayer("status")) as MenuMessageLayer;	
-			selector_ypos = (int16)(header.ypos + header.height + @interface.get_monospaced_font_height());
+			selector_ypos = (int16)(header.ypos + header.height + ui.font_height);
 			selector_max_height = (int16)status.ypos - selector_ypos;
 		}
 
@@ -79,12 +81,12 @@ namespace Layers.Controls.Chooser
 			Rect lower_right={upper_right.x, lower_left.y};
 			int16 width = upper_right.x - upper_left.x;
 			int16 height = lower_left.y - upper_left.y - 1;
-			draw_rectangle_fill(upper_left.x, upper_left.y, width, height, @interface.black_color);
+			draw_rectangle_fill(upper_left.x, upper_left.y, width, height, ui.background_color);
 			
-			draw_horizontal_line(upper_left.x, upper_right.x, upper_left.y, @interface.white_color);
-			draw_vertical_line(upper_left.x, upper_left.y, lower_left.y, @interface.white_color);
-			draw_vertical_line(upper_right.x, upper_right.y, lower_left.y, @interface.white_color);
-			draw_horizontal_line(lower_left.x, lower_right.x, lower_left.y, @interface.white_color);			
+			draw_horizontal_line(upper_left.x, upper_right.x, upper_left.y, ui.border_color);
+			draw_vertical_line(upper_left.x, upper_left.y, lower_left.y, ui.border_color);
+			draw_vertical_line(upper_right.x, upper_right.y, lower_left.y, ui.border_color);
+			draw_horizontal_line(lower_left.x, lower_right.x, lower_left.y, ui.border_color);			
 		}
 		
 		protected virtual string get_first_run_key(string starting_key) { return starting_key; }
@@ -105,6 +107,7 @@ namespace Layers.Controls.Chooser
 			new_selector.changed.connect(() => on_selector_changed());
 			new_selector.scanning.connect(() => on_selector_scanning());
 			new_selector.scanned.connect(() => on_selector_scanned());
+			new_selector.selection_changed.connect(() => clear_error());
 			selector_hash[key] = new_selector;
 			return new_selector;
 		}
@@ -221,12 +224,19 @@ namespace Layers.Controls.Chooser
 		//
 		// commands: misc
 		protected abstract bool process_activation(ChooserSelector selector);
+		protected virtual bool validate_activation(ChooserSelector selector, out string? error) { error = null; return true; }
 		protected abstract string get_selected_key(ChooserSelector selector);
 		protected abstract string get_parent_key(ChooserSelector selector);
 		protected abstract string get_parent_child_name(ChooserSelector selector);
 		
 		void activate_selected() {
 			selector.choose_selected_item_secondary_id();
+			
+			string? error;
+			if (validate_activation(selector, out error) == false) {
+				status.error = error;
+				return;
+			}
 			if (process_activation(selector) == true) {
 				quit_event_loop();
 				return;
@@ -241,6 +251,10 @@ namespace Layers.Controls.Chooser
 			clear();
 			update_chooser();
 			selector.select_first();
+		}
+		void clear_error() {
+			if (status.error != null)
+				status.error = null;
 		}
 
 		void go_back() {

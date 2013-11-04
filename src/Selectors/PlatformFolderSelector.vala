@@ -31,13 +31,13 @@ public class PlatformFolderSelector : PlatformSelector
 {
 	Gee.List<PlatformListNode> items;
 	PlatformFolder? _folder;
-	public PlatformFolderSelector(PlatformFolder folder, string id, int16 xpos, int16 ypos) {
-		base.base(id, xpos, ypos);
+	public PlatformFolderSelector(PlatformFolder folder, string id, int16 xpos, int16 ypos, int16 ymax) {
+		base.base(id, xpos, ypos, ymax);
 		_folder = folder;
 		rebuild_items(-1);
 	}
-	public PlatformFolderSelector.root(string id, int16 xpos, int16 ypos) {
-		base(id, xpos, ypos);
+	public PlatformFolderSelector.root(string id, int16 xpos, int16 ypos, int16 ymax) {
+		base(id, xpos, ypos, ymax);
 	}
 	
 	public PlatformFolder? folder { get { return _folder; } }

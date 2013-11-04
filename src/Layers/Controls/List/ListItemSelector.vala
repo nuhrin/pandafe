@@ -32,11 +32,12 @@ namespace Layers.Controls.List
 		const string NO_ITEMS_TEXT = "(Empty List): Insert Item";
 		const uint8 MAX_ITEM_LENGTH = 50;
 		const int VISIBLE_ITEMS = 11;
+		
+		Menus.MenuUI.ControlsUI ui;
 		int16 xpos;
 		int16 ypos;
+		int16 max_height;
 		Surface surface;
-		unowned Font font;
-		int16 font_height;
 		int _height;
 		int _width;
 		uint8 max_item_length_real;
@@ -49,7 +50,6 @@ namespace Layers.Controls.List
 		Gee.List<ListItem> _items;
 
 		int visible_items;
-		int item_spacing;
 		int index_before_select_first;
 		int index_before_select_last;
 		
@@ -57,12 +57,10 @@ namespace Layers.Controls.List
 			base(id);
 			this.xpos = xpos;
 			this.ypos = ypos;
-			visible_items = @interface.get_monospaced_font_selector_visible_items(max_height);
-			item_spacing = @interface.get_monospaced_font_item_spacing();
-			font = @interface.get_monospaced_font();
-			font_height = @interface.get_monospaced_font_height();
-			
+			this.max_height = max_height;
 			_items = items;
+			
+			ui = @interface.menu_ui.controls;
 			ensure_surface();
 			index_before_select_first = -1;
 			index_before_select_last = -1;
@@ -159,7 +157,7 @@ namespace Layers.Controls.List
 			uint bottom_index;
 			get_display_range(selected_index, out top_index, out bottom_index);
 			var items = (bottom_index - top_index) + 1;
-			var height = (int16)((font_height * items) + (item_spacing * items));
+			var height = (int16)((ui.font_height * items) + (ui.item_spacing * items));
 			Rect source_r = {0, get_offset(top_index), (int16)_width, height};
 			blit_surface(surface, source_r, dest_r);
 		}		
@@ -293,35 +291,41 @@ namespace Layers.Controls.List
 			if (surface != null)
 				return;
 			update_selector_attributes();
-			surface = @interface.get_blank_surface(_width, _height);
+			surface = ui.get_blank_background_surface(_width, _height);
 
 			Rect rect = {0, 0};
 			if (_items.size == 0) {
 				select_item_area.blit(null, surface, rect);
-				font.render_shaded(NO_ITEMS_TEXT, @interface.black_color, @interface.white_color).blit(null, surface, rect);
+				rect.x += ui.font_width();
+				ui.render_text_selected(NO_ITEMS_TEXT).blit(null, surface, rect);
 				return;
 			}
 			for(int index=0; index < _items.size; index++) {
+				rect.x = 0;
 				var item = items[index].name;
 				if (index == selected_index) {
 					if (move_active == true) {
 						move_item_area.blit(null, surface, rect);
-						font.render_shaded(item, @interface.white_color, @interface.highlight_color).blit(null, surface, rect);
+						rect.x += ui.font_width();
+						ui.font.render_shaded(item, ui.selected_item_color, ui.text_cursor_color).blit(null, surface, rect);
 					} else {
 						select_item_area.blit(null, surface, rect);
-						font.render_shaded(item, @interface.black_color, @interface.white_color).blit(null, surface, rect);
+						rect.x += ui.font_width();
+						ui.render_text_selected(item).blit(null, surface, rect);
 					}
 				} else {
-					font.render_shaded(item, @interface.white_color, @interface.black_color).blit(null, surface, rect);
+					rect.x += ui.font_width();
+					ui.render_text(item).blit(null, surface, rect);
 				}
-				rect.y = (int16)(rect.y + font_height + item_spacing);
+				rect.y = (int16)(rect.y + ui.font_height + ui.item_spacing);
 			}
 		}		
 		void update_selector_attributes() {
 			int surface_items = _items.size;
 			if (surface_items == 0)
 				surface_items = 1;
-			_height = (font_height * surface_items) + (item_spacing * surface_items) + (item_spacing * 2);
+			visible_items = ui.get_selector_visible_items(max_height);			
+			_height = (ui.font_height * surface_items) + (ui.item_spacing * surface_items) + (ui.item_spacing * 2);
 
 			int max_chars = 0;
 			if (_items.size == 0) {
@@ -335,14 +339,13 @@ namespace Layers.Controls.List
 			if (max_chars > uint8.MAX)
 				max_chars = uint8.MAX;
 			max_item_length_real = (max_chars < MAX_ITEM_LENGTH) ? (uint8)max_chars : MAX_ITEM_LENGTH;
-			int item_area_width = @interface.get_monospaced_font_width(max_item_length_real);
+			int item_area_width = ui.font_width(max_item_length_real + 2);
 			_width = item_area_width;
 
-			blank_item_area = @interface.get_blank_surface(item_area_width, font_height);
-			select_item_area = @interface.get_blank_surface(item_area_width, font_height);
-			select_item_area.fill(null, @interface.white_color_rgb);
-			move_item_area = @interface.get_blank_surface(item_area_width, font_height);
-			move_item_area.fill(null, @interface.highlight_color_rgb);			
+			blank_item_area = ui.get_blank_item_surface(item_area_width);
+			select_item_area = ui.get_blank_selected_item_surface(item_area_width);
+			move_item_area = ui.get_blank_item_surface(item_area_width);
+			move_item_area.fill(null, ui.text_cursor_color_rgb);			
 		}
 		
 		void update_item(int index, bool selected=false) {
@@ -351,19 +354,22 @@ namespace Layers.Controls.List
 			if (selected == true) {
 				if (move_active == true) {
 					move_item_area.blit(null, surface, rect);
-					font.render_shaded(item, @interface.white_color, @interface.highlight_color).blit(null, surface, rect);
+					rect.x += ui.font_width();
+					ui.font.render_shaded(item, ui.selected_item_color, ui.text_cursor_color).blit(null, surface, rect);
 				} else {
 					select_item_area.blit(null, surface, rect);
-					font.render_shaded(item, @interface.black_color, @interface.white_color).blit(null, surface, rect);
+					rect.x += ui.font_width();
+					ui.render_text_selected(item).blit(null, surface, rect);
 				}
 			} else {
 				blank_item_area.blit(null, surface, rect);
-				font.render_shaded(item, @interface.white_color, @interface.black_color).blit(null, surface, rect);
+				rect.x += ui.font_width();
+				ui.render_text(item).blit(null, surface, rect);
 			}
 		}
 		
 		int16 get_offset(uint index) {
-			return (int16)((font_height * index) + (item_spacing * index));
+			return (int16)((ui.font_height * index) + (ui.item_spacing * index));
 		}
 		void get_display_range(uint center_index, out uint top_index, out uint bottom_index) {
 			if (_items.size == 0) {

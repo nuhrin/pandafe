@@ -29,17 +29,26 @@ namespace Menus
 	public class MenuBrowserItem : SubMenuItem, MenuItem
 	{	
 		Menu _menu;
+		MenuItemActivationAction? activate_action;
 		ArrayList<ulong> handlers;
 		
-		public MenuBrowserItem(string name, string? help=null, Menu menu) {
+		public MenuBrowserItem(string name, string? help=null, Menu menu, owned MenuItemActivationAction? action=null) {
 			base(name, help);
 			set_menu(menu);
+			this.activate_action = (owned)action;
 			handlers = new ArrayList<ulong>();
 		}
 		public Menu menu { get { return _menu; } }
 		public void set_menu(Menu menu) { _menu = menu; }		
+
+		public void on_activation() {
+			if (activate_action != null)
+				activate_action();
+		}
 		
 		public override void activate(MenuSelector selector) { 
+			on_activation();
+			
 			handlers.add(_menu.cancelled.connect(() => cancelled()));
 			handlers.add(_menu.saved.connect(() => saved()));
 			handlers.add(_menu.finished.connect(() => finished()));

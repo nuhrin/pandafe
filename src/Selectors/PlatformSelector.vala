@@ -30,12 +30,12 @@ public class PlatformSelector : Selector
 {
 	Gee.List<Platform> items;
 
-	public PlatformSelector(string id, int16 xpos, int16 ypos) {
-		base(id, xpos, ypos);
+	public PlatformSelector(string id, int16 xpos, int16 ypos, int16 ymax) {
+		base(id, xpos, ypos, ymax);
 		rebuild_items(-1);
 	}
-	protected PlatformSelector.base(string id, int16 xpos, int16 ypos) {
-		base(id, xpos, ypos);
+	protected PlatformSelector.base(string id, int16 xpos, int16 ypos, int16 ymax) {
+		base(id, xpos, ypos, ymax);
 	}
 
 	public Platform? selected_platform()

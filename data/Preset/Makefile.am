@@ -1,0 +1,5 @@
+NULL =
+
+SUBDIRS = \
+	Appearance \
+	$(NULL)

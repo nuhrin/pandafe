@@ -31,8 +31,8 @@ public class GameFolderSelector : Selector
 	GameFolder _folder;
 	Gee.List<IGameListNode> items;
 	
-	public GameFolderSelector(GameFolder folder, string id, int16 xpos, int16 ypos) {
-		base(id, xpos, ypos);
+	public GameFolderSelector(GameFolder folder, string id, int16 xpos, int16 ypos, int16 ymax) {
+		base(id, xpos, ypos, ymax);
 		_folder = folder;
 		_folder.rescanned.connect(() => rebuild());
 		items = _folder.children().to_list();

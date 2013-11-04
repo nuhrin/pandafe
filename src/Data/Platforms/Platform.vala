@@ -24,6 +24,7 @@
 using Gee;
 using Catapult;
 using Data;
+using Data.Appearances.GameBrowser;
 using Data.GameList;
 using Data.Programs;
 using Data.Platforms;
@@ -194,5 +195,5 @@ public abstract class Platform : NamedEntity, MenuObject
 		}
 		return true;		
 	}	
-	protected virtual void release_fields() { }	
+	protected virtual void release_fields(bool was_saved) { }	
 }

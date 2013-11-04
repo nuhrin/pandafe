@@ -28,6 +28,7 @@ namespace Menus
 	public interface SubMenuItem : MenuItem
 	{	
 		public abstract Menu menu { get; }
+		public virtual void on_activation() { }
 		
 		public signal void cancelled();
 		public signal void saved();

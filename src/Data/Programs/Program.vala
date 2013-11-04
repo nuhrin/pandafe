@@ -179,7 +179,7 @@ public class Program : Entity, MenuObject
 		}
 		return true;
 	}
-	protected void release_fields() {
+	protected void release_fields(bool was_saved) {
 		name_field = null;
 		app_id_type_field = null;
 		app_id_field = null;

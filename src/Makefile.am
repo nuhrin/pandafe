@@ -36,11 +36,33 @@ pandafe_SOURCES = \
 	Utility.vala \
 	Data/Color.vala \
 	Data/Favorites.vala \
-	Data/GameBrowserAppearance.vala \
 	Data/GameBrowserState.vala \
 	Data/GameBrowserViewData.vala \
 	Data/GameSettings.vala \
 	Data/GamesRunList.vala \
+	Data/Appearances/Appearance.vala \
+	Data/Appearances/AppearanceAreaType.vala \
+	Data/Appearances/AppearanceAreaUI.vala \
+	Data/Appearances/AppearanceDefaults.vala \
+	Data/Appearances/AppearanceFontAreaType.vala \
+	Data/Appearances/AppearanceInfo.vala \
+	Data/Appearances/AppearanceProvider.vala \
+	Data/Appearances/AppearanceType.vala \
+	Data/Appearances/GameBrowser/GameBrowserAppearance.vala \
+	Data/Appearances/GameBrowser/GameBrowserAppearanceBase.vala \
+	Data/Appearances/GameBrowser/GameBrowserAreaBase.vala \
+	Data/Appearances/GameBrowser/GameBrowserFontAreaBase.vala \
+	Data/Appearances/GameBrowser/GameBrowserFooter.vala \
+	Data/Appearances/GameBrowser/GameBrowserHeader.vala \
+	Data/Appearances/GameBrowser/GameBrowserList.vala \
+	Data/Appearances/GameBrowser/GameBrowserListSpacing.vala \
+	Data/Appearances/Menu/MenuAppearance.vala \
+	Data/Appearances/Menu/MenuAppearanceBase.vala \
+	Data/Appearances/Menu/MenuAreaBase.vala \
+	Data/Appearances/Menu/MenuControls.vala \
+	Data/Appearances/Menu/MenuFontAreaBase.vala \
+	Data/Appearances/Menu/MenuFooter.vala \
+	Data/Appearances/Menu/MenuHeader.vala \
 	Data/GameList/AllGames.vala \
 	Data/GameList/GameFolder.vala \
 	Data/GameList/GameItem.vala \
@@ -77,10 +99,10 @@ pandafe_SOURCES = \
 	Data/Programs/ProgramProvider.vala \
 	Data/Programs/ProgramSettings.vala \
 	Data/Provider.vala \
+	Fields/AppearanceField.vala \
 	Fields/ColorField.vala \
 	Fields/ClockSpeedField.vala \
 	Fields/CustomCommandField.vala \
-	Fields/GameBrowserAppearanceField.vala \
 	Fields/GameSettingsListField.vala \
 	Fields/NativePlatformCategoryAppListField.vala \
 	Fields/NativePlatformCategoryListField.vala \
@@ -112,6 +134,7 @@ pandafe_SOURCES = \
 	Layers/Controls/List/ListItemActionType.vala \
 	Layers/Controls/List/ListItemSelector.vala \
 	Layers/Controls/List/StringListItem.vala \
+	Layers/Controls/DeletionConfirmation.vala \
 	Layers/Controls/DoubleEntry.vala \
 	Layers/Controls/FileChooser.vala \
 	Layers/Controls/FolderChooser.vala \
@@ -130,11 +153,8 @@ pandafe_SOURCES = \
 	Layers/GameBrowser/PlatformSelectorOverlay.vala \
 	Layers/GameBrowser/SelectorOverlay.vala \
 	Layers/GameBrowser/StatusMessageLayer.vala \
-	Layers/MenuBrowser/ColorDisplayLayer.vala \
 	Layers/MenuBrowser/MenuHeaderLayer.vala \
 	Layers/MenuBrowser/MenuMessageLayer.vala \
-	Layers/Preview/BrowserPreview.vala \
-	Layers/Preview/PreviewSelector.vala \
 	Layers/Layer.vala \
 	Layers/LayerBase.vala \
 	Layers/ScreenAlphaLayer.vala \
@@ -142,7 +162,6 @@ pandafe_SOURCES = \
 	Layers/SurfaceLayer.vala \
 	Menus/Concrete/ChangeViewMenu.vala \
 	Menus/Concrete/ExitMenu.vala \
-	Menus/Concrete/GameBrowserAppearanceMenu.vala \
 	Menus/Concrete/GameFolderMenu.vala \
 	Menus/Concrete/GameMenu.vala \
 	Menus/Concrete/GameSettingsMenu.vala \
@@ -161,12 +180,15 @@ pandafe_SOURCES = \
 	Menus/Fields/FolderField.vala \
 	Menus/Fields/IntegerField.vala \
 	Menus/Fields/ListField.vala \
+	Menus/Fields/ObjectBrowserField.vala \
 	Menus/Fields/ObjectField.vala \
 	Menus/Fields/MenuItemField.vala \
+	Menus/Fields/MenuItemFieldSeparator.vala \
 	Menus/Fields/StringField.vala \
 	Menus/Fields/StringListField.vala \
 	Menus/Fields/StringSelectionField.vala \
 	Menus/Fields/UIntField.vala \
+	Menus/Fields/ValueSelectionField.vala \
 	Menus/Menu.vala \
 	Menus/MenuBrowser.vala \
 	Menus/MenuBrowserItem.vala \
@@ -176,6 +198,7 @@ pandafe_SOURCES = \
 	Menus/MenuItemActionType.vala \
 	Menus/MenuObject.vala \
 	Menus/MenuSelector.vala \
+	Menus/MenuUI.vala \
 	Menus/ObjectBrowserItem.vala \
 	Menus/ObjectMenu.vala \
 	Menus/SubMenuItem.vala \

@@ -33,6 +33,7 @@ namespace Menus
 		string? _title;
 		weak Menu? _parent;
 		ArrayList<MenuItem> _items;
+		HashMap<string, string> _metadata;
 		HashMap<string, MenuItemField> _field_id_hash;
 		HashMap<string, int> _field_index_hash;
 		Predicate<Menu>? on_save;
@@ -111,13 +112,24 @@ namespace Menus
 			return (T)_field_id_hash[id];
 		}
 		
+		public void set_metadata(string name, string value) {
+			if (_metadata == null)
+				_metadata = new HashMap<string, string>();
+			_metadata[name] = value;
+		}
+		public string? get_metadata(string name) {
+			if (_metadata == null || _metadata.has_key(name) == false)
+				return null;
+			return _metadata[name];
+		}
+		
 		public signal void message(string message);
 		public signal void error(string error);
 		public signal void field_error(MenuItemField field, int index, string error);
 		public signal void clear_error();
 		public signal void cancelled();
 		public signal void saved();
-		public signal void refreshed(uint selected_index);
+		public virtual signal void refreshed(uint selected_index) { }
 		public signal void finished();
 		
 		public bool validate() {
@@ -131,14 +143,15 @@ namespace Menus
 			return success;
 		}
 		
-		public bool cancel() {
-			if (on_cancel != null) {
-				if (on_cancel(this) == false)
+		public bool cancel(bool force=false) {
+			if (force == false) {
+				if (on_cancel != null) {
+					if (on_cancel(this) == false)
+						return false;
+				}
+				if (do_cancel() == false)
 					return false;
 			}
-			if (do_cancel() == false)
-				return false;
-						
 			cancelled();
 			finished();
 			clear_items();
@@ -231,7 +244,10 @@ namespace Menus
 		public override bool is_menu_item() { return true; }
 
 		protected void field_connect(MenuItemField field, owned SignalConnect<MenuItemField> connect) {
-			_field_signal_handlers[field] = connect(field);	
+			field_connect_handler(field, connect(field));
+		}
+		protected void field_connect_handler(MenuItemField field, ulong handler) {
+			_field_signal_handlers[field] = handler;
 		}
 		protected void item_connect(MenuItem item, owned SignalConnect<MenuItem> connect) {
 			_field_signal_handlers[item] = connect(item);	

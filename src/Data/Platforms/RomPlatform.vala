@@ -386,7 +386,7 @@ namespace Data.Platforms
 				Data.preferences().update_most_recent_rom_path(most_recent_path);
 			});
 		}
-		protected override void release_fields() {
+		protected override void release_fields(bool was_saved) {
 			name_field = null;
 			folder_field = null;
 			programs_field = null;

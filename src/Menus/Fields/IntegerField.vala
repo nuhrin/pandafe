@@ -53,6 +53,8 @@ namespace Menus.Fields
 			set { change_value(value); }
 		}
 
+		public signal void text_value_changed(int text_value);
+		
 		public override string get_value_text() { return _value.to_string(); }
 		public override int get_minimum_menu_value_text_length() { return max_value.to_string().length + 1; }
 		
@@ -77,7 +79,7 @@ namespace Menus.Fields
 					max_length = min_value_length;
 				if (max_length < 8)
 					max_length = 8;
-				int16 width = @interface.get_monospaced_font_width((uint)max_length + 2);
+				int16 width = @interface.menu_ui.controls.font_width((uint)max_length + 2);
 				if (width > rect.w)
 					width = (int16)rect.w;
 				var entry = new IntegerEntry(id + "_entry", rect.x, rect.y, width, _value, min_value, max_value, step);
@@ -85,6 +87,7 @@ namespace Menus.Fields
 					this.error("%s must be an integer between %d and %d.".printf(name, min_value, max_value));
 				});
 				entry.error_cleared.connect(() => error_cleared());
+				entry.text_value_changed.connect((v) => text_value_changed(v));
 				change_value(entry.run());
 				selector.update_selected_item_value();
 				selector.update();

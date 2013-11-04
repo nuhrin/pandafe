@@ -24,6 +24,7 @@
 using Gee;
 using Catapult;
 using Fields;
+using Data.Appearances.GameBrowser;
 using Menus;
 using Menus.Fields;
 
@@ -101,7 +102,7 @@ namespace Data.Platforms
 			}
 			return true;
 		}
-		protected void release_fields() {
+		protected void release_fields(bool was_saved) {
 			folders_field = null;
 			platforms_field = null;
 		}

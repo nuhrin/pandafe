@@ -56,7 +56,7 @@ namespace Data
 			Gdk.Color gcolor;
 			if (Gdk.Color.parse(spec, out gcolor) == true) {
 				color = new Color.from_gdk(gcolor);
-				color._spec = spec;
+				color._spec = spec;	
 				return true;
 			}
 			color = null;
@@ -153,16 +153,21 @@ namespace Data
 		public string spec {
 			get { return _spec; }
 			set {
-				if (value == _spec)
-					return;
-				Gdk.Color parsed;
-				if (Gdk.Color.parse(value, out parsed) == true) {
-					set_gdk_color(parsed);
-					_spec = value;
-				} else {
-					warning("Unable to parse color spec: %s", value);
-				}
+				if (set_spec_value(value) == false)
+					warning("Unable to parse color spec: %s", value);			
 			}
+		}
+		
+		public bool set_spec_value(string spec) {
+			if (spec == _spec)
+				return true;
+			Gdk.Color parsed;
+			if (Gdk.Color.parse(spec, out parsed) == true) {
+				set_gdk_color(parsed);
+				_spec = spec;
+				return true;
+			}
+			return false;
 		}
 		
 		public SDL.Color get_sdl_color() { return {_red, _green, _blue}; }

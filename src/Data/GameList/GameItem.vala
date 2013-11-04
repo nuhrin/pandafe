@@ -51,9 +51,9 @@ namespace Data.GameList
 		public Platform platform { get { return _platform; } }
 		public GameFolder? parent { get { return _parent; } }
 
-		public string id { get { return (_id != null) ? _id : _name; } }
-		public string name { get { return _name; } }
-		public string full_name { get { return (_full_name != null) ? _full_name : _name; } }
+		public unowned string id { get { if (_id != null) return _id; return _name; } }
+		public unowned string name { get { return _name; } }
+		public unowned string full_name { get { if (_full_name != null) return _full_name; return _name; } }
 
 		public bool is_favorite 
 		{

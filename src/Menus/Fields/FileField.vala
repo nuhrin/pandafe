@@ -21,6 +21,7 @@
  *      nuhrin <nuhrin@oceanic.to>
  */
 
+using Gee;
 using Layers.Controls;
 
 namespace Menus.Fields
@@ -29,29 +30,45 @@ namespace Menus.Fields
 	{
 		string? _value;
 		string? file_extensions;
-		string? root_path;		
+		string? root_path;
+		int _min_value_text_length;
+		Predicate<string>? validator;
+		string? validator_error;
+
 		public FileField(string id, string name, string? help=null, string? path=null, string? file_extensions=null, string? root_path=null) {
 			base(id, name, help);
 
 			_value = path;
 			this.file_extensions = file_extensions;
 			this.root_path = root_path;
+			_min_value_text_length = -1;
 		}
 
 		public new string? value {
 			get { return _value; }
 			set { change_value(value); }
 		}
+		
+		public void set_validator(owned Predicate<string>? validator, string? error_if_invalid=null) { 
+			this.validator = (owned)validator; 
+			validator_error = error_if_invalid;
+		}
+		public bool hide_root_path { get; set; }
+		public string? chooser_title { get; set; }
 
 		public override string get_value_text() { return (_value == null) ? "" : Path.get_basename(_value); }
-		public override int get_minimum_menu_value_text_length() { return -1; }
+		public override int get_minimum_menu_value_text_length() { return _min_value_text_length; }
+		public void set_minimum_menu_value_text_length(uint? length) { _min_value_text_length = (length != null) ? (int)length : -1; }
 
 		protected override Value get_field_value() { return _value; }
 		protected override void set_field_value(Value value) { change_value((string?)value); }
 		protected override bool has_value() { return (_value != null && _value.strip() != ""); }
 
 		protected override void activate(MenuSelector selector) {
-			var chooser = new FileChooser("file_chooser", "Choose file: " + name, file_extensions, root_path);
+			var chooser = new FileChooser("file_chooser", chooser_title ?? "Choose file: " + name, file_extensions, root_path);
+			chooser.hide_root_path = hide_root_path;
+			if (validator != null)
+				chooser.set_validator((owned)validator, validator_error);
 			var new_path = chooser.run(_value);
 			if (new_path != null && change_value(new_path)) {			
 				selector.update_selected_item_value();

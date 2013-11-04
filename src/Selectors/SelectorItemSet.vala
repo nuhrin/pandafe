@@ -41,8 +41,8 @@ public class SelectorItemSet : Object
 	int first_rendered_item;
 	int last_rendered_item;
 		
-	public SelectorItemSet(Selector selector, GameBrowserUI? ui=null) {
-		this.ui = ui ?? @interface.game_browser_ui;
+	public SelectorItemSet(Selector selector) {
+		this.ui = @interface.game_browser_ui;
 		this.selector = selector;
 
 		flush_renderings();
@@ -68,8 +68,10 @@ public class SelectorItemSet : Object
 		first_rendered_item = item_count / 2;
 		last_rendered_item = first_rendered_item;
 		@interface.connect_idle_function("selector_item_set", rendering_iteration);
-		ui.font_updated.connect(flush_renderings);
+		ui.list.font_updated.connect(flush_renderings);
+		ui.list.colors_updated.connect(flush_renderings);
 		ui.colors_updated.connect(flush_renderings);
+		ui.appearance_updated.connect(flush_renderings);
 	}
 	~SelectorItemSet() {
 		@interface.disconnect_idle_function("selector_item_set");
@@ -126,7 +128,7 @@ public class SelectorItemSet : Object
 			GLib.error("Index (%d) out of range.", index);
 
 		if (item_renderings[index] == null)
-			item_renderings[index] = ui.render_text(selector.get_item_name(index));
+			item_renderings[index] = ui.list.render_text(selector.get_item_name(index));
 
 		return item_renderings[index];
 	}
@@ -134,7 +136,7 @@ public class SelectorItemSet : Object
 		if (index < 0 || index >= item_renderings.length)
 			GLib.error("Index (%d) out of range.", index);
 		
-		return ui.render_text_selected(selector.get_item_full_name(index));
+		return ui.list.render_text_selected(selector.get_item_full_name(index));
 	}
 	public void flush_renderings() {
 		item_renderings = new Surface[selector.item_count];

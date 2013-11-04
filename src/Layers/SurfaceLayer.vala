@@ -60,6 +60,22 @@ namespace Layers
 			background_color_rgb = rgb_color;
 		}
 
+		public void resize(int width=-1, int height=-1, int16 xpos=-1, int16 ypos=-1) {
+			if (width != -1 || height != -1) {
+				if (surface == null)
+					GLib.error("resizing the surface obtained through SurfaceLayer.direct() is not possible");
+				int new_width = (width != -1) ? width : surface.w;
+				int new_height = (height != -1) ? height : surface.h;
+				surface = @interface.get_blank_surface(new_width, new_height, background_color_rgb);
+			}
+			if (xpos > -1)
+				dest_rect.x = xpos;
+			if (ypos > -1)
+				dest_rect.y = ypos;
+				
+			update(false);			
+		}
+
 		protected unowned Surface get_surface() { 
 			if (surface != null)
 				return surface;
