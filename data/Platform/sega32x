@@ -2,5 +2,5 @@ name: Sega 32x
 platform-type: rom
 rom-file-extensions: 32x zip
 programs:
-- picodrive.notaz.1.80
+- picodrive.notaz
 

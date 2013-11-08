@@ -4,5 +4,6 @@ rom-file-extensions: gg zip
 programs:
 - mednafen-gg
 - dega.cosam.1.16.4.0
+- picodrive.notaz
 default-program: mednafen-gg
 

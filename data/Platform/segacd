@@ -3,4 +3,5 @@ platform-type: rom
 rom-file-extensions: zip cue iso
 extra-rom-files-regex: ! ' [0-9]*.mp3$'
 programs:
-- picodrive.notaz.1.80
+- picodrive.notaz
+

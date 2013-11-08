@@ -1,0 +1,13 @@
+app-id-type: exact
+app-id: mupen64plus2_ptitseb
+custom-command: ! "#!/bin/bash\n\nif [[ ! -e runscript-pandafe.sh || runscript.sh
+  -nt runscript-pandafe.sh ]]; then\n\tsed 's|mupen64launcher.*|launchers/mupen64plus.sh
+  \"$@\"|' runscript.sh > runscript-pandafe.sh\n\tchmod +x runscript-pandafe.sh\nfi\n\n./runscript-pandafe.sh
+  \"$@\""
+expected-exit-code: 0
+options: []
+default-settings:
+  extra-arguments: 
+  clockspeed: 0
+name: Mupen64plus v2
+

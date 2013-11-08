@@ -23,10 +23,11 @@ dist_programs_DATA = \
 	mednafen-pce \
 	mednafen-sms \
 	mednafen-wswan \
+	mupen64plus2_ptitseb \
 	mupen64plus-PickleLauncher \
 	openMSX_PND \
 	pcsx_rearmed.notaz \
-	picodrive.notaz.1.80 \
+	picodrive.notaz \
 	scummvm \
 	sdlgnuboy \
 	snes9x.skeezix.alpha \

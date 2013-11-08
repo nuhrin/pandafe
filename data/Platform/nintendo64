@@ -3,3 +3,6 @@ platform-type: rom
 rom-file-extensions: v64 n64 z64 zip
 programs:
 - mupen64plus-PickleLauncher
+- mupen64plus2_ptitseb
+default-program: mupen64plus2_ptitseb
+
