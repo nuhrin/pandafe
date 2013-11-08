@@ -31,7 +31,6 @@ namespace Menus.Fields
 		Object _obj;
 		Menu _menu;
 		MenuItemActivationAction? activate_action;
-		ArrayList<ulong> handlers;
 		
 		public ObjectBrowserField(string id, string name, string? title, string? help=null, Object obj, owned MenuItemActivationAction? action=null) {
 			base(id, name, help);
@@ -41,7 +40,6 @@ namespace Menus.Fields
 			_menu.saved.connect(() => saved());
 			_menu.finished.connect(() => finished());
 			this.activate_action = (owned)action;
-			handlers = new ArrayList<ulong>();	
 		}
 		
 		public new Object value {
@@ -68,15 +66,7 @@ namespace Menus.Fields
 			if (on_activation(selector) == false)
 				return;
 			
-			handlers.add(_menu.cancelled.connect(() => cancelled()));
-			handlers.add(_menu.saved.connect(() => saved()));
-			handlers.add(_menu.finished.connect(() => finished()));
-
 			new MenuBrowser(menu).run();
-			
-			foreach(var handler in handlers)
-				_menu.disconnect(handler);
-			handlers.clear();
 		}
 		
 	}

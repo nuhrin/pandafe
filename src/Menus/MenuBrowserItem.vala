@@ -31,15 +31,24 @@ namespace Menus
 		Menu _menu;
 		MenuItemActivationAction? activate_action;
 		ArrayList<ulong> handlers;
-		
 		public MenuBrowserItem(string name, string? help=null, Menu menu, owned MenuItemActivationAction? action=null) {
 			base(name, help);
-			set_menu(menu);
 			this.activate_action = (owned)action;
 			handlers = new ArrayList<ulong>();
+			set_menu(menu);
 		}
 		public Menu menu { get { return _menu; } }
-		public void set_menu(Menu menu) { _menu = menu; }		
+		public void set_menu(Menu menu) {
+			if (_menu != null) {
+				foreach(var handler in handlers) 
+					_menu.disconnect(handler);
+				handlers.clear();
+			}
+			_menu = menu;
+			handlers.add(_menu.cancelled.connect(() => cancelled()));
+			handlers.add(_menu.saved.connect(() => saved()));
+			handlers.add(_menu.finished.connect(() => finished()));
+		}
 
 		public bool on_activation(MenuSelector selector) {
 			if (activate_action != null)
@@ -51,15 +60,7 @@ namespace Menus
 			if (on_activation(selector) == false)
 				return;
 			
-			handlers.add(_menu.cancelled.connect(() => cancelled()));
-			handlers.add(_menu.saved.connect(() => saved()));
-			handlers.add(_menu.finished.connect(() => finished()));
-
-			new MenuBrowser(menu).run();
-			
-			foreach(var handler in handlers)
-				_menu.disconnect(handler);
-			handlers.clear();
+			new MenuBrowser(menu).run();			
 		}
 		
 		public override bool is_menu_item() { return true; }

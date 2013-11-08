@@ -37,7 +37,8 @@ namespace Menus
 		int _width;
 		int16 max_height;
 		int16 max_width;
-		uint8 max_name_length;
+		uint8 max_name_length;		
+		uint8 max_name_length_original;
 		uint8 max_value_length;
 		int16 value_x_pos;
 		string field_item_format;
@@ -61,6 +62,7 @@ namespace Menus
 			this.max_height = max_height;
 			this.max_width = max_width;
 			this.max_name_length = max_name_length;
+			max_name_length_original = max_name_length;
 
 			ui = @interface.menu_ui.controls;
 			ui.colors_updated.connect(update_colors);
@@ -326,13 +328,14 @@ namespace Menus
 			int surface_items = (int)menu.item_count;
 			visible_items = ui.get_selector_visible_items(max_height);
 			_height = (ui.font_height * surface_items) + (ui.item_spacing * surface_items) + (ui.item_spacing * 2);
+			max_name_length = max_name_length_original;
 			
 			int max_name_chars = 0;
 			int max_value_chars = 0;		
 			bool has_field = false;
 			bool has_menu_item = false;
 			bool has_unlimited_value_field = false;
-			foreach(var item in menu.items()) {
+			foreach(var item in menu.items()) {				
 				if (item.name.length > max_name_chars)
 					max_name_chars = item.name.length;
 				if (item.is_menu_item()) {

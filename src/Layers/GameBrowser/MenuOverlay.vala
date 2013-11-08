@@ -266,7 +266,8 @@ namespace Layers.GameBrowser
 			string watch = selector.menu.name;
 			is_initialized = false;
 			disconnect_selector_signals();
-			selector = menu_stack.pop_head();			
+			selector = menu_stack.pop_head();
+			update_selector_pos(selector);				
 			connect_selector_signals();
 			replace_layer(SELECTOR_ID, selector);
 			clear();
