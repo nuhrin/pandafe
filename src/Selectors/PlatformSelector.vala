@@ -76,6 +76,6 @@ public class PlatformSelector : Selector
 	}
 
 	protected override int get_itemcount() { return items.size; }
-	protected override string get_item_name(int index) { return items[index].name + "/"; }
+	protected override string get_item_name(int index) { return items[index].name + " >"; }
 	protected override string get_item_full_name(int index) { return get_item_name(index); }
 }

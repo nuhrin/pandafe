@@ -165,7 +165,7 @@ public class GameCategorySelector : Selector
 	protected override string get_item_name(int index) {
 		var subcategory = subcategory_at(index);
 		if (subcategory != null)
-			return subcategory.name + "/";
+			return subcategory.name + " >";
 		var game = game_at(index);
 		if (game != null)
 			return game.name;
@@ -175,7 +175,7 @@ public class GameCategorySelector : Selector
 	protected override string get_item_full_name(int index) {
 		var subcategory = subcategory_at(index);
 		if (subcategory != null)
-			return subcategory.name + "/";
+			return subcategory.name + " >";
 		var game = game_at(index);
 		if (game != null)
 			return game.full_name;
