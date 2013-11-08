@@ -1,4 +1,4 @@
-/* GameFileMenu.vala
+/* RomFileMenu.vala
  * 
  * Copyright (C) 2012 nuhrin
  * 

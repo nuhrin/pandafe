@@ -41,8 +41,10 @@ namespace Layers.GameBrowser
 			int found_index=-1;
 			for(int index=0;index<platforms.size;index++) {
 				var platform = platforms[index];
-				if (found_index == -1 && current_platform != null && current_platform.id == platform.id)
+				if (found_index == -1 && current_platform != null && current_platform.id == platform.id) {
 					found_index = index;
+					break;
+				}
 			}
 			uint selected_index = (found_index > 0) ? (uint)found_index : 0;
 			base("Change Platform", "Select a new platform...", (MapFunc<string,Platform>)get_platform_name, platforms, selected_index);
