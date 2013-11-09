@@ -11,27 +11,34 @@ It was written especially for the Pandora, with the following goals:
 * persist data via yaml, for human reading/writing/sharing
 
 The out-of-the-box configuration supports:
+* Arcade (FBA, MAME)
+* Atari 2600 (Stella)
 * Atari Lynx (Handy, mednafen-lynx)
+* Colecovision (Colem)
+* Commodore 64 (Vice)
 * Gameboy (GnuBoy, Gambatte, mednafen-gb)
 * Gameboy Advance (gpSP, mednafen-gba)
-* MAME (MAME)
+* Intellivision (jzintv)
+* MSX (openMSX)
+* NeoGeo (Gngeo, FBA)
 * NeoGeo Pocket (mednafen-ngp)
 * NES (GPFCE, gpFCE-GP2X, mednafen-nes)
-* Nintendo 64 (Mupen64plus)
+* Nintendo 64 (Mupen64plus v1/v2)
+* Nintendo DS (DraStic)
 * Playstation (PCSX ReARMed)
+* ScummVM (ScummVM)
 * Sega 32x (PicoDrive)
 * Sega CD (PicoDrive)
-* Sega Game Gear (Dega, mednafen-gg)
+* Sega Game Gear (Dega, mednafen-gg, PicoDrive)
 * Sega Genesis (PicoDrive)
-* Sega Master System (Dega, mednafen-sms)
-* ScummVM (ScummVM)
+* Sega Master System (Dega, mednafen-sms, PicoDrive)
 * Super NES (Snes9x4P)
-* TurboGrafx-16 (mednafen-pce)
+* TurboGrafx-16 (mednafen-pce, Temper)
 * Wonderswan (mednafen-wswan)
 
-These are the platforms that I enjoy, and those that came easy after 
-configuring mednafen. Most any other rom based app should also be workable, 
-provided it is capable of accepting a game argument via commandline. 
+These are the platforms that I enjoy, those requested, and those that came 
+easy after configuring mednafen. Most any other rom based app should also be 
+workable, provided it is capable of accepting a game argument via commandline. 
 
 This is my first SDL program of any kind, and also my first of substance 
 written in Vala. I hope you enjoy using it as much as I enjoyed making it.
@@ -42,12 +49,14 @@ Getting Started
 ===============
 
 The first time you start Pandafe, you will be presented with the following list:
-  * Nintendo/
-  * Sega/
-  * Other/
+  * Atari >
+  * Nintendo >
+  * Sega >
+  * SNK >
+  * Other >
   * Pandora >
 
-These are the "platform folders", a configurable grouping of supported 
+These are the default "platform folders", a configurable grouping of supported 
 "platforms." Each platform represents a system with a unique set of games 
 (Super NES, Genesis, Pandora, etc).
 
@@ -55,22 +64,56 @@ When you select a platform for the first time you will be prompted to specify
 the path to your roms for that platform. Once this is done you will be able to 
 browse and run games of that platform.
 
+
+README! Adding/Changes Games and Apps
+=====================================
 When you add or remove roms you will need to rescan the platform or the folder 
-you have changed. You can do this via the context menu.
+you have changed. You can do this via the context menu (Space).
 
 When you add or remove pnds you will need to rescan your pnds. You can do this 
-from the main menu, or from the context menu for the "Pandora" platform.
+from the main menu (Select), or the context menu for the "Pandora" platform.
+
+
+Game Browser and Views
+======================
+
+The main interface is called (by me) the Game Browser. It provides access
+to your games through a series of Views. The header indicates the current
+view in the upper left, along with some additional information depending on
+context. 
+
+Each view presents a list of items which may be either a game or another view
+(indicated by " >").  Press B to activate the selected item, which will either 
+run that game or change to that view.  Press A to go back to the parent view.
+Press Space to bring up a context menu with additional actions and/or 
+configuration for the selected item.
+
+The Change View command (L) allows you to quickly switch between different 
+types of views: 
+* All Games (all games in a single list)
+* Favorites (all games marked as such)
+* Most Played (all games played, sorted by play count)
+* Most Recent (all games played, sorted by play date)
+* Category (all games in the category of the selected item)
+* Platform (all games in the platform of the selected item)
+* Platform List (all available platforms)
+* Platform Folders (platform folders view, as configured)
+
+The Change Platform/Category command (R) allows you to quickly switch to a
+different platform or category view. Multiple presses will toggle between 
+"Change Platform" and "Change Category".
 
 
 Controls
 ========
 
-The interface will hopefully feel reasonably intuitive -- just use the game 
-controls.
+Custimizable controls and in program help have been requested, and hopefully 
+I will get the chance to implement those things. For now, please refer to
+the following table.
 
 Recognized keys and the action they perform:
 ------------------------------------------------------------------------------|
-  Key    | Browser Action                | Menu Action                        |
+  Key    | Game Browser Action           | Menu Action                        |
 ------------------------------------------------------------------------------|
 | Up     | Select previous item          | Select previous item               |
 | Down   | Select next item              | Select previous item               |
@@ -82,14 +125,63 @@ Recognized keys and the action they perform:
 | X      | Select last item              | Select last item / next group      |
 | Y      | Select first item             | Select first item / previous group |
 | L      | Change view                   | Change view                        |
-| R      | Change platform               | Change platform                    |
+| R      | Change platform/category      | Change platform/category           |
 | Space  | Show context menu             | Hide context menu (if applicable)  |
 | Enter  | Activate selected item        | Activate selected item             |
 | Escape | Exit program                  | Return to parent (Cancel)          |
 | ,      | Set list item filter          | N/A                                |
 ------------------------------------------------------------------------------/
-In addition, most lists support alphanumeric keys to cycle through items 
-starting with that character.
+In addition, you can use the alphanumeric keys to filter the game list, and 
+in menus to cycle through items starting with that character.
+
+
+Appearance Configuration
+========================
+
+Pandafe's appearance can be customized from the Preferences menu. This is 
+done through appearance "presets". The idea here is to allow folks to create 
+their own notion of pleasant and then share these baked appearance presets 
+with each other or submit them for inclusion in later releases. 
+
+Two presets are currently shipped, a new [Default] appearance and the 
+previous [Old Default]. These can be copied and modified to create new
+appearances.
+
+
+Game Rom/App Management
+=======================
+
+The context menu for games now provides an interface to perform various 
+actions on the rom or app representing the game.
+
+For Roms
+--------
+ * Rename * Change Category * Delete
+
+Changing the category for a rom means moving the file(s) to a folder matching 
+the category name within the root rom folder for the platform. If you already
+have your roms organized into subfolders within the platform rom folder,
+these will be picked up as categories.
+
+If there are multiple files associated with a rom, they will all be renamed/
+moved/deleted.  When renaming a .cue file based rom, the contents of the 
+que file will be updated as necessary.
+
+Keep in mind that renaming rom files that most emulators associate saves, 
+states, etc by filename, so existing saves/etc will most likely no longer 
+work unless you rename those files manually. It would be nice if Pandafe 
+did this for you automatically, but it doesn't. Maybe later. :)
+
+For Apps
+--------
+* Rename * Change Category * Edit OVR * Delete PND
+
+Renaming or changing the category for an app means creating/updating the
+.ovr file for the app's pnd. This means your changes to apps here will 
+apply system wide.
+
+The Edit OVR item allows you to edit all fields supported by .ovr files. 
+To return a field to its default, set it to blank.
 
 
 Platforms and Programs
@@ -100,24 +192,31 @@ be used to run them. Programs descibe pnd apps which can run games, and define
 how this is accomplished, including commandline options and a custom command 
 where necessary.
 
-Creating new Platforms and Programs, and editing existing ones, is certainly 
-something that deserves more discussion and documentation. But, alas, I've 
-more than run out of time for this documentation sprint.
+Platform and Program definitions can be created and edited via the Data item
+on the main menu, or through various context menus. This is certainly something 
+that deserves more discussion and documentation, but my time is ever short. :|
 
-Some of you will no doubt have little need for more documentation though, 
-and to be honest, you are rather my target audience. :)
+Some of you will no doubt have little need for more documentation, and to be 
+honest, you are rather my target audience. :) In any case, this forum post
+may be helpful to those interested in more information:
+http://boards.openpandora.org/topic/10960-pandafe-022/?hl=pandafe
 
 
 License
 =======
-(C) 2012 nuhrin <nuhrin@oceanic.to>
+(C) 2013 nuhrin <nuhrin@oceanic.to>
 
 Pandafe is released under the GPLv3. Source code is available at github:
 https://github.com/nuhrin/pandafe
 
 Credits
 =======
+Interaction design & testing by Stefan Nowak (porg).
+
 PND icon is from http://www.visualpharm.com/ ("linkware").
+
+Licenses for packaged fonts are provided alongside each font, in a file
+named {font}-license.txt.
 
 The following libraries are used embedded or statically linked:
 * Libgee: https://live.gnome.org/Libgee

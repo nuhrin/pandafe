@@ -1,3 +1,14 @@
+Pandafe 0.3.0
+=============
+* add category view
+* use single list for platform view
+* game rom management: rename, change category, delete
+* game app management: rename, change category, edit ovr, delete pnd
+* add terminal/file manager commands to various context menus
+* add appearance presets
+* much more extensive appearance configuration 
+* bug fixes and interface tweaks
+
 Pandafe 0.2.2
 =============
 * make list filtering dynamic (update while typing)
