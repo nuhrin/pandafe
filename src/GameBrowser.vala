@@ -1066,6 +1066,7 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 					apply_platform_state();
 					selector.update();
 				} else {
+					current_folder = "";
 					change_selector();
 					if (selected_game == null || (selector as GamePlatformSelector).select_game(selected_game) == false);
 						selector.ensure_selection();
