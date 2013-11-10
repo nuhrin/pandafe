@@ -51,7 +51,9 @@ It was written especially for the Pandora, with the following goals:
       <pic src="previews/pandafe5.png"/>
     </previewpics>
     <categories>
-      <category name="Game" />
+      <category name="Game">
+        <subcategory name="Utility" />
+      </category>
     </categories>
   </application>
 </PXML>
