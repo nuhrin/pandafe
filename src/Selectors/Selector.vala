@@ -306,7 +306,6 @@ public abstract class Selector : Layers.Layer
 	}
 	void update_colors() {
 		reset_surface();
-		update(false);
 	}
 
 	void ensure_surfaces(int display_index) {		

@@ -45,7 +45,10 @@ public class GameBrowserUI
 	public ListUI list { get; private set; }
 	public FooterUI footer { get; private set; }
 	
-	public signal void appearance_updated();
+	public virtual signal void appearance_updated() {
+		appearance_update_finished();
+	}
+	public signal void appearance_update_finished();
 	public signal void colors_updated();
 	
 	public void update_appearance(GameBrowserAppearance appearance) {		
@@ -156,7 +159,10 @@ public class GameBrowserUI
 		public unowned SDL.Color selected_item_color { get { return _selected_item_color; } }
 		public unowned SDL.Color selected_item_background_color { get { return _selected_item_background_color; } }
 
-		public signal void colors_updated();
+		public virtual signal void colors_updated() {
+			colors_update_finished();
+		}
+		public signal void colors_update_finished();
 
 		public void update_appearance(GameBrowserList list, bool update_screen=false) {
 			spacing.update_appearance(list.spacing);
@@ -171,8 +177,7 @@ public class GameBrowserUI
 		}
 		public void update_colors(GameBrowserList list) {
 			set_colors(list);
-			colors_updated();
-			@interface.peek_layer().update(false);
+			colors_updated();			
 		}
 		void set_font(GameBrowserList list) {
 			set_area_font(list);

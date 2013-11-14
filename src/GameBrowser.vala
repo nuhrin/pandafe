@@ -84,9 +84,10 @@ public class GameBrowser : Layers.ScreenLayer, EventHandler
 
 		ui.colors_updated.connect(update_colors);
 		ui.header.font_updated.connect(update_font);
-		ui.list.font_updated.connect(update_font);
+		ui.list.font_update_finished.connect(update_font);
+		ui.list.colors_update_finished.connect(() => update(false));
 		ui.footer.font_updated.connect(update_font);
-		ui.appearance_updated.connect(() => {
+		ui.appearance_update_finished.connect(() => {
 			update_colors();
 			update_font();
 		});

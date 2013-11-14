@@ -36,7 +36,10 @@ namespace Data.Appearances
 		public int font_size { get { return _font_size; } }
 		public int16 font_height { get { return _font_height; } }
 		
-		public signal void font_updated();
+		public virtual signal void font_updated() {
+			font_update_finished();
+		}
+		public signal void font_update_finished();
 		
 		public void set_area_font(AppearanceFontAreaType area) {
 			_font_path = area.font_resolved();
