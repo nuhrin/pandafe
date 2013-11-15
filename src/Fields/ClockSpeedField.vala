@@ -29,6 +29,7 @@ namespace Fields
 	public class ClockSpeedField : UIntField
 	{
 		const uint DEFAULT_VALUE = 600;
+		const uint MIN_VALUE = 150;
 		const string DEFAULT_VALUE_TEXT = "default";
 		const string DEFAULT_CHOICE_TEXT = "default";
 		const string CUSTOM_CHOICE_TEXT = "custom";
@@ -36,8 +37,9 @@ namespace Fields
 		bool is_default;
 		uint _default_value;
 		int max_value_length;
-		public ClockSpeedField(string id, string name, string? help=null, uint value, uint min_value, uint max_value, uint step=1) {
-			base(id, name, help, (value == 0) ? DEFAULT_VALUE : value, min_value, max_value, step);
+		public ClockSpeedField(string id, string name, string? help=null, uint value, uint step=5) {
+			var max_value = Data.preferences().maximum_clockspeed;
+			base(id, name, help, (value == 0) ? DEFAULT_VALUE : value, MIN_VALUE, max_value, step);
 			is_default = (value == 0);
 			_default_value = DEFAULT_VALUE;
 			max_value_length = max_value.to_string().length;

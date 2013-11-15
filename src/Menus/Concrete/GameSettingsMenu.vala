@@ -98,7 +98,7 @@ namespace Menus.Concrete
 					field_hash[option] = field;
 					items.add(field);
 				}
-				clockspeed_field = new ClockSpeedField("clockspeed", "Clockspeed", null, settings.clockspeed, 150, 1000, 5);
+				clockspeed_field = new ClockSpeedField("clockspeed", "Clockspeed", null, settings.clockspeed);
 				items.add(clockspeed_field);
 			} else {
 				field_hash = null;

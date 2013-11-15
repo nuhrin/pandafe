@@ -126,7 +126,7 @@ namespace Data.Pnd
 			uint clockspeed = 0;
 			if (this.clockspeed != null && this.clockspeed != app_direct.clockspeed)
 				clockspeed = this.clockspeed;
-			var clockspeed_field = new ClockSpeedField("clockspeed", "Clockspeed", null, clockspeed, 120, 1000, 5);
+			var clockspeed_field = new ClockSpeedField("clockspeed", "Clockspeed", null, clockspeed);
 			clockspeed_field.default_value = app_direct.clockspeed;
 			builder.add_field(clockspeed_field);
 			

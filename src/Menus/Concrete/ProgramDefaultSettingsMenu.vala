@@ -112,7 +112,7 @@ namespace Menus.Concrete
 				extra_arguments_field.value = this.extra_arguments;
 			items.add(extra_arguments_field);
 			
-			clockspeed_field = new ClockSpeedField("clockspeed", "Clockspeed", null, settings.clockspeed, 150, 1000, 5);
+			clockspeed_field = new ClockSpeedField("clockspeed", "Clockspeed", null, settings.clockspeed);
 			if (this.clockspeed > 0)
 				clockspeed_field.value = this.clockspeed;
 			items.add(clockspeed_field);

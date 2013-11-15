@@ -30,13 +30,22 @@ using Menus.Fields;
 namespace Data
 {
 	public class Preferences : Entity, MenuObject
-	{		
+	{	
 		internal const string ENTITY_ID = "preferences";
+		const uint MINIMUM_MAX_CLOCKSPEED = 600;
+		const uint DEFAULT_MAX_CLOCKSPEED = 1000;
+		const uint MAXIMUM_MAX_CLOCKSPEED = 1500;
 		const string FALLBACK_ROM_SELECT_PATH = "/media/mmcblk0p1/pandora/roms";
+
+		construct {
+			maximum_clockspeed = DEFAULT_MAX_CLOCKSPEED;
+		}
 
 		public Appearance appearance { get; set; }
 		public string? default_rom_select_path { get; set; }
-		public string? most_recent_rom_path { get; set; }
+		public uint maximum_clockspeed { get; set; }
+		
+		public string? most_recent_rom_path { get; set; }		
 		public bool show_platform_game_folders { get; private set; }
 		
 		public string? rom_select_path() { return default_rom_select_path ?? most_recent_rom_path ?? FALLBACK_ROM_SELECT_PATH; }
@@ -47,12 +56,23 @@ namespace Data
 			Data.save_preferences();
 		}
 		
+		void normalize_max_clockspeed() {
+			if (maximum_clockspeed > 3000) // manual edit to negative number assumed (massive number via overflow)
+				maximum_clockspeed = MINIMUM_MAX_CLOCKSPEED;			
+			else if (maximum_clockspeed < MINIMUM_MAX_CLOCKSPEED)
+				maximum_clockspeed = MINIMUM_MAX_CLOCKSPEED;
+			else if (maximum_clockspeed > MAXIMUM_MAX_CLOCKSPEED)
+				maximum_clockspeed = MAXIMUM_MAX_CLOCKSPEED;
+		}
+		
 		// yaml
 		protected override string generate_id() { return ENTITY_ID; }
 
 		protected override Yaml.Node build_yaml_node(Yaml.NodeBuilder builder) {
 			if (appearance == null)
 				appearance = new Appearance.default();
+			
+			normalize_max_clockspeed();
 			
 			var mapping = base.build_yaml_node(builder) as Yaml.MappingNode;
 			if (show_platform_game_folders == true)
@@ -70,7 +90,9 @@ namespace Data
 				return;
 			var show_platform_game_folders_node = mapping.get_scalar("show-platform-game-folders");
 			if (show_platform_game_folders_node != null )
-				show_platform_game_folders = parser.parse<bool>(show_platform_game_folders_node, false);			
+				show_platform_game_folders = parser.parse<bool>(show_platform_game_folders_node, false);
+				
+			normalize_max_clockspeed();
 		}
 		
 		// menu
@@ -90,6 +112,8 @@ namespace Data
 				default_rom_select_path = ((FolderField)f).value;
 				refresh(1);
 			}));
+			builder.add_uint("maximum_clockspeed", "Max Clockspeed", "Highest clockspeed that can be set for Game/Program/App", 
+				maximum_clockspeed, MINIMUM_MAX_CLOCKSPEED, MAXIMUM_MAX_CLOCKSPEED, 5);
 		}
 		protected bool save_object(Menus.Menu menu) {
 			if (default_rom_select_path != null)
